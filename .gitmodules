@@ -1,0 +1,3 @@
+[submodule "deps/rust-common"]
+	path = deps/rust-common
+	url = git@github.com:biyard/rust-common.git

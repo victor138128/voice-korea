@@ -1,0 +1,22 @@
+[package]
+name = "iitp"
+version = "0.1.0"
+authors = ["victor138128 <yepp0517@naver.com>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0.197", features = ["derive"] }
+dioxus = { version = "0.5", features = ["fullstack", "router"] }
+rust-common = { version = "0.1.0", path = "../deps/rust-common" }
+candid = {version = "0.10.9"}
+
+# Debug
+dioxus-logger = "0.5.1"
+
+[features]
+default = []
+server = ["dioxus/axum", "rust-common/server"]
+lambda = ["server"]
+web = ["dioxus/web"]

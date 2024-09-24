@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "deps/rust-common",
+    "platform",
+]
+resolver = "1"
+
+[workspace.package]
+version = "1.0.0"
+authors = ["Biyard"]
+description = "iitp"
+edition = "2021"
