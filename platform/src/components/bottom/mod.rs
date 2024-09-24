@@ -20,6 +20,8 @@ pub fn Bottom(props: BottomProps) -> Element {
     let ceo = translates.ceo;
     let register_address = translates.register_address;
     let copyright = translates.copyright;
+
+    let bottom_text_style = "text-[14px] font-normal text-white";
     rsx! {
         div {
             class: "flex flex-row w-full items-start justify-start h-[135px] bg-[#2168C3]",
@@ -31,7 +33,8 @@ pub fn Bottom(props: BottomProps) -> Element {
                         class: "flex flex-col pb-[20px]",
                         src: "/images/logo-white.png",
                         width: 40,
-                        height: 40
+                        height: 40,
+                        alt: "Voice Korea Logo"
                     }
                     div {
                         class: "flex flex-row text-[16px] font-bold text-white",
@@ -44,25 +47,25 @@ pub fn Bottom(props: BottomProps) -> Element {
                 div {
                     class: "flex flex-col w-full h-full px-[10px] py-[25px]",
                     div {
-                        class: "text-[14px] font-normal text-white mb-[5px]",
+                        class: "{bottom_text_style} mb-[5px]",
                         "{address}"
                     }
                     div {
                         class: "flex flex-row w-full justify-start items-start mb-[5px]",
                         div {
-                            class: "text-[14px] font-normal text-white pr-[20px]",
+                            class: "{bottom_text_style} pr-[20px]",
                             "{company}"
                         }
                         div {
-                            class: "text-[14px] font-normal text-white pr-[20px]",
+                            class: "{bottom_text_style} pr-[20px]",
                             "{company_address}"
                         }
                         div {
-                            class: "text-[14px] font-normal text-white pr-[20px]",
+                            class: "{bottom_text_style} pr-[20px]",
                             "{ceo}"
                         }
                         div {
-                            class: "text-[14px] font-normal text-white",
+                            class: "{bottom_text_style}",
                             "{register_address}"
                         }
                     }

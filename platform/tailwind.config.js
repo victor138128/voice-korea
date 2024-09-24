@@ -9,10 +9,11 @@ module.exports = {
         "aspect-ratio-landscape": { raw: "(min-aspect-ratio: 1/1)" },
         "aspect-ratio-portrait": { raw: "(max-aspect-ratio: 0.9999/1)" },
       },
+      width: {
+        610: "610px",
+      },
     },
   },
-  width: {
-    610: "610px",
-  },
+
   plugins: [],
 };

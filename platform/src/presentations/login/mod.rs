@@ -1,4 +1,3 @@
-#![allow(non_snake_case)]
 use crate::{components::bottom::Bottom, prelude::*};
 use dioxus::prelude::*;
 
@@ -190,9 +189,8 @@ pub fn InputPasswordComponent(props: InputPasswordProps) -> Element {
             class: "flex flex-row w-[300px] h-[42px] justify-start items-start",
             input {
                 class: "flex flex-row px-[10px] py-[10px] w-full h-full",
-                r#type: "text",
-                border: "1px solid #e0e0e0",
-                color: "#8e929b",
+                r#type: "password",
+                style: "border: 1px solid #e0e0e0; color: #8e929b;",
                 placeholder: "{props.password_message}",
                 oninput: move |event| ctrl.set_password(event.value())
             }
@@ -209,8 +207,7 @@ pub fn InputEmailComponent(props: InputEmailProps) -> Element {
             input {
                 class: "flex flex-row px-[10px] py-[10px] w-full h-full",
                 r#type: "text",
-                border: "1px solid #e0e0e0",
-                color: "#8e929b",
+                style: "border: 1px solid #e0e0e0; color: #8e929b;",
                 placeholder: "{props.email_message}",
                 oninput: move |event| ctrl.set_email(event.value())
             }

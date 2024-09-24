@@ -4,13 +4,14 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn RootLayout(lang: Language) -> Element {
+    let logo_path = "/images/logo.png";
     rsx! {
         div { class: "bg-white dark:bg-black w-screen min-h-screen flex flex-col",
             div {
                 class: "flex flex-row w-full justify-start items-center px-[30px] py-[3px]",
                 div { class: "mr-[7px]",
                     img {
-                        src: "/images/logo.png",
+                        src: "{logo_path}",
                         width: 42,
                         height: 42
                     }
