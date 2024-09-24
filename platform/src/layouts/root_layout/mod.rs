@@ -6,7 +6,17 @@ use dioxus::prelude::*;
 pub fn RootLayout(lang: Language) -> Element {
     rsx! {
         div { class: "bg-white dark:bg-black w-screen min-h-screen flex flex-col",
-            "Hello"
+            div {
+                class: "flex flex-row w-full justify-start items-center px-[30px] py-[3px]",
+                div { class: "mr-[7px]",
+                    img {
+                        src: "/images/logo.png",
+                        width: 42,
+                        height: 42
+                    }
+                }
+                div { class: "text-[24px] font-bold text-[#2168C3]", "VOICE KOREA" }
+            }
             Outlet::<Route> {}
         }
     }

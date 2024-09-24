@@ -14,7 +14,7 @@ pub mod pages {
 }
 
 pub mod presentations {
-    pub mod root;
+    pub mod login;
 }
 
 pub mod utils {
@@ -23,6 +23,10 @@ pub mod utils {
 
 pub mod layouts {
     pub mod root_layout;
+}
+
+pub mod components {
+    pub mod bottom;
 }
 
 pub mod api;
