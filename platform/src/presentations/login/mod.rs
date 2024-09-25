@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 use crate::{components::bottom::Bottom, prelude::*};
 use dioxus::prelude::*;
 
