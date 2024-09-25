@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 
 use crate::prelude::*;
-use crate::presentations::root::Root;
+use crate::presentations::login::LoginPage;
 use crate::utils::context::{default_lang, Language};
 
 #[derive(Clone, Routable, Debug, PartialEq)]
@@ -10,12 +10,12 @@ pub enum Route {
     #[nest("/:lang")]
         #[layout(RootLayout)]
             #[route("/")]
-            Root { lang: Language },
+            LoginPage { lang: Language },
         #[end_layout]
 
     #[end_nest]
 
-    #[redirect("/", || Route::Root { lang: default_lang() })]
+    #[redirect("/", || Route::LoginPage { lang: default_lang() })]
     #[route("/:..route")]
     NotFoundPage { route: Vec<String> },
 }

@@ -8,3 +8,6 @@ assets/tailwind.css: node_modules
 
 node_modules:
 	npm install
+
+watch.tailwind: node_modules
+	npx tailwindcss -i ./input.css -o ./assets/tailwind.css --watch=always

@@ -2,6 +2,10 @@ body {
     background-color: #111216;
 }
 
+.footer-body {
+    height: calc(100vh - 150px);
+}
+
 #main {
     margin: 0;
     display: flex;
