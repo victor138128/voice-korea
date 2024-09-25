@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 
 use crate::prelude::*;
+use crate::presentations::create::CreatePage;
 use crate::presentations::login::LoginPage;
 use crate::utils::context::{default_lang, Language};
 
@@ -12,6 +13,9 @@ pub enum Route {
             #[route("/")]
             LoginPage { lang: Language },
         #[end_layout]
+
+        #[route("/create")]
+        CreatePage { lang: Language },
 
     #[end_nest]
 

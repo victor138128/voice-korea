@@ -1,6 +1,5 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
-use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
