@@ -3,17 +3,17 @@ use dioxus::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
-    pub authorize_type: Signal<u64>, //0: 개인, 1: 법인
-    pub step: Signal<u64>,
-    pub company: Signal<String>,
-    pub business_number: Signal<String>,
+    authorize_type: Signal<u64>, //0: 개인, 1: 법인
+    step: Signal<u64>,
+    company: Signal<String>,
+    business_number: Signal<String>,
 
-    pub extend_first: Signal<bool>,
-    pub extend_second: Signal<bool>,
-    pub extend_third: Signal<bool>,
-    pub click_first: Signal<bool>,
-    pub click_second: Signal<bool>,
-    pub click_third: Signal<bool>,
+    extend_first: Signal<bool>,
+    extend_second: Signal<bool>,
+    extend_third: Signal<bool>,
+    click_first: Signal<bool>,
+    click_second: Signal<bool>,
+    click_third: Signal<bool>,
 }
 
 impl Controller {
@@ -108,29 +108,20 @@ impl Controller {
 
     pub fn set_click_first_terms(&mut self, clicked: bool) {
         self.click_first.set(clicked);
-
-        if self.get_click_first() && self.get_click_second() && self.get_click_third() {
-            self.set_step(2);
-            self.click_first.set(false);
-            self.click_second.set(false);
-            self.click_third.set(false);
-        }
+        self.check_and_update_terms_agreement();
     }
 
     pub fn set_click_second_terms(&mut self, clicked: bool) {
         self.click_second.set(clicked);
-
-        if self.get_click_first() && self.get_click_second() && self.get_click_third() {
-            self.set_step(2);
-            self.click_first.set(false);
-            self.click_second.set(false);
-            self.click_third.set(false);
-        }
+        self.check_and_update_terms_agreement();
     }
 
     pub fn set_click_third_terms(&mut self, clicked: bool) {
         self.click_third.set(clicked);
+        self.check_and_update_terms_agreement();
+    }
 
+    fn check_and_update_terms_agreement(&mut self) {
         if self.get_click_first() && self.get_click_second() && self.get_click_third() {
             self.set_step(2);
             self.click_first.set(false);

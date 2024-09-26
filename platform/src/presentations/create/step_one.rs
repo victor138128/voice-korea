@@ -63,32 +63,32 @@ pub fn StepOnePage(props: StepOneProps) -> Element {
             div {
                 class: "flex flex-row w-full justify-center items-center pb-[40px]",
                 div {
-                    class: if props.ctrl.clone().get_authorize_type() == 1 {"flex flex-row h-[45px]"} else {"flex flex-row h-[45px] bg-[#2168c3]"},
-                    style: if props.ctrl.clone().get_authorize_type() == 1 {"width: calc(100vh); border: 1px solid #e0e0e0; color: #ffffff;"} else {"width: calc(100vh)"},
+                    class: if ctrl.get_authorize_type() == 1 {"flex flex-row h-[45px]"} else {"flex flex-row h-[45px] bg-[#2168c3]"},
+                    style: if ctrl.get_authorize_type() == 1 {"width: calc(100vh); border: 1px solid #e0e0e0; color: #ffffff;"} else {"width: calc(100vh)"},
                     onclick: move |_| {
                         ctrl.set_authorize_type(0);
                     },
                     div {
-                        class: if props.ctrl.clone().get_authorize_type() == 1 {"flex flex-row w-full h-full justify-center items-center text-[20px] font-normal text-black"} else {"flex flex-row w-full h-full justify-center items-center text-[20px] font-normal text-white"},
+                        class: if ctrl.get_authorize_type() == 1 {"flex flex-row w-full h-full justify-center items-center text-[20px] font-normal text-black"} else {"flex flex-row w-full h-full justify-center items-center text-[20px] font-normal text-white"},
                         "{props.individual}"
                     }
                 }
                 div {
-                    class: if props.ctrl.clone().get_authorize_type() == 0 {"flex flex-row h-[45px]"} else {"flex flex-row h-[45px] bg-[#2168c3]"},
-                    style: if props.ctrl.clone().get_authorize_type() == 0 {"width: calc(100vh); border: 1px solid #e0e0e0; color: #ffffff;"} else {"width: calc(100vh)"},
+                    class: if ctrl.get_authorize_type() == 0 {"flex flex-row h-[45px]"} else {"flex flex-row h-[45px] bg-[#2168c3]"},
+                    style: if ctrl.get_authorize_type() == 0 {"width: calc(100vh); border: 1px solid #e0e0e0; color: #ffffff;"} else {"width: calc(100vh)"},
                     onclick: move |_| {
                         ctrl.set_authorize_type(1);
                     },
                     div {
-                        class: if props.ctrl.clone().get_authorize_type() == 0 {"flex flex-row w-full h-full justify-center items-center text-[20px] font-normal text-black"} else {"flex flex-row w-full h-full justify-center items-center text-[20px] font-normal text-white"},
+                        class: if ctrl.get_authorize_type() == 0 {"flex flex-row w-full h-full justify-center items-center text-[20px] font-normal text-black"} else {"flex flex-row w-full h-full justify-center items-center text-[20px] font-normal text-white"},
                         "{props.company}"
                     }
                 }
             }
-            if props.ctrl.clone().get_authorize_type() == 0 {
+            if ctrl.get_authorize_type() == 0 {
                 PersonalAuthorize {
                     lang: props.lang,
-                    ctrl: props.ctrl.clone(),
+                    ctrl: ctrl,
                     individual_description: props.individual_description,
                     phone: props.phone,
                     phone_description: props.phone_description,
@@ -100,7 +100,7 @@ pub fn StepOnePage(props: StepOneProps) -> Element {
             } else {
                 CompanyAuthorize {
                     lang: props.lang,
-                    ctrl: props.ctrl.clone(),
+                    ctrl: ctrl,
                     company_name: props.company_name,
                     business_register_number: props.business_register_number,
                     company_name_example: props.company_name_example,

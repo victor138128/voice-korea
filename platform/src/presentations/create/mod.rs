@@ -27,6 +27,7 @@ pub mod step_two;
 pub fn CreatePage(props: CreatePageProps) -> Element {
     let mut ctrl = controller::Controller::init();
     let translates = i18n::translate(props.lang.clone());
+    let num_step = 4;
 
     rsx! {
         div {
@@ -44,7 +45,7 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
                 }
                 div {
                     class: "flex flex-row items-center justify-center w-min pl-[40px]",
-                    for i in 0..4 {
+                    for i in 0..num_step {
                         if i == ctrl.get_step() {
                             div {
                                 onclick: move |_| {
@@ -74,7 +75,7 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
                             }
                         }
 
-                        if i != 3 {
+                        if i != num_step - 1 {
                             if i < ctrl.get_step() {
                                 div {
                                     class: "flex items-center justify-center w-[80px] h-[1px] bg-[#2168c3]"

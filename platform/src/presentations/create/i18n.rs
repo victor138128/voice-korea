@@ -24,8 +24,8 @@ pub struct CreateTranslate {
 }
 
 pub fn translate(lang: Language) -> CreateTranslate {
-    if lang == Language::En {
-        CreateTranslate {
+    match lang {
+        Language::En => CreateTranslate {
             authorization: "Identity Verification".to_string(),
             individual: "Individual".to_string(),
             company: "Corporation".to_string(),
@@ -46,9 +46,8 @@ pub fn translate(lang: Language) -> CreateTranslate {
             agree_privacy_policy: "Privacy policy".to_string(),
             entrust_personal_information: "Entrustment of personal information processing".to_string(),
             essential: "(Essential)".to_string(),
-        }
-    } else {
-        CreateTranslate {
+        },
+        Language::Ko => CreateTranslate {
             authorization: "본인인증".to_string(),
             individual: "개인".to_string(),
             company: "법인".to_string(),
@@ -69,6 +68,6 @@ pub fn translate(lang: Language) -> CreateTranslate {
             agree_privacy_policy: "개인정보처리방침".to_string(),
             entrust_personal_information: "개인정보처리의 위탁".to_string(),
             essential: "(필수)".to_string(),
-        }
+        },
     }
 }
