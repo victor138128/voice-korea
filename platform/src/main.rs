@@ -19,6 +19,10 @@ pub mod presentations {
     pub mod login;
 }
 
+pub mod models {
+    pub mod question;
+}
+
 pub mod utils {
     pub mod context;
 }

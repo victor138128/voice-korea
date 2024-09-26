@@ -36,7 +36,7 @@ pub fn RootLayout(lang: Language) -> Element {
                     user_settings: translates.user_settings,
                 }
                 div {
-                    class: "flex flex-col grow w-full",
+                    class: "flex flex-col grow w-full bg-[#f0f2fc]",
                     Outlet::<Route> {}
                 }
             }
