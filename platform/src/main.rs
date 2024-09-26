@@ -28,6 +28,7 @@ pub mod layouts {
 
 pub mod components {
     pub mod bottom;
+    pub mod input;
 }
 
 pub mod api;

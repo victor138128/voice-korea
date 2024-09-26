@@ -123,11 +123,37 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
                 StepThreePage {
                     ctrl: ctrl,
                     lang: props.lang,
+                    join_the_membership: translates.join_the_membership,
+                    email_address: translates.email_address,
+                    send_authentication: translates.send_authentication,
+                    authentication_number: translates.authentication_number,
+                    authentication_description_1: translates.authentication_description_1,
+                    authentication_description_2: translates.authentication_description_2,
+                    company_info: translates.company_info,
+                    company_example: translates.company_example,
+                    name_info: translates.name_info,
+                    name_example: translates.name_example,
+                    phone_info: translates.phone_info,
+                    phone_example: translates.phone_example,
+                    address_info: translates.address_info,
+                    search_address: translates.search_address,
+                    check_title: translates.check_title,
+                    check_membership_description_1: translates.check_membership_description_1,
+                    check_membership_description_2: translates.check_membership_description_2,
+                    check_membership_description_3: translates.check_membership_description_3,
+                    complete_join_membership: translates.complete_join_membership,
                 }
             } else {
                 StepFourPage {
                     ctrl: ctrl,
                     lang: props.lang,
+                    complete_join_membership_info: translates.complete_join_membership_info,
+                    email_address: translates.email_address,
+                    name_info: translates.name_info,
+                    phone_info: translates.phone_info,
+                    company_name_info: translates.company_name_info,
+                    complete: translates.complete,
+                    company_name_example: translates.company_name_example,
                 }
             }
         }
