@@ -1,11 +1,10 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
-use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
-    pub email: Signal<String>,
-    pub password: Signal<String>,
+    email: Signal<String>,
+    password: Signal<String>,
 }
 
 impl Controller {

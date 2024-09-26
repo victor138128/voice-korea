@@ -37,6 +37,7 @@ pub struct LoginButtonProps {
 
 #[derive(Props, Clone, PartialEq)]
 pub struct MemberInfoProps {
+    lang: Language,
     find_email_message: String,
     reset_pw_message: String,
     create_account_message: String,
@@ -48,7 +49,7 @@ pub struct MemberInfoProps {
 #[component]
 pub fn LoginPage(props: LoginPageProps) -> Element {
     let ctrl = controller::Controller::init();
-    let translates = i18n::translate(props.lang);
+    let translates = i18n::translate(props.lang.clone());
 
     let login_message = translates.login;
     let email_message = translates.email;
@@ -73,6 +74,7 @@ pub fn LoginPage(props: LoginPageProps) -> Element {
                     login_message
                 }
                 MemberInfoComponent {
+                    lang: props.lang.clone(),
                     find_email_message,
                     reset_pw_message,
                     create_account_message,
@@ -114,9 +116,14 @@ pub fn MemberInfoComponent(props: MemberInfoProps) -> Element {
                     class: "text-[#e0e0e0] text-[20px] font-normal",
                     "|"
                 }
-                div {
-                    class: "flex flex-row text-[#2168c3] text-[20px] font-normal w-[130px] justify-center items-center",
-                    "{props.create_account_message}"
+                Link {
+                    to: Route::CreatePage {
+                        lang: props.lang.clone(),
+                    },
+                    div {
+                        class: "flex flex-row text-[#2168c3] text-[20px] font-normal w-[130px] justify-center items-center",
+                        "{props.create_account_message}"
+                    }
                 }
             }
             div {

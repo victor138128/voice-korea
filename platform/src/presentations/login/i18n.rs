@@ -12,8 +12,8 @@ pub struct LoginTranslate {
 }
 
 pub fn translate(lang: Language) -> LoginTranslate {
-    if lang == Language::En {
-        LoginTranslate {
+    match lang {
+        Language::En => LoginTranslate {
             login: "Login".to_string(),
             email: "Email".to_string(),
             password: "Password".to_string(),
@@ -23,9 +23,8 @@ pub fn translate(lang: Language) -> LoginTranslate {
             check_title: "Check it out!".to_string(),
             check_description_1: "- The password must consist of at least 8 characters and a combination of letters, numbers, and special symbols.".to_string(),
             check_description_2: "- If you lose your ID or password or exceed 5 errors, please reset your website password or contact customer service (XXXX-XXXX).".to_string()
-        }
-    } else {
-        LoginTranslate {
+        },
+        Language::Ko => LoginTranslate {
             login: "로그인".to_string(),
             email: "이메일".to_string(),
             password: "비밀번호".to_string(),
@@ -35,6 +34,6 @@ pub fn translate(lang: Language) -> LoginTranslate {
             check_title: "확인하세요!".to_string(),
             check_description_1: "- 비밀번호는 영문, 숫자, 특수기호 조합으로 8자 이상 구성되어야 합니다.".to_string(),
             check_description_2: "- ID, 비밀번호를 분실, 5회 오류횟수 초과시에는 홈페이지 비밀번호 재설정 또는 고객센터(XXXX-XXXX)로 문의해 주세요.".to_string()
-        }
+        },
     }
 }
