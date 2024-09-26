@@ -11,6 +11,7 @@ serde = { version = "1.0.197", features = ["derive"] }
 dioxus = { version = "0.5", features = ["fullstack", "router"] }
 rust-common = { version = "0.1.0", path = "../deps/rust-common" }
 candid = {version = "0.10.9"}
+chrono = "0.4"
 
 # Debug
 dioxus-logger = "0.5.1"

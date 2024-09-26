@@ -1,5 +1,9 @@
 #![allow(non_snake_case)]
-use crate::prelude::*;
+use crate::{
+    models::question::{QuestionStatus, QuestionSummary},
+    prelude::*,
+};
+use controller::QuestionDashboards;
 use dioxus::prelude::*;
 
 pub mod controller;
@@ -7,6 +11,16 @@ pub mod controller;
 #[derive(PartialEq, Props, Clone)]
 pub struct DashboardPageProps {
     lang: Language,
+}
+
+#[derive(PartialEq, Props, Clone)]
+pub struct TypeOneProps {
+    questions: Vec<QuestionDashboards>,
+}
+
+#[derive(PartialEq, Props, Clone)]
+pub struct TypeTwoProps {
+    questions: Vec<QuestionDashboards>,
 }
 
 #[component]
@@ -63,15 +77,20 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                 }
             }
             if ctrl.get_clicked_type() == 0 {
-                TypeOneQuestionComponent {}
+                TypeOneQuestionComponent {
+                    questions: ctrl.get_total_questions()
+                }
             } else {
-                TypeTwoQuestionComponent {}
+                TypeTwoQuestionComponent {
+                    questions: ctrl.get_total_questions()
+                }
             }
         }
     }
 }
 
-pub fn TypeOneQuestionComponent() -> Element {
+pub fn TypeOneQuestionComponent(props: TypeOneProps) -> Element {
+    let questions = props.questions;
     rsx! {
         div {
             "type-1"
@@ -79,7 +98,7 @@ pub fn TypeOneQuestionComponent() -> Element {
     }
 }
 
-pub fn TypeTwoQuestionComponent() -> Element {
+pub fn TypeTwoQuestionComponent(props: TypeTwoProps) -> Element {
     rsx! {
         div {
             "type-2"
