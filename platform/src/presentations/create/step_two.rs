@@ -67,8 +67,11 @@ pub fn StepTwoPage(props: StepTwoProps) -> Element {
                         class: "flex flex-col w-full h-[200px] justify-between items-center",
                         style: "border: 1px solid #e0e0e0; color: #ffffff;",
                         div {
-                            class: "flex flex-row w-full h-full px-[20px] py-[20px] text-[16px] font-normal text-black",
-                            "제 1장 총칙\n제 1조 목적\n이 약관은 IITP의 이용에 관한 조선 및 전차와 기타 필요한 사항을 규정하는 것을 목적으로 합니다.\nBLAH BLAH"
+                            class: "flex flex-row w-full h-full px-[20px] py-[20px] text-[16px] font-normal text-black whitespace-pre-line",
+                            "제 1장 총칙
+                            제 1조 목적
+                            이 약관은 IITP의 이용에 관한 조선 및 전차와 기타 필요한 사항을 규정하는 것을 목적으로 합니다.
+                            BLAH BLAH"
                         }
                     }
                 }
@@ -115,8 +118,11 @@ pub fn StepTwoPage(props: StepTwoProps) -> Element {
                         class: "flex flex-col w-full h-[200px] justify-between items-center",
                         style: "border: 1px solid #e0e0e0; color: #ffffff;",
                         div {
-                            class: "flex flex-row w-full h-full px-[20px] py-[20px] text-[16px] font-normal text-black",
-                            "제 1장 총칙\n제 1조 목적\n이 약관은 IITP의 이용에 관한 조선 및 전차와 기타 필요한 사항을 규정하는 것을 목적으로 합니다.\nBLAH BLAH"
+                            class: "flex flex-row w-full h-full px-[20px] py-[20px] text-[16px] font-normal text-black whitespace-pre-line",
+                            "제 1장 총칙
+                            제 1조 목적
+                            이 약관은 IITP의 이용에 관한 조선 및 전차와 기타 필요한 사항을 규정하는 것을 목적으로 합니다.
+                            BLAH BLAH"
                         }
                     }
                 }
@@ -164,8 +170,11 @@ pub fn StepTwoPage(props: StepTwoProps) -> Element {
                         class: "flex flex-col w-full h-[200px] justify-between items-center",
                         style: "border: 1px solid #e0e0e0; color: #ffffff;",
                         div {
-                            class: "flex flex-row w-full h-full px-[20px] py-[20px] text-[16px] font-normal text-black",
-                            "제 1장 총칙\n제 1조 목적\n이 약관은 IITP의 이용에 관한 조선 및 전차와 기타 필요한 사항을 규정하는 것을 목적으로 합니다.\nBLAH BLAH"
+                            class: "flex flex-row w-full h-full px-[20px] py-[20px] text-[16px] font-normal text-black whitespace-pre-line",
+                            "제 1장 총칙
+                            제 1조 목적
+                            이 약관은 IITP의 이용에 관한 조선 및 전차와 기타 필요한 사항을 규정하는 것을 목적으로 합니다.
+                            BLAH BLAH"
                         }
                     }
                 }
