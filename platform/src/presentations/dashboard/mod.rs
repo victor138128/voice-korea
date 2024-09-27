@@ -90,11 +90,16 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                         }
                     }
                 }
-                div {
-                    class: "flex flex-row w-[200px] h-[50px] justify-end items-end bg-[#2168c3] rounded-[8px]",
+                Link {
+                    to: Route::WriteTitlePage {
+                        lang: props.lang.clone(),
+                    },
                     div {
-                        class: "flex flex-row w-full h-full justify-center items-center text-[21px] font-semibold text-white",
-                        "{translates.create_survey}"
+                        class: "flex flex-row w-[200px] h-[50px] justify-end items-end bg-[#2168c3] rounded-[8px]",
+                        div {
+                            class: "flex flex-row w-full h-full justify-center items-center text-[21px] font-semibold text-white",
+                            "{translates.create_survey}"
+                        }
                     }
                 }
             }
