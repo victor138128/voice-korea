@@ -50,6 +50,7 @@ pub struct MemberInfoProps {
 pub fn LoginPage(props: LoginPageProps) -> Element {
     let ctrl = controller::Controller::init();
     let translates = i18n::translate(props.lang.clone());
+    let logo_path = "/images/logo.png";
 
     let login_message = translates.login;
     let email_message = translates.email;
@@ -62,34 +63,48 @@ pub fn LoginPage(props: LoginPageProps) -> Element {
     let check_description_2_message = translates.check_description_2;
 
     rsx! {
-        div {
-            class: "flex flex-col h-full w-full justify-start items-center",
-            style: "height: calc(100vh - 48px)",
+        div { class: "bg-white dark:bg-black w-screen min-h-screen flex flex-col",
             div {
-                class: "flex flex-col w-full h-full justify-center items-center",
-                LoginComponent {
-                    ctrl,
-                    email_message,
-                    password_message,
-                    login_message
+                class: "flex flex-row w-full justify-start items-center px-[30px] py-[3px]",
+                div { class: "mr-[7px]",
+                    img {
+                        src: "{logo_path}",
+                        width: 42,
+                        height: 42
+                    }
                 }
-                MemberInfoComponent {
-                    lang: props.lang.clone(),
-                    find_email_message,
-                    reset_pw_message,
-                    create_account_message,
-                    check_title_message,
-                    check_description_1_message,
-                    check_description_2_message
-                }
+                div { class: "text-[24px] font-bold text-[#2168C3]", "VOICE KOREA" }
             }
             div {
-                class: "flex flex-col h-full w-full justify-end items-end",
-                Bottom {
-                    lang: props.lang,
+                class: "flex flex-col h-full w-full justify-start items-center",
+                style: "height: calc(100vh - 48px)",
+                div {
+                    class: "flex flex-col w-full h-full justify-center items-center",
+                    LoginComponent {
+                        ctrl,
+                        email_message,
+                        password_message,
+                        login_message
+                    }
+                    MemberInfoComponent {
+                        lang: props.lang.clone(),
+                        find_email_message,
+                        reset_pw_message,
+                        create_account_message,
+                        check_title_message,
+                        check_description_1_message,
+                        check_description_2_message
+                    }
+                }
+                div {
+                    class: "flex flex-col h-full w-full justify-end items-end",
+                    Bottom {
+                        lang: props.lang,
+                    }
                 }
             }
         }
+
     }
 }
 

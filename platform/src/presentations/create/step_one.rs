@@ -15,9 +15,7 @@ pub struct StepOneProps {
     phone: String,
     phone_description: String,
     check_title: String,
-    check_description_1: String,
-    check_description_2: String,
-    check_description_3: String,
+    check_descriptions: Vec<String>,
     company_name: String,
     business_register_number: String,
     company_name_example: String,
@@ -33,9 +31,7 @@ pub struct PersonalProps {
     phone: String,
     phone_description: String,
     check_title: String,
-    check_description_1: String,
-    check_description_2: String,
-    check_description_3: String,
+    check_descriptions: Vec<String>,
 }
 
 #[derive(PartialEq, Props, Clone)]
@@ -93,9 +89,7 @@ pub fn StepOnePage(props: StepOneProps) -> Element {
                     phone: props.phone,
                     phone_description: props.phone_description,
                     check_title: props.check_title,
-                    check_description_1: props.check_description_1,
-                    check_description_2: props.check_description_2,
-                    check_description_3: props.check_description_3
+                    check_descriptions: vec![props.check_descriptions[0].clone(), props.check_descriptions[1].clone(), props.check_descriptions[2].clone()],
                 }
             } else {
                 CompanyAuthorize {
@@ -231,15 +225,15 @@ pub fn PersonalAuthorize(props: PersonalProps) -> Element {
                 }
                 div {
                     class: "text-[#636363] text-[20px] font-normal pb-[5px]",
-                    "{props.check_description_1}"
+                    "{props.check_descriptions[0]}"
                 }
                 div {
                     class: "text-[#636363] text-[20px] font-normal pb-[5px]",
-                    "{props.check_description_2}"
+                    "{props.check_descriptions[1]}"
                 }
                 div {
                     class: "text-[#636363] text-[20px] font-normal",
-                    "{props.check_description_3}"
+                    "{props.check_descriptions[2]}"
                 }
             }
         }

@@ -15,7 +15,12 @@ pub mod pages {
 
 pub mod presentations {
     pub mod create;
+    pub mod dashboard;
     pub mod login;
+}
+
+pub mod models {
+    pub mod survey;
 }
 
 pub mod utils {
@@ -28,6 +33,7 @@ pub mod layouts {
 
 pub mod components {
     pub mod bottom;
+    pub mod input;
 }
 
 pub mod api;

@@ -42,3 +42,9 @@ body {
 #header {
     max-width: 1200px;
 }
+
+input:focus, :hover {
+    outline: none;
+    color: transparent;
+    -webkit-appearance: none;
+}
