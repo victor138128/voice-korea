@@ -12,8 +12,7 @@ pub struct StepThreeProps {
     email_address: String,
     send_authentication: String,
     authentication_number: String,
-    authentication_description_1: String,
-    authentication_description_2: String,
+    authentication_descriptions: Vec<String>,
     company_info: String,
     company_example: String,
     name_info: String,
@@ -23,9 +22,7 @@ pub struct StepThreeProps {
     address_info: String,
     search_address: String,
     check_title: String,
-    check_membership_description_1: String,
-    check_membership_description_2: String,
-    check_membership_description_3: String,
+    check_membership_descriptions: Vec<String>,
     complete_join_membership: String,
 }
 
@@ -41,7 +38,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
             }
             div {
                 class: "flex flex-col w-full h-full items-start justify-center pb-[30px]",
-                RowComponent {
+                Row {
                     enable_bottom_border: false,
                     label: props.email_address,
                     element: rsx! {
@@ -66,7 +63,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                         }
                     }
                 }
-                RowComponent {
+                Row {
                     enable_bottom_border: false,
                     height: Some(135),
                     label: props.authentication_number,
@@ -84,16 +81,16 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                             },
                             div {
                                 class: "text-[16px] font-normal text-[#636363]",
-                                "{props.authentication_description_1}"
+                                "{props.authentication_descriptions[0]}"
                             }
                             div {
                                 class: "text-[16px] font-normal text-[#636363]",
-                                "{props.authentication_description_2}"
+                                "{props.authentication_descriptions[1]}"
                             }
                         }
                     }
                 }
-                RowComponent {
+                Row {
                     enable_bottom_border: false,
                     label: props.company_info,
                     element: rsx! {
@@ -103,7 +100,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                         }
                     }
                 }
-                RowComponent {
+                Row {
                     enable_bottom_border: false,
                     label: props.name_info,
                     element: rsx! {
@@ -122,7 +119,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                         }
                     }
                 }
-                RowComponent {
+                Row {
                     enable_bottom_border: false,
                     label: props.phone_info,
                     element: rsx! {
@@ -141,7 +138,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                         }
                     }
                 }
-                RowComponent {
+                Row {
                     enable_bottom_border: true,
                     height: Some(135),
                     label: props.address_info,
@@ -190,15 +187,15 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                 }
                 div {
                     class: "text-[#636363] text-[20px] font-normal pb-[5px]",
-                    "{props.check_membership_description_1}"
+                    "{props.check_membership_descriptions[0]}"
                 }
                 div {
                     class: "text-[#636363] text-[20px] font-normal pb-[5px]",
-                    "{props.check_membership_description_2}"
+                    "{props.check_membership_descriptions[1]}"
                 }
                 div {
                     class: "text-[#636363] text-[20px] font-normal",
-                    "{props.check_membership_description_3}"
+                    "{props.check_membership_descriptions[2]}"
                 }
             }
             div {
@@ -208,7 +205,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                         ctrl.set_click_complete_join_membership();
                         ctrl.set_step(3);
                     },
-                    class: if props.lang == Language::En {"flex flex-row w-[420px] h-[60px] justify-end items-end bg-[#2168c3]"} else {"flex flex-row w-[300px] h-[60px] justify-end items-end bg-[#2168c3]"},
+                    class: "flex flex-row w-auto h-[60px] justify-end items-end bg-[#2168c3] px-[20px]",
                     div {
                         class: "flex flex-row w-full h-full justify-center items-center text-[24px] font-bold text-white",
                         "{props.complete_join_membership}"
@@ -251,7 +248,7 @@ pub fn ButtonComponent(
 }
 
 #[component]
-pub fn RowComponent(
+pub fn Row(
     enable_bottom_border: bool,
     height: Option<u64>,
     label: String,

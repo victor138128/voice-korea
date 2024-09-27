@@ -20,7 +20,7 @@ pub mod presentations {
 }
 
 pub mod models {
-    pub mod question;
+    pub mod survey;
 }
 
 pub mod utils {

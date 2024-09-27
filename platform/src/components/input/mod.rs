@@ -32,7 +32,6 @@ pub fn Input(
             style: "padding: 5px",
             "type": "text",
             placeholder,
-            min: 0,
             value: value.clone().unwrap_or_default(),
             onchange: move |e| {
                 if let Some(onchange) = onchange {

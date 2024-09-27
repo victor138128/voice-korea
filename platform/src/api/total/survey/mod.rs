@@ -1,63 +1,63 @@
 use dioxus::prelude::{server, server_fn, ServerFnError};
 use server_fn::codec::{GetUrl, Json};
 
-use crate::models::question::{QuestionStatus, QuestionSummary, TotalQuestions};
+use crate::models::survey::{SurveyStatus, SurveySummary, TotalSurveys};
 
-#[server(endpoint = "/total/question", input=GetUrl, output=Json)]
-pub async fn get_total_questions() -> Result<TotalQuestions, ServerFnError> {
-    Ok(TotalQuestions {
-        questions: vec![
-            QuestionSummary {
-                r#type: QuestionStatus::Draft,
+#[server(endpoint = "/total/survey", input=GetUrl, output=Json)]
+pub async fn list_surveys() -> Result<TotalSurveys, ServerFnError> {
+    Ok(TotalSurveys {
+        surveys: vec![
+            SurveySummary {
+                r#type: SurveyStatus::Draft,
                 title: "설문지 타이틀".to_string(),
                 update_date: 1725548400,
                 response_count: 0,
                 total_response_count: 0,
             },
-            QuestionSummary {
-                r#type: QuestionStatus::InProgress,
+            SurveySummary {
+                r#type: SurveyStatus::InProgress,
                 title: "설문지 타이틀".to_string(),
                 update_date: 1725548400,
                 response_count: 1,
                 total_response_count: 50,
             },
-            QuestionSummary {
-                r#type: QuestionStatus::Finished,
+            SurveySummary {
+                r#type: SurveyStatus::Finished,
                 title: "설문지 타이틀".to_string(),
                 update_date: 1725548400,
                 response_count: 10,
                 total_response_count: 50,
             },
-            QuestionSummary {
-                r#type: QuestionStatus::Finished,
+            SurveySummary {
+                r#type: SurveyStatus::Finished,
                 title: "설문지 타이틀".to_string(),
                 update_date: 1725548400,
                 response_count: 10,
                 total_response_count: 50,
             },
-            QuestionSummary {
-                r#type: QuestionStatus::Draft,
+            SurveySummary {
+                r#type: SurveyStatus::Draft,
                 title: "설문지 타이틀".to_string(),
                 update_date: 1725548400,
                 response_count: 0,
                 total_response_count: 0,
             },
-            QuestionSummary {
-                r#type: QuestionStatus::InProgress,
+            SurveySummary {
+                r#type: SurveyStatus::InProgress,
                 title: "설문지 타이틀".to_string(),
                 update_date: 1725548400,
                 response_count: 1,
                 total_response_count: 50,
             },
-            QuestionSummary {
-                r#type: QuestionStatus::Finished,
+            SurveySummary {
+                r#type: SurveyStatus::Finished,
                 title: "설문지 타이틀".to_string(),
                 update_date: 1725548400,
                 response_count: 10,
                 total_response_count: 50,
             },
-            QuestionSummary {
-                r#type: QuestionStatus::Finished,
+            SurveySummary {
+                r#type: SurveyStatus::Finished,
                 title: "설문지 타이틀".to_string(),
                 update_date: 1725548400,
                 response_count: 10,

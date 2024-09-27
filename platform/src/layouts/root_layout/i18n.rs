@@ -14,8 +14,8 @@ pub struct RootLayoutTranslate {
 }
 
 pub fn translate(lang: Language) -> RootLayoutTranslate {
-    if lang == Language::En {
-        RootLayoutTranslate {
+    match lang {
+        Language::En => RootLayoutTranslate {
             logout: "Logout".to_string(),
             overview: "Overview".to_string(),
             search_project: "Search Project".to_string(),
@@ -26,9 +26,8 @@ pub fn translate(lang: Language) -> RootLayoutTranslate {
             property_management: "Property Management".to_string(),
             property_status: "Property Status".to_string(),
             user_settings: "User Settings".to_string(),
-        }
-    } else {
-        RootLayoutTranslate {
+        },
+        Language::Ko => RootLayoutTranslate {
             logout: "Logout".to_string(),
             overview: "Overview".to_string(),
             search_project: "프로젝트 검색".to_string(),
@@ -39,6 +38,6 @@ pub fn translate(lang: Language) -> RootLayoutTranslate {
             property_management: "속성 관리".to_string(),
             property_status: "속성 현황".to_string(),
             user_settings: "사용자 설정".to_string(),
-        }
+        },
     }
 }

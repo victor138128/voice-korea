@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 use crate::prelude::*;
 use dioxus::prelude::*;
-use dioxus_logger::tracing;
 use header::Header;
 use side_bar::{SelectedMenu, SideBar};
 
@@ -11,6 +10,7 @@ pub mod side_bar;
 
 #[component]
 pub fn RootLayout(lang: Language) -> Element {
+    use dioxus_logger::tracing;
     let translates = i18n::translate(lang.clone());
     rsx! {
         div {

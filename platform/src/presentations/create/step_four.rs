@@ -29,7 +29,7 @@ pub fn StepFourPage(props: StepFourProps) -> Element {
             }
             div {
                 class: "flex flex-col w-full h-full items-start justify-center pb-[340px]",
-                RowComponent {
+                Row {
                     enable_bottom_border: false,
                     label: props.email_address,
                     element: rsx! {
@@ -42,7 +42,7 @@ pub fn StepFourPage(props: StepFourProps) -> Element {
                         }
                     }
                 }
-                RowComponent {
+                Row {
                     enable_bottom_border: false,
                     label: props.name_info,
                     element: rsx! {
@@ -55,7 +55,7 @@ pub fn StepFourPage(props: StepFourProps) -> Element {
                         }
                     }
                 }
-                RowComponent {
+                Row {
                     enable_bottom_border: false,
                     label: props.phone_info,
                     element: rsx! {
@@ -68,7 +68,7 @@ pub fn StepFourPage(props: StepFourProps) -> Element {
                         }
                     }
                 }
-                RowComponent {
+                Row {
                     enable_bottom_border: true,
                     label: props.company_name_info,
                     element: rsx! {
@@ -97,7 +97,7 @@ pub fn StepFourPage(props: StepFourProps) -> Element {
 }
 
 #[component]
-pub fn RowComponent(
+pub fn Row(
     enable_bottom_border: bool,
     height: Option<u64>,
     label: String,

@@ -1,9 +1,9 @@
 #![allow(non_snake_case)]
 use crate::{
-    models::question::{QuestionStatus, QuestionSummary},
+    models::survey::{SurveyStatus, SurveySummary},
     prelude::*,
 };
-use controller::QuestionDashboards;
+use controller::Survey;
 use dioxus::prelude::*;
 
 pub mod controller;
@@ -14,13 +14,13 @@ pub struct DashboardPageProps {
 }
 
 #[derive(PartialEq, Props, Clone)]
-pub struct TypeOneProps {
-    questions: Vec<QuestionDashboards>,
+pub struct DashboardCardTypeProps {
+    surveys: Vec<Survey>,
 }
 
 #[derive(PartialEq, Props, Clone)]
-pub struct TypeTwoProps {
-    questions: Vec<QuestionDashboards>,
+pub struct DashboardListTypeProps {
+    surveys: Vec<Survey>,
 }
 
 #[component]
@@ -77,20 +77,20 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                 }
             }
             if ctrl.get_clicked_type() == 0 {
-                TypeOneQuestionComponent {
-                    questions: ctrl.get_total_questions()
+                DashboardCardTypes {
+                    surveys: ctrl.get_total_questions()
                 }
             } else {
-                TypeTwoQuestionComponent {
-                    questions: ctrl.get_total_questions()
+                DashboardListTypes {
+                    surveys: ctrl.get_total_questions()
                 }
             }
         }
     }
 }
 
-pub fn TypeOneQuestionComponent(props: TypeOneProps) -> Element {
-    let questions = props.questions;
+pub fn DashboardCardTypes(props: DashboardCardTypeProps) -> Element {
+    let surveys = props.surveys;
     rsx! {
         div {
             "type-1"
@@ -98,7 +98,7 @@ pub fn TypeOneQuestionComponent(props: TypeOneProps) -> Element {
     }
 }
 
-pub fn TypeTwoQuestionComponent(props: TypeTwoProps) -> Element {
+pub fn DashboardListTypes(props: DashboardListTypeProps) -> Element {
     rsx! {
         div {
             "type-2"
