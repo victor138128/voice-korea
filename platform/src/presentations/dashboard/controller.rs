@@ -9,7 +9,7 @@ use crate::api::total::survey::list_surveys;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Survey {
-    pub question_type: String,
+    pub survey_type: String,
     pub title: String,
     pub update_date: String,
     pub response_count: u64,
@@ -38,7 +38,7 @@ impl Controller {
                         let total_surveys: Vec<Survey> = surveys
                             .into_iter()
                             .map(|survey| Survey {
-                                question_type: survey.r#type.to_string(),
+                                survey_type: survey.r#type.to_string(),
                                 title: survey.title,
                                 update_date: Self::format_date(survey.update_date),
                                 response_count: survey.response_count,
@@ -60,7 +60,7 @@ impl Controller {
     pub fn format_date(timestamp: u64) -> String {
         let d = UNIX_EPOCH + Duration::from_secs(timestamp);
         let datetime = DateTime::<Local>::from(d);
-        datetime.format("%Y-%m-%d").to_string()
+        datetime.format("%Y.%m.%d").to_string()
     }
 
     pub fn get_clicked_type(&mut self) -> u64 {

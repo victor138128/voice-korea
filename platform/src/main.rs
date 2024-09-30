@@ -16,7 +16,10 @@ pub mod pages {
 pub mod presentations {
     pub mod create;
     pub mod dashboard;
+    pub mod find_email;
     pub mod login;
+    pub mod write_question;
+    pub mod write_title;
 }
 
 pub mod models {
@@ -34,6 +37,7 @@ pub mod layouts {
 pub mod components {
     pub mod bottom;
     pub mod input;
+    pub mod table_row;
 }
 
 pub mod api;
