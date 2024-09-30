@@ -105,7 +105,7 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
             }
             if ctrl.get_clicked_type() == 0 {
                 DashboardCardTypes {
-                    surveys: ctrl.get_total_questions(),
+                    surveys: ctrl.get_total_surveys(),
                     draft: translates.draft,
                     in_progress: translates.in_progress,
                     complete: translates.complete,
@@ -117,7 +117,7 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                 }
             } else {
                 DashboardListTypes {
-                    surveys: ctrl.get_total_questions(),
+                    surveys: ctrl.get_total_surveys(),
                     survey_name: translates.survey_name,
                     response_count: translates.response_count,
                     final_update_date: translates.final_update_date,

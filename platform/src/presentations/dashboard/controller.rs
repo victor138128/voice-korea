@@ -71,7 +71,7 @@ impl Controller {
         self.clicked_type.set(clicked_type);
     }
 
-    pub fn get_total_questions(&mut self) -> Vec<Survey> {
+    pub fn get_total_surveys(&mut self) -> Vec<Survey> {
         (self.surveys)()
     }
 }

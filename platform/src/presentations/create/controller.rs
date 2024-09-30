@@ -18,6 +18,8 @@ pub struct Controller {
 
     email_address: Signal<String>,
     authentication_number: Signal<String>,
+    password: Signal<String>,
+    password_check: Signal<String>,
     name: Signal<String>,
     cellphone_number: Signal<String>,
     simple_address: Signal<String>,
@@ -44,6 +46,8 @@ impl Controller {
 
             email_address: use_signal(|| "".to_string()),
             authentication_number: use_signal(|| "".to_string()),
+            password: use_signal(|| "".to_string()),
+            password_check: use_signal(|| "".to_string()),
             name: use_signal(|| "".to_string()),
             cellphone_number: use_signal(|| "".to_string()),
             simple_address: use_signal(|| "".to_string()),
@@ -120,6 +124,14 @@ impl Controller {
 
     pub fn get_detail_address(&self) -> String {
         (self.detail_address)()
+    }
+
+    pub fn get_password(&self) -> String {
+        (self.password)()
+    }
+
+    pub fn get_password_check(&mut self) -> String {
+        (self.password_check)()
     }
 
     // pub fn get_click_send_authentication(&self) -> bool {
@@ -199,6 +211,14 @@ impl Controller {
 
     pub fn set_detail_address(&mut self, detail_address: String) {
         self.detail_address.set(detail_address);
+    }
+
+    pub fn set_password(&mut self, password: String) {
+        self.password.set(password);
+    }
+
+    pub fn set_password_check(&mut self, password_check: String) {
+        self.password_check.set(password_check);
     }
 
     pub fn set_click_send_authentication(&mut self) {

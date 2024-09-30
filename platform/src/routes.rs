@@ -19,8 +19,8 @@ pub enum Route {
             DashboardPage { lang: Language },
             #[route("/write-title")]
             WriteTitlePage { lang: Language },
-            #[route("/write-question")]
-            WriteQuestionPage { lang: Language },
+            #[route("/write-question/:title")]
+            WriteQuestionPage { lang: Language, title: String },
         #[end_layout]
         
         #[route("/")]

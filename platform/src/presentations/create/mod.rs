@@ -132,6 +132,8 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
                     name_example: translates.name_example,
                     phone_info: translates.phone_info,
                     phone_example: translates.phone_example,
+                    password_info: translates.password,
+                    password_check_info: translates.password_check,
                     address_info: translates.address_info,
                     search_address: translates.search_address,
                     check_title: translates.check_title,

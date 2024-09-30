@@ -1,11 +1,11 @@
 use dioxus::prelude::{server, server_fn, ServerFnError};
 use server_fn::codec::{GetUrl, Json};
 
-use crate::models::survey::{SurveyStatus, SurveySummary, TotalSurveys};
+use crate::models::survey::{SurveyStatus, SurveySummary, TotalSurveySummaries};
 
 #[server(endpoint = "/total/survey", input=GetUrl, output=Json)]
-pub async fn list_surveys() -> Result<TotalSurveys, ServerFnError> {
-    Ok(TotalSurveys {
+pub async fn list_surveys() -> Result<TotalSurveySummaries, ServerFnError> {
+    Ok(TotalSurveySummaries {
         surveys: vec![
             SurveySummary {
                 r#type: SurveyStatus::Draft,

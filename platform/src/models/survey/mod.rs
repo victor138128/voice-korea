@@ -5,7 +5,30 @@ use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Props, Serialize, Deserialize)]
-pub struct TotalSurveys {
+pub struct Survey {
+    pub title: String,
+    pub questions: Vec<SurveyQuestion>,
+}
+
+#[derive(Debug, Clone, PartialEq, Props, Serialize, Deserialize)]
+pub struct SurveyQuestion {
+    pub question_id: u64,
+    pub question_type: SurveyQuestionType,
+    pub question: String,
+    pub answers: Vec<String>,
+}
+
+impl Survey {
+    pub fn new() -> Survey {
+        Survey {
+            title: "".to_string(),
+            questions: vec![],
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Props, Serialize, Deserialize)]
+pub struct TotalSurveySummaries {
     pub surveys: Vec<SurveySummary>,
 }
 
@@ -16,6 +39,14 @@ pub struct SurveySummary {
     pub update_date: u64,
     pub response_count: u64,
     pub total_response_count: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum SurveyQuestionType {
+    #[serde(rename = "multiple_choice")]
+    MultipleChoice,
+    #[serde(rename = "subjective")]
+    Subjective,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
