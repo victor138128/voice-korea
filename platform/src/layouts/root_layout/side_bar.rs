@@ -125,7 +125,7 @@ pub fn SectionMenus(
                             Link {
                                 onclick: move |_evt|{
                                     onselected.call(SelectedMenu { category: title.clone(), menu: cm.title.clone() });
-                                } ,
+                                },
                                 to: menu.link,
                                 class: "flex flex-row h-[45px] w-full gap-[5px] px-[10px] items-center justify-start",
                                 style: "background-color: rgb(0,0,0,0.1);",

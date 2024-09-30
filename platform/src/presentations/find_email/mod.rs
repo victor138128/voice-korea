@@ -36,7 +36,7 @@ pub struct GetEmailProps {
 }
 
 #[derive(PartialEq, Props, Clone)]
-pub struct ButtonComponentProps {
+pub struct SendAuthenticationButtonProps {
     width: Option<i64>,
     label: String,
     lang: Language,
@@ -172,7 +172,7 @@ pub fn FindEmail(props: FindEmailProps) -> Element {
                                     }
                                 }
                             },
-                            ButtonComponent {
+                            SendAuthenticationButton {
                                 label: props.send_authentication_number,
                                 lang: props.lang,
                                 onclick: move |_| {
@@ -240,7 +240,7 @@ pub fn FindEmail(props: FindEmailProps) -> Element {
 }
 
 #[component]
-pub fn ButtonComponent(props: ButtonComponentProps) -> Element {
+pub fn SendAuthenticationButton(props: SendAuthenticationButtonProps) -> Element {
     let width = match props.width {
         Some(w) => format!("w-[{}px]", w),
         None => {

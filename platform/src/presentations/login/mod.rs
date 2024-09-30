@@ -128,9 +128,14 @@ pub fn MemberInfoComponent(props: MemberInfoProps) -> Element {
                     class: "text-[#e0e0e0] text-[20px] font-normal",
                     "|"
                 }
-                div {
-                    class: "flex flex-row text-black text-[20px] font-normal w-[160px] justify-center items-center",
-                    "{props.reset_pw_message}"
+                Link {
+                    to: Route::ResetPasswordPage {
+                        lang: props.lang.clone(),
+                    },
+                    div {
+                        class: "flex flex-row text-black text-[20px] font-normal w-[160px] justify-center items-center",
+                        "{props.reset_pw_message}"
+                    }
                 }
                 div {
                     class: "text-[#e0e0e0] text-[20px] font-normal",

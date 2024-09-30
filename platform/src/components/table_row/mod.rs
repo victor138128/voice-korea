@@ -9,9 +9,9 @@ pub fn Row(
     element: Element,
 ) -> Element {
     let bottom_border = if enable_bottom_border {
-        "[#e0e0e0]"
+        "border-b-[#e0e0e0]"
     } else {
-        "[#ffffff]"
+        "border-b-[#ffffff]"
     };
 
     let height = match height {
@@ -20,7 +20,7 @@ pub fn Row(
     };
 
     let main_div_class = format!(
-        "flex flex-row w-full min-w-[710px] {} border-solid border border-t-[#e0e0e0] border-b-{} border-l-[#e0e0e0] border-r-[#ffffff]",
+        "flex flex-row w-full min-w-[710px] {} border-solid border border-t-[#e0e0e0] {} border-l-[#e0e0e0] border-r-[#ffffff]",
         height, bottom_border
     );
 
