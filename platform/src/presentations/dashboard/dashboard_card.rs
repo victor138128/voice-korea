@@ -18,9 +18,23 @@ pub fn DashboardCard(
     edit_survey: String,
     analysis_result: String,
 ) -> Element {
+    let dashboard_card_style = "
+    display: flex;
+    flex-direction: column;
+    width: 380px;
+    height: 420px;
+    border-radius: 8px;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-color: white;
+    border: 1px solid #d2d2d2;
+    margin: 35px;
+    padding: 30px;
+    ";
+
     rsx! {
         div {
-            class: "flex flex-col w-[380px] h-[420px] rounded-[8px] justify-between items-start bg-white border-solid border border-[#d2d2d2] m-[35px] p-[30px]",
+            class: "{dashboard_card_style}",
             div {
                 StatusButton {
                     survey_type: survey_type.clone(),

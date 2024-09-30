@@ -9,6 +9,9 @@ pub struct WriteQuestionProps {
 
 #[component]
 pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
+    let _props = props;
+
+    //TODO: write question page
     rsx! {
         div {
             class: "flex flex-col w-full h-full justify-start items-center",

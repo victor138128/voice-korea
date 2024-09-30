@@ -35,6 +35,14 @@ pub struct GetEmailProps {
     go_to_login: String,
 }
 
+#[derive(PartialEq, Props, Clone)]
+pub struct ButtonComponentProps {
+    width: Option<i64>,
+    label: String,
+    lang: Language,
+    onclick: EventHandler<MouseEvent>,
+}
+
 pub mod controller;
 pub mod i18n;
 
@@ -79,6 +87,7 @@ pub fn FindEmailPage(props: FindEmailPageProps) -> Element {
     }
 }
 
+#[component]
 pub fn GetEmail(props: GetEmailProps) -> Element {
     let email = props.ctrl.get_email_address();
     rsx! {
@@ -120,6 +129,7 @@ pub fn GetEmail(props: GetEmailProps) -> Element {
     }
 }
 
+#[component]
 pub fn FindEmail(props: FindEmailProps) -> Element {
     let mut ctrl = props.ctrl.clone();
     rsx! {
@@ -230,16 +240,11 @@ pub fn FindEmail(props: FindEmailProps) -> Element {
 }
 
 #[component]
-pub fn ButtonComponent(
-    width: Option<i64>,
-    label: String,
-    lang: Language,
-    onclick: EventHandler<MouseEvent>,
-) -> Element {
-    let width = match width {
+pub fn ButtonComponent(props: ButtonComponentProps) -> Element {
+    let width = match props.width {
         Some(w) => format!("w-[{}px]", w),
         None => {
-            if lang == Language::En {
+            if props.lang == Language::En {
                 "w-[270px]".to_string()
             } else {
                 "w-[135px]".to_string()
@@ -249,12 +254,12 @@ pub fn ButtonComponent(
 
     rsx! {
         div {
-            class: "flex flex-col {width} h-[35px] justify-start items-start",
-            onclick: move |evt| { onclick.call(evt); },
+            class: format!("flex flex-col {} h-[35px] justify-start items-start", width),
+            onclick: move |evt| { props.onclick.call(evt); },
             style: "border: 1px solid; border-color: rgba(33, 104, 195, 0.5); border-radius: 5px; background-clip: padding-box; background-color: rgba(33, 104, 195, 0.04);",
             div {
                 class: "flex flex-row justify-center items-center w-full h-full text-[#2168c3] font-normal text-[15px]",
-                {label}
+                {props.label}
             }
         }
     }
