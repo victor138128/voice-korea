@@ -1,13 +1,12 @@
 BUILD_ENV ?=
 
-run:
-	$(BUILD_ENV) dx serve --platform fullstack
+setup:
+	npm i -g tailwindcss
 
-assets/tailwind.css: node_modules
-	npx tailwindcss -i ./input.css -o ./assets/tailwind.css --minify
+.PHONY: run
+run: public/tailwind.css
+	$(BUILD_ENV) dx serve --platform fullstack -i false
 
-node_modules:
-	npm install
+public/tailwind.css:
+	tailwindcss -i ./input.css -o ./public/tailwind.css --minify
 
-watch.tailwind: node_modules
-	npx tailwindcss -i ./input.css -o ./assets/tailwind.css --watch=always

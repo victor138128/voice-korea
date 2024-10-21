@@ -21,7 +21,7 @@ pub enum Route {
             #[route("/write-question")]
             WriteQuestionPage { lang: Language },
         #[end_layout]
-        
+
         #[route("/")]
         LoginPage { lang: Language },
         #[route("/create")]

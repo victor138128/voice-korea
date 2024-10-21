@@ -5,7 +5,7 @@ use chrono::{self, DateTime, Local};
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
 
-use crate::api::total::survey::list_surveys;
+use crate::api::v1::surveys::list_surveys;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Survey {
@@ -31,18 +31,18 @@ impl Controller {
 
         let _ = use_effect(move || {
             spawn(async move {
-                match list_surveys().await {
+                match list_surveys(None, None, None).await {
                     Ok(res) => {
-                        let surveys = res.surveys;
+                        let surveys = res.items;
 
                         let total_surveys: Vec<Survey> = surveys
                             .into_iter()
                             .map(|survey| Survey {
                                 survey_type: survey.r#type.to_string(),
                                 title: survey.title,
-                                update_date: Self::format_date(survey.update_date),
-                                response_count: survey.response_count,
-                                total_response_count: survey.total_response_count,
+                                update_date: Self::format_date(survey.updated_at),
+                                response_count: survey.responses.unwrap_or_default(),
+                                total_response_count: survey.expected_responses.unwrap_or_default(),
                             })
                             .collect();
                         ctrl.surveys.set(total_surveys);
