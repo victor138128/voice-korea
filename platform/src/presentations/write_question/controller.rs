@@ -2,10 +2,7 @@
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
 
-use crate::{
-    api::v1::surveys::{get_survey, GetSurveyResponse},
-    models::survey::Survey,
-};
+use crate::api::v1::surveys::{get_survey, GetSurveyResponse};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
@@ -13,7 +10,7 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn init(title: String) -> Self {
+    pub fn init(_title: String) -> Self {
         let mut ctrl = Self {
             survey: use_signal(|| GetSurveyResponse::default()),
         };

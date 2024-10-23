@@ -28,9 +28,9 @@ pub enum Status {
 
 #[server(endpoint = "/v1/surveys", input = GetUrl, output = Json)]
 pub async fn list_surveys(
-    size: Option<i32>,
-    bookmark: Option<String>,
-    status: Option<Status>,
+    _size: Option<i32>,
+    _bookmark: Option<String>,
+    _status: Option<Status>,
 ) -> Result<CommonQueryResponse<SurveySummary>, ServerFnError> {
     dioxus_logger::tracing::debug!("/v1/surveys",);
 

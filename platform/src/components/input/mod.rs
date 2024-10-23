@@ -1,8 +1,6 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 
-use crate::prelude::Language;
-
 #[component]
 pub fn Input(
     input_type: Option<String>,
