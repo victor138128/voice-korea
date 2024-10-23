@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::presentations::dashboard::StatusButton;
 use dioxus::prelude::*;
+use dioxus_logger::tracing;
 
 #[component]
 pub fn DashboardCard(
@@ -18,6 +19,7 @@ pub fn DashboardCard(
     edit_survey: String,
     analysis_result: String,
 ) -> Element {
+    tracing::info!("status: {:?}", survey_type.clone());
     rsx! {
         div {
             class: "flex flex-col w-[380px] h-[420px] rounded-lg justify-between items-start bg-white m-9 p-7 border-[1px] border-[#d2d2d2]",

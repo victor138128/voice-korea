@@ -105,7 +105,7 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
             }
             if ctrl.get_clicked_type() == 0 {
                 DashboardCardTypes {
-                    surveys: ctrl.get_total_questions(),
+                    surveys: ctrl.get_total_surveys(),
                     draft: translates.draft,
                     in_progress: translates.in_progress,
                     complete: translates.complete,
@@ -117,7 +117,7 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                 }
             } else {
                 DashboardListTypes {
-                    surveys: ctrl.get_total_questions(),
+                    surveys: ctrl.get_total_surveys(),
                     survey_name: translates.survey_name,
                     response_count: translates.response_count,
                     final_update_date: translates.final_update_date,
@@ -148,13 +148,13 @@ pub fn StatusButton(
         survey_type_label = draft_label;
         label_bg_color = "bg-[#e5e5e5]".to_string();
         label_text_color = "text-black".to_string();
-    } else if survey_type == "in_progress" {
-        survey_type_label = in_progress_label;
-        label_bg_color = "bg-[#3a94ff]".to_string();
-        label_text_color = "text-white".to_string();
-    } else {
+    } else if survey_type == "finished" {
         survey_type_label = complete_label;
         label_bg_color = "bg-[#2168c3]".to_string();
+        label_text_color = "text-white".to_string();
+    } else {
+        survey_type_label = in_progress_label;
+        label_bg_color = "bg-[#3a94ff]".to_string();
         label_text_color = "text-white".to_string();
     }
 

@@ -4,12 +4,40 @@ use dioxus::prelude::*;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Props, Serialize, Deserialize)]
-pub struct TotalSurveys {
-    pub surveys: Vec<SurveySummary>,
+#[derive(Debug, Clone, PartialEq, Props, Serialize, Deserialize, Default)]
+pub struct Survey {
+    pub title: String,
+    pub questions: Vec<SurveyQuestion>,
+}
+
+impl Survey {
+    pub fn new() -> Survey {
+        Survey::default()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Props, Serialize, Deserialize)]
+pub struct SurveyQuestion {
+    pub question_id: u64,
+    pub question_type: SurveyQuestionType,
+    pub question: String,
+    pub answers: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum SurveyQuestionType {
+    #[serde(rename = "multiple_choice")]
+    MultipleChoice,
+    #[serde(rename = "subjective")]
+    Subjective,
+}
+
+#[derive(Debug, Clone, PartialEq, Props, Serialize, Deserialize)]
+pub struct TotalSurveySummaries {
+    pub surveys: Vec<SurveySummary>,
+}
+
+#[derive(Debug, Clone, PartialEq, Props, Serialize, Deserialize, Default)]
 pub struct SurveySummary {
     pub id: String,
     pub status: SurveyStatus,
@@ -19,7 +47,6 @@ pub struct SurveySummary {
     pub responses: Option<u64>,
     pub expected_responses: Option<u64>,
     pub quotas: Option<Vec<Quota>>,
-
     #[serde(skip)]
     pub r#type: String,
 
@@ -31,17 +58,15 @@ pub struct SurveySummary {
     pub gsi2: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum SurveyStatus {
-    #[serde(rename = "draft")]
+    #[default]
     Draft,
-    #[serde(rename = "in_progress")]
     InProgress {
         started_at: u64,
         ended_at: Option<u64>,
     },
-    #[serde(rename = "finished")]
     Finished,
 }
 

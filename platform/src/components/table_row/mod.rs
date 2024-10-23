@@ -9,26 +9,19 @@ pub fn Row(
     element: Element,
 ) -> Element {
     let bottom_border = if enable_bottom_border {
-        "[#e0e0e0]"
+        "border-b-[#e0e0e0]"
     } else {
-        "[#ffffff]"
+        "border-b-[#ffffff]"
     };
-
-    let height = match height {
-        Some(h) => format!("h-[{}px]", h),
-        None => "h-[70px]".to_string(),
-    };
-
-    let main_div_class = format!(
-        "flex flex-row w-full min-w-[710px] {} border-solid border border-t-[#e0e0e0] border-b-{} border-l-[#e0e0e0] border-r-[#ffffff]",
-        height, bottom_border
-    );
 
     rsx! {
         div {
             class: "flex flex-col w-full justify-start items-start",
                 div {
-                    class: "{main_div_class}",
+                    class: match height {
+                        Some(h) => format!("flex flex-row w-full min-w-[710px] h-[{h}px] border-solid border border-t-[#e0e0e0] {bottom_border} border-l-[#e0e0e0] border-r-[#ffffff]"),
+                        None => format!("flex flex-row w-full min-w-[710px] h-[70px] border-solid border border-t-[#e0e0e0] {bottom_border} border-l-[#e0e0e0] border-r-[#ffffff]"),
+                    },
                     div {
                         class: "flex flex-row w-[200px] min-w-[200px] h-full justify-start items-start bg-[#2168c3]",
                         div {

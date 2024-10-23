@@ -38,7 +38,7 @@ impl Controller {
                         let total_surveys: Vec<Survey> = surveys
                             .into_iter()
                             .map(|survey| Survey {
-                                survey_type: survey.r#type.to_string(),
+                                survey_type: survey.status.to_string(),
                                 title: survey.title,
                                 update_date: Self::format_date(survey.updated_at),
                                 response_count: survey.responses.unwrap_or_default(),
@@ -71,7 +71,7 @@ impl Controller {
         self.clicked_type.set(clicked_type);
     }
 
-    pub fn get_total_questions(&mut self) -> Vec<Survey> {
+    pub fn get_total_surveys(&mut self) -> Vec<Survey> {
         (self.surveys)()
     }
 }

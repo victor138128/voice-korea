@@ -18,7 +18,7 @@ pub struct DevNotifyAttrcertRequest {
 #[server(endpoint = "/v1/attrcerts", input = Json, output = Json)]
 pub async fn notify_attrcert(
     proof: String,
-    dev: DevNotifyAttrcertRequest,
+    _dev: DevNotifyAttrcertRequest,
 ) -> Result<(), ServerFnError> {
     dioxus_logger::tracing::debug!("/v1/attrcerts: {:?}", proof);
 

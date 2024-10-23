@@ -1,10 +1,9 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 
-use crate::prelude::Language;
-
 #[component]
 pub fn Input(
+    input_type: Option<String>,
     placeholder: Option<String>,
     onchange: Option<EventHandler<String>>,
     value: Option<String>,
@@ -30,7 +29,7 @@ pub fn Input(
         input {
             class: "border-[#E0E0E0] text-medium border-[1px] {height} {font_size} {width}",
             style: "padding: 5px",
-            "type": "text",
+            "type": input_type.unwrap_or("text".to_string()),
             placeholder,
             value: value.clone().unwrap_or_default(),
             onchange: move |e| {

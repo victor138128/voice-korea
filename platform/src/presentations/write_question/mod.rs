@@ -2,14 +2,20 @@
 use crate::prelude::*;
 use dioxus::prelude::*;
 
+mod controller;
+mod i18n;
+
 #[derive(PartialEq, Props, Clone)]
 pub struct WriteQuestionProps {
     lang: Language,
+    title: String,
 }
 
 #[component]
 pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
-    let _props = props;
+    let mut ctrl = controller::Controller::init(props.title.clone());
+    let translates = i18n::translate(props.lang.clone());
+    let survey = ctrl.get_survey();
 
     //TODO: write question page
     rsx! {
@@ -21,7 +27,7 @@ pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
                     class: "flex flex-row w-full h-[110px] rounded-[10px] bg-white mb-[10px]",
                     div {
                         class: "flex flex-row w-full h-[110px] items-center justify-start text-[#2168c3] font-semibold text-[30px] pl-[30px]",
-                        "설문지 제목입니다"
+                        "{survey.survey.title}"
                     }
                 }
                 div {
@@ -35,7 +41,7 @@ pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
                         }
                         div {
                             class: "text-[20px] font-medium text-black",
-                            "질문 추가하기"
+                            "{translates.add_question}"
                         }
                     }
                 }
@@ -43,11 +49,11 @@ pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
                     class: "flex flex-row w-full justify-end items-end",
                     div {
                         class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#434343] text-white font-medium text-[20px] mr-[20px]",
-                        "돌아가기"
+                        "{translates.back_label}"
                     }
                     div {
                         class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#2168c3] text-white font-medium text-[20px] mr-[20px]",
-                        "저장"
+                        "{translates.save_label}"
                     }
                 }
             }

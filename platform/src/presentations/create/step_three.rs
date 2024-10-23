@@ -22,6 +22,8 @@ pub struct StepThreeProps {
     name_example: String,
     phone_info: String,
     phone_example: String,
+    password_info: String,
+    password_check_info: String,
     address_info: String,
     search_address: String,
     check_title: String,
@@ -90,6 +92,42 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                                 class: "text-[16px] font-normal text-[#636363]",
                                 "{props.authentication_descriptions[1]}"
                             }
+                        }
+                    }
+                }
+                Row {
+                    enable_bottom_border: false,
+                    label: props.password_info,
+                    element: rsx! {
+                        div {
+                            class: "flex flex-row w-full h-full justify-start items-center",
+                            div {
+                                class: "mx-[10px]",
+                                Input {
+                                    value: ctrl.get_password(),
+                                    onchange: move |e| {
+                                        ctrl.set_password(e);
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+                Row {
+                    enable_bottom_border: false,
+                    label: props.password_check_info,
+                    element: rsx! {
+                        div {
+                            class: "flex flex-row w-full h-full justify-start items-center",
+                            div {
+                                class: "mx-[10px]",
+                                Input {
+                                    value: ctrl.get_password_check(),
+                                    onchange: move |e| {
+                                        ctrl.set_password_check(e);
+                                    }
+                                }
+                            },
                         }
                     }
                 }

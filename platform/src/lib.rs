@@ -15,6 +15,7 @@ pub mod presentations {
     pub mod dashboard;
     pub mod find_email;
     pub mod login;
+    pub mod reset_password;
     pub mod write_question;
     pub mod write_title;
 }
