@@ -2,23 +2,25 @@
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
 
-use crate::{api::survey::get_survey, models::survey::Survey};
+use crate::{
+    api::v1::surveys::{get_survey, GetSurveyResponse},
+    models::survey::Survey,
+};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
-    survey: Signal<Survey>,
+    survey: Signal<GetSurveyResponse>,
 }
 
 impl Controller {
     pub fn init(title: String) -> Self {
         let mut ctrl = Self {
-            survey: use_signal(|| Survey::new()),
+            survey: use_signal(|| GetSurveyResponse::default()),
         };
 
         let _ = use_effect(move || {
-            let value = title.clone();
             spawn(async move {
-                match get_survey(value).await {
+                match get_survey().await {
                     Ok(res) => {
                         ctrl.survey.set(res);
                     }
@@ -32,7 +34,7 @@ impl Controller {
         ctrl
     }
 
-    pub fn get_survey(&mut self) -> Survey {
+    pub fn get_survey(&mut self) -> GetSurveyResponse {
         (self.survey)()
     }
 }

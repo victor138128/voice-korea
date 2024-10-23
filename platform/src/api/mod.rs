@@ -1,2 +1,2 @@
-pub mod survey;
-pub mod total;
+pub mod common;
+pub mod v1;

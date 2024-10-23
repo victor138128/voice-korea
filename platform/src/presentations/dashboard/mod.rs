@@ -148,13 +148,13 @@ pub fn StatusButton(
         survey_type_label = draft_label;
         label_bg_color = "bg-[#e5e5e5]".to_string();
         label_text_color = "text-black".to_string();
-    } else if survey_type == "in_progress" {
-        survey_type_label = in_progress_label;
-        label_bg_color = "bg-[#3a94ff]".to_string();
-        label_text_color = "text-white".to_string();
-    } else {
+    } else if survey_type == "finished" {
         survey_type_label = complete_label;
         label_bg_color = "bg-[#2168c3]".to_string();
+        label_text_color = "text-white".to_string();
+    } else {
+        survey_type_label = in_progress_label;
+        label_bg_color = "bg-[#3a94ff]".to_string();
         label_text_color = "text-white".to_string();
     }
 

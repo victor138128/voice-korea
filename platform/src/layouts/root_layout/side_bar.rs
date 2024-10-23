@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 
-use crate::Route;
+use crate::routes::Route;
 
 use super::Language;
 

@@ -1,6 +1,5 @@
 [workspace]
 members = [
-    "deps/rust-common",
     "platform",
 ]
 resolver = "1"

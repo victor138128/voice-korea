@@ -1,5 +1,5 @@
 body {
-    background-color: #111216;
+    background-color: #ffffff;
 }
 
 .footer-body {
@@ -43,8 +43,8 @@ body {
     max-width: 1200px;
 }
 
-input:focus, :hover {
+/* input:focus, :hover {
     outline: none;
     color: transparent;
     -webkit-appearance: none;
-}
+} */

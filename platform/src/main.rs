@@ -1,68 +1,62 @@
 #![allow(non_snake_case)]
 
-pub mod prelude {
-    pub use crate::layouts::root_layout::*;
-    pub use crate::routes::*;
-    pub use crate::utils::context::*;
+use dioxus_logger::tracing::{self, Level};
 
-    pub use crate::pages::not_found::NotFoundPage;
-}
-use dioxus_logger::tracing;
-
-pub mod pages {
-    pub mod not_found;
-}
-
-pub mod presentations {
-    pub mod create;
-    pub mod dashboard;
-    pub mod find_email;
-    pub mod login;
-    pub mod reset_password;
-    pub mod write_question;
-    pub mod write_title;
-}
-
-pub mod models {
-    pub mod survey;
-}
-
-pub mod utils {
-    pub mod context;
-}
-
-pub mod layouts {
-    pub mod root_layout;
-}
-
-pub mod components {
-    pub mod bottom;
-    pub mod input;
-    pub mod table_row;
-}
-
-pub mod api;
-pub mod routes;
 use dioxus::prelude::*;
 
-use crate::{routes::Route, utils::context::use_iitp_context_provider};
+use voice_korea::{routes::Route, utils::context::use_iitp_context_provider};
 
 fn main() {
-    rust_common::base::launch(App);
+    dioxus_logger::init(match option_env!("LOG_LEVEL") {
+        Some("trace") => Level::TRACE,
+        Some("debug") => Level::DEBUG,
+        Some("info") => Level::INFO,
+        Some("warn") => Level::WARN,
+        Some("error") => Level::ERROR,
+        _ => Level::INFO,
+    })
+    .expect("failed to init logger");
+
+    tracing::info!("starting app");
+    dioxus_aws::launch(App);
 }
 
 fn App() -> Element {
     use_iitp_context_provider();
 
     rsx! {
-        ErrorBoundary {
-            handle_error: |error| {
-                tracing::error!("Error: {:?}", error);
-                rsx! {
-                    div { "Hmm, something went wrong. Prease report {error}" }
-                }
-            },
-            Router::<Route> {}
+        head {
+            link {
+                rel: "icon",
+                r#type: "image/x-icon",
+                href: "/favicon.ico",
+            }
+            link {
+                rel: "stylesheet",
+                href: "/main.css",
+            }
+            link {
+                rel: "stylesheet",
+                href: "/tailwind.css",
+            }
+            load_tailwindcss {}
+        }
+        Router::<Route> {}
+    }
+}
+
+#[cfg(not(feature = "lambda"))]
+#[allow(dead_code)]
+fn load_tailwindcss() -> Element {
+    rsx! {
+        script {
+            src: "https://cdn.tailwindcss.com/3.4.5",
         }
     }
+}
+
+#[cfg(feature = "lambda")]
+#[allow(dead_code)]
+fn load_tailwindcss() -> Element {
+    rsx! {}
 }
