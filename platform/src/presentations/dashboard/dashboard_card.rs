@@ -34,7 +34,7 @@ pub fn DashboardCard(
 
     rsx! {
         div {
-            class: "{dashboard_card_style}",
+            style: "{dashboard_card_style}",
             div {
                 StatusButton {
                     survey_type: survey_type.clone(),

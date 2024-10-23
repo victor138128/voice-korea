@@ -7,18 +7,18 @@ pub fn NotFoundPage(route: Vec<String>) -> Element {
         div {
             div { class: "not_found flex flex-col justify-center items-center",
                 img {
-                    style: "padding-bottom: 40px",
+                    style: "padding-bottom: 40px; padding-top: 40px;",
                     src: "/images/error.png",
                     width: 50,
                     height: 50
                 }
                 div {
-                    class: "text-3xl font-bold text-resultGrey",
+                    class: "text-3xl font-bold text-[#999999]",
                     style: "padding-bottom: 40px",
                     "Not Found"
                 }
                 div {
-                    class: "text-xl font-normal text-resultGrey",
+                    class: "text-xl font-normal text-[#999999]",
                     style: "padding-bottom: 40px",
                     "The Page you are looking for doesn't exists"
                 }
