@@ -32,6 +32,7 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
     rsx! {
         div {
             class: "flex flex-col w-full h-full px-[120px] pt-[55px]",
+            style: "background-color: white",
             div {
                 class: "flex flex-row w-full px-[10px] pb-[40px]",
                 Link {
