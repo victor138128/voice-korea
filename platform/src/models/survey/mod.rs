@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Props, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Props, Serialize, Deserialize, Default)]
 pub struct Survey {
     pub title: String,
     pub questions: Vec<SurveyQuestion>,
@@ -12,10 +12,7 @@ pub struct Survey {
 
 impl Survey {
     pub fn new() -> Survey {
-        Survey {
-            title: "".to_string(),
-            questions: vec![],
-        }
+        Survey::default()
     }
 }
 
@@ -65,14 +62,11 @@ pub struct SurveySummary {
 #[serde(rename_all = "snake_case")]
 pub enum SurveyStatus {
     #[default]
-    #[serde(rename = "draft")]
     Draft,
-    #[serde(rename = "in_progress")]
     InProgress {
         started_at: u64,
         ended_at: Option<u64>,
     },
-    #[serde(rename = "finished")]
     Finished,
 }
 

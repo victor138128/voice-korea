@@ -27,15 +27,11 @@ pub fn Input(
         Some(fs) => format!("text-[{}px]", fs),
         None => "text-[16px]".to_string(),
     };
-    let input_type = match input_type {
-        Some(it) => it,
-        None => "text".to_string(),
-    };
     rsx! {
         input {
             class: "border-[#E0E0E0] text-medium border-[1px] {height} {font_size} {width}",
             style: "padding: 5px",
-            "type": input_type,
+            "type": input_type.unwrap_or("text".to_string()),
             placeholder,
             value: value.clone().unwrap_or_default(),
             onchange: move |e| {
