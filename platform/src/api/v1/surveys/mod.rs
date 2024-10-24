@@ -1,4 +1,6 @@
 #![allow(unused_imports)]
+pub mod upsert_survey;
+
 use dioxus::prelude::{
     server_fn::codec::{GetUrl, Json, PostUrl},
     *,
@@ -112,18 +114,6 @@ pub async fn list_surveys(
         ],
         bookmark: None,
     })
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct CreateSurveyRequest {}
-
-#[server(endpoint = "/v1/surveys", input = Json, output = Json)]
-pub async fn create_survey(req: CreateSurveyRequest) -> Result<(), ServerFnError> {
-    tracing::debug!("/v1/surveys: {:?}", req);
-
-    Err(ServerFnError::ServerError(
-        "not implemented yet".to_string(),
-    ))
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]

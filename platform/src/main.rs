@@ -4,7 +4,7 @@ use dioxus_logger::tracing::{self, Level};
 
 use dioxus::prelude::*;
 
-use voice_korea::{routes::Route, utils::context::use_iitp_context_provider};
+use platform::{routes::Route, utils::context::use_iitp_context_provider};
 
 fn main() {
     dioxus_logger::init(match option_env!("LOG_LEVEL") {
