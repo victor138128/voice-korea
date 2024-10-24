@@ -36,7 +36,7 @@ cdk-deploy:
 	cd fixtures/cdk && yes | $(BUILD_ENV) cdk deploy --require-approval never $(AWS_FLAG)
 
 s3-sync:
-	aws s3 sync .build/platform s3://$(DOMAIN) $(AWS_FLAG)
+	aws s3 sync .build/platform/public s3://$(DOMAIN) $(AWS_FLAG)
 
 cdn-invalidate:
 	aws cloudfront create-invalidation --distribution-id $(CDN_ID) --paths "/*" $(AWS_FLAG) > /dev/null
