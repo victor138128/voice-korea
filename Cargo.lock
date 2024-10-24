@@ -496,9 +496,9 @@ dependencies = [
 
 [[package]]
 name = "axum-core"
-version = "0.4.4"
+version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e6b8ba012a258d63c9adfa28b9ddcf66149da6f986c5b5452e629d5ee64bf00"
+checksum = "09f2bd6146b97ae3359fa0cc6d6b376d9539582c7b4220f041a33ec24c226199"
 dependencies = [
  "async-trait",
  "bytes",
@@ -879,18 +879,22 @@ dependencies = [
 
 [[package]]
 name = "dioxus-aws"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3a24f98f641c55fc19565209062cd66ef47bcfbd44073c0e0313b64d88ecfa4"
+checksum = "3f40f18d4fbcab84c3af914fb231f176c6c3d269a3ada6c67554fd8ad7af7a27"
 dependencies = [
  "axum",
+ "axum-core",
  "dioxus",
+ "dioxus-cli-config",
  "dioxus-fullstack",
  "http 1.1.0",
  "lambda_http",
  "lambda_runtime",
  "tokio",
  "tower 0.4.13",
+ "tower-layer",
+ "tower-service",
  "tracing",
 ]
 
@@ -2582,6 +2586,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "953ec861398dccce10c670dfeaf3ec4911ca479e9c02154b3a215178c5f566f2"
 
 [[package]]
+name = "platform"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "dioxus",
+ "dioxus-aws",
+ "dioxus-logger",
+ "easy-dynamodb",
+ "serde",
+ "slog",
+]
+
+[[package]]
 name = "powerfmt"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3770,19 +3787,6 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
-
-[[package]]
-name = "voice-korea"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "dioxus",
- "dioxus-aws",
- "dioxus-logger",
- "easy-dynamodb",
- "serde",
- "slog",
-]
 
 [[package]]
 name = "vsimd"

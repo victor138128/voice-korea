@@ -8,7 +8,7 @@ name = "voice-korea"
 default_platform = "fullstack"
 
 # `build` & `serve` dist path
-out_dir = "dist"
+out_dir = ".build/platform"
 
 # resource (assets) file folder
 # asset_dir = "assets"

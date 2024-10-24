@@ -18,6 +18,7 @@ pub enum QuestionType {
     Text(Option<String>),
     LongText(Option<String>),
     SingleChoice {
+        // question is a description of the question
         question: Option<String>,
         options: Vec<String>,
     },

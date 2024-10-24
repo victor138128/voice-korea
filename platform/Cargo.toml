@@ -1,5 +1,5 @@
 [package]
-name = "voice-korea"
+name = "platform"
 version = "0.1.0"
 authors = ["victor138128 <yepp0517@naver.com>"]
 edition = "2021"
@@ -10,7 +10,7 @@ edition = "2021"
 serde = { version = "1.0.197", features = ["derive"] }
 dioxus = { version = "0.6.0-alpha.3", features = ["default", "fullstack", "router"] }
 chrono = "0.4"
-dioxus-aws = { version = "0.6.1" }
+dioxus-aws = { version = "0.6.2" }
 
 dioxus-logger = "0.5.1"
 easy-dynamodb = { version = "0.1.6", optional = true }
