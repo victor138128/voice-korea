@@ -4,6 +4,8 @@ pub struct WriteQuestionTranslate {
     pub add_question: String,
     pub back_label: String,
     pub save_label: String,
+    pub delete: String,
+    pub update: String,
 }
 
 pub fn translate(lang: Language) -> WriteQuestionTranslate {
@@ -12,11 +14,15 @@ pub fn translate(lang: Language) -> WriteQuestionTranslate {
             add_question: "Add Question".to_string(),
             back_label: "Go Back".to_string(),
             save_label: "Save".to_string(),
+            delete: "Delete".to_string(),
+            update: "Update".to_string(),
         },
         Language::Ko => WriteQuestionTranslate {
             add_question: "질문 추가하기".to_string(),
             back_label: "돌아가기".to_string(),
             save_label: "저장".to_string(),
+            delete: "삭제".to_string(),
+            update: "수정".to_string(),
         },
     }
 }
