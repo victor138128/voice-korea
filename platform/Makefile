@@ -34,9 +34,6 @@ setup.tool:
 run: public/tailwind.css
 	$(BUILD_ENV) dx serve --platform fullstack -p platform -i false
 
-serve: build
-	dist/bootstrap
-
 public/tailwind.css:
 	tailwindcss -i ./input.css -o ./public/tailwind.css --minify
 
