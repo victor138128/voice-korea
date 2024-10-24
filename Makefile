@@ -22,7 +22,8 @@ deploy: build cdk-build cdk-deploy s3-sync cdn-invalidate
 
 .PHONY: build
 build:
-	cd platform && make build-lambda
+	cd platform && $(BUILD_ENV) make build-lambda
+	mv .build/platform/platform .build/platform/bootstrap
 
 fixtures/cdk/node_modules:
 	cd fixtures/cdk && npm install

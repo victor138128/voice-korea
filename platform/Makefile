@@ -42,9 +42,7 @@ public/tailwind.css:
 
 build: public/tailwind.css
 	$(BUILD_ENV) dx build -p platform --platform fullstack
-	mv $(WORKSPACE_ROOT)/.build/platform/platform $(WORKSPACE_ROOT)/.build/platform/bootstrap
 
 .ONESHELL:
 build-lambda: public/tailwind.css
 	$(BUILD_ENV) dx build --platform fullstack --server-feature lambda -p platform
-	mv $(WORKSPACE_ROOT)/dist/$(SERVICE) $(WORKSPACE_ROOT)/dist/bootstrap
