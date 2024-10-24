@@ -12,23 +12,23 @@ pub fn Input(
     font_size: Option<u64>,
 ) -> Element {
     let height = match height {
-        Some(-1) => "h-full".to_string(),
-        Some(h) => format!("h-[{}px]", h),
-        None => "h-[40px]".to_string(),
+        Some(-1) => "100%".to_string(),
+        Some(h) => format!("{h}px"),
+        None => "40px".to_string(),
     };
     let width = match width {
-        Some(-1) => "w-full".to_string(),
-        Some(w) => format!("w-[{}px]", w),
-        None => "w-[300px]".to_string(),
+        Some(-1) => "100%".to_string(),
+        Some(w) => format!("{w}px"),
+        None => "300px".to_string(),
     };
     let font_size = match font_size {
-        Some(fs) => format!("text-[{}px]", fs),
-        None => "text-[16px]".to_string(),
+        Some(fs) => format!("{fs}px"),
+        None => "16px".to_string(),
     };
     rsx! {
         input {
-            class: "border-[#E0E0E0] text-medium border-[1px] {height} {font_size} {width}",
-            style: "padding: 5px",
+            class: "border-[#E0E0E0] text-medium border-[1px]",
+            style: "padding: 5px; height: {height}; width: {width}; font-size: {font_size};",
             "type": input_type.unwrap_or("text".to_string()),
             placeholder,
             value: value.clone().unwrap_or_default(),

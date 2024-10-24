@@ -56,9 +56,15 @@ pub fn WriteTitlePage(props: WriteTitleProps) -> Element {
                                 {translates.cancel}
                             }
                         }
-                        div {
-                            class: "flex flex-row w-[85px] h-[45px] justify-center items-center rounded-[5px] bg-[#2168c3] text-[20px] font-normal text-white mr-[7px]",
-                            {translates.store}
+                        Link {
+                            to: Route::WriteQuestionPage {
+                                lang: props.lang.clone(),
+                                title: ctrl.get_survey_title()
+                            },
+                            div {
+                                class: "flex flex-row w-[85px] h-[45px] justify-center items-center rounded-[5px] bg-[#2168c3] text-[20px] font-normal text-white mr-[7px]",
+                                {translates.store}
+                            }
                         }
                     }
                 }

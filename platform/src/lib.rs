@@ -37,6 +37,7 @@ pub mod components {
     pub mod bottom;
     pub mod button;
     pub mod input;
+    pub mod select;
     pub mod table_row;
 }
 
