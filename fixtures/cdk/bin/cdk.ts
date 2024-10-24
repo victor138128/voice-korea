@@ -4,7 +4,7 @@ import * as cdk from 'aws-cdk-lib';
 import { CdkStack } from '../lib/cdk-stack';
 
 const app = new cdk.App();
-new CdkStack(app, `DagitStack`, {
+new CdkStack(app, `Stack`, {
   stackName: `${process.env.SERVICE}-${process.env.ENV}-stack`,
 
   /* If you don't specify 'env', this stack will be environment-agnostic.
