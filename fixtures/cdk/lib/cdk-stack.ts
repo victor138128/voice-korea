@@ -84,27 +84,11 @@ export class CdkStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
-    const realtimeFetcher = new lambda.Function(this, "RealtimeFetcher", {
-      runtime: lambda.Runtime.PROVIDED_AL2023,
-      code: lambda.Code.fromAsset(process.env.WORKSPACE_ROOT + "/.build/realtime-fetcher"),
-      handler: "bootstrap",
-      environment: {
-        NO_COLOR: "true",
-      },
-      reservedConcurrentExecutions: 1,
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(900),
-    });
-
-    const rule = new events.Rule(this, 'RealtimeFetcherRule', {
-      schedule: events.Schedule.expression('cron(0 * * * ? *)'),
-    });
-
-    rule.addTarget(new event_targets.LambdaFunction(realtimeFetcher));
-
     const func = new lambda.Function(this, "Function", {
       runtime: lambda.Runtime.PROVIDED_AL2023,
-      code: lambda.Code.fromAsset(process.env.WORKSPACE_ROOT + "/.build/platform"),
+      code: lambda.Code.fromAsset(
+        process.env.WORKSPACE_ROOT + "/.build/platform",
+      ),
       handler: "bootstrap",
       environment: {
         NO_COLOR: "true",
