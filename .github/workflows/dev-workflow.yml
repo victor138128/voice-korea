@@ -54,7 +54,7 @@ jobs:
 
   create-release-pr:
     runs-on: ubuntu-latest
-    needs: [build-deployment,canister-build-deployment]
+    needs: [build-deployment]
     steps:
       - uses: actions/checkout@v3
         with:

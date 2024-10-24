@@ -43,3 +43,6 @@ s3-delete:
 
 cdn-invalidate:
 	aws cloudfront create-invalidation --distribution-id $(CDN_ID) --paths "/*" $(AWS_FLAG) > /dev/null
+
+test:
+	echo "No tests"
