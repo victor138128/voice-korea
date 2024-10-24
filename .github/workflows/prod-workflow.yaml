@@ -48,4 +48,4 @@ jobs:
           SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           npm i -g aws-cdk tailwindcss
-          ENV=prod make deploy
+          ENV=dev make deploy
