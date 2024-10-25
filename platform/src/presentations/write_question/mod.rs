@@ -22,7 +22,6 @@ pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
     let translates = i18n::translate(props.lang.clone());
     let step = ctrl.get_step();
 
-    //TODO: write question page
     rsx! {
         div {
             class: "flex flex-col w-full h-full justify-start items-center",
@@ -49,6 +48,8 @@ pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
                         next_question: translates.next_question,
                         save_label: translates.save_label,
                         cancel_label: translates.cancel_label,
+                        enter_subject_enter_text: translates.enter_subject_enter_text,
+                        add_option: translates.add_option,
                     }
                 }
             }

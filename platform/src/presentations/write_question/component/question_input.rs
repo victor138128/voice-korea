@@ -15,17 +15,21 @@ pub struct QuestionInputProps {
     next_question: String,
     save_label: String,
     cancel_label: String,
+    enter_subject_enter_text: String,
+    add_option: String,
 }
 
 #[derive(Props, Clone, PartialEq)]
 pub struct ObjectiveQuestionProps {
     ctrl: Controller,
     objective_questions: Vec<ObjectiveQuestionOption>,
+    add_option: String,
 }
 
 #[derive(Props, Clone, PartialEq)]
 pub struct SubjectiveQuestionProps {
     ctrl: Controller,
+    enter_subject_enter_text: String,
 }
 
 pub fn QuestionInput(props: QuestionInputProps) -> Element {
@@ -33,6 +37,7 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
     let survey = ctrl.get_survey();
     let questions = ctrl.get_question_types();
     let selected_question = ctrl.get_selected_question();
+    tracing::debug!("selected question: {:?}", selected_question);
 
     let objective_questions = ctrl.get_objective_questions();
     rsx! {
@@ -89,10 +94,12 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                     ObjectiveQuestion {
                         ctrl,
                         objective_questions,
+                        add_option: props.add_option,
                     }
                 } else {
                     SubjectiveQuestion {
                         ctrl,
+                        enter_subject_enter_text: props.enter_subject_enter_text,
                     }
                 }
                 div {
@@ -124,7 +131,6 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
 
 #[component]
 pub fn SubjectiveQuestion(props: SubjectiveQuestionProps) -> Element {
-    let _props = props;
     rsx! {
         div {
             class: "flex flex-col w-full justify-center items-start mt-[30px]",
@@ -138,7 +144,7 @@ pub fn SubjectiveQuestion(props: SubjectiveQuestionProps) -> Element {
                 div {
                     class: "flex flex-1 max-w-[890px] min-w-[300px] text-[21px] text-[#8a8a8a] font-normal; mr-[15px]; ml-[15px]",
                     style: "border:0px; padding: 5px; border-color: transparent; outline-style: none; box-shadow: none; border-bottom: 1px solid #9f9f9f;",
-                    "주관식 답변 텍스트 입력"
+                    {props.enter_subject_enter_text}
                 }
             }
         }
@@ -192,10 +198,11 @@ pub fn ObjectiveQuestion(props: ObjectiveQuestionProps) -> Element {
                 div {
                     class: "flex flex-1 max-w-[890px] min-w-[300px] text-[20px] text-[#3a94ff] font-normal; mr-[15px]; ml-[15px]",
                     onclick: move |_| {
-                        tracing::debug!("this option clicked");
+                        tracing::info!("this button clicked");
+                        ctrl.add_objective_question();
                     },
                     div {
-                        "옵션 추가하기"
+                        {props.add_option}
                     }
                 }
             }

@@ -10,6 +10,8 @@ pub struct WriteQuestionTranslate {
     pub input_question: String,
     pub next_question: String,
     pub cancel_label: String,
+    pub enter_subject_enter_text: String,
+    pub add_option: String,
 }
 
 pub fn translate(lang: Language) -> WriteQuestionTranslate {
@@ -24,6 +26,8 @@ pub fn translate(lang: Language) -> WriteQuestionTranslate {
             input_question: "Please enter your question.".to_string(),
             next_question: "Next Question".to_string(),
             cancel_label: "Cancel".to_string(),
+            enter_subject_enter_text: "Enter Subjective Enter Text".to_string(),
+            add_option: "Add Option".to_string(),
         },
         Language::Ko => WriteQuestionTranslate {
             add_question: "질문 추가하기".to_string(),
@@ -35,6 +39,8 @@ pub fn translate(lang: Language) -> WriteQuestionTranslate {
             input_question: "질문을 입력하세요.".to_string(),
             next_question: "다음 질문".to_string(),
             cancel_label: "취소".to_string(),
+            enter_subject_enter_text: "주관식 답변 입력".to_string(),
+            add_option: "옵션 추가하기".to_string(),
         },
     }
 }
