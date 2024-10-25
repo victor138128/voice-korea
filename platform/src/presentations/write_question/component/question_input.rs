@@ -1,9 +1,10 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
+use dioxus_logger::tracing;
 
 use crate::{
     components::{button::Button, select::Select},
-    presentations::write_question::controller::Controller,
+    presentations::write_question::controller::{Controller, ObjectiveQuestionOption},
 };
 
 #[derive(Props, Clone, PartialEq)]
@@ -16,11 +17,24 @@ pub struct QuestionInputProps {
     cancel_label: String,
 }
 
+#[derive(Props, Clone, PartialEq)]
+pub struct ObjectiveQuestionProps {
+    ctrl: Controller,
+    objective_questions: Vec<ObjectiveQuestionOption>,
+}
+
+#[derive(Props, Clone, PartialEq)]
+pub struct SubjectiveQuestionProps {
+    ctrl: Controller,
+}
+
 pub fn QuestionInput(props: QuestionInputProps) -> Element {
     let mut ctrl = props.ctrl;
     let survey = ctrl.get_survey();
     let questions = ctrl.get_question_types();
     let selected_question = ctrl.get_selected_question();
+
+    let objective_questions = ctrl.get_objective_questions();
     rsx! {
         Fragment {
             div {
@@ -71,6 +85,16 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                         }
                     }
                 }
+                if selected_question == 0 {
+                    ObjectiveQuestion {
+                        ctrl,
+                        objective_questions,
+                    }
+                } else {
+                    SubjectiveQuestion {
+                        ctrl,
+                    }
+                }
                 div {
                     class: "flex flex-row w-full justify-between items-center mt-[30px]",
                     Button {
@@ -94,6 +118,87 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                 }
             }
 
+        }
+    }
+}
+
+#[component]
+pub fn SubjectiveQuestion(props: SubjectiveQuestionProps) -> Element {
+    let _props = props;
+    rsx! {
+        div {
+            class: "flex flex-col w-full justify-center items-start mt-[30px]",
+            div {
+                class: "flex flex-row w-full justify-start items-center mb-[20px]",
+                input {
+                    type: "radio",
+                    style: "height:18px; width:18px; vertical-align: middle",
+                    name: "subjective",
+                }
+                div {
+                    class: "flex flex-1 max-w-[890px] min-w-[300px] text-[21px] text-[#8a8a8a] font-normal; mr-[15px]; ml-[15px]",
+                    style: "border:0px; padding: 5px; border-color: transparent; outline-style: none; box-shadow: none; border-bottom: 1px solid #9f9f9f;",
+                    "주관식 답변 텍스트 입력"
+                }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn ObjectiveQuestion(props: ObjectiveQuestionProps) -> Element {
+    let mut ctrl = props.ctrl;
+    rsx! {
+        div {
+            class: "flex flex-col w-full justify-center items-start mt-[30px]",
+            div {
+                class: "flex flex-col w-full",
+                for i in 0..props.objective_questions.len() {
+                    div {
+                        key: format!("list-{:?}", i),
+                        class: "flex flex-row w-full justify-start items-center mb-[20px]",
+                        input {
+                            type: "radio",
+                            style: "height:18px; width:18px; vertical-align: middle",
+                            name: "objective",
+                        }
+                        input {
+                            class: "flex flex-1 max-w-[890px] min-w-[300px] text-[21px] text-[#8a8a8a] font-normal; mr-[15px]",
+                            "type": "text",
+                            style: "margin-left: 15px; border:0px; padding: 5px; border-color: transparent; outline-style: none; box-shadow: none; border-bottom: 1px solid #9f9f9f;",
+                            placeholder: props.objective_questions.get(i).unwrap().clone().hint,
+                            value: props.objective_questions.get(i).unwrap().clone().text_value,
+                            onchange: move |e| {
+                                ctrl.change_objective_question(i, e.value());
+                            },
+                        }
+                        img {
+                            src: "/images/remove.png",
+                            onclick: move |_| {
+                                ctrl.remove_objective_question(i);
+                            },
+                            class: "w-[25px] h-[25px]",
+                        }
+                    }
+                }
+            }
+            div {
+                class: "flex flex-row w-full justify-start items-center mb-[20px] mt-[10px]",
+                input {
+                    type: "radio",
+                    style: "height:18px; width:18px; vertical-align: middle",
+                    name: "objective",
+                }
+                div {
+                    class: "flex flex-1 max-w-[890px] min-w-[300px] text-[20px] text-[#3a94ff] font-normal; mr-[15px]; ml-[15px]",
+                    onclick: move |_| {
+                        tracing::debug!("this option clicked");
+                    },
+                    div {
+                        "옵션 추가하기"
+                    }
+                }
+            }
         }
     }
 }

@@ -10,12 +10,19 @@ pub struct Controller {
     step: Signal<u64>,
     question_types: Signal<Vec<QuestionOption>>,
     selected_question_types: Signal<u64>,
+    objective_questions: Signal<Vec<ObjectiveQuestionOption>>,
 }
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct QuestionOption {
     pub value: i64,
     pub label: String,
+}
+
+#[derive(Clone, PartialEq, Debug)]
+pub struct ObjectiveQuestionOption {
+    pub hint: String,
+    pub text_value: String,
 }
 
 impl Controller {
@@ -40,6 +47,18 @@ impl Controller {
                 ]
             }),
             selected_question_types: use_signal(|| 0),
+            objective_questions: use_signal(|| {
+                vec![
+                    ObjectiveQuestionOption {
+                        hint: "옵션 1".to_string(),
+                        text_value: "".to_string(),
+                    },
+                    ObjectiveQuestionOption {
+                        hint: "옵션 2".to_string(),
+                        text_value: "".to_string(),
+                    },
+                ]
+            }),
         };
 
         let _ = use_effect(move || {
@@ -74,11 +93,40 @@ impl Controller {
         (self.step)()
     }
 
+    pub fn get_objective_questions(&mut self) -> Vec<ObjectiveQuestionOption> {
+        (self.objective_questions)()
+    }
+
     pub fn change_step(&mut self, step: u64) {
         self.step.set(step);
     }
 
     pub fn change_selected_question(&mut self, selected: u64) {
         self.selected_question_types.set(selected);
+    }
+
+    pub fn change_objective_question(&mut self, index: usize, text_value: String) {
+        let mut objectives = self.get_objective_questions();
+        objectives[index] = ObjectiveQuestionOption {
+            hint: objectives[index].clone().hint,
+            text_value,
+        };
+        self.objective_questions.set(objectives);
+    }
+
+    pub fn add_objective_question(&mut self) {
+        let mut objectives = self.get_objective_questions();
+        let objective_len = objectives.len();
+        objectives.push(ObjectiveQuestionOption {
+            hint: format!("옵션 {:?}", objective_len + 1),
+            text_value: "".to_string(),
+        });
+        self.objective_questions.set(objectives);
+    }
+
+    pub fn remove_objective_question(&mut self, index: usize) {
+        let mut objectives = self.get_objective_questions();
+        objectives.remove(index);
+        self.objective_questions.set(objectives);
     }
 }

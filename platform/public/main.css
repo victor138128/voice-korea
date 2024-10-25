@@ -43,6 +43,11 @@ body {
     max-width: 1200px;
 }
 
+input[type=radio] {
+    width: 24px;
+    height: 24px;
+}
+
 /* input:focus, :hover {
     outline: none;
     color: transparent;
