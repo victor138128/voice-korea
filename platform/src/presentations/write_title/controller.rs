@@ -1,5 +1,8 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
+use dioxus_logger::tracing;
+
+use crate::api::v1::surveys::{create_survey, CreateSurveyRequest};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
@@ -23,5 +26,10 @@ impl Controller {
 
     pub fn set_survey_title(&mut self, title: String) {
         self.survey_title.set(title);
+    }
+
+    pub async fn write_survey_title(&mut self) {
+        tracing::info!("write survey title button clicked");
+        let _ = create_survey(CreateSurveyRequest {}).await;
     }
 }
