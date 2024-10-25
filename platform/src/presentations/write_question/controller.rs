@@ -2,7 +2,11 @@
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
 
-use crate::api::v1::surveys::{get_survey, GetSurveyResponse};
+use crate::api::v1::surveys::{
+    get_survey,
+    upsert_survey::{upsert_survey, SurveyUpdateItem},
+    GetSurveyResponse,
+};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
@@ -128,5 +132,38 @@ impl Controller {
         let mut objectives = self.get_objective_questions();
         objectives.remove(index);
         self.objective_questions.set(objectives);
+    }
+
+    // pub async fn write_question(&mut self) {
+    //     let selected_question_type = self.get_selected_question();
+    //     let survey = self.get_survey();
+
+    //     if selected_question_type == 0 { //객관식
+    //         let _ = upsert_survey(survey.survey.id, SurveyUpdateItem::AddQuestion { title: , question: () })
+    //     }
+    // }
+
+    pub async fn remove_question(&mut self, index: usize) {
+        tracing::info!("remove question button clicked");
+        let survey = self.get_survey();
+        let _ = upsert_survey(
+            survey.survey.id,
+            SurveyUpdateItem::RemoveQuestion(survey.questions.get(index).unwrap().title.clone()),
+        )
+        .await;
+    }
+
+    pub async fn update_question(&mut self, index: usize, title: String) {
+        tracing::info!("update question button clicked");
+        let survey = self.get_survey();
+        let _ = upsert_survey(
+            survey.survey.id,
+            SurveyUpdateItem::UpdateQuestion {
+                id: index.to_string(),
+                title: Some(title),
+                question: Some(survey.questions.get(index).unwrap().question.clone()),
+            },
+        )
+        .await;
     }
 }

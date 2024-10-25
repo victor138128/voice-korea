@@ -48,7 +48,9 @@ pub fn QuestionList(props: QuestionProps) -> Element {
                                     class: "flex flex-row",
                                     Button {
                                         button_text: props.delete.clone(),
-                                        onclick: move |_| {},
+                                        onclick: move |_| async move {
+                                            ctrl.remove_question(i).await;
+                                        },
                                         class: "flex flex-row w-[80px] h-[50px] bg-[#424242] mr-[10px]",
                                     }
                                     Button {
