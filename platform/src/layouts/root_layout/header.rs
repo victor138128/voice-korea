@@ -1,9 +1,14 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 
+use crate::routes::Route;
+
+use super::Language;
+
 #[derive(PartialEq, Props, Clone)]
 pub struct HeaderProps {
     logout: String,
+    lang: Language,
 }
 
 #[component]
@@ -25,8 +30,11 @@ pub fn Header(props: HeaderProps) -> Element {
             }
             div {
                 class: "flex flex-row w-[105px] h-[45px] rounded-[8px] cursor-pointer hover:bg-[#9a9a9a] bg-[#b0b0b0] mr-[45px]",
-                div {
+                Link {
                     class: "flex flex-row w-full h-full justify-center items-center text-[16px] font-bold text-white",
+                    to: Route::LoginPage {
+                        lang: props.lang.clone(),
+                    },
                     "{props.logout}"
                 }
             }

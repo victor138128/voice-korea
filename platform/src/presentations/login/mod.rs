@@ -25,6 +25,7 @@ pub struct InputPasswordProps {
 #[derive(Props, Clone, PartialEq)]
 pub struct LoginProps {
     ctrl: controller::Controller,
+    lang: Language,
     login_message: String,
     email_message: String,
     password_message: String,
@@ -82,6 +83,7 @@ pub fn LoginPage(props: LoginPageProps) -> Element {
                     class: "flex flex-col w-full h-full justify-center items-center",
                     LoginComponent {
                         ctrl,
+                        lang: props.lang,
                         email_message,
                         password_message,
                         login_message
@@ -192,8 +194,11 @@ pub fn LoginComponent(props: LoginProps) -> Element {
                         password_message: props.password_message
                     }
                 }
-                LoginButton {
-                    login_message: props.login_message,
+                Link {
+                    to: Route::DashboardPage { lang: props.lang },
+                    LoginButton {
+                        login_message: props.login_message,
+                    }
                 }
             }
         }
