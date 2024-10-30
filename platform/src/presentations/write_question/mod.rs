@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::prelude::*;
 use component::{question_input::QuestionInput, question_list::QuestionList};
+use controller::QuestionStep;
 use dioxus::prelude::*;
 
 mod controller;
@@ -25,7 +26,7 @@ pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
     rsx! {
         div {
             class: "flex flex-col w-full h-full justify-start items-center",
-            if step == 0 {
+            if step == QuestionStep::List {
                 div {
                     class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px]",
                     QuestionList {
@@ -40,7 +41,7 @@ pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
                 }
             } else {
                 div {
-                    class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[55px] px-[50px]",
+                    class: "flex flex-col max-w-7xl min-w-md w-full justify-start items-start mt-4 px-12",
                     QuestionInput {
                         ctrl,
                         temporary_save: translates.temporary_save,

@@ -2,8 +2,10 @@
 use dioxus::prelude::*;
 
 use crate::{
-    components::button::Button, prelude::Language,
-    presentations::write_question::controller::Controller, routes::Route,
+    components::button::Button,
+    prelude::Language,
+    presentations::write_question::controller::{Controller, QuestionStep},
+    routes::Route,
 };
 
 #[derive(Props, Clone, PartialEq)]
@@ -42,7 +44,7 @@ pub fn QuestionList(props: QuestionProps) -> Element {
                                 style: if i % 2 == 0 {"background-color: #ffffff; box-shadow: 0 3px 5px -3px rgba(115,115,115,0.75), 3px 0 6px -2px rgba(115,115,115,0.75); margin-bottom: 10px;"} else {"background-color: #f9f9f9; box-shadow: 0 3px 5px -3px rgba(115,115,115,0.75), 3px 0 6px -2px rgba(115,115,115,0.75); 1px 0px 0px black; margin-bottom: 10px;"},
                                 div {
                                     class: "font-semibold text-xl text-[#4c4c4c]",
-                                    {survey.questions.get(i).unwrap().clone().title}
+                                    {survey.questions.get(i).map(|q| q.title.clone()).unwrap_or_default()}
                                 }
                                 div {
                                     class: "flex flex-row",
@@ -73,7 +75,7 @@ pub fn QuestionList(props: QuestionProps) -> Element {
                     div {
                         class: "text-[20px] font-medium text-black",
                         onclick: move |_| {
-                            ctrl.change_step(1);
+                            ctrl.change_step(QuestionStep::Input);
                         },
                         "{props.add_question}"
                     }

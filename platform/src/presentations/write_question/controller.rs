@@ -9,9 +9,15 @@ use crate::api::v1::surveys::{
 };
 
 #[derive(Debug, Clone, PartialEq, Copy)]
+pub enum QuestionStep {
+    List,
+    Input,
+}
+
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
     survey: Signal<GetSurveyResponse>,
-    step: Signal<u64>,
+    step: Signal<QuestionStep>,
     question_types: Signal<Vec<QuestionOption>>,
     selected_question_types: Signal<u64>,
     objective_questions: Signal<Vec<ObjectiveQuestionOption>>,
@@ -33,7 +39,7 @@ impl Controller {
     pub fn init(_title: String) -> Self {
         let mut ctrl = Self {
             survey: use_signal(|| GetSurveyResponse::default()),
-            step: use_signal(|| 0),
+            step: use_signal(|| QuestionStep::List),
             question_types: use_signal(|| {
                 vec![
                     QuestionOption {
@@ -93,7 +99,7 @@ impl Controller {
         (self.survey)()
     }
 
-    pub fn get_step(&mut self) -> u64 {
+    pub fn get_step(&mut self) -> QuestionStep {
         (self.step)()
     }
 
@@ -101,7 +107,7 @@ impl Controller {
         (self.objective_questions)()
     }
 
-    pub fn change_step(&mut self, step: u64) {
+    pub fn change_step(&mut self, step: QuestionStep) {
         self.step.set(step);
     }
 
