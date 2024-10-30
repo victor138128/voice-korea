@@ -329,7 +329,7 @@ pub fn EmailAuthentication(props: EmailAuthenticationProps) -> Element {
                     // }
                     Row {
                         enable_bottom_border: true,
-                        height: Some(135),
+                        height: 135,
                         label: props.i18n.authentication_number_label,
                         element: rsx! {
                             div {

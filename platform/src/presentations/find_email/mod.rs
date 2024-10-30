@@ -184,7 +184,7 @@ pub fn FindEmail(props: FindEmailProps) -> Element {
                 }
                 Row {
                     enable_bottom_border: true,
-                    height: Some(135),
+                    height: 135,
                     label: props.authentication_number,
                     element: rsx! {
                         div {

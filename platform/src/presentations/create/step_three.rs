@@ -70,7 +70,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                 }
                 Row {
                     enable_bottom_border: false,
-                    height: Some(135),
+                    height: 135,
                     label: props.authentication_number,
                     element: rsx! {
                         div {
