@@ -70,7 +70,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                 }
                 Row {
                     enable_bottom_border: false,
-                    height: Some(135),
+                    height: 135,
                     label: props.authentication_number,
                     element: rsx! {
                         div {
@@ -105,6 +105,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                                 class: "mx-[10px]",
                                 Input {
                                     value: ctrl.get_password(),
+                                    input_type: "password".to_string(),
                                     onchange: move |e| {
                                         ctrl.set_password(e);
                                     }
@@ -114,7 +115,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                     }
                 }
                 Row {
-                    enable_bottom_border: false,
+                    enable_bottom_border: true,
                     label: props.password_check_info,
                     element: rsx! {
                         div {
@@ -123,6 +124,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                                 class: "mx-[10px]",
                                 Input {
                                     value: ctrl.get_password_check(),
+                                    input_type: "password".to_string(),
                                     onchange: move |e| {
                                         ctrl.set_password_check(e);
                                     }
@@ -131,94 +133,94 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                         }
                     }
                 }
-                Row {
-                    enable_bottom_border: false,
-                    label: props.company_info,
-                    element: rsx! {
-                        div {
-                            class: "flex flex-row w-full h-full items-center mx-[20px] text-black font-normal text-[16px]",
-                            "{props.company_example}"
-                        }
-                    }
-                }
-                Row {
-                    enable_bottom_border: false,
-                    label: props.name_info,
-                    element: rsx! {
-                        div {
-                            class: "flex flex-row w-full h-full justify-start items-center",
-                            div {
-                                class: "mx-[10px]",
-                                Input {
-                                    value: ctrl.get_name(),
-                                    placeholder: props.name_example,
-                                    onchange: move |e| {
-                                        ctrl.set_name(e);
-                                    }
-                                }
-                            },
-                        }
-                    }
-                }
-                Row {
-                    enable_bottom_border: false,
-                    label: props.phone_info,
-                    element: rsx! {
-                        div {
-                            class: "flex flex-row w-full h-full justify-start items-center",
-                            div {
-                                class: "mx-[10px]",
-                                Input {
-                                    value: ctrl.get_cellphone_number(),
-                                    placeholder: props.phone_example,
-                                    onchange: move |e| {
-                                        ctrl.set_cellphone_number(e);
-                                    }
-                                }
-                            },
-                        }
-                    }
-                }
-                Row {
-                    enable_bottom_border: true,
-                    height: Some(135),
-                    label: props.address_info,
-                    element: rsx! {
-                        div {
-                            class: "flex flex-col w-full h-min justify-start items-start mt-[10px]",
-                            div {
-                                class: "flex flex-row w-full h-full justify-start items-center mb-[10px]",
-                                div {
-                                    class: "mx-[10px]",
-                                    Input {
-                                        value: ctrl.get_simple_address(),
-                                        onchange: move |e| {
-                                            ctrl.set_simple_address(e);
-                                        }
-                                    }
-                                },
-                                ButtonComponent {
-                                    width: Some(130),
-                                    label: props.search_address,
-                                    lang: props.lang,
-                                    onclick: move |_| {
-                                        ctrl.set_click_search_address();
-                                    }
-                                }
-                            }
-                            div {
-                                class: "flex flex-row w-full mx-[10px] pr-[20px]",
-                                Input {
-                                    value: ctrl.get_detail_address(),
-                                    onchange: move |e| {
-                                        ctrl.set_detail_address(e);
-                                    },
-                                    width: Some(-1)
-                                }
-                            },
-                        }
-                    }
-                }
+                // Row {
+                //     enable_bottom_border: false,
+                //     label: props.company_info,
+                //     element: rsx! {
+                //         div {
+                //             class: "flex flex-row w-full h-full items-center mx-[20px] text-black font-normal text-[16px]",
+                //             "{props.company_example}"
+                //         }
+                //     }
+                // }
+                // Row {
+                //     enable_bottom_border: false,
+                //     label: props.name_info,
+                //     element: rsx! {
+                //         div {
+                //             class: "flex flex-row w-full h-full justify-start items-center",
+                //             div {
+                //                 class: "mx-[10px]",
+                //                 Input {
+                //                     value: ctrl.get_name(),
+                //                     placeholder: props.name_example,
+                //                     onchange: move |e| {
+                //                         ctrl.set_name(e);
+                //                     }
+                //                 }
+                //             },
+                //         }
+                //     }
+                // }
+                // Row {
+                //     enable_bottom_border: false,
+                //     label: props.phone_info,
+                //     element: rsx! {
+                //         div {
+                //             class: "flex flex-row w-full h-full justify-start items-center",
+                //             div {
+                //                 class: "mx-[10px]",
+                //                 Input {
+                //                     value: ctrl.get_cellphone_number(),
+                //                     placeholder: props.phone_example,
+                //                     onchange: move |e| {
+                //                         ctrl.set_cellphone_number(e);
+                //                     }
+                //                 }
+                //             },
+                //         }
+                //     }
+                // }
+                // Row {
+                //     enable_bottom_border: true,
+                //     height: Some(135),
+                //     label: props.address_info,
+                //     element: rsx! {
+                //         div {
+                //             class: "flex flex-col w-full h-min justify-start items-start mt-[10px]",
+                //             div {
+                //                 class: "flex flex-row w-full h-full justify-start items-center mb-[10px]",
+                //                 div {
+                //                     class: "mx-[10px]",
+                //                     Input {
+                //                         value: ctrl.get_simple_address(),
+                //                         onchange: move |e| {
+                //                             ctrl.set_simple_address(e);
+                //                         }
+                //                     }
+                //                 },
+                //                 ButtonComponent {
+                //                     width: Some(130),
+                //                     label: props.search_address,
+                //                     lang: props.lang,
+                //                     onclick: move |_| {
+                //                         ctrl.set_click_search_address();
+                //                     }
+                //                 }
+                //             }
+                //             div {
+                //                 class: "flex flex-row w-full mx-[10px] pr-[20px]",
+                //                 Input {
+                //                     value: ctrl.get_detail_address(),
+                //                     onchange: move |e| {
+                //                         ctrl.set_detail_address(e);
+                //                     },
+                //                     width: Some(-1)
+                //                 }
+                //             },
+                //         }
+                //     }
+                // }
             }
             div {
                 class: "flex flex-col w-full h-min min-w-[710px] border-solid border border-[#e0e0e0] px-[20px] py-[15px]",
@@ -226,10 +228,10 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                     class: "text-black text-[20px] font-normal pb-[20px]",
                     "{props.check_title}"
                 }
-                div {
-                    class: "text-[#636363] text-[20px] font-normal pb-[5px]",
-                    "{props.check_membership_descriptions[0]}"
-                }
+                // div {
+                //     class: "text-[#636363] text-[20px] font-normal pb-[5px]",
+                //     "{props.check_membership_descriptions[0]}"
+                // }
                 div {
                     class: "text-[#636363] text-[20px] font-normal pb-[5px]",
                     "{props.check_membership_descriptions[1]}"
@@ -244,7 +246,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                 div {
                     onclick: move |_| {
                         ctrl.set_click_complete_join_membership();
-                        ctrl.set_step(3);
+                        ctrl.set_step(1);
                     },
                     class: "flex flex-row w-auto h-[60px] justify-end items-end bg-[#2168c3] px-[20px]",
                     div {

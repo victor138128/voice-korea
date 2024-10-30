@@ -272,44 +272,6 @@ pub fn EmailAuthentication(props: EmailAuthenticationProps) -> Element {
                                         }
                                     }
                                 },
-                            }
-                        }
-                    }
-                    Row {
-                        enable_bottom_border: false,
-                        label: props.i18n.name_label,
-                        element: rsx! {
-                            div {
-                                class: "flex flex-row w-full h-full justify-start items-center",
-                                div {
-                                    class: "mx-[10px]",
-                                    Input {
-                                        value: ctrl.get_name(),
-                                        placeholder: props.i18n.name_hint,
-                                        onchange: move |e| {
-                                            ctrl.set_name(e);
-                                        }
-                                    }
-                                },
-                            }
-                        }
-                    }
-                    Row {
-                        enable_bottom_border: false,
-                        label: props.i18n.phone_label,
-                        element: rsx! {
-                            div {
-                                class: "flex flex-row w-full h-full justify-start items-center",
-                                div {
-                                    class: "mx-[10px]",
-                                    Input {
-                                        value: ctrl.get_phone_number(),
-                                        placeholder: props.i18n.phone_hint,
-                                        onchange: move |e| {
-                                            ctrl.set_phone_number(e);
-                                        }
-                                    }
-                                },
                                 SendAuthenticationButton {
                                     label: props.i18n.send_authentication,
                                     lang: props.lang,
@@ -320,9 +282,54 @@ pub fn EmailAuthentication(props: EmailAuthenticationProps) -> Element {
                             }
                         }
                     }
+                    // Row {
+                    //     enable_bottom_border: false,
+                    //     label: props.i18n.name_label,
+                    //     element: rsx! {
+                    //         div {
+                    //             class: "flex flex-row w-full h-full justify-start items-center",
+                    //             div {
+                    //                 class: "mx-[10px]",
+                    //                 Input {
+                    //                     value: ctrl.get_name(),
+                    //                     placeholder: props.i18n.name_hint,
+                    //                     onchange: move |e| {
+                    //                         ctrl.set_name(e);
+                    //                     }
+                    //                 }
+                    //             },
+                    //         }
+                    //     }
+                    // }
+                    // Row {
+                    //     enable_bottom_border: false,
+                    //     label: props.i18n.phone_label,
+                    //     element: rsx! {
+                    //         div {
+                    //             class: "flex flex-row w-full h-full justify-start items-center",
+                    //             div {
+                    //                 class: "mx-[10px]",
+                    //                 Input {
+                    //                     value: ctrl.get_phone_number(),
+                    //                     placeholder: props.i18n.phone_hint,
+                    //                     onchange: move |e| {
+                    //                         ctrl.set_phone_number(e);
+                    //                     }
+                    //                 }
+                    //             },
+                    //             SendAuthenticationButton {
+                    //                 label: props.i18n.send_authentication,
+                    //                 lang: props.lang,
+                    //                 onclick: move |_| {
+                    //                     // ctrl.set_click_send_authentication();
+                    //                 }
+                    //             }
+                    //         }
+                    //     }
+                    // }
                     Row {
                         enable_bottom_border: true,
-                        height: Some(135),
+                        height: 135,
                         label: props.i18n.authentication_number_label,
                         element: rsx! {
                             div {

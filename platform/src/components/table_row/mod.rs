@@ -3,8 +3,8 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn Row(
-    enable_bottom_border: bool,
-    height: Option<u64>,
+    #[props(default = false)] enable_bottom_border: bool,
+    #[props(default = 70)] height: u64,
     label: String,
     element: Element,
 ) -> Element {
@@ -18,10 +18,7 @@ pub fn Row(
         div {
             class: "flex flex-col w-full justify-start items-start",
                 div {
-                    class: match height {
-                        Some(h) => format!("flex flex-row w-full min-w-[710px] h-[{h}px] border-solid border border-t-[#e0e0e0] {bottom_border} border-l-[#e0e0e0] border-r-[#ffffff]"),
-                        None => format!("flex flex-row w-full min-w-[710px] h-[70px] border-solid border border-t-[#e0e0e0] {bottom_border} border-l-[#e0e0e0] border-r-[#ffffff]"),
-                    },
+                    class: "flex flex-row w-full min-w-[710px] h-[{height}px] border-solid border border-t-[#e0e0e0] {bottom_border} border-l-[#e0e0e0] border-r-[#ffffff]",
                     div {
                         class: "flex flex-row w-[200px] min-w-[200px] h-full justify-start items-start bg-[#2168c3]",
                         div {

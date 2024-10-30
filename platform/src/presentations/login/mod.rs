@@ -117,19 +117,19 @@ pub fn MemberInfoComponent(props: MemberInfoProps) -> Element {
             class: "flex flex-col w-full h-[180px] justify-start items-start px-[50px]",
             div {
                 class: "flex flex-row w-full h-min justify-end items-center",
-                Link {
-                    to: Route::FindEmailPage {
-                        lang: props.lang.clone(),
-                    },
-                    div {
-                        class: "flex flex-row text-black text-[20px] font-normal w-[130px] justify-center items-center",
-                        "{props.find_email_message}"
-                    }
-                }
-                div {
-                    class: "text-[#e0e0e0] text-[20px] font-normal",
-                    "|"
-                }
+                // Link {
+                //     to: Route::FindEmailPage {
+                //         lang: props.lang.clone(),
+                //     },
+                //     div {
+                //         class: "flex flex-row text-black text-[20px] font-normal w-[130px] justify-center items-center",
+                //         "{props.find_email_message}"
+                //     }
+                // }
+                // div {
+                //     class: "text-[#e0e0e0] text-[20px] font-normal",
+                //     "|"
+                // }
                 Link {
                     to: Route::ResetPasswordPage {
                         lang: props.lang.clone(),
