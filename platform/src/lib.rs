@@ -16,6 +16,7 @@ pub mod presentations {
     pub mod find_email;
     pub mod login;
     pub mod reset_password;
+    pub mod select_response;
     pub mod write_question;
     pub mod write_title;
 }
@@ -35,7 +36,9 @@ pub mod layouts {
 
 pub mod components {
     pub mod bottom;
+    pub mod button;
     pub mod input;
+    pub mod select;
     pub mod table_row;
 }
 

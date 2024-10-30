@@ -17,6 +17,7 @@ pub fn RootLayout(lang: Language) -> Element {
             class: "flex flex-col w-screen min-h-screen bg-white text-black",
             Header {
                 logout: translates.logout,
+                lang,
             }
             div {
                 class: "flex flex-row min-w-full max-w-full grow",

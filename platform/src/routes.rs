@@ -6,6 +6,7 @@ use crate::presentations::dashboard::DashboardPage;
 use crate::presentations::find_email::FindEmailPage;
 use crate::presentations::login::LoginPage;
 use crate::presentations::reset_password::ResetPasswordPage;
+use crate::presentations::select_response::SelectResponsePage;
 use crate::presentations::write_question::WriteQuestionPage;
 use crate::presentations::write_title::WriteTitlePage;
 use crate::utils::context::{default_lang, Language};
@@ -19,8 +20,10 @@ pub enum Route {
             DashboardPage { lang: Language },
             #[route("/write-title")]
             WriteTitlePage { lang: Language },
-            #[route("/write-question/:title")]
+            #[route("/:title/write-question")]
             WriteQuestionPage { lang: Language, title: String },
+            #[route("/:title/select-response")]
+            SelectResponsePage { lang: Language, title: String },
         #[end_layout]
 
         #[route("/")]
@@ -31,7 +34,6 @@ pub enum Route {
         FindEmailPage { lang: Language },
         #[route("/reset-password")]
         ResetPasswordPage { lang: Language },
-
     #[end_nest]
 
     #[redirect("/", || Route::LoginPage { lang: default_lang() })]

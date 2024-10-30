@@ -27,8 +27,7 @@ pub fn Input(
     };
     rsx! {
         input {
-            class: "border-[#E0E0E0] text-medium border-[1px] {height} {font_size} {width}",
-            style: "padding: 5px",
+            class: "border-[#E0E0E0] text-medium border-[1px] p-[5px] {height} {width} {font_size}",
             "type": input_type.unwrap_or("text".to_string()),
             placeholder,
             value: value.clone().unwrap_or_default(),

@@ -14,6 +14,8 @@ pub struct WriteTitleProps {
 pub fn WriteTitlePage(props: WriteTitleProps) -> Element {
     let mut ctrl = controller::Controller::init();
     let translates = i18n::translate(props.lang.clone());
+    let navigator = use_navigator();
+
     rsx! {
         div {
             class: "flex flex-col w-full h-full justify-start items-center",
@@ -58,6 +60,15 @@ pub fn WriteTitlePage(props: WriteTitleProps) -> Element {
                         }
                         div {
                             class: "flex flex-row w-[85px] h-[45px] justify-center items-center rounded-[5px] bg-[#2168c3] text-[20px] font-normal text-white mr-[7px]",
+                            onclick: move |_| async move {
+                                let title = ctrl.get_survey_title();
+                                ctrl.write_survey_title(title).await;
+                                navigator
+                                    .push(Route::WriteQuestionPage {
+                                        lang: props.lang.clone(),
+                                        title: ctrl.get_survey_title(),
+                                    });
+                            },
                             {translates.store}
                         }
                     }
