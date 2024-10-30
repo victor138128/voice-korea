@@ -24,6 +24,7 @@ pub struct SelectAttributeProps {
 #[component]
 pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
     let mut ctrl = props.ctrl;
+    let navigator = use_navigator();
 
     rsx! {
         div {
@@ -151,7 +152,12 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                             }
                             div {
                                 class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#2168c3] text-white font-medium text-[20px] mr-[20px]",
-                                onclick: move |_| {},
+                                onclick: move |_| {
+                                    navigator.push(Route::SurveySummaryPage {
+                                        lang: props.lang.clone(),
+                                        title: ctrl.get_title(),
+                                    });
+                                },
                                 {props.save}
                             }
                         }
