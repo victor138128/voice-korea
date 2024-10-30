@@ -20,8 +20,11 @@ run:
 
 deploy: build cdk-build cdk-deploy s3-sync cdn-invalidate
 
+clean:
+	rm -rf .build
+
 .PHONY: build
-build:
+build: clean
 	cd platform && $(BUILD_ENV) make build-lambda
 	mv .build/platform/platform .build/platform/bootstrap
 
