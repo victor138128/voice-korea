@@ -4,7 +4,6 @@ COMMIT ?= $(shell git rev-parse --short HEAD)
 ENV ?= local
 HOST ?= 0.0.0.0:8080
 PROFILE ?= default
-
 RUST_LOG ?= info
 
 .ONESHELL:
@@ -34,12 +33,15 @@ setup.tool:
 run: public/tailwind.css
 	$(BUILD_ENV) dx serve --platform fullstack -p platform -i false
 
+clean:
+	rm -rf dist public/tailwind.css .aws-sam
+
 public/tailwind.css:
-	tailwindcss -i ./input.css -o ./public/tailwind.css --minify
+	NODE_ENV=production tailwindcss -i ./input.css -o ./public/tailwind.css --minify
 
 build: public/tailwind.css
 	$(BUILD_ENV) dx build -p platform --platform fullstack
 
 .ONESHELL:
-build-lambda: public/tailwind.css
+build-lambda: clean public/tailwind.css
 	$(BUILD_ENV) dx build --platform fullstack --server-feature lambda -p platform
