@@ -2,9 +2,7 @@
 use crate::prelude::*;
 use dioxus::prelude::*;
 use step_four::StepFourPage;
-use step_one::StepOnePage;
 use step_three::StepThreePage;
-use step_two::StepTwoPage;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct CreatePageProps {
@@ -27,7 +25,7 @@ pub mod step_two;
 pub fn CreatePage(props: CreatePageProps) -> Element {
     let mut ctrl = controller::Controller::init();
     let translates = i18n::translate(props.lang.clone());
-    let num_step = 4;
+    let num_step = 2;
 
     rsx! {
         div {
@@ -90,35 +88,36 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
                     }
                 }
             }
+            // if ctrl.get_step() == 0 {
+            //     StepOnePage {
+            //         ctrl: ctrl,
+            //         lang: props.lang,
+            //         authorization: translates.authorization,
+            //         individual: translates.individual,
+            //         company: translates.company,
+            //         individual_description: translates.individual_description,
+            //         phone: translates.phone,
+            //         phone_description: translates.phone_description,
+            //         check_title: translates.check_title,
+            //         check_descriptions: vec![translates.check_description_1, translates.check_description_2, translates.check_description_3],
+            //         company_name: translates.company_name,
+            //         business_register_number: translates.business_register_number,
+            //         company_name_example: translates.company_name_example,
+            //         business_register_number_example: translates.business_register_number_example,
+            //         next: translates.next,
+            //     }
+            // } else if ctrl.get_step() == 1 {
+            //     StepTwoPage {
+            //         ctrl: ctrl,
+            //         lang: props.lang,
+            //         agree_terms: translates.agree_terms,
+            //         agree_membership_terms: translates.agree_membership_terms,
+            //         agree_privacy_policy: translates.agree_privacy_policy,
+            //         entrust_personal_information: translates.entrust_personal_information,
+            //         essential: translates.essential,
+            //     }
+            // }
             if ctrl.get_step() == 0 {
-                StepOnePage {
-                    ctrl: ctrl,
-                    lang: props.lang,
-                    authorization: translates.authorization,
-                    individual: translates.individual,
-                    company: translates.company,
-                    individual_description: translates.individual_description,
-                    phone: translates.phone,
-                    phone_description: translates.phone_description,
-                    check_title: translates.check_title,
-                    check_descriptions: vec![translates.check_description_1, translates.check_description_2, translates.check_description_3],
-                    company_name: translates.company_name,
-                    business_register_number: translates.business_register_number,
-                    company_name_example: translates.company_name_example,
-                    business_register_number_example: translates.business_register_number_example,
-                    next: translates.next,
-                }
-            } else if ctrl.get_step() == 1 {
-                StepTwoPage {
-                    ctrl: ctrl,
-                    lang: props.lang,
-                    agree_terms: translates.agree_terms,
-                    agree_membership_terms: translates.agree_membership_terms,
-                    agree_privacy_policy: translates.agree_privacy_policy,
-                    entrust_personal_information: translates.entrust_personal_information,
-                    essential: translates.essential,
-                }
-            } else if ctrl.get_step() == 2 {
                 StepThreePage {
                     ctrl: ctrl,
                     lang: props.lang,

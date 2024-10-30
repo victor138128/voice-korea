@@ -4,12 +4,16 @@ use dioxus_logger::tracing;
 
 use crate::{
     components::{button::Button, select::Select},
-    presentations::write_question::controller::{Controller, ObjectiveQuestionOption},
+    prelude::Language,
+    presentations::write_question::controller::{
+        Controller, ObjectiveQuestionOption, QuestionStep,
+    },
 };
 
 #[derive(Props, Clone, PartialEq)]
 pub struct QuestionInputProps {
     ctrl: Controller,
+    lang: Language,
     temporary_save: String,
     input_question: String,
     next_question: String,
@@ -38,7 +42,6 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
     let questions = ctrl.get_question_types();
     let selected_question = ctrl.get_selected_question();
     tracing::debug!("selected question: {:?}", selected_question);
-
     let objective_questions = ctrl.get_objective_questions();
     rsx! {
         Fragment {
@@ -113,12 +116,16 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                         class: "flex flex-row justify-center items-center",
                         Button {
                             button_text: props.cancel_label,
-                            onclick: move |_| {},
+                            onclick: move |_| {
+                                ctrl.change_step(QuestionStep::List);
+                            },
                             class: "flex flex-row w-[80px] h-[50px] bg-[#434343] mr-[10px]",
                         }
                         Button {
                             button_text: props.save_label,
-                            onclick: move |_| {},
+                            onclick: move |_| {
+                                ctrl.change_step(QuestionStep::List);
+                            },
                             class: "flex flex-row w-[80px] h-[50px] bg-[#2168c3]",
                         }
                     }

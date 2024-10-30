@@ -44,6 +44,7 @@ pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
                     class: "flex flex-col max-w-7xl min-w-md w-full justify-start items-start mt-4 px-12",
                     QuestionInput {
                         ctrl,
+                        lang: props.lang,
                         temporary_save: translates.temporary_save,
                         input_question: translates.input_question,
                         next_question: translates.next_question,

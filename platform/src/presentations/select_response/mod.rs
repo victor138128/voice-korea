@@ -22,6 +22,7 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
     let question_list_info = question_list_info_first
         + question_list.to_string().as_str()
         + question_list_info_second.as_str();
+    let navigator = use_navigator();
 
     const RESPONSE_ATTRIBUTE_IMAGE: &str = "../../images/select-response-attribute.png";
     const RESPONSE_PANEL_IMAGE: &str = "../../images/select-response-panel.png";
@@ -108,7 +109,12 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
                     class: "flex flex-row w-full justify-end items-end mb-[20px]",
                     Button {
                         button_text: translates.back,
-                        onclick: move |_| {},
+                        onclick: move |_| {
+                            navigator.push(Route::WriteQuestionPage {
+                                lang: props.lang.clone(),
+                                title: survey.survey.title.clone()
+                            });
+                        },
                         class: "flex flex-row w-[200px] h-[50px] bg-[#434343]",
                     }
                 }

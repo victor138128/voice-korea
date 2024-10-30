@@ -23,6 +23,7 @@ pub fn QuestionList(props: QuestionProps) -> Element {
     let mut ctrl = props.ctrl;
     let survey = ctrl.get_survey();
     let survey_height = 170 + survey.questions.len() * 90;
+    let navigator = use_navigator();
     rsx! {
         Fragment {
             div {
@@ -94,6 +95,12 @@ pub fn QuestionList(props: QuestionProps) -> Element {
                 }
                 div {
                     class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#2168c3] text-white font-medium text-[20px] mr-[20px]",
+                    onclick: move |_| {
+                        navigator.push(Route::SelectResponsePage {
+                            lang: props.lang.clone(),
+                            title: survey.survey.title.clone()
+                        });
+                    },
                     "{props.save}"
                 }
             }
