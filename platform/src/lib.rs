@@ -17,6 +17,7 @@ pub mod presentations {
     pub mod login;
     pub mod reset_password;
     pub mod select_response;
+    pub mod select_response_detail;
     pub mod write_question;
     pub mod write_title;
 }

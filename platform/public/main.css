@@ -48,6 +48,16 @@ input[type=radio] {
     height: 24px;
 }
 
+.rangeInput{
+  width: 90%;
+  background: linear-gradient(to right, #FFE283 0%, #FFE283 50%, #ececec 50%, #ececec 100%);
+  border-radius: 8px;
+  outline: none;
+  transition: background 450ms ease-in;
+  -webkit-appearance: none;
+  accent-color: #ffca1d;
+}
+
 /* input:focus, :hover {
     outline: none;
     color: transparent;

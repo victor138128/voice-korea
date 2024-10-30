@@ -7,6 +7,7 @@ use crate::presentations::find_email::FindEmailPage;
 use crate::presentations::login::LoginPage;
 use crate::presentations::reset_password::ResetPasswordPage;
 use crate::presentations::select_response::SelectResponsePage;
+use crate::presentations::select_response_detail::SelectResponseDetailPage;
 use crate::presentations::write_question::WriteQuestionPage;
 use crate::presentations::write_title::WriteTitlePage;
 use crate::utils::context::{default_lang, Language};
@@ -24,6 +25,8 @@ pub enum Route {
             WriteQuestionPage { lang: Language, title: String },
             #[route("/:title/select-response")]
             SelectResponsePage { lang: Language, title: String },
+            #[route("/:title/select-response/type/:select_type")]
+            SelectResponseDetailPage { lang: Language, title: String, select_type: String },
         #[end_layout]
 
         #[route("/")]
