@@ -51,6 +51,7 @@ pub struct CreateTranslate {
     pub already_exists_user: String,
     pub incollect_authentication_number: String,
     pub failed_store_data: String,
+    pub invalid_password_pattern: String,
 }
 
 pub fn translate(lang: Language) -> CreateTranslate {
@@ -106,6 +107,7 @@ pub fn translate(lang: Language) -> CreateTranslate {
             already_exists_user: "This user already exists.".to_string(),
             incollect_authentication_number: "The authentication number does not match.".to_string(),
             failed_store_data: "Failed to save data. Please try again.".to_string(),
+            invalid_password_pattern: "Please make up at least 8 characters using a combination of letters, numbers, and special symbols.".to_string()
         },
         Language::Ko => CreateTranslate {
             authorization: "본인인증".to_string(),
@@ -158,6 +160,7 @@ pub fn translate(lang: Language) -> CreateTranslate {
             already_exists_user: "이미 존재하는 유저입니다.".to_string(),
             incollect_authentication_number: "인증번호가 일치하지 않습니다.".to_string(),
             failed_store_data: "데이터 저장에 실패했습니다. 다시 시도해보세요.".to_string(),
+            invalid_password_pattern: "영문, 숫자, 특수기호 조합으로 8자 이상 구성해주세요.".to_string()
         },
     }
 }

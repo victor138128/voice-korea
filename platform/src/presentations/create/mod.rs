@@ -140,6 +140,7 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
                     check_membership_descriptions: vec![translates.check_membership_description_1, translates.check_membership_description_2, translates.check_membership_description_3],
                     complete_join_membership: translates.complete_join_membership,
 
+                    invalid_password_pattern: translates.invalid_password_pattern,
                     incollect_email_form: translates.incollect_email_form,
                     input_password: translates.input_password,
                     incollect_two_password: translates.incollect_two_password,

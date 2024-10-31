@@ -19,6 +19,13 @@ pub struct ResetPasswordTranslate {
     pub complete_change_password_title: String,
     pub complete_change_password_description: Vec<String>,
     pub go_to_login: String,
+
+    pub input_password_error: String,
+    pub invalid_password_pattern: String,
+    pub failed_password_store_data: String,
+    pub not_matched_password: String,
+    pub incollect_email_form: String,
+    pub not_matched_authentication: String,
 }
 
 pub fn translate(lang: Language) -> ResetPasswordTranslate {
@@ -40,7 +47,14 @@ pub fn translate(lang: Language) -> ResetPasswordTranslate {
             check_new_password_description: vec!["- The password must consist of at least 8 characters and a combination of letters, numbers, and special symbols.".to_string()],
             complete_change_password_title: "Password change completed".to_string(),
             complete_change_password_description: vec!["Your password change has been completed!".to_string(), "Please log in with a new password.".to_string()],
-            go_to_login: "To the login screen".to_string()
+            go_to_login: "To the login screen".to_string(),
+
+            input_password_error: "Please enter your password.".to_string(),
+            invalid_password_pattern: "Please make up at least 8 characters using a combination of letters, numbers, and special symbols.".to_string(),
+            failed_password_store_data: "Password change failed. Please try again later.".to_string(),
+            not_matched_password: "The two passwords do not match.".to_string(),
+            incollect_email_form: "The email format is incorrect.".to_string(),
+            not_matched_authentication: "The authentication number does not match.".to_string(),
         },
         Language::Ko => ResetPasswordTranslate {
             reset_password: "비밀번호 재설정".to_string(),
@@ -59,7 +73,14 @@ pub fn translate(lang: Language) -> ResetPasswordTranslate {
             check_new_password_description: vec!["- 비밀번호는 영문, 숫자, 특수기호 조합으로 8자 이상 구성되어야 합니다.".to_string()],
             complete_change_password_title: "비밀번호 변경 완료".to_string(),
             complete_change_password_description: vec!["비밀번호 변경이 완료 되었습니다!".to_string(), "새로운 비밀번호로 로그인 해 주세요.".to_string()],
-            go_to_login: "로그인 화면으로".to_string()
+            go_to_login: "로그인 화면으로".to_string(),
+
+            input_password_error: "패스워드를 입력해주세요.".to_string(),
+            invalid_password_pattern: "영문, 숫자, 특수기호 조합으로 8자 이상 구성해주세요.".to_string(),
+            failed_password_store_data: "비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해주세요.".to_string(),
+            not_matched_password: "두 개의 비밀번호가 일치하지 않습니다.".to_string(),
+            incollect_email_form: "이메일 형식이 올바르지 않습니다.".to_string(),
+            not_matched_authentication: "인증번호가 일치하지 않습니다.".to_string(),
         },
     }
 }

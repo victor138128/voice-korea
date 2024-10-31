@@ -30,6 +30,7 @@ pub struct StepThreeProps {
     check_membership_descriptions: Vec<String>,
     complete_join_membership: String,
 
+    invalid_password_pattern: String,
     incollect_email_form: String,
     input_password: String,
     incollect_two_password: String,
@@ -134,7 +135,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                                 Input {
                                     value: ctrl.get_password(),
                                     input_type: "password".to_string(),
-                                    border: if ctrl.get_password_error() || ctrl.get_password_check_error() {
+                                    border: if ctrl.get_password_error() || ctrl.get_password_check_error() || ctrl.get_password_pattern_error() {
                                         "border-[#ff0000]"
                                     } else {
                                         "border-[#E0E0E0]"
@@ -147,6 +148,11 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                                     div {
                                         class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
                                         {props.input_password},
+                                    }
+                                } else if ctrl.get_password_pattern_error() {
+                                    div {
+                                        class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
+                                        {props.invalid_password_pattern},
                                     }
                                 }
                             },
@@ -169,7 +175,7 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                                 Input {
                                     value: ctrl.get_password_check(),
                                     input_type: "password".to_string(),
-                                    border: if ctrl.get_password_error() || ctrl.get_password_check_error() {
+                                    border: if ctrl.get_password_error() || ctrl.get_password_check_error() || ctrl.get_password_pattern_error() {
                                         "border-[#ff0000]"
                                     } else {
                                         "border-[#E0E0E0]"

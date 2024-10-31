@@ -34,6 +34,7 @@ pub struct Controller {
     email_address_error: Signal<bool>,
     password_error: Signal<bool>,
     password_check_error: Signal<bool>,
+    password_pattern_error: Signal<bool>,
     invalid_authkey_error: Signal<bool>,
     already_exists_user_error: Signal<bool>,
     unknown_error: Signal<bool>,
@@ -68,6 +69,7 @@ impl Controller {
             email_address_error: use_signal(|| false),
             password_error: use_signal(|| false),
             password_check_error: use_signal(|| false),
+            password_pattern_error: use_signal(|| false),
             invalid_authkey_error: use_signal(|| false),
             already_exists_user_error: use_signal(|| false),
             unknown_error: use_signal(|| false),
@@ -177,6 +179,10 @@ impl Controller {
         (self.unknown_error)()
     }
 
+    pub fn get_password_pattern_error(&self) -> bool {
+        (self.password_pattern_error)()
+    }
+
     // pub fn get_click_send_authentication(&self) -> bool {
     //     (self.click_send_authentication)()
     // }
@@ -281,16 +287,33 @@ impl Controller {
     }
 
     pub async fn set_click_complete_join_membership(&mut self) {
+        let mut has_number = false;
+        let mut has_special = false;
+        let mut has_alpha = false;
+
+        for c in self.get_password().chars() {
+            if c.is_numeric() {
+                has_number = true;
+            } else if c.is_alphabetic() {
+                has_alpha = true;
+            } else {
+                has_special = true;
+            }
+        }
         if self.get_password().is_empty() {
             self.password_error.set(true);
             return;
         } else if self.get_password() != self.get_password_check() {
             self.password_check_error.set(true);
             return;
+        } else if !has_number || !has_special || !has_alpha {
+            self.password_pattern_error.set(true);
+            return;
         }
 
         self.password_error.set(false);
         self.password_check_error.set(false);
+        self.password_pattern_error.set(false);
         let res = signup_user(SignupUserRequest {
             auth_key: self.get_authentication_number(),
             email: self.get_email_address(),
