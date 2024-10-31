@@ -1,6 +1,12 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
+use regex::Regex;
+
+use crate::api::{
+    aws::ses::send_email,
+    v1::users::signup::{signup_user, SignupUserRequest},
+};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
@@ -24,6 +30,13 @@ pub struct Controller {
     cellphone_number: Signal<String>,
     simple_address: Signal<String>,
     detail_address: Signal<String>,
+
+    email_address_error: Signal<bool>,
+    password_error: Signal<bool>,
+    password_check_error: Signal<bool>,
+    invalid_authkey_error: Signal<bool>,
+    already_exists_user_error: Signal<bool>,
+    unknown_error: Signal<bool>,
     // click_send_authentication: Signal<bool>,
     // click_search_address: Signal<bool>,
     // click_complete_join_membership: Signal<bool>,
@@ -52,6 +65,12 @@ impl Controller {
             cellphone_number: use_signal(|| "".to_string()),
             simple_address: use_signal(|| "".to_string()),
             detail_address: use_signal(|| "".to_string()),
+            email_address_error: use_signal(|| false),
+            password_error: use_signal(|| false),
+            password_check_error: use_signal(|| false),
+            invalid_authkey_error: use_signal(|| false),
+            already_exists_user_error: use_signal(|| false),
+            unknown_error: use_signal(|| false),
             // click_send_authentication: use_signal(|| false),
             // click_search_address: use_signal(|| false),
             // click_complete_join_membership: use_signal(|| false),
@@ -130,8 +149,32 @@ impl Controller {
         (self.password)()
     }
 
-    pub fn get_password_check(&mut self) -> String {
+    pub fn get_password_check(&self) -> String {
         (self.password_check)()
+    }
+
+    pub fn get_email_address_error(&self) -> bool {
+        (self.email_address_error)()
+    }
+
+    pub fn get_password_error(&self) -> bool {
+        (self.password_error)()
+    }
+
+    pub fn get_password_check_error(&self) -> bool {
+        (self.password_check_error)()
+    }
+
+    pub fn get_invalid_authkey_error(&self) -> bool {
+        (self.invalid_authkey_error)()
+    }
+
+    pub fn get_already_exists_user_error(&self) -> bool {
+        (self.already_exists_user_error)()
+    }
+
+    pub fn get_unknown_error(&self) -> bool {
+        (self.unknown_error)()
     }
 
     // pub fn get_click_send_authentication(&self) -> bool {
@@ -221,16 +264,60 @@ impl Controller {
         self.password_check.set(password_check);
     }
 
-    pub fn set_click_send_authentication(&mut self) {
-        tracing::info!("send authentication button clicked");
+    pub async fn set_click_send_authentication(&mut self) {
+        let re = Regex::new(r"^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$").unwrap();
+
+        if !re.is_match(self.get_email_address().as_str()) {
+            self.email_address_error.set(true);
+            return;
+        }
+
+        self.email_address_error.set(false);
+        let _ = send_email(vec![self.get_email_address()]).await;
     }
 
     pub fn set_click_search_address(&mut self) {
         tracing::info!("search address button clicked");
     }
 
-    pub fn set_click_complete_join_membership(&mut self) {
-        tracing::info!("complete join membership button clicked");
+    pub async fn set_click_complete_join_membership(&mut self) {
+        if self.get_password().is_empty() {
+            self.password_error.set(true);
+            return;
+        } else if self.get_password() != self.get_password_check() {
+            self.password_check_error.set(true);
+            return;
+        }
+
+        self.password_error.set(false);
+        self.password_check_error.set(false);
+        let res = signup_user(SignupUserRequest {
+            auth_key: self.get_authentication_number(),
+            email: self.get_email_address(),
+            password: self.get_password(),
+        })
+        .await;
+
+        match res {
+            Ok(_) => {
+                self.invalid_authkey_error.set(false);
+                self.already_exists_user_error.set(false);
+                self.unknown_error.set(true);
+                self.set_step(1);
+            }
+            Err(e) => match e {
+                ServerFnError::ServerError(v) => {
+                    if v == "Auth key is not exists" {
+                        self.invalid_authkey_error.set(true);
+                    } else if v == "already exists user" {
+                        self.already_exists_user_error.set(true);
+                    } else {
+                        self.unknown_error.set(true);
+                    }
+                }
+                _ => {}
+            },
+        }
     }
 
     fn check_and_update_terms_agreement(&mut self) {

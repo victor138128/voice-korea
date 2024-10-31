@@ -6,6 +6,16 @@ pub struct CommonQueryResponse<T> {
     pub bookmark: Option<String>,
 }
 
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub enum TypeField {
+    #[serde(untagged)]
+    N(i64),
+    #[serde(untagged)]
+    S(String),
+    #[serde(untagged)]
+    B(bool),
+}
+
 impl<T> Default for CommonQueryResponse<T> {
     fn default() -> Self {
         CommonQueryResponse {
@@ -18,8 +28,46 @@ impl<T> Default for CommonQueryResponse<T> {
 #[cfg(feature = "server")]
 impl<T> CommonQueryResponse<T>
 where
-    T: std::fmt::Debug + serde::de::DeserializeOwned,
+    T: std::fmt::Debug + serde::de::DeserializeOwned + serde::Serialize,
 {
+    pub async fn create<F>(log: &slog::Logger, doc: T) -> Result<(), dioxus::prelude::ServerFnError>
+    where
+        F: std::fmt::Debug + serde::Serialize,
+    {
+        let cli = easy_dynamodb::get_client(log.clone());
+
+        match cli.create(doc).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                return Err(dioxus::prelude::ServerFnError::ServerError(format!(
+                    "{:?}",
+                    e
+                )));
+            }
+        }
+    }
+
+    pub async fn update<F>(
+        log: &slog::Logger,
+        key: &str,
+        fields: Vec<(&str, F)>,
+    ) -> Result<(), dioxus::prelude::ServerFnError>
+    where
+        F: std::fmt::Debug + serde::Serialize,
+    {
+        let cli = easy_dynamodb::get_client(log.clone());
+
+        match cli.update(key, fields).await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                return Err(dioxus::prelude::ServerFnError::ServerError(format!(
+                    "{:?}",
+                    e
+                )));
+            }
+        }
+    }
+
     pub async fn query<F>(
         log: &slog::Logger,
         index: &str,
