@@ -148,10 +148,9 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                 question_count: ctrl.get_questions().len() as u64,
                 question_list: ctrl.get_questions(),
                 response_list: translates.response_list,
-                response_list_first: translates.response_list_first,
-                response_list_second: translates.response_list_second,
-                response_list_first_1: translates.response_list_first_1,
-                response_list_second_1: translates.response_list_second_2,
+                total: translates.total,
+                num_of_detail: translates.num_of_detail,
+                num_of: translates.num_of,
             }
             div {
                 class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-end items-end mt-[15px] px-[50px]",
@@ -176,17 +175,16 @@ pub fn ListSurvey(
     question_count: u64,
     question_list: Vec<Question>,
     response_list: String,
-    response_list_first: String,
-    response_list_second: String,
-    response_list_first_1: String,
-    response_list_second_1: String,
+    total: String,
+    num_of_detail: String,
+    num_of: String,
 ) -> Element {
     let survey_list_clicked = ctrl.get_survey_list_clicked();
 
     let mut questions: Vec<QuestionModel> = vec![];
 
-    for i in 0..question_count {
-        match question_list.get(i as usize).unwrap().question.clone() {
+    for question in question_list {
+        match question.question.clone() {
             QuestionType::LongText(long_text_title) => {
                 questions.push(QuestionModel {
                     title: long_text_title.unwrap_or("".to_string()).clone(),
@@ -205,8 +203,9 @@ pub fn ListSurvey(
                     questions: vec![],
                 });
             }
-        };
+        }
     }
+
     rsx! {
         if survey_list_clicked {
             div {
@@ -232,58 +231,32 @@ pub fn ListSurvey(
                         class: "flex flex-row w-full justify-start items-start mb-[10px]",
                         div {
                             class: "text-[#5e5e5e] font-normal text-[20px] mr-[10px]",
-                            {response_list_first_1}
+                            {total}
                         },
                         div {
                             class: "text-[#2168c3] font-semibold text-[20px]",
-                            {format!("{:?}{:?}", question_count, response_list_second_1).replace('"', "")}
+                            {format!("{:?}{:?}", question_count, num_of).replace('"', "")}
                         }
                     },
                     for i in 0..question_count {
-                        if i % 2 == 0 {
+                        div {
+                            class: "flex flex-row w-full min-h-[190px] h-min justify-start items-start odd:bg-[#f9f9f9] even:bg-white px-[20px] py-[10px] border border-b-[#9f9f9f] border-t-transparent border-l-transparent border-r-transparent",
                             div {
-                                class: "flex flex-row w-full min-h-[190px] h-min justify-start items-start bg-[#f9f9f9] px-[20px] py-[10px]",
-                                div {
-                                    class: "text-black font-semibold text-[20px] mr-[20px]",
-                                    {format!("Q{:?}", i + 1)}
-                                }
-                                div {
-                                    class: "flex flex-col w-full justify-start items-start",
-                                    div {
-                                        class: "text-[#5e5e5e] font-normal text-[20px]",
-                                        {questions.get(i as usize).unwrap().title.clone()}
-                                    }
-                                    div {
-                                        class: "flex flex-col w-full justify-start items-start pl-[30px] mt-[20px]",
-                                        for j in 0..questions.get(i as usize).unwrap().questions.len() {
-                                            div {
-                                                class: "text-[#5e5e5e] font-normal text-[20px] mb-[10px]",
-                                                {format!("{:?}. {:?}", j + 1, questions.get(i as usize).unwrap().questions.get(j as usize).unwrap().clone()).replace('"', "")}
-                                            }
-                                        }
-                                    }
-                                }
+                                class: "text-black font-semibold text-[20px] mr-[20px]",
+                                {format!("Q{:?}", i + 1)}
                             }
-                        } else {
                             div {
-                                class: "flex flex-row w-full min-h-[190px] h-min justify-start items-start bg-white px-[20px] py-[10px]",
+                                class: "flex flex-col w-full justify-start items-start",
                                 div {
-                                    class: "text-black font-semibold text-[20px] mr-[20px]",
-                                    {format!("Q{:?}", i + 1)}
+                                    class: "text-[#5e5e5e] font-normal text-[20px]",
+                                    {questions.get(i as usize).unwrap().title.clone()}
                                 }
                                 div {
-                                    class: "flex flex-col w-full justify-start items-start",
-                                    div {
-                                        class: "text-[#5e5e5e] font-normal text-[20px]",
-                                        {questions.get(i as usize).unwrap().title.clone()}
-                                    }
-                                    div {
-                                        class: "flex flex-col w-full justify-start items-start pl-[30px] mt-[20px]",
-                                        for j in 0..questions.get(i as usize).unwrap().questions.len() {
-                                            div {
-                                                class: "text-[#5e5e5e] font-normal text-[20px] mb-[10px]",
-                                                {format!("{:?}. {:?}", j + 1, questions.get(i as usize).unwrap().questions.get(j as usize).unwrap().clone()).replace('"', "")}
-                                            }
+                                    class: "flex flex-col w-full justify-start items-start pl-[30px] mt-[20px]",
+                                    for j in 0..questions.get(i as usize).unwrap().questions.len() {
+                                        div {
+                                            class: "text-[#5e5e5e] font-normal text-[20px] mb-[10px]",
+                                            {format!("{:?}. {:?}", j + 1, questions.get(i as usize).unwrap().questions.get(j as usize).unwrap().clone()).replace('"', "")}
                                         }
                                     }
                                 }
@@ -307,7 +280,7 @@ pub fn ListSurvey(
                             },
                             div {
                                 class: "text-[#5e5e5e] font-normal text-[22px]",
-                                {format!("{:?} {:?}{:?}", response_list_first, question_count, response_list_second).replace('"', "")},
+                                {format!("{:?} {:?}{:?}", total, question_count, num_of_detail).replace('"', "")},
                             },
                         }
                         img {

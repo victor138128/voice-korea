@@ -10,11 +10,10 @@ pub struct SurveySummaryTranslate {
     pub select_panel_and_attribute: String,
     pub response_info: String,
     pub response_list: String,
-    pub response_list_first: String,
-    pub response_list_second: String,
+    pub total: String,
+    pub num_of_detail: String,
     pub back: String,
-    pub response_list_first_1: String,
-    pub response_list_second_2: String,
+    pub num_of: String,
 }
 
 pub fn translate(lang: Language) -> SurveySummaryTranslate {
@@ -29,11 +28,10 @@ pub fn translate(lang: Language) -> SurveySummaryTranslate {
             select_panel_and_attribute: "Selection panel and properties".to_string(),
             response_info: "Number of survey respondents".to_string(),
             response_list: "Survey list".to_string(),
-            response_list_first: "Total".to_string(),
-            response_list_second: "have two questions.".to_string(),
+            total: "Total".to_string(),
+            num_of_detail: "have two questions.".to_string(),
             back: "Back".to_string(),
-            response_list_first_1: "Total".to_string(),
-            response_list_second_2: "".to_string(),
+            num_of: "".to_string(),
         },
         Language::Ko => SurveySummaryTranslate {
             start_survey: "설문 시작".to_string(),
@@ -45,11 +43,10 @@ pub fn translate(lang: Language) -> SurveySummaryTranslate {
             select_panel_and_attribute: "선택 패널 및 속성".to_string(),
             response_info: "명의 설문 대상자".to_string(),
             response_list: "설문 목록".to_string(),
-            response_list_first: "총".to_string(),
-            response_list_second: "개의 질문이 있습니다.".to_string(),
+            total: "총".to_string(),
+            num_of_detail: "개의 질문이 있습니다.".to_string(),
             back: "돌아가기".to_string(),
-            response_list_first_1: "총".to_string(),
-            response_list_second_2: "개".to_string(),
+            num_of: "개".to_string(),
         },
     }
 }

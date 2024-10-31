@@ -4,7 +4,7 @@ use dioxus_logger::tracing;
 
 use crate::{
     api::v1::surveys::{get_survey, GetSurveyResponse},
-    models::{question::Question, survey::SurveySummary},
+    models::question::Question,
 };
 
 #[derive(Debug, Clone, PartialEq, Copy)]
