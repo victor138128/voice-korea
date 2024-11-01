@@ -32,7 +32,7 @@ export class CdkStack extends cdk.Stack {
     const certificate = acm.Certificate.fromCertificateArn(
       this,
       "Certificate",
-      acmId,
+      acmId
     );
 
     const table = new dynamodb.Table(this, "DynamoDB", {
@@ -84,10 +84,23 @@ export class CdkStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    table.addGlobalSecondaryIndex({
+      indexName: "auth-key-index",
+      partitionKey: {
+        name: "auth_key",
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: "created_at",
+        type: dynamodb.AttributeType.NUMBER,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     const func = new lambda.Function(this, "Function", {
       runtime: lambda.Runtime.PROVIDED_AL2023,
       code: lambda.Code.fromAsset(
-        process.env.WORKSPACE_ROOT + "/.build/platform",
+        process.env.WORKSPACE_ROOT + "/.build/platform"
       ),
       handler: "bootstrap",
       environment: {
@@ -168,7 +181,7 @@ export class CdkStack extends cdk.Stack {
       {
         zoneName: domain,
         hostedZoneId,
-      },
+      }
     );
 
     new route53.ARecord(this, "IpV4Record", {

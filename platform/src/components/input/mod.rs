@@ -10,6 +10,7 @@ pub fn Input(
     height: Option<i64>,
     width: Option<i64>,
     font_size: Option<u64>,
+    #[props(default = "border-[#E0E0E0]".to_string())] border: String,
 ) -> Element {
     let height = match height {
         Some(-1) => "h-full".to_string(),
@@ -27,7 +28,7 @@ pub fn Input(
     };
     rsx! {
         input {
-            class: "border-[#E0E0E0] text-medium border-[1px] p-[5px] {height} {width} {font_size}",
+            class: "{border} text-medium border-[1px] p-[5px] {height} {width} {font_size}",
             "type": input_type.unwrap_or("text".to_string()),
             placeholder,
             value: value.clone().unwrap_or_default(),

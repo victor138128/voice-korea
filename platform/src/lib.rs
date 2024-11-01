@@ -26,10 +26,16 @@ pub mod presentations {
 pub mod models {
     pub mod question;
     pub mod survey;
+    pub mod user;
 }
 
 pub mod utils {
     pub mod context;
+    #[cfg(feature = "server")]
+    pub mod db;
+    pub mod hash;
+    #[cfg(feature = "server")]
+    pub mod logger;
 }
 
 pub mod layouts {

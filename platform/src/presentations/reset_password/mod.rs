@@ -32,6 +32,9 @@ pub struct EmailAuthenticationi18nProps {
     authentication_number_description: Vec<String>,
     check_title: String,
     check_description: Vec<String>,
+
+    incollect_email_form: String,
+    not_matched_authentication: String,
 }
 
 #[derive(PartialEq, Props, Clone)]
@@ -41,6 +44,11 @@ pub struct ResetNewPasswordi18nProps {
     input_new_password_check_label: String,
     check_title: String,
     check_new_password_description: Vec<String>,
+
+    input_password_error: String,
+    invalid_password_pattern: String,
+    failed_password_store_data: String,
+    not_matched_password: String,
 }
 
 #[derive(PartialEq, Props, Clone)]
@@ -76,7 +84,7 @@ pub mod i18n;
 
 #[component]
 pub fn ResetPasswordPage(props: ResetPasswordPageProps) -> Element {
-    let mut ctrl = controller::Controller::init();
+    let ctrl = controller::Controller::init();
     let translates = i18n::translate(props.lang.clone());
 
     rsx! {
@@ -98,6 +106,9 @@ pub fn ResetPasswordPage(props: ResetPasswordPageProps) -> Element {
                         authentication_number_description: translates.authentication_number_description,
                         check_title: translates.check_title,
                         check_description: translates.check_description,
+
+                        incollect_email_form: translates.incollect_email_form,
+                        not_matched_authentication: translates.not_matched_authentication,
                     }
                 }
             }
@@ -110,7 +121,12 @@ pub fn ResetPasswordPage(props: ResetPasswordPageProps) -> Element {
                         input_new_password_label: translates.input_new_password_label,
                         input_new_password_check_label: translates.input_new_password_check_label,
                         check_title: translates.check_title,
-                        check_new_password_description: translates.check_new_password_description
+                        check_new_password_description: translates.check_new_password_description,
+
+                        input_password_error: translates.input_password_error,
+                        invalid_password_pattern: translates.invalid_password_pattern,
+                        failed_password_store_data: translates.failed_password_store_data,
+                        not_matched_password: translates.not_matched_password
                     }
                 }
             } else {
@@ -181,16 +197,42 @@ pub fn ResetNewPassword(props: ResetNewPasswordProps) -> Element {
                     Row {
                         enable_bottom_border: false,
                         label: props.i18n.input_new_password_label,
+                        height: if ctrl.get_password_error() || ctrl.get_password_pattern_error() || ctrl.get_password_unknown_error() {
+                            100 as u64
+                        } else {
+                            70 as u64
+                        },
                         element: rsx! {
                             div {
                                 class: "flex flex-row w-full h-full justify-start items-center",
                                 div {
-                                    class: "mx-[10px]",
+                                    class: "flex flex-col w-min justify-start items-start mx-[10px]",
                                     Input {
                                         value: ctrl.get_new_password(),
                                         input_type: "password",
+                                        border: if ctrl.get_password_error() || ctrl.get_password_check_error() || ctrl.get_password_pattern_error() || ctrl.get_password_unknown_error() {
+                                            "border-[#ff0000]"
+                                        } else {
+                                            "border-[#E0E0E0]"
+                                        },
                                         onchange: move |e| {
                                             ctrl.set_new_password(e);
+                                        }
+                                    }
+                                    if ctrl.get_password_error() {
+                                        div {
+                                            class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
+                                            {props.i18n.input_password_error},
+                                        }
+                                    } else if ctrl.get_password_pattern_error() {
+                                        div {
+                                            class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
+                                            {props.i18n.invalid_password_pattern},
+                                        }
+                                    } else if ctrl.get_password_unknown_error() {
+                                        div {
+                                            class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
+                                            {props.i18n.failed_password_store_data},
                                         }
                                     }
                                 },
@@ -200,16 +242,32 @@ pub fn ResetNewPassword(props: ResetNewPasswordProps) -> Element {
                     Row {
                         enable_bottom_border: true,
                         label: props.i18n.input_new_password_check_label,
+                        height: if ctrl.get_password_check_error() {
+                            100 as u64
+                        } else {
+                            70 as u64
+                        },
                         element: rsx! {
                             div {
                                 class: "flex flex-row w-full h-full justify-start items-center",
                                 div {
-                                    class: "mx-[10px]",
+                                    class: "flex flex-col w-min justify-start items-start mx-[10px]",
                                     Input {
                                         value: ctrl.get_new_password_check(),
                                         input_type: "password",
+                                        border: if ctrl.get_password_error() || ctrl.get_password_check_error() || ctrl.get_password_pattern_error() || ctrl.get_password_unknown_error() {
+                                            "border-[#ff0000]"
+                                        } else {
+                                            "border-[#E0E0E0]"
+                                        },
                                         onchange: move |e| {
                                             ctrl.set_new_password_check(e);
+                                        }
+                                    }
+                                    if ctrl.get_password_check_error() {
+                                        div {
+                                            class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
+                                            {props.i18n.not_matched_password},
                                         }
                                     }
                                 },
@@ -233,8 +291,8 @@ pub fn ResetNewPassword(props: ResetNewPasswordProps) -> Element {
                 class: "flex flex-row w-full justify-end items-end",
                 div {
                     class: "flex flex-row w-[300px] h-[60px] bg-[#2168c3] justify-center items-center text-white font-bold text-[24px]",
-                    onclick: move |_| {
-                        ctrl.clicked_reset_new_password();
+                    onclick: move |_| async move {
+                        ctrl.clicked_reset_new_password().await;
                     },
                     "{props.i18n.reset_password}"
                 }
@@ -260,23 +318,39 @@ pub fn EmailAuthentication(props: EmailAuthenticationProps) -> Element {
                     Row {
                         enable_bottom_border: false,
                         label: props.i18n.email_address_label,
+                        height: if ctrl.get_email_address_error() {
+                            100 as u64
+                        } else {
+                            70 as u64
+                        },
                         element: rsx! {
                             div {
                                 class: "flex flex-row w-full h-full justify-start items-center",
                                 div {
-                                    class: "mx-[10px]",
+                                    class: "flex flex-col w-min justify-start items-start mx-[10px]",
                                     Input {
                                         value: ctrl.get_email(),
                                         onchange: move |e| {
                                             ctrl.set_email(e);
+                                        },
+                                        border: if ctrl.get_email_address_error() {
+                                            "border-[#ff0000]"
+                                        } else {
+                                            "border-[#E0E0E0]"
+                                        },
+                                    },
+                                    if ctrl.get_email_address_error() {
+                                        div {
+                                            class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
+                                            {props.i18n.incollect_email_form},
                                         }
                                     }
                                 },
                                 SendAuthenticationButton {
                                     label: props.i18n.send_authentication,
                                     lang: props.lang,
-                                    onclick: move |_| {
-                                        // ctrl.set_click_send_authentication();
+                                    onclick: move |_| async move {
+                                        ctrl.set_click_send_authentication().await;
                                     }
                                 }
                             }
@@ -329,7 +403,11 @@ pub fn EmailAuthentication(props: EmailAuthenticationProps) -> Element {
                     // }
                     Row {
                         enable_bottom_border: true,
-                        height: 135,
+                        height: if ctrl.get_invalid_authkey_error() {
+                            160 as u64
+                        } else {
+                            135 as u64
+                        },
                         label: props.i18n.authentication_number_label,
                         element: rsx! {
                             div {
@@ -350,6 +428,12 @@ pub fn EmailAuthentication(props: EmailAuthenticationProps) -> Element {
                                 div {
                                     class: "text-[16px] font-normal text-[#636363]",
                                     "{props.i18n.authentication_number_description[1]}"
+                                }
+                                if ctrl.get_invalid_authkey_error() {
+                                    div {
+                                        class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
+                                        {props.i18n.not_matched_authentication},
+                                    }
                                 }
                             }
                         }
@@ -379,8 +463,8 @@ pub fn EmailAuthentication(props: EmailAuthenticationProps) -> Element {
                 class: "flex flex-row w-full justify-end items-end",
                 div {
                     class: "flex flex-row w-[300px] h-[60px] bg-[#2168c3] justify-center items-center text-white font-bold text-[24px]",
-                    onclick: move |_| {
-                        ctrl.clicked_email_authentication();
+                    onclick: move |_| async move {
+                        ctrl.clicked_email_authentication().await;
                     },
                     "{props.i18n.reset_password}"
                 }

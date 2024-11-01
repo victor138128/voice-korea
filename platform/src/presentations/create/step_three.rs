@@ -29,6 +29,14 @@ pub struct StepThreeProps {
     check_title: String,
     check_membership_descriptions: Vec<String>,
     complete_join_membership: String,
+
+    invalid_password_pattern: String,
+    incollect_email_form: String,
+    input_password: String,
+    incollect_two_password: String,
+    already_exists_user: String,
+    incollect_authentication_number: String,
+    failed_store_data: String,
 }
 
 #[component]
@@ -46,23 +54,39 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                 Row {
                     enable_bottom_border: false,
                     label: props.email_address,
+                    height: if ctrl.get_email_address_error() {
+                        100 as u64
+                    } else {
+                        70 as u64
+                    },
                     element: rsx! {
                         div {
                             class: "flex flex-row w-full h-full justify-start items-center",
                             div {
-                                class: "mx-[10px]",
+                                class: "flex flex-col w-min justify-start items-start mx-[10px]",
                                 Input {
                                     value: ctrl.get_email_address(),
                                     onchange: move |e| {
                                         ctrl.set_email_address(e);
+                                    },
+                                    border: if ctrl.get_email_address_error() {
+                                        "border-[#ff0000]"
+                                    } else {
+                                        "border-[#E0E0E0]"
+                                    },
+                                },
+                                if ctrl.get_email_address_error() {
+                                    div {
+                                        class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
+                                        {props.incollect_email_form},
                                     }
                                 }
                             },
                             ButtonComponent {
                                 label: props.send_authentication,
                                 lang: props.lang,
-                                onclick: move |_| {
-                                    ctrl.set_click_send_authentication();
+                                onclick: move |_| async move {
+                                    ctrl.set_click_send_authentication().await;
                                 }
                             }
                         }
@@ -98,16 +122,37 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                 Row {
                     enable_bottom_border: false,
                     label: props.password_info,
+                    height: if ctrl.get_password_error() {
+                        100 as u64
+                    } else {
+                        70 as u64
+                    },
                     element: rsx! {
                         div {
                             class: "flex flex-row w-full h-full justify-start items-center",
                             div {
-                                class: "mx-[10px]",
+                                class: "flex flex-col w-min justify-start items-start mx-[10px]",
                                 Input {
                                     value: ctrl.get_password(),
                                     input_type: "password".to_string(),
+                                    border: if ctrl.get_password_error() || ctrl.get_password_check_error() || ctrl.get_password_pattern_error() {
+                                        "border-[#ff0000]"
+                                    } else {
+                                        "border-[#E0E0E0]"
+                                    },
                                     onchange: move |e| {
                                         ctrl.set_password(e);
+                                    }
+                                }
+                                if ctrl.get_password_error() {
+                                    div {
+                                        class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
+                                        {props.input_password},
+                                    }
+                                } else if ctrl.get_password_pattern_error() {
+                                    div {
+                                        class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
+                                        {props.invalid_password_pattern},
                                     }
                                 }
                             },
@@ -117,16 +162,32 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                 Row {
                     enable_bottom_border: true,
                     label: props.password_check_info,
+                    height: if ctrl.get_password_check_error() {
+                        100 as u64
+                    } else {
+                        70 as u64
+                    },
                     element: rsx! {
                         div {
                             class: "flex flex-row w-full h-full justify-start items-center",
                             div {
-                                class: "mx-[10px]",
+                                class: "flex flex-col w-min justify-start items-start mx-[10px]",
                                 Input {
                                     value: ctrl.get_password_check(),
                                     input_type: "password".to_string(),
+                                    border: if ctrl.get_password_error() || ctrl.get_password_check_error() || ctrl.get_password_pattern_error() {
+                                        "border-[#ff0000]"
+                                    } else {
+                                        "border-[#E0E0E0]"
+                                    },
                                     onchange: move |e| {
                                         ctrl.set_password_check(e);
+                                    }
+                                }
+                                if ctrl.get_password_check_error() {
+                                    div {
+                                        class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
+                                        {props.incollect_two_password},
                                     }
                                 }
                             },
@@ -222,6 +283,31 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
                 //     }
                 // }
             }
+            if ctrl.get_already_exists_user_error() {
+                div {
+                    class: "flex flex-col w-full h-min min-w-[710px] px-[20px] py-[15px]",
+                    div {
+                        class: "text-[#ff0000] font-normal text-[12px]",
+                        {props.already_exists_user}
+                    }
+                }
+            } else if ctrl.get_invalid_authkey_error() {
+                div {
+                    class: "flex flex-col w-full h-min min-w-[710px] px-[20px] py-[15px]",
+                    div {
+                        class: "text-[#ff0000] font-normal text-[12px]",
+                        {props.incollect_authentication_number}
+                    }
+                }
+            } else if ctrl.get_unknown_error() {
+                div {
+                    class: "flex flex-col w-full h-min min-w-[710px] px-[20px] py-[15px]",
+                    div {
+                        class: "text-[#ff0000] font-normal text-[12px]",
+                        {props.failed_store_data}
+                    }
+                }
+            }
             div {
                 class: "flex flex-col w-full h-min min-w-[710px] border-solid border border-[#e0e0e0] px-[20px] py-[15px]",
                 div {
@@ -244,9 +330,9 @@ pub fn StepThreePage(props: StepThreeProps) -> Element {
             div {
                 class: "flex flex-row w-full justify-end min-w-[710px] items-end pt-[30px]",
                 div {
-                    onclick: move |_| {
-                        ctrl.set_click_complete_join_membership();
-                        ctrl.set_step(1);
+                    onclick: move |_| async move {
+                        ctrl.set_click_complete_join_membership().await;
+
                     },
                     class: "flex flex-row w-auto h-[60px] justify-end items-end bg-[#2168c3] px-[20px]",
                     div {

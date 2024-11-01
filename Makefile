@@ -7,11 +7,19 @@ REGION ?= $(shell aws configure get region)
 BASE_DOMAIN ?= biyard.co
 
 DOMAIN ?= voice-korea.$(ENV).$(BASE_DOMAIN)
-TABLE_NAME ?= $(SERVICE)-$(ENV)
+# TABLE_NAME ?= $(SERVICE)-$(ENV)
 CDN_ID ?= $(shell aws cloudfront list-distributions --query "DistributionList.Items[*].{id:Id,test:AliasICPRecordals[?CNAME=='$(DOMAIN)']}" --output json |jq '. | map(select(.test | length > 0))[0] | .id' | tr -d \")
 ACM_ID ?= $(shell aws acm list-certificates --query "CertificateSummaryList[*].{id:CertificateArn,domains:SubjectAlternativeNameSummaries}[?contains(domains,'$(DOMAIN)')].id" --output text --region us-east-1)
 HOSTED_ZONE_ID ?= $(shell basename `aws route53 list-hosted-zones-by-name --dns-name $(BASE_DOMAIN) --query "HostedZones[0].Id" --output text`)
 WORKSPACE_ROOT ?= $(PWD)
+
+ifeq ("$(ENV)","prod")
+	TABLE_NAME = voice-korea-prod
+endif
+
+ifeq ("$(ENV)","dev")
+	TABLE_NAME = voice-korea-dev
+endif
 
 BUILD_ENV ?= AWS_ACCESS_KEY_ID=$(ACCESS_KEY_ID) AWS_SECRET_ACCESS_KEY=$(SECRET_ACCESS_KEY) AWS_REGION=$(REGION) DOMAIN=$(DOMAIN) TABLE_NAME=$(TABLE_NAME) CDN_ID=$(CDN_ID) ACM_ID=$(ACM_ID) HOSTED_ZONE_ID=$(HOSTED_ZONE_ID) WORKSPACE_ROOT=$(WORKSPACE_ROOT) SERVICE=$(SERVICE)
 

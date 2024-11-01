@@ -29,6 +29,10 @@ pub struct LoginProps {
     login_message: String,
     email_message: String,
     password_message: String,
+
+    not_matched_error: String,
+    not_exists_user_error: String,
+    login_failed_error: String,
 }
 
 #[derive(Props, Clone, PartialEq)]
@@ -86,7 +90,10 @@ pub fn LoginPage(props: LoginPageProps) -> Element {
                         lang: props.lang,
                         email_message,
                         password_message,
-                        login_message
+                        login_message,
+                        not_matched_error: translates.not_matched_error,
+                        not_exists_user_error: translates.not_exists_user_error,
+                        login_failed_error: translates.login_failed_error,
                     }
                     MemberInfoComponent {
                         lang: props.lang.clone(),
@@ -174,6 +181,8 @@ pub fn MemberInfoComponent(props: MemberInfoProps) -> Element {
 
 #[component]
 pub fn LoginComponent(props: LoginProps) -> Element {
+    let mut ctrl = props.ctrl;
+
     rsx! {
         div {
             class: "flex flex-col w-[610px] h-[530px] justify-center items-center",
@@ -182,22 +191,43 @@ pub fn LoginComponent(props: LoginProps) -> Element {
                 "{props.login_message}"
             }
             div {
-                class: "flex flex-row justify-between w-[610px] h-[100px]",
+                class: "flex flex-col justify-start items-start",
                 div {
-                    class: "flex flex-col w-[300px] h-full justify-between",
-                    InputEmailComponent {
-                        ctrl: props.ctrl,
-                        email_message: props.email_message
+                    class: "flex flex-row justify-between w-[610px] h-[100px]",
+                    div {
+                        class: "flex flex-col w-[300px] h-full justify-between",
+                        InputEmailComponent {
+                            ctrl: props.ctrl,
+                            email_message: props.email_message
+                        }
+                        InputPasswordComponent {
+                            ctrl: props.ctrl,
+                            password_message: props.password_message
+                        }
                     }
-                    InputPasswordComponent {
-                        ctrl: props.ctrl,
-                        password_message: props.password_message
+                    div {
+                        onclick: move |_| async move {
+                            let _ = ctrl.login_clicked(props.lang).await;
+                        },
+                        LoginButton {
+                            login_message: props.login_message,
+                        }
                     }
                 }
-                Link {
-                    to: Route::DashboardPage { lang: props.lang },
-                    LoginButton {
-                        login_message: props.login_message,
+                if ctrl.get_not_matched_error() {
+                    div {
+                        class: "mt-[10px] text-[#ff0000] font-normal text-[12px]",
+                        {props.not_matched_error}
+                    }
+                } else if ctrl.get_exists_error() {
+                    div {
+                        class: "mt-[10px] text-[#ff0000] font-normal text-[12px]",
+                        {props.not_exists_user_error}
+                    }
+                } else if ctrl.get_login_failed_error() {
+                    div {
+                        class: "mt-[10px] text-[#ff0000] font-normal text-[12px]",
+                        {props.login_failed_error}
                     }
                 }
             }

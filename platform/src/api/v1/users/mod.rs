@@ -1,4 +1,6 @@
 #![allow(unused_imports)]
+pub mod login;
+pub mod reset;
 pub mod signup;
 pub mod verify;
 
