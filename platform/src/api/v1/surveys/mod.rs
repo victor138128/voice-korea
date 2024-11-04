@@ -12,7 +12,7 @@ use crate::{
     api::common::CommonQueryResponse,
     models::{
         question::{Question, QuestionAnswer, QuestionType},
-        survey::{Age, Gender, ProofId, Quota, SurveyStatus, SurveySummary},
+        survey::{Age, Gender, ProofId, QuestionSequence, Quota, SurveyStatus, SurveySummary},
     },
 };
 
@@ -30,90 +30,19 @@ pub enum Status {
 
 #[server(endpoint = "/v1/surveys/lists", input = GetUrl, output = Json)]
 pub async fn list_surveys(
+    email: String,
     _size: Option<i32>,
     _bookmark: Option<String>,
     _status: Option<Status>,
 ) -> Result<CommonQueryResponse<SurveySummary>, ServerFnError> {
     dioxus_logger::tracing::debug!("/v1/surveys/lists",);
 
-    Ok(CommonQueryResponse {
-        items: vec![
-            SurveySummary {
-                id: "survey-id".to_string(),
-                title: "설문지 타이틀".to_string(),
-                status: SurveyStatus::Finished,
-                updated_at: 1725548400,
-                responses: Some(500),
-                expected_responses: Some(500),
-                questions: 1,
-                quotas: Some(vec![Quota::Attribute {
-                    salary_tier: Some(1),
-                    region_code: Some(02),
-                    gender: Some(Gender::Male),
-                    age: Some(Age::Specific(20)),
-                    quota: 500,
-                }]),
-                r#type: "survey".to_string(),
-                gsi1: "account-id".to_string(),
-                gsi2: "status".to_string(),
-            },
-            SurveySummary {
-                id: "survey-id2".to_string(),
-                title: "설문지 타이틀2".to_string(),
-                status: SurveyStatus::Draft,
-                updated_at: 1725548400,
-                responses: None,
-                expected_responses: None,
-                questions: 1,
-                quotas: Some(vec![Quota::Attribute {
-                    salary_tier: Some(1),
-                    region_code: Some(02),
-                    gender: Some(Gender::Male),
-                    age: Some(Age::Specific(20)),
-                    quota: 500,
-                }]),
-                r#type: "survey".to_string(),
-                gsi1: "account-id".to_string(),
-                gsi2: "status".to_string(),
-            },
-            SurveySummary {
-                id: "survey-id3".to_string(),
-                title: "설문지 타이틀2".to_string(),
-                status: SurveyStatus::InProgress {
-                    started_at: 1725548400,
-                    ended_at: Some(1825548400),
-                },
-                updated_at: 1725548400,
-                responses: Some(100),
-                expected_responses: Some(200),
-                questions: 3,
-                quotas: Some(vec![
-                    Quota::Attribute {
-                        salary_tier: Some(1),
-                        region_code: Some(02),
-                        gender: Some(Gender::Female),
-                        age: Some(Age::Specific(20)),
-                        quota: 100,
-                    },
-                    Quota::Attribute {
-                        salary_tier: Some(1),
-                        region_code: Some(02),
-                        gender: Some(Gender::Male),
-                        age: Some(Age::Range {
-                            inclusive_min: 20,
-                            inclusive_max: 30,
-                        }),
-                        quota: 100,
-                    },
-                    Quota::Panel("proof-id".to_string()),
-                ]),
-                r#type: "survey".to_string(),
-                gsi1: "account-id".to_string(),
-                gsi2: "status".to_string(),
-            },
-        ],
-        bookmark: None,
-    })
+    use crate::api::aws::ses::AuthKeyModel;
+    use easy_dynamodb::error::DynamoException;
+
+    let log = crate::utils::logger::new_api("GET", &format!("/v1/surveys/lists"));
+
+    CommonQueryResponse::query(&log, "gsi1-index", None, Some(100), vec![("gsi1", email)]).await
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -125,7 +54,27 @@ pub struct GetSurveyResponse {
 
 #[server(endpoint = "/v1/surveys/:survey-id", input = GetUrl, output = Json)]
 pub async fn get_survey() -> Result<GetSurveyResponse, ServerFnError> {
-    dioxus_logger::tracing::debug!("/v1/surveys/:survey-id:");
+    // dioxus_logger::tracing::debug!("/v1/surveys/:survey-id:");
+    // use axum::extract::Path;
+
+    // let Path(survey_id): Path<u64> = extract().await?;
+    // let log = crate::utils::logger::new_api("GET", &format!("/v1/surveys/{:?}", survey_id));
+    // let cli = crate::utils::db::get(&log);
+
+    // let res: Result<Option<SurveySummary>, easy_dynamodb::error::DynamoException> =
+    //     cli.get(format!("survey-{:?}", survey_id).as_str()).await;
+
+    // let surveys = match res {
+    //     Ok(v) => {
+    //         match v {
+    //             Some(survey) => Ok(survey),
+    //             None =>
+    //         }
+    //     },
+    //     Err(_e) => {
+    //         vec![]
+    //     }
+    // };
 
     Ok(GetSurveyResponse {
         survey: SurveySummary {
@@ -136,6 +85,7 @@ pub async fn get_survey() -> Result<GetSurveyResponse, ServerFnError> {
                 ended_at: Some(1825548400),
             },
             updated_at: 1725548400,
+            created_at: 1725548400,
             responses: Some(100),
             expected_responses: Some(200),
             questions: 3,

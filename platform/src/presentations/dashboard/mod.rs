@@ -17,6 +17,7 @@ pub struct DashboardPageProps {
 
 #[derive(PartialEq, Props, Clone)]
 pub struct DashboardCardTypeProps {
+    lang: Language,
     surveys: Vec<Survey>,
     draft: String,
     in_progress: String,
@@ -30,6 +31,7 @@ pub struct DashboardCardTypeProps {
 
 #[derive(PartialEq, Props, Clone)]
 pub struct DashboardListTypeProps {
+    lang: Language,
     surveys: Vec<Survey>,
     survey_name: String,
     response_count: String,
@@ -45,7 +47,7 @@ pub struct DashboardListTypeProps {
 
 #[component]
 pub fn DashboardPage(props: DashboardPageProps) -> Element {
-    let mut ctrl = controller::Controller::init();
+    let mut ctrl = controller::Controller::init(props.lang);
     let translates = i18n::translate(props.lang.clone());
 
     rsx! {
@@ -90,21 +92,20 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                         }
                     }
                 }
-                Link {
-                    to: Route::WriteTitlePage {
-                        lang: props.lang.clone(),
+                div {
+                    class: "flex flex-row w-[200px] h-[50px] justify-end items-end bg-[#2168c3] rounded-[8px]",
+                    onclick: move |_| async move {
+                        ctrl.clicked_create_survey(props.lang.clone()).await;
                     },
                     div {
-                        class: "flex flex-row w-[200px] h-[50px] justify-end items-end bg-[#2168c3] rounded-[8px]",
-                        div {
-                            class: "flex flex-row w-full h-full justify-center items-center text-[21px] font-semibold text-white",
-                            "{translates.create_survey}"
-                        }
+                        class: "flex flex-row w-full h-full justify-center items-center text-[21px] font-semibold text-white",
+                        "{translates.create_survey}"
                     }
                 }
             }
             if ctrl.get_clicked_type() == 0 {
                 DashboardCardTypes {
+                    lang: props.lang,
                     surveys: ctrl.get_total_surveys(),
                     draft: translates.draft,
                     in_progress: translates.in_progress,
@@ -117,6 +118,7 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                 }
             } else {
                 DashboardListTypes {
+                    lang: props.lang,
                     surveys: ctrl.get_total_surveys(),
                     survey_name: translates.survey_name,
                     response_count: translates.response_count,
@@ -173,6 +175,9 @@ pub fn DashboardCardTypes(props: DashboardCardTypeProps) -> Element {
             class: "flex flex-wrap w-full h-full justify-center items-start pt-[35px]",
             for survey in surveys.iter() {
                 DashboardCard {
+                    lang: props.lang,
+                    survey_id: survey.survey_id.clone(),
+                    survey_sequence: survey.survey_sequence.clone(),
                     survey_type: survey.survey_type.clone(),
                     title: survey.title.clone(),
                     update_date: survey.update_date.clone(),
@@ -226,6 +231,9 @@ pub fn DashboardListTypes(props: DashboardListTypeProps) -> Element {
                 class: "flex flex-col w-full h-full justify-start items-start",
                 for survey in surveys.iter() {
                     DashboardRow {
+                        lang: props.lang,
+                        survey_id: survey.survey_id.clone(),
+                        survey_sequence: survey.survey_sequence.clone(),
                         survey_type: survey.survey_type.clone(),
                         title: survey.title.clone(),
                         update_date: survey.update_date.clone(),
