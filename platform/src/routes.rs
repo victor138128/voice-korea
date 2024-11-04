@@ -22,8 +22,8 @@ pub enum Route {
             DashboardPage { lang: Language },
             #[route("/id/:id/write-title")]
             WriteTitlePage { lang: Language, id: String },
-            #[route("/:title/write-question")]
-            WriteQuestionPage { lang: Language, title: String },
+            #[route("/id/:id/write-question")]
+            WriteQuestionPage { lang: Language, id: String },
             #[route("/:title/select-response")]
             SelectResponsePage { lang: Language, title: String },
             #[route("/:title/select-response/type/:select_type")]

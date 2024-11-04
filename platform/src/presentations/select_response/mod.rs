@@ -128,7 +128,7 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
                         onclick: move |_| {
                             navigator.push(Route::WriteQuestionPage {
                                 lang: props.lang.clone(),
-                                title: survey_response.survey.title.clone()
+                                id: survey_response.survey.title.clone() //FIXME: fix to id
                             });
                         },
                         class: "flex flex-row w-[200px] h-[50px] bg-[#434343]",

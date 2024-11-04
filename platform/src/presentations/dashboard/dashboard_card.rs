@@ -76,7 +76,11 @@ pub fn DashboardCard(
                                         lang, id: survey_id.clone(),
                                     }
                                 );
-                            }
+                            } else if survey_sequence == "add_question" {
+                                navigator.push(
+                                    Route::WriteQuestionPage { lang, id: survey_id.clone() }
+                                );
+                            };
                         },
                         div {
                             class: "text-[20px] font-medium text-[#1e5eaf]",

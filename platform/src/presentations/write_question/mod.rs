@@ -14,12 +14,12 @@ pub mod component {
 #[derive(PartialEq, Props, Clone)]
 pub struct WriteQuestionProps {
     lang: Language,
-    title: String,
+    id: String,
 }
 
 #[component]
 pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
-    let mut ctrl = controller::Controller::init(props.title.clone());
+    let mut ctrl = controller::Controller::init(props.lang.clone(), props.id.clone());
     let translates = i18n::translate(props.lang.clone());
     let step = ctrl.get_step();
 

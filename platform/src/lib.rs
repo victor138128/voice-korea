@@ -34,6 +34,7 @@ pub mod models {
 }
 
 pub mod utils {
+    pub mod api;
     pub mod context;
     #[cfg(feature = "server")]
     pub mod db;
