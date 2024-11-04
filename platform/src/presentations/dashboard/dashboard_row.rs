@@ -22,7 +22,7 @@ pub fn DashboardRow(
     analysis_result: String,
 ) -> Element {
     let navigator = use_navigator();
-    let s: Vec<&str> = survey_id.split("-").collect();
+    let s: Vec<&str> = survey_id.split("#").collect();
     let survey_id = format!("{}", s[2]);
     rsx! {
         div {
