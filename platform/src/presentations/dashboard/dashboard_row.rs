@@ -23,7 +23,7 @@ pub fn DashboardRow(
 ) -> Element {
     let navigator = use_navigator();
     let s: Vec<&str> = survey_id.split("-").collect();
-    let survey_id = format!("{}-{}", s[1], s[2]);
+    let survey_id = format!("{}", s[2]);
     rsx! {
         div {
             class: "flex flex-row w-full h-[110px] mb-[10px] justify-between items-center rounded-[5px] bg-white px-[30px]",

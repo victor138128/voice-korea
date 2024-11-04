@@ -24,8 +24,8 @@ pub fn DashboardCard(
     analysis_result: String,
 ) -> Element {
     let navigator = use_navigator();
-    let s: Vec<&str> = survey_id.split("-").collect();
-    let survey_id = format!("{}-{}", s[1], s[2]);
+    let s: Vec<&str> = survey_id.split("#").collect();
+    let survey_id = format!("{}", s[2]);
     rsx! {
         div {
             class: "flex flex-col w-[380px] h-[420px] rounded-lg justify-between items-start bg-white m-9 p-7 border-[1px] border-[#d2d2d2]",

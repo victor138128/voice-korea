@@ -27,15 +27,17 @@ pub async fn create_empty_survey(email: String) -> Result<String, ServerFnError>
     let log = crate::utils::logger::new_api("POST", &format!("/v1/empty/surveys"));
     let cli = crate::utils::db::get(&log);
 
-    let id = format!("{email}-survey-{:?}", chrono::Utc::now().timestamp_millis()).clone();
+    let timestamp = (chrono::Utc::now().timestamp_millis() / 1000) as u64;
+
+    let id = format!("{email}#survey#{:?}", timestamp).clone();
 
     match cli
         .create(SurveySummary {
             id: id.clone(),
             title: "".to_string(),
             status: SurveyStatus::Draft,
-            updated_at: (chrono::Utc::now().timestamp_millis() / 1000) as u64,
-            created_at: (chrono::Utc::now().timestamp_millis() / 1000) as u64,
+            updated_at: timestamp,
+            created_at: timestamp,
             responses: None,
             expected_responses: None,
             questions: 0,
@@ -54,7 +56,7 @@ pub async fn create_empty_survey(email: String) -> Result<String, ServerFnError>
         }
     }
 
-    Ok(format!("survey-{:?}", chrono::Utc::now().timestamp_millis()).clone())
+    Ok(format!("{}", timestamp))
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
