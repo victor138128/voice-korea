@@ -14,6 +14,8 @@ use super::{Language, Route};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Survey {
+    pub survey_id: String,
+    pub survey_sequence: String,
     pub survey_type: String,
     pub title: String,
     pub update_date: String,
@@ -53,6 +55,8 @@ impl Controller {
                         let total_surveys: Vec<Survey> = surveys
                             .into_iter()
                             .map(|survey| Survey {
+                                survey_id: survey.id.to_string(),
+                                survey_sequence: survey.gsi2.to_string(),
                                 survey_type: survey.status.to_string(),
                                 title: survey.title,
                                 update_date: Self::format_date(survey.updated_at),

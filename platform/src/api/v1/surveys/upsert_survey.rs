@@ -27,20 +27,15 @@ pub async fn create_empty_survey(email: String) -> Result<String, ServerFnError>
     let log = crate::utils::logger::new_api("POST", &format!("/v1/empty/surveys"));
     let cli = crate::utils::db::get(&log);
 
-    let mut sequence: i64 = match cli.get::<SurveySequenceModel>("survey_sequence").await {
-        Ok(Some(v)) => v.sequence,
-        _ => 0 as i64,
-    };
-
-    let id = format!("survey-{:?}", sequence).clone();
+    let id = format!("{email}-survey-{:?}", chrono::Utc::now().timestamp_millis()).clone();
 
     match cli
         .create(SurveySummary {
             id: id.clone(),
             title: "".to_string(),
             status: SurveyStatus::Draft,
-            updated_at: chrono::Utc::now().timestamp_millis() as u64,
-            created_at: chrono::Utc::now().timestamp_millis() as u64,
+            updated_at: (chrono::Utc::now().timestamp_millis() / 1000) as u64,
+            created_at: (chrono::Utc::now().timestamp_millis() / 1000) as u64,
             responses: None,
             expected_responses: None,
             questions: 0,
@@ -59,39 +54,7 @@ pub async fn create_empty_survey(email: String) -> Result<String, ServerFnError>
         }
     }
 
-    sequence += 1;
-
-    match cli
-        .update::<TypeField>(
-            "survey_sequence",
-            vec![("sequence", TypeField::N(sequence))],
-        )
-        .await
-    {
-        Ok(()) => {
-            tracing::debug!("DB sequence update success",);
-        }
-        Err(_e) => {
-            match cli
-                .create(SurveySequenceModel {
-                    id: "survey_sequence".to_string(),
-                    sequence: 1,
-                })
-                .await
-            {
-                Ok(()) => {
-                    tracing::debug!("DB sequence create success",);
-                }
-                Err(e) => {
-                    return Err(ServerFnError::ServerError(format!(
-                        "DB sequence create failed {e}"
-                    )));
-                }
-            }
-        }
-    };
-
-    Ok(id.clone())
+    Ok(format!("survey-{:?}", chrono::Utc::now().timestamp_millis()).clone())
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]

@@ -1,10 +1,14 @@
 #![allow(non_snake_case)]
-use crate::presentations::dashboard::StatusButton;
+use crate::{presentations::dashboard::StatusButton, routes::Route};
 use dioxus::prelude::*;
-use dioxus_logger::tracing;
+
+use super::Language;
 
 #[component]
 pub fn DashboardCard(
+    lang: Language,
+    survey_id: String,
+    survey_sequence: String,
     survey_type: String,
     title: String,
     update_date: String,
@@ -19,7 +23,9 @@ pub fn DashboardCard(
     edit_survey: String,
     analysis_result: String,
 ) -> Element {
-    tracing::info!("status: {:?}", survey_type.clone());
+    let navigator = use_navigator();
+    let s: Vec<&str> = survey_id.split("-").collect();
+    let survey_id = format!("{}-{}", s[1], s[2]);
     rsx! {
         div {
             class: "flex flex-col w-[380px] h-[420px] rounded-lg justify-between items-start bg-white m-9 p-7 border-[1px] border-[#d2d2d2]",
@@ -63,6 +69,15 @@ pub fn DashboardCard(
                 if survey_type == "draft" {
                     div {
                         class: "flex flex-row w-full h-[55px] rounded-[8px] border-solid border-[3px] border-[#1e5eaf] bg-white items-center justify-center",
+                        onclick: move |_| {
+                            if survey_sequence == "title" {
+                                navigator.push(
+                                    Route::WriteTitlePage {
+                                        lang, id: survey_id.clone(),
+                                    }
+                                );
+                            }
+                        },
                         div {
                             class: "text-[20px] font-medium text-[#1e5eaf]",
                             "{edit_survey}"

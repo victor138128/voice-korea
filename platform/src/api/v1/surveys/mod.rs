@@ -41,33 +41,8 @@ pub async fn list_surveys(
     use easy_dynamodb::error::DynamoException;
 
     let log = crate::utils::logger::new_api("GET", &format!("/v1/surveys/lists"));
-    let cli = crate::utils::db::get(&log);
 
-    let survey_models: Result<(Option<Vec<SurveySummary>>, Option<String>), DynamoException> = cli
-        .find("gsi1-index", None, Some(100), vec![("gsi1", email)])
-        .await;
-
-    let surveys = match survey_models {
-        Ok(v) => v.0.unwrap(),
-        Err(_e) => {
-            vec![]
-        }
-    };
-
-    let mut surveys_res: Vec<SurveySummary> = vec![];
-
-    for survey in surveys {
-        surveys_res.push(SurveySummary {
-            created_at: survey.created_at / 1000,
-            updated_at: survey.updated_at / 1000,
-            ..survey
-        });
-    }
-
-    Ok(CommonQueryResponse {
-        items: surveys_res,
-        bookmark: None,
-    })
+    CommonQueryResponse::query(&log, "gsi1-index", None, Some(100), vec![("gsi1", email)]).await
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -79,7 +54,27 @@ pub struct GetSurveyResponse {
 
 #[server(endpoint = "/v1/surveys/:survey-id", input = GetUrl, output = Json)]
 pub async fn get_survey() -> Result<GetSurveyResponse, ServerFnError> {
-    dioxus_logger::tracing::debug!("/v1/surveys/:survey-id:");
+    // dioxus_logger::tracing::debug!("/v1/surveys/:survey-id:");
+    // use axum::extract::Path;
+
+    // let Path(survey_id): Path<u64> = extract().await?;
+    // let log = crate::utils::logger::new_api("GET", &format!("/v1/surveys/{:?}", survey_id));
+    // let cli = crate::utils::db::get(&log);
+
+    // let res: Result<Option<SurveySummary>, easy_dynamodb::error::DynamoException> =
+    //     cli.get(format!("survey-{:?}", survey_id).as_str()).await;
+
+    // let surveys = match res {
+    //     Ok(v) => {
+    //         match v {
+    //             Some(survey) => Ok(survey),
+    //             None =>
+    //         }
+    //     },
+    //     Err(_e) => {
+    //         vec![]
+    //     }
+    // };
 
     Ok(GetSurveyResponse {
         survey: SurveySummary {

@@ -1,9 +1,14 @@
 #![allow(non_snake_case)]
-use crate::presentations::dashboard::StatusButton;
+use crate::{presentations::dashboard::StatusButton, routes::Route};
 use dioxus::prelude::*;
+
+use super::Language;
 
 #[component]
 pub fn DashboardRow(
+    lang: Language,
+    survey_id: String,
+    survey_sequence: String,
     survey_type: String,
     title: String,
     update_date: String,
@@ -16,6 +21,9 @@ pub fn DashboardRow(
     edit_survey: String,
     analysis_result: String,
 ) -> Element {
+    let navigator = use_navigator();
+    let s: Vec<&str> = survey_id.split("-").collect();
+    let survey_id = format!("{}-{}", s[1], s[2]);
     rsx! {
         div {
             class: "flex flex-row w-full h-[110px] mb-[10px] justify-between items-center rounded-[5px] bg-white px-[30px]",
@@ -72,6 +80,15 @@ pub fn DashboardRow(
                     if survey_type == "draft" {
                         div {
                             class: "flex flex-row w-[200px] h-[55px] rounded-[8px] border-solid border border-[#b0b0b0] bg-white items-center justify-center",
+                            onclick: move |_| {
+                                if survey_sequence == "title" {
+                                    navigator.push(
+                                        Route::WriteTitlePage {
+                                            lang, id: survey_id.clone()
+                                        }
+                                    );
+                                }
+                            },
                             div {
                                 class: "text-[20px] font-medium text-[#1e5eaf]",
                                 "{edit_survey}"
