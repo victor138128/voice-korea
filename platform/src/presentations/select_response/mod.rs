@@ -24,8 +24,8 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
         + question_list_info_second.as_str();
     let navigator = use_navigator();
 
-    const RESPONSE_ATTRIBUTE_IMAGE: &str = "../../images/select-response-attribute.png";
-    const RESPONSE_PANEL_IMAGE: &str = "../../images/select-response-panel.png";
+    const RESPONSE_ATTRIBUTE_IMAGE: Asset = asset!("public/images/select-response-attribute.png");
+    const RESPONSE_PANEL_IMAGE: Asset = asset!("public/images/select-response-panel.png");
 
     rsx! {
         div {

@@ -33,23 +33,23 @@ pub fn SideBar(props: SidebarProps) -> Element {
                         onselected: props.onselected,
                         title: props.overview,
                         menus: vec![
-                            MenuItem {title: props.search_project, link: Route::DashboardPage { lang: props.lang }.into()},
-                            MenuItem {title: props.import_project, link: Route::DashboardPage { lang: props.lang }.into()},
+                            MenuItem {title: props.search_project, link: Route::DashboardPage { lang: props.lang }},
+                            MenuItem {title: props.import_project, link: Route::DashboardPage { lang: props.lang }},
                         ]
                     }
                     SectionMenus {
                         onselected: props.onselected,
                         title: props.survey_management,
                         menus: vec![
-                            MenuItem {title: {props.questionnaire_management}, link: Route::DashboardPage { lang: props.lang }.into()},
-                            MenuItem {title: {props.question_bank}, link: Route::DashboardPage { lang: props.lang }.into()},
+                            MenuItem {title: {props.questionnaire_management}, link: Route::DashboardPage { lang: props.lang }},
+                            MenuItem {title: {props.question_bank}, link: Route::DashboardPage { lang: props.lang }},
                         ]
                     }
                     SectionMenus {
                         onselected: props.onselected,
                         title: props.property_management,
                         menus: vec![
-                            MenuItem {title: {props.property_status}, link: Route::DashboardPage { lang: props.lang }.into()},
+                            MenuItem {title: {props.property_status}, link: Route::DashboardPage { lang: props.lang }},
                         ]
                     }
                 }
@@ -62,7 +62,7 @@ pub fn SideBar(props: SidebarProps) -> Element {
                             {props.user_settings}
                         }
                         img {
-                            src: "/images/config.png",
+                            src: asset!("public/images/config.png"),
                             class: "w-[24px] h-[24px]",
                         }
                     }
@@ -81,7 +81,7 @@ pub struct SelectedMenu {
 #[derive(Clone, PartialEq, Props)]
 pub struct MenuItem {
     title: String,
-    link: IntoRoutable,
+    link: Route,
 }
 
 #[component]
@@ -104,12 +104,12 @@ pub fn SectionMenus(
                 div { class: "font-bold text-[16px] text-white", "{title}"}
                 if expanded() {
                     img {
-                        src: "/images/arrow-down.png",
+                        src: asset!("public/images/arrow-down.png"),
                         class: "w-[18px] h-[9px]",
                     }
                 } else {
                     img {
-                        src: "/images/arrow-down.png",
+                        src: asset!("public/images/arrow-down.png"),
                         class: "w-[18px] h-[9px]",
                         style: "transform: scaleY(-1);"
                     }

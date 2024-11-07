@@ -61,7 +61,7 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                         class: "flex flex-row w-[450px] h-[55px] items-center bg-white border-solid border border-[#e0e0e0] rounded-[8px] pl-[15px] mr-[10px]",
                         img {
                             class: "mr-[5px]",
-                            src: "/images/search.png",
+                            src: asset!("public/images/search.png"),
                             width: 24,
                             height: 24
                         }
@@ -77,7 +77,7 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                         class: "flex flex-row rounded-tl-[8px] rounded-bl-[8px] w-[55px] h-[55px] bg-[#4c4c4c] items-center justify-center mr-[2px]",
                         onclick: move |_| ctrl.set_clicked_type(0),
                         img {
-                            src: "/images/menu_1.png",
+                            src: asset!("public/images/menu_1.png"),
                             width: 27,
                             height: 27
                         }
@@ -86,7 +86,7 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                         class: "flex flex-row rounded-tr-[8px] rounded-br-[8px] w-[55px] h-[55px] bg-[#c8c8c8] items-center justify-center",
                         onclick: move |_| ctrl.set_clicked_type(1),
                         img {
-                            src: "/images/menu_2.png",
+                            src: asset!("public/images/menu_2.png"),
                             width: 27,
                             height: 27
                         }
