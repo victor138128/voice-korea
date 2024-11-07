@@ -61,6 +61,7 @@ impl Controller {
     }
 
     pub async fn login_clicked(&mut self, lang: Language) {
+        let mut login_service = use_login_service();
         let navigator = use_navigator();
         let res = login_user(LoginUserRequest {
             email: self.get_email(),
@@ -70,7 +71,7 @@ impl Controller {
 
         match res {
             Ok(_) => {
-                use_login_service().setup(self.get_email());
+                login_service.setup(self.get_email());
                 navigator.push(Route::DashboardPage { lang });
             }
             Err(e) => match e {
