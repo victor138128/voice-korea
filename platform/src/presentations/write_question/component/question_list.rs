@@ -70,7 +70,7 @@ pub fn QuestionList(props: QuestionProps) -> Element {
                     class: "flex flex-row w-[200px] h-[50px] rounded-[20px] bg-[#d6d6d6] justify-center items-center",
                     img {
                         class: "flex flex-col pr-[10px]",
-                        src: "/images/add.png",
+                        src: asset!("public/images/add.png"),
                         alt: "add question",
                     }
                     div {

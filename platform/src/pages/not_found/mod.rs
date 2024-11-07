@@ -8,7 +8,7 @@ pub fn NotFoundPage(route: Vec<String>) -> Element {
             div { class: "not_found flex flex-col justify-center items-center",
                 img {
                     style: "padding-bottom: 40px; padding-top: 40px;",
-                    src: "/images/error.png",
+                    src: asset!("/public/images/error.png"),
                     width: 50,
                     height: 50
                 }

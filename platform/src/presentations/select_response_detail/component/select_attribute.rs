@@ -107,17 +107,17 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                             {props.attribute_select_label}
                         }
                         Attribute {
-                            label_image: "/images/national.png".to_string(),
+                            label_image: asset!("public/images/national.png"),
                             label_name: props.nation,
                             label_value: "대한민국(Korea)".to_string()
                         }
                         Attribute {
-                            label_image: "/images/gender.png".to_string(),
+                            label_image: asset!("public/images/gender.png"),
                             label_name: props.gender,
                             label_value: "남성".to_string()
                         }
                         Attribute {
-                            label_image: "/images/age.png".to_string(),
+                            label_image: asset!("public/images/age.png"),
                             label_name: props.age,
                             label_value: "10-99+".to_string()
                         }
@@ -127,7 +127,7 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                                 class: "flex flex-row w-[200px] h-[50px] rounded-[20px] bg-[#d6d6d6] justify-center items-center mt-[20px]",
                                 img {
                                     class: "flex flex-col pr-[10px]",
-                                    src: "/images/add.png",
+                                    src: asset!("public/images/add.png"),
                                     alt: "add question",
                                 }
                                 div {
@@ -169,7 +169,7 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
 }
 
 #[component]
-pub fn Attribute(label_image: String, label_name: String, label_value: String) -> Element {
+pub fn Attribute(label_image: Asset, label_name: String, label_value: String) -> Element {
     rsx! {
         div {
             class: "flex flex-row w-full justify-start items-start mb-[10px]",
@@ -196,7 +196,7 @@ pub fn Attribute(label_image: String, label_name: String, label_value: String) -
                         {label_value.clone()}
                     }
                     img {
-                        src: "/images/right-arrow.png",
+                        src: asset!("public/images/right-arrow.png"),
                         width: 20,
                         height: 20,
                         alt: "right arrow"

@@ -51,7 +51,7 @@ pub fn DashboardCard(
                     class: "flex flex-row w-full justify-start items-center mb-[37px]",
                     img {
                         class: "mr-[10px] mb-[3px]",
-                        src: "/images/info.png",
+                        src: asset!("public/images/info.png"),
                         alt: "Info"
                     }
                     if survey_type.clone() == "draft" {

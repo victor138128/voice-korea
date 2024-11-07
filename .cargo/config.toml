@@ -1,8 +1,17 @@
 [profile]
 
-
 [profile.dioxus-client]
-inherits = "release"
+inherits = "dev"
+opt-level = 2
 
 [profile.dioxus-server]
-inherits = "release"
+inherits = "dev"
+opt-level = 2
+
+[profile.dioxus-wasm]
+inherits = "dev"
+opt-level = 2
+
+[profile.dioxus-android]
+inherits = "dev"
+opt-level = 2
