@@ -10,14 +10,66 @@ use crate::{
     api::common::TypeField,
     models::{
         question::QuestionType,
-        survey::{QuestionSequence, Quota, SurveySequenceModel, SurveyStatus, SurveySummary},
+        survey::{
+            QuestionSequence, Quota, StatusType, SurveySequenceModel, SurveyStatus, SurveySummary,
+        },
     },
     service::login_service::use_login_service,
 };
 
+use super::Status;
+
 #[server(endpoint = "/v1/surveys", input = Json, output = Json)]
-pub async fn upsert_survey(survey_id: String, item: SurveyUpdateItem) -> Result<(), ServerFnError> {
+pub async fn upsert_survey(
+    email: String,
+    survey_id: String,
+    status: StatusType,
+    item: SurveyUpdateItem,
+) -> Result<(), ServerFnError> {
     dioxus_logger::tracing::debug!("/v1/surveys: {:?} {:?}", survey_id, item);
+    let log = crate::utils::logger::new_api("POST", &format!("/v1/surveys"));
+    let cli = crate::utils::db::get(&log);
+
+    match item {
+        SurveyUpdateItem::Title(title) => {
+            let key = format!("{email}#survey#{}", survey_id).clone();
+
+            match status {
+                StatusType::TemporarySave => {
+                    match cli
+                        .update::<TypeField>(&key, vec![("title", TypeField::S(title))])
+                        .await
+                    {
+                        Ok(()) => {}
+                        Err(_e) => {
+                            return Err(ServerFnError::ServerError(format!("DB update failed")));
+                        }
+                    }
+                }
+                _ => {
+                    match cli
+                        .update::<TypeField>(
+                            &key,
+                            vec![
+                                ("title", TypeField::S(title)),
+                                (
+                                    "gsi2",
+                                    TypeField::S(QuestionSequence::AddQuestion.to_string()),
+                                ),
+                            ],
+                        )
+                        .await
+                    {
+                        Ok(()) => {}
+                        Err(_e) => {
+                            return Err(ServerFnError::ServerError(format!("DB update failed")));
+                        }
+                    }
+                }
+            }
+        }
+        _ => {}
+    }
 
     Ok(())
 }

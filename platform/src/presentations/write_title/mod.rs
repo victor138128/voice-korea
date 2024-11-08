@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::prelude::*;
+use crate::{models::survey::StatusType, prelude::*};
 use dioxus::prelude::*;
 
 mod controller;
@@ -13,7 +13,7 @@ pub struct WriteTitleProps {
 
 #[component]
 pub fn WriteTitlePage(props: WriteTitleProps) -> Element {
-    let mut ctrl = controller::Controller::init();
+    let mut ctrl = controller::Controller::init(props.lang.clone(), props.id);
     let translates = i18n::translate(props.lang.clone());
     let navigator = use_navigator();
 
@@ -24,6 +24,10 @@ pub fn WriteTitlePage(props: WriteTitleProps) -> Element {
                 class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-end mt-[45px] px-[50px]",
                 div {
                     class: "flex flex-row w-[250px] h-[55px] rounded-[8px] bg-[#2168c3] justify-center items-center text-[21px] font-semibold text-white",
+                    onclick: move |_| async move {
+                        let title = ctrl.get_survey_title();
+                        ctrl.write_survey_title(StatusType::TemporarySave, title).await;
+                    },
                     {translates.temporary_storage}
                 }
             }
@@ -63,11 +67,11 @@ pub fn WriteTitlePage(props: WriteTitleProps) -> Element {
                             class: "flex flex-row w-[85px] h-[45px] justify-center items-center rounded-[5px] bg-[#2168c3] text-[20px] font-normal text-white mr-[7px]",
                             onclick: move |_| async move {
                                 let title = ctrl.get_survey_title();
-                                ctrl.write_survey_title(title).await;
+                                ctrl.write_survey_title(StatusType::Save, title).await;
                                 navigator
                                     .push(Route::WriteQuestionPage {
                                         lang: props.lang.clone(),
-                                        title: ctrl.get_survey_title(),
+                                        id: ctrl.get_survey_id(),
                                     });
                             },
                             {translates.store}

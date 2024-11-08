@@ -2,11 +2,15 @@
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
 
-use crate::api::v1::surveys::{
-    get_survey,
-    upsert_survey::{upsert_survey, SurveyUpdateItem},
-    GetSurveyResponse,
+use crate::{
+    api::v1::surveys::{
+        // upsert_survey::{upsert_survey, SurveyUpdateItem},
+        GetSurveyResponse,
+    },
+    service::login_service::use_login_service,
 };
+
+use super::{Language, Route};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub enum QuestionStep {
@@ -36,7 +40,14 @@ pub struct ObjectiveQuestionOption {
 }
 
 impl Controller {
-    pub fn init(_title: String) -> Self {
+    pub fn init(lang: Language, id: String) -> Self {
+        let navigator = use_navigator();
+        let email: String = use_login_service().get_email().clone();
+
+        if email.is_empty() {
+            navigator.push(Route::LoginPage { lang });
+        };
+
         let mut ctrl = Self {
             survey: use_signal(|| GetSurveyResponse::default()),
             step: use_signal(|| QuestionStep::List),
@@ -72,15 +83,19 @@ impl Controller {
         };
 
         let _ = use_effect(move || {
+            let id_value = id.clone();
+            let email_value = email.clone();
             spawn(async move {
-                match get_survey().await {
-                    Ok(res) => {
-                        ctrl.survey.set(res);
-                    }
-                    Err(e) => {
-                        tracing::error!("Error: {:?}", e);
-                    }
+                let res = async move {
+                    crate::utils::api::get::<GetSurveyResponse>(&format!(
+                        "/v1/email/{}/surveys/{}",
+                        email_value, id_value
+                    ))
+                    .await
                 }
+                .await;
+
+                ctrl.survey.set(res)
             });
         });
 
@@ -149,27 +164,27 @@ impl Controller {
     //     }
     // }
 
-    pub async fn remove_question(&mut self, index: usize) {
+    pub async fn remove_question(&mut self, _index: usize) {
         tracing::info!("remove question button clicked");
-        let survey = self.get_survey();
-        let _ = upsert_survey(
-            survey.survey.id,
-            SurveyUpdateItem::RemoveQuestion(survey.questions.get(index).unwrap().title.clone()),
-        )
-        .await;
+        // let survey = self.get_survey();
+        // let _ = upsert_survey(
+        //     survey.survey.id,
+        //     SurveyUpdateItem::RemoveQuestion(survey.questions.get(index).unwrap().title.clone()),
+        // )
+        // .await;
     }
 
-    pub async fn update_question(&mut self, index: usize, title: String) {
+    pub async fn update_question(&mut self, _index: usize, _title: String) {
         tracing::info!("update question button clicked");
-        let survey = self.get_survey();
-        let _ = upsert_survey(
-            survey.survey.id,
-            SurveyUpdateItem::UpdateQuestion {
-                id: index.to_string(),
-                title: Some(title),
-                question: Some(survey.questions.get(index).unwrap().question.clone()),
-            },
-        )
-        .await;
+        // let survey = self.get_survey();
+        // let _ = upsert_survey(
+        //     survey.survey.id,
+        //     SurveyUpdateItem::UpdateQuestion {
+        //         id: index.to_string(),
+        //         title: Some(title),
+        //         question: Some(survey.questions.get(index).unwrap().question.clone()),
+        //     },
+        // )
+        // .await;
     }
 }

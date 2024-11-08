@@ -50,6 +50,14 @@ pub enum QuestionSequence {
     Summary,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub enum StatusType {
+    #[default]
+    TemporarySave,
+    Save,
+    Back,
+}
+
 impl fmt::Display for QuestionSequence {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
