@@ -50,4 +50,4 @@ build: public/tailwind.css
 
 .ONESHELL:
 build-lambda: clean public/tailwind.css
-	$(BUILD_ENV) dx build --release --server-features lambda -p dagit
+	$(BUILD_ENV) dx build --release --server-features lambda -p platform
