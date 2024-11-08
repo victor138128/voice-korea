@@ -55,7 +55,7 @@ pub struct MemberInfoProps {
 pub fn LoginPage(props: LoginPageProps) -> Element {
     let ctrl = controller::Controller::init();
     let translates = i18n::translate(props.lang.clone());
-    let logo_path = "/images/logo.png";
+    let logo_path = asset!("public/images/logo.png");
 
     let login_message = translates.login;
     let email_message = translates.email;
@@ -73,7 +73,7 @@ pub fn LoginPage(props: LoginPageProps) -> Element {
                 class: "flex flex-row w-full justify-start items-center px-[30px] py-[3px]",
                 div { class: "mr-[7px]",
                     img {
-                        src: "{logo_path}",
+                        src: logo_path,
                         width: 42,
                         height: 42
                     }

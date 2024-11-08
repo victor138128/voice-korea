@@ -36,11 +36,11 @@ LOG_LEVEL ?= debug
 BUILD_ENV ?= ENV=$(ENV) VERSION=$(VERSION) COMMIT=$(COMMIT) LOG_LEVEL=$(LOG_LEVEL) AWS_REGION=${REGION} AWS_ACCESS_KEY_ID=${ACCESS_KEY_ID} AWS_DYNAMODB_KEY=${AWS_DYNAMODB_KEY} AWS_SECRET_ACCESS_KEY=${SECRET_ACCESS_KEY} TABLE_NAME=$(VOICE_KOREA_TABLE_NAME) BASE_URL=$(BASE_URL)
 
 setup.tool:
-	cargo install dioxus-cli --version 0.6.0-alpha.3
+	cargo install dioxus-cli --version 0.6.0-alpha.4
 	npm i -g tailwindcss
 
 run: public/tailwind.css
-	$(BUILD_ENV) dx serve --platform fullstack -p platform -i false
+	$(BUILD_ENV) dx serve -p platform
 	
 clean:
 	rm -rf dist public/tailwind.css .aws-sam
@@ -49,8 +49,8 @@ public/tailwind.css:
 	NODE_ENV=production tailwindcss -i ./input.css -o ./public/tailwind.css --minify
 
 build: public/tailwind.css
-	$(BUILD_ENV) dx build -p platform --platform fullstack
+	$(BUILD_ENV) dx build -p platform --release
 
 .ONESHELL:
 build-lambda: clean public/tailwind.css
-	$(BUILD_ENV) dx build --platform fullstack --server-feature lambda -p platform
+	$(BUILD_ENV) dx build --release --server-features lambda -p platform

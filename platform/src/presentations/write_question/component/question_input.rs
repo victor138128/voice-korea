@@ -186,7 +186,7 @@ pub fn ObjectiveQuestion(props: ObjectiveQuestionProps) -> Element {
                             },
                         }
                         img {
-                            src: "/images/remove.png",
+                            src: asset!("public/images/remove.png"),
                             onclick: move |_| {
                                 ctrl.remove_objective_question(i);
                             },

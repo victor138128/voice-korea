@@ -117,7 +117,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                         {translates.survey_summary}
                     },
                     img {
-                        src: "/images/arrow-down-black.png",
+                        src: asset!("public/images/arrow-down-black.png"),
                         class: "w-[35px] h-[35px]",
                     }
                 }
@@ -138,7 +138,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                         },
                     }
                     img {
-                        src: "/images/arrow-down-black.png",
+                        src: asset!("public/images/arrow-down-black.png"),
                         class: "w-[35px] h-[35px]",
                     }
                 }
@@ -219,7 +219,7 @@ pub fn ListSurvey(
                             {response_list}
                         },
                         img {
-                            src: "/images/arrow-down-black.png",
+                            src: asset!("public/images/arrow-down-black.png"),
                             class: "w-[35px] h-[35px]",
                             style: "transform: scaleY(-1);",
                             onclick: move |_e| {
@@ -284,7 +284,7 @@ pub fn ListSurvey(
                             },
                         }
                         img {
-                            src: "/images/arrow-down-black.png",
+                            src: asset!("public/images/arrow-down-black.png"),
                             onclick: move |_e| {
                                 ctrl.change_survey_list_clicked();
                             },

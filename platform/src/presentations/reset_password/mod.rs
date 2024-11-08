@@ -153,7 +153,7 @@ pub fn CompleteResetPassword(props: CompleteResetPasswordProps) -> Element {
             class: "flex flex-col w-full h-full justify-center items-center pt-[160px]",
             img {
                 class: "flex flex-col pb-[30px]",
-                src: "/images/check_mark.png",
+                src: asset!("public/images/check_mark.png"),
                 alt: "Checkmark"
             }
             div {

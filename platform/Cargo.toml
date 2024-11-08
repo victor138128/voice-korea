@@ -8,9 +8,9 @@ edition = "2021"
 
 [dependencies]
 serde = { version = "1.0.197", features = ["derive"] }
-dioxus = { version = "0.6.0-alpha.3", features = ["default", "fullstack", "router"] }
+dioxus = { version = "0.6.0-alpha.4", features = ["default", "fullstack", "router"] }
 chrono = "0.4"
-dioxus-aws = { version = "0.6.2" }
+dioxus-aws = { version = "0.6.4" }
 reqwest = { version = "0.12.5", features = ["blocking", "json"] }
 dioxus-logger = "0.5.1"
 easy-dynamodb = { version = "0.1.6", optional = true }

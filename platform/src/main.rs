@@ -54,15 +54,15 @@ fn App() -> Element {
             link {
                 rel: "icon",
                 r#type: "image/x-icon",
-                href: "/favicon.ico",
+                href: asset!("public/favicon.ico"),
             }
             link {
                 rel: "stylesheet",
-                href: "/main.css",
+                href: asset!("public/main.css"),
             }
             link {
                 rel: "stylesheet",
-                href: "/tailwind.css",
+                href: asset!("public/tailwind.css"),
             }
             load_tailwindcss {}
         }
