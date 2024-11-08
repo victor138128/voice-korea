@@ -34,7 +34,8 @@ clean:
 .PHONY: build
 build: clean
 	cd platform && $(BUILD_ENV) make build-lambda
-	mv .build/platform/platform .build/platform/bootstrap
+	cp -r target/dx/platform/release/web .build/platform
+	mv .build/platform/server .build/platform/bootstrap
 
 fixtures/cdk/node_modules:
 	cd fixtures/cdk && npm install
