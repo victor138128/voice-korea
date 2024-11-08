@@ -5,11 +5,12 @@ pub struct Question {
     pub id: String,
     pub survey_id: String,
     pub title: String,
-    pub question: QuestionType,
-
-    // list questions by survey id
-    #[serde(skip)]
+    pub question: String,
+    pub options: Option<Vec<String>>,
+    pub created_at: u64,
+    pub updated_at: u64,
     pub gsi1: String,
+    pub gsi2: String,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]

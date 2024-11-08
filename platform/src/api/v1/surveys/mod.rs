@@ -62,36 +62,51 @@ pub async fn get_survey() -> Result<GetSurveyResponse, ServerFnError> {
         crate::utils::logger::new_api("GET", &format!("/v1/email/{}/surveys/{}", email, survey_id));
     let cli = crate::utils::db::get(&log);
 
-    let res: Result<Option<GetSurveyResponse>, easy_dynamodb::error::DynamoException> = cli
-        .get(format!("{}#survey-detail#{}", email, survey_id).as_str())
+    let res_summary: Result<Option<SurveySummary>, easy_dynamodb::error::DynamoException> = cli
+        .get(format!("{}#survey#{}", email, survey_id).as_str())
         .await;
 
-    match res {
-        Ok(v) => match v {
-            Some(survey) => Ok(survey),
-            None => {
-                let res_summary: Result<
-                    Option<SurveySummary>,
-                    easy_dynamodb::error::DynamoException,
-                > = cli
-                    .get(format!("{}#survey#{}", email, survey_id).as_str())
-                    .await;
+    let res_question: Result<
+        (Option<Vec<Question>>, Option<String>),
+        easy_dynamodb::error::DynamoException,
+    > = cli
+        .find(
+            "gsi1-index",
+            None,
+            Some(100),
+            vec![("gsi1", format!("{}#survey-question#{}", email, survey_id))],
+        )
+        .await;
 
-                match res_summary {
-                    Ok(v) => match v {
-                        Some(summary) => Ok(GetSurveyResponse {
-                            survey: summary,
-                            responders: vec![],
-                            questions: vec![],
-                        }),
-                        None => Err(ServerFnError::ServerError(format!("not exists survey"))),
-                    },
-                    Err(e) => Err(ServerFnError::ServerError(format!("DB query failed {e}"))),
-                }
-            }
+    let survey = match res_summary {
+        Ok(v) => match v {
+            Some(summary) => summary,
+            None => return Err(ServerFnError::ServerError(format!("not exists survey"))),
         },
-        Err(e) => Err(ServerFnError::ServerError(format!("DB query failed {e}"))),
-    }
+        Err(e) => {
+            return Err(ServerFnError::ServerError(format!(
+                "DB summary query failed {e}"
+            )))
+        }
+    };
+
+    let questions: Vec<Question> = match res_question {
+        Ok(v) => {
+            let questions_vec = &v.0.unwrap();
+            questions_vec.clone()
+        }
+        Err(e) => {
+            return Err(ServerFnError::ServerError(format!(
+                "DB questions query failed {e}"
+            )))
+        }
+    };
+
+    Ok(GetSurveyResponse {
+        survey,
+        responders: vec![],
+        questions,
+    })
 }
 
 #[server(endpoint = "/v1/surveys/answer", input = Json, output = Json)]

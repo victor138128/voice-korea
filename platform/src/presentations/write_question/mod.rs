@@ -34,6 +34,7 @@ pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
                         ctrl,
                         delete: translates.delete,
                         update: translates.update,
+                        temporary_save: translates.temporary_save,
                         add_question: translates.add_question,
                         back: translates.back_label,
                         save: translates.save_label

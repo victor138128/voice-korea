@@ -1,8 +1,5 @@
 #![allow(non_snake_case)]
-use crate::{
-    models::question::{Question, QuestionType},
-    prelude::*,
-};
+use crate::{models::question::Question, prelude::*};
 use dioxus::prelude::*;
 
 #[derive(PartialEq, Props, Clone)]
@@ -184,25 +181,27 @@ pub fn ListSurvey(
     let mut questions: Vec<QuestionModel> = vec![];
 
     for question in question_list {
-        match question.question.clone() {
-            QuestionType::LongText(long_text_title) => {
-                questions.push(QuestionModel {
-                    title: long_text_title.unwrap_or("".to_string()).clone(),
-                    questions: vec![],
-                });
-            }
-            QuestionType::SingleChoice { question, options } => {
-                questions.push(QuestionModel {
-                    title: question.unwrap_or("".to_string()).clone(),
-                    questions: options,
-                });
-            }
-            QuestionType::Text(text_title) => {
-                questions.push(QuestionModel {
-                    title: text_title.unwrap_or("".to_string()).clone(),
-                    questions: vec![],
-                });
-            }
+        let question_title = question.question.clone();
+        let options = question.options.clone();
+
+        let gsi2: Vec<&str> = question.gsi2.split("#").collect();
+        let survey_type = gsi2[3];
+
+        if survey_type == "single-choice" {
+            questions.push(QuestionModel {
+                title: question_title.clone(),
+                questions: options.unwrap(),
+            });
+        } else if survey_type == "text" {
+            questions.push(QuestionModel {
+                title: question_title.clone(),
+                questions: vec![],
+            });
+        } else {
+            questions.push(QuestionModel {
+                title: question_title.clone(),
+                questions: vec![],
+            });
         }
     }
 

@@ -52,6 +52,8 @@ impl Controller {
                 }
                 .await;
 
+                tracing::debug!("survey title: {}", res.clone().survey.title);
+
                 ctrl.survey_title.set(res.clone().survey.title);
                 ctrl.survey.set(res)
             });
