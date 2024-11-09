@@ -28,11 +28,50 @@ pub async fn upsert_survey(
     status: StatusType,
     item: SurveyUpdateItem,
 ) -> Result<(), ServerFnError> {
+    let log = crate::utils::logger::new_api("POST", &format!("/v1/empty/surveys"));
+    let cli = crate::utils::db::get(&log);
     dioxus_logger::tracing::debug!("/v1/surveys: {:?} {:?}", survey_id, item);
 
     match item {
         SurveyUpdateItem::RemoveQuestion(id) => {
-            remove_question(id).await;
+            if status == StatusType::Save {
+                match cli
+                    .update::<TypeField>(
+                        &survey_id,
+                        vec![(
+                            "gsi2",
+                            TypeField::S(QuestionSequence::SelectResponse.to_string()),
+                        )],
+                    )
+                    .await
+                {
+                    Ok(()) => {
+                        tracing::info!("db select response update success");
+                    }
+                    Err(e) => {
+                        tracing::info!("db select response update failed: {survey_id} {e}");
+                        return Err(ServerFnError::ServerError(format!("DB update failed")));
+                    }
+                }
+            } else if status == StatusType::Back {
+                match cli
+                    .update::<TypeField>(
+                        &survey_id,
+                        vec![("gsi2", TypeField::S(QuestionSequence::Title.to_string()))],
+                    )
+                    .await
+                {
+                    Ok(()) => {
+                        tracing::info!("db title update success");
+                    }
+                    Err(e) => {
+                        tracing::info!("db title update failed: {survey_id} {e}");
+                        return Err(ServerFnError::ServerError(format!("DB update failed")));
+                    }
+                }
+            } else {
+                remove_question(id).await;
+            }
         }
         SurveyUpdateItem::Title(title) => {
             write_title(email, survey_id, status, title).await;

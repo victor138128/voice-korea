@@ -371,17 +371,44 @@ impl Controller {
         }
     }
 
-    pub async fn update_question(&mut self, _index: usize, _title: String) {
-        tracing::info!("update question button clicked");
-        // let survey = self.get_survey();
-        // let _ = upsert_survey(
-        //     survey.survey.id,
-        //     SurveyUpdateItem::UpdateQuestion {
-        //         id: index.to_string(),
-        //         title: Some(title),
-        //         question: Some(survey.questions.get(index).unwrap().question.clone()),
-        //     },
-        // )
-        // .await;
+    pub async fn clicked_save(&mut self) {
+        let keys = (self.deleted_key_list)();
+        let questions = self.get_survey().questions;
+
+        let email: String = use_login_service().get_email().clone();
+        let survey = self.get_survey();
+
+        for i in keys.clone() {
+            let question = questions.get(i);
+
+            let _ = upsert_survey(
+                email.clone(),
+                survey.survey.id.clone(),
+                StatusType::TemporarySave,
+                SurveyUpdateItem::RemoveQuestion(question.unwrap().id.clone()),
+            )
+            .await;
+        }
+
+        let _ = upsert_survey(
+            email.clone(),
+            survey.survey.id.clone(),
+            StatusType::Save,
+            SurveyUpdateItem::RemoveQuestion("".to_string()),
+        )
+        .await;
+    }
+
+    pub async fn clicked_back(&mut self) {
+        let email: String = use_login_service().get_email().clone();
+        let survey = self.get_survey();
+
+        let _ = upsert_survey(
+            email.clone(),
+            survey.survey.id.clone(),
+            StatusType::Back,
+            SurveyUpdateItem::RemoveQuestion("".to_string()),
+        )
+        .await;
     }
 }

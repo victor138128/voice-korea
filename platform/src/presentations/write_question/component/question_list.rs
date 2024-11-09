@@ -10,6 +10,7 @@ use crate::{
 
 #[derive(Props, Clone, PartialEq)]
 pub struct QuestionProps {
+    id: String,
     lang: Language,
     ctrl: Controller,
     delete: String,
@@ -27,6 +28,7 @@ pub fn QuestionList(props: QuestionProps) -> Element {
     let navigator = use_navigator();
 
     let keys = ctrl.delete_key_lists();
+    let id = props.id.clone();
 
     rsx! {
         Fragment {
@@ -107,23 +109,31 @@ pub fn QuestionList(props: QuestionProps) -> Element {
             }
             div {
                 class: "flex flex-row w-full justify-end items-end mb-[30px]",
-                Link {
-                    to: Route::WriteTitlePage {
-                        lang: props.lang.clone(),
-                        id: "test".to_string(), //FIXME: fix to real id
+                div {
+                    class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#434343] text-white font-medium text-[20px] mr-[20px]",
+                    onclick: move |_| {
+                        let id = id.clone();
+                        async move {
+                            ctrl.clicked_back().await;
+                            navigator.push(Route::WriteTitlePage {
+                                lang: props.lang.clone(),
+                                id,
+                            });
+                        }
                     },
-                    div {
-                        class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#434343] text-white font-medium text-[20px] mr-[20px]",
-                        "{props.back}"
-                    }
+                    "{props.back}"
                 }
                 div {
                     class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#2168c3] text-white font-medium text-[20px] mr-[20px]",
                     onclick: move |_| {
-                        navigator.push(Route::SelectResponsePage {
-                            lang: props.lang.clone(),
-                            title: survey.survey.title.clone()
-                        });
+                        let id = props.id.clone();
+                        async move {
+                            ctrl.clicked_save().await;
+                            navigator.push(Route::SelectResponsePage {
+                                lang: props.lang.clone(),
+                                id,
+                            });
+                        }
                     },
                     "{props.save}"
                 }

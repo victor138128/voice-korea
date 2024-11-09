@@ -1,8 +1,7 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
-use dioxus_logger::tracing;
 
-use crate::api::v1::surveys::{get_survey, GetSurveyResponse};
+use crate::api::v1::surveys::GetSurveyResponse;
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
@@ -11,22 +10,22 @@ pub struct Controller {
 
 impl Controller {
     pub fn init(_title: String) -> Self {
-        let mut ctrl = Self {
+        let ctrl = Self {
             survey_response: use_signal(|| GetSurveyResponse::default()),
         };
 
-        let _ = use_effect(move || {
-            spawn(async move {
-                match get_survey().await {
-                    Ok(res) => {
-                        ctrl.survey_response.set(res);
-                    }
-                    Err(e) => {
-                        tracing::error!("Error: {:?}", e);
-                    }
-                }
-            });
-        });
+        // let _ = use_effect(move || {
+        //     spawn(async move {
+        //         match get_survey().await {
+        //             Ok(res) => {
+        //                 ctrl.survey_response.set(res);
+        //             }
+        //             Err(e) => {
+        //                 tracing::error!("Error: {:?}", e);
+        //             }
+        //         }
+        //     });
+        // });
 
         ctrl
     }

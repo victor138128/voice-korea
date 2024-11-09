@@ -30,6 +30,7 @@ pub fn WriteQuestionPage(props: WriteQuestionProps) -> Element {
                 div {
                     class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px]",
                     QuestionList {
+                        id: props.id,
                         lang: props.lang,
                         ctrl,
                         delete: translates.delete,

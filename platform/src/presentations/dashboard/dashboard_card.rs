@@ -80,6 +80,10 @@ pub fn DashboardCard(
                                 navigator.push(
                                     Route::WriteQuestionPage { lang, id: survey_id.clone() }
                                 );
+                            } else if survey_sequence == "select_response" {
+                                navigator.push(
+                                    Route::SelectResponsePage { lang, id: survey_id.clone() }
+                                );
                             };
                         },
                         div {

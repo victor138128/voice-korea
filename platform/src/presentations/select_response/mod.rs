@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 #[derive(PartialEq, Props, Clone)]
 pub struct SelectResponseProps {
     lang: Language,
-    title: String,
+    id: String,
 }
 
 pub mod controller;
@@ -13,7 +13,7 @@ pub mod i18n;
 
 #[component]
 pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
-    let ctrl = controller::Controller::init(props.title.clone());
+    let ctrl = controller::Controller::init(props.id.clone());
     let survey_response = ctrl.get_survey();
     let question_list = survey_response.questions.len() as u64;
     let translates = i18n::translate(props.lang.clone());
