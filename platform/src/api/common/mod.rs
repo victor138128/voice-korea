@@ -14,6 +14,8 @@ pub enum TypeField {
     S(String),
     #[serde(untagged)]
     B(bool),
+    #[serde(untagged)]
+    V(Option<Vec<String>>),
 }
 
 impl<T> Default for CommonQueryResponse<T> {

@@ -4,6 +4,7 @@ use dioxus_logger::tracing;
 
 use crate::{
     components::{button::Button, select::Select},
+    models::survey::StatusType,
     prelude::Language,
     presentations::write_question::controller::{
         Controller, ObjectiveQuestionOption, QuestionStep,
@@ -41,18 +42,18 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
     let survey = ctrl.get_survey();
     let questions = ctrl.get_question_types();
     let selected_question = ctrl.get_selected_question();
-    tracing::debug!("selected question: {:?}", selected_question);
+    tracing::debug!(
+        "selected question: {:?} {}",
+        selected_question,
+        questions
+            .get(selected_question as usize)
+            .unwrap()
+            .clone()
+            .value
+    );
     let objective_questions = ctrl.get_objective_questions();
     rsx! {
         Fragment {
-            div {
-                class: "flex flex-row w-full justify-end items-end mb-[20px]",
-                Button {
-                    button_text: props.temporary_save.clone(),
-                    onclick: move |_| {},
-                    class: "flex flex-row w-[200px] h-[50px] bg-[#1e5eaf]",
-                }
-            }
             div {
                 class: "flex flex-row w-full h-[110px] rounded-[10px] bg-white mb-[10px]",
                 div {
@@ -69,17 +70,15 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                         "type": "text",
                         style: "border:0px; padding: 5px; border-color: transparent; outline-style: none; box-shadow: none; border-bottom: 1px solid #9f9f9f;",
                         placeholder: props.input_question.clone(),
-                        onchange: move |_e| {
+                        value: ctrl.get_question_title().clone(),
+                        onchange: move |e| {
+                            ctrl.change_question_title(e.value());
                         },
                     }
                     Select {
                         class: "w-[205px] h-[50px] rounded-lg font-normal text-[16px] text-black pt-[10px] pb-[10px] pl-[13px] pr-[13px] ml-[10px]",
                         border: "1px solid #9f9f9f",
-                        value: questions
-                            .get(selected_question as usize)
-                            .unwrap()
-                            .clone()
-                            .value,
+                        value: selected_question as i64,
                         onchange: move |evt: Event<FormData>| {
                             let data = evt.clone().value();
                             ctrl.change_selected_question(data.parse::<u64>().unwrap_or(0));
@@ -87,7 +86,7 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                         component: rsx! {
                             {questions.iter().map(|opt| {
                                 rsx! {
-                                    option { label: opt.label.clone(), value: opt.value.clone(), color: "#000000" }
+                                    option { label: opt.label.clone(), value: opt.value.clone(), color: "#000000", selected: if opt.value.clone() == selected_question as i64 {true} else {false} }
                                 }
                             })}
                         }
@@ -109,7 +108,11 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                     class: "flex flex-row w-full justify-between items-center mt-[30px]",
                     Button {
                         button_text: props.next_question,
-                        onclick: move |_| {},
+                        onclick: move |_| async move {
+                            ctrl.write_question(StatusType::TemporarySave).await;
+                            ctrl.refresh_survey_response();
+                            ctrl.clear_data();
+                        },
                         class: "flex flex-row w-[120px] h-[50px] bg-[#3a94ff]",
                     }
                     div {
@@ -117,13 +120,17 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                         Button {
                             button_text: props.cancel_label,
                             onclick: move |_| {
+                                ctrl.clear_data();
                                 ctrl.change_step(QuestionStep::List);
                             },
                             class: "flex flex-row w-[80px] h-[50px] bg-[#434343] mr-[10px]",
                         }
                         Button {
                             button_text: props.save_label,
-                            onclick: move |_| {
+                            onclick: move |_| async move {
+                                ctrl.write_question(StatusType::TemporarySave).await;
+                                ctrl.refresh_survey_response();
+                                ctrl.clear_data();
                                 ctrl.change_step(QuestionStep::List);
                             },
                             class: "flex flex-row w-[80px] h-[50px] bg-[#2168c3]",

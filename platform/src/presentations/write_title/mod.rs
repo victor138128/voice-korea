@@ -8,12 +8,12 @@ mod i18n;
 #[derive(PartialEq, Props, Clone)]
 pub struct WriteTitleProps {
     lang: Language,
-    id: String,
+    survey_id: String,
 }
 
 #[component]
 pub fn WriteTitlePage(props: WriteTitleProps) -> Element {
-    let mut ctrl = controller::Controller::init(props.lang.clone(), props.id);
+    let mut ctrl = controller::Controller::init(props.lang.clone(), props.survey_id);
     let translates = i18n::translate(props.lang.clone());
     let navigator = use_navigator();
 
@@ -71,7 +71,7 @@ pub fn WriteTitlePage(props: WriteTitleProps) -> Element {
                                 navigator
                                     .push(Route::WriteQuestionPage {
                                         lang: props.lang.clone(),
-                                        id: ctrl.get_survey_id(),
+                                        survey_id: ctrl.get_survey_id(),
                                     });
                             },
                             {translates.store}
