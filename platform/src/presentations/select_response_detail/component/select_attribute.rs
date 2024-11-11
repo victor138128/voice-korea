@@ -143,7 +143,7 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                             Link {
                                 to: Route::SelectResponsePage {
                                     lang: props.lang.clone(),
-                                    id: props.title.clone()
+                                    survey_id: props.title.clone()
                                 },
                                 div {
                                     class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#434343] text-white font-medium text-[20px] mr-[20px]",

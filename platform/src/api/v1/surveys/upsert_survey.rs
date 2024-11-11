@@ -30,7 +30,7 @@ pub async fn upsert_survey(
 ) -> Result<(), ServerFnError> {
     let log = crate::utils::logger::new_api("POST", &format!("/v1/empty/surveys"));
     let cli = crate::utils::db::get(&log);
-    dioxus_logger::tracing::debug!("/v1/surveys: {:?} {:?}", survey_id, item);
+    slog::debug!(log, "/v1/surveys: {:?} {:?}", survey_id, item);
 
     match item {
         SurveyUpdateItem::RemoveQuestion(id) => {

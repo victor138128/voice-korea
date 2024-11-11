@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 #[derive(PartialEq, Props, Clone)]
 pub struct SelectResponseProps {
     lang: Language,
-    id: String,
+    survey_id: String,
 }
 
 pub mod controller;
@@ -13,7 +13,7 @@ pub mod i18n;
 
 #[component]
 pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
-    let ctrl = controller::Controller::init(props.id.clone());
+    let ctrl = controller::Controller::init(props.survey_id.clone());
     let survey_response = ctrl.get_survey();
     let question_list = survey_response.questions.len() as u64;
     let translates = i18n::translate(props.lang.clone());
@@ -128,7 +128,7 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
                         onclick: move |_| {
                             navigator.push(Route::WriteQuestionPage {
                                 lang: props.lang.clone(),
-                                id: survey_response.survey.title.clone() //FIXME: fix to id
+                                survey_id: survey_response.survey.title.clone() //FIXME: fix to id
                             });
                         },
                         class: "flex flex-row w-[200px] h-[50px] bg-[#434343]",

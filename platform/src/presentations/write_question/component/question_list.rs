@@ -10,7 +10,7 @@ use crate::{
 
 #[derive(Props, Clone, PartialEq)]
 pub struct QuestionProps {
-    id: String,
+    survey_id: String,
     lang: Language,
     ctrl: Controller,
     delete: String,
@@ -27,8 +27,8 @@ pub fn QuestionList(props: QuestionProps) -> Element {
     let survey_height = 170 + survey.questions.len() * 90;
     let navigator = use_navigator();
 
-    let keys = ctrl.delete_key_lists();
-    let id = props.id.clone();
+    let keys: Vec<usize> = ctrl.delete_key_lists();
+    let survey_id = props.survey_id.clone();
 
     rsx! {
         Fragment {
@@ -112,12 +112,12 @@ pub fn QuestionList(props: QuestionProps) -> Element {
                 div {
                     class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#434343] text-white font-medium text-[20px] mr-[20px]",
                     onclick: move |_| {
-                        let id = id.clone();
+                        let survey_id = survey_id.clone();
                         async move {
                             ctrl.clicked_back().await;
                             navigator.push(Route::WriteTitlePage {
                                 lang: props.lang.clone(),
-                                id,
+                                survey_id,
                             });
                         }
                     },
@@ -126,12 +126,12 @@ pub fn QuestionList(props: QuestionProps) -> Element {
                 div {
                     class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#2168c3] text-white font-medium text-[20px] mr-[20px]",
                     onclick: move |_| {
-                        let id = props.id.clone();
+                        let survey_id = props.survey_id.clone();
                         async move {
                             ctrl.clicked_save().await;
                             navigator.push(Route::SelectResponsePage {
                                 lang: props.lang.clone(),
-                                id,
+                                survey_id,
                             });
                         }
                     },

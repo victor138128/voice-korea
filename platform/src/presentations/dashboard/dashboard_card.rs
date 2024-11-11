@@ -73,16 +73,16 @@ pub fn DashboardCard(
                             if survey_sequence == "title" {
                                 navigator.push(
                                     Route::WriteTitlePage {
-                                        lang, id: survey_id.clone(),
+                                        lang, survey_id: survey_id.clone(),
                                     }
                                 );
                             } else if survey_sequence == "add_question" {
                                 navigator.push(
-                                    Route::WriteQuestionPage { lang, id: survey_id.clone() }
+                                    Route::WriteQuestionPage { lang, survey_id: survey_id.clone() }
                                 );
                             } else if survey_sequence == "select_response" {
                                 navigator.push(
-                                    Route::SelectResponsePage { lang, id: survey_id.clone() }
+                                    Route::SelectResponsePage { lang, survey_id: survey_id.clone() }
                                 );
                             };
                         },

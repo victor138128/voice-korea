@@ -108,7 +108,7 @@ impl Controller {
                 self.is_error.set(false);
                 navigator.push(Route::WriteTitlePage {
                     lang: lang.clone(),
-                    id: v,
+                    survey_id: v,
                 });
             }
             Err(e) => {

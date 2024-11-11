@@ -66,17 +66,14 @@ pub async fn get_survey() -> Result<GetSurveyResponse, ServerFnError> {
         .get(format!("{}#survey#{}", email, survey_id).as_str())
         .await;
 
-    let res_question: Result<
-        (Option<Vec<Question>>, Option<String>),
-        easy_dynamodb::error::DynamoException,
-    > = cli
+    let res_question: (Option<Vec<Question>>, Option<String>) = cli
         .find(
             "gsi1-index",
             None,
             Some(100),
             vec![("gsi1", format!("{}#survey-question#{}", email, survey_id))],
         )
-        .await;
+        .await?;
 
     let survey = match res_summary {
         Ok(v) => match v {
@@ -90,15 +87,15 @@ pub async fn get_survey() -> Result<GetSurveyResponse, ServerFnError> {
         }
     };
 
-    let questions: Vec<Question> = match res_question {
-        Ok(v) => {
-            let questions_vec = &v.0.unwrap();
-            questions_vec.clone()
-        }
-        Err(e) => {
+    let questions: Vec<Question> = match res_question.1 {
+        Some(err) => {
             return Err(ServerFnError::ServerError(format!(
-                "DB questions query failed {e}"
+                "DB questions query failed {err}"
             )))
+        }
+        None => {
+            let questions_vec = &res_question.0.unwrap();
+            questions_vec.clone()
         }
     };
 
