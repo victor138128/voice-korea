@@ -70,21 +70,21 @@ pub async fn upsert_survey(
                     }
                 }
             } else {
-                remove_question(id).await;
+                let _ = remove_question(id).await;
             }
         }
         SurveyUpdateItem::Title(title) => {
-            write_title(email, survey_id, status, title).await;
+            let _ = write_title(email, survey_id, status, title).await;
         }
         SurveyUpdateItem::AddQuestion { title, question } => {
-            write_question(email, survey_id, status, title, question).await;
+            let _ = write_question(email, survey_id, status, title, question).await;
         }
         SurveyUpdateItem::UpdateQuestion {
             id,
             title,
             question,
         } => {
-            update_question_survey(id, title.unwrap(), question.unwrap()).await;
+            let _ = update_question_survey(id, title.unwrap(), question.unwrap()).await;
         }
         _ => {}
     }
