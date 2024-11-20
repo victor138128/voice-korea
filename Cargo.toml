@@ -1,7 +1,5 @@
 [workspace]
-members = [
-    "platform",
-]
+members = ["package/api", "platform"]
 resolver = "1"
 
 [workspace.package]
