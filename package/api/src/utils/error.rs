@@ -23,7 +23,13 @@ impl IntoResponse for ApiError {
             ApiError::DynamoQueryException(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
-        let body = Json(json!({ "error": self.to_string() }));
+        let error_id = uuid::Uuid::new_v4();
+        let body = Json(json!({
+                    "error": {
+                        "id": error_id.to_string(),
+                        "message": self.to_string(),
+                    }
+        }));
 
         (status_code, body).into_response()
     }
