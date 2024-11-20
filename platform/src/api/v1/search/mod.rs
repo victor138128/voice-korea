@@ -15,8 +15,5 @@ pub async fn search(
     } else {
         return Err(ServerFnError::new("\"API URL\" Not found"));
     };
-    let res = reqwest::get(url).await?;
-    let json_res: CommonQueryResponse<models::prelude::SearchResult> = res.json().await?;
-
-    Ok(json_res)
+    Ok(reqwest::get(url).await?.json().await?)
 }
