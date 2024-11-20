@@ -5,6 +5,7 @@ ENV ?= local
 HOST ?= 0.0.0.0:8080
 PROFILE ?= default
 RUST_LOG ?= info
+API_URL ?= "http://localhost:3000"
 
 ifneq ("$(PROFILE)","default")
 	AWS_FLAG += --profile $(PROFILE)
@@ -14,11 +15,15 @@ ifeq ("$(ENV)","prod")
 	LOG_LEVEL ?= info
 	VOICE_KOREA_TABLE_NAME = voice-korea-prod
 	BASE_URL = https://voice-korea.biyard.co
+#FIXME: Change URL
+	API_URL ?= https://api.voice-korea.biyard.co
 endif
 
 ifeq ("$(ENV)","dev")
 	VOICE_KOREA_TABLE_NAME = voice-korea-dev
 	BASE_URL = https://voice-korea.dev.biyard.co
+#FIXME: Change URL
+	API_URL ?= https://api.dev.voice-korea.biyard.co
 endif
 
 ifeq ("$(ENV)","local")
@@ -33,7 +38,7 @@ AWS_DYNAMODB_KEY ?= "id"
 RUSTFLAGS ?=
 LOG_LEVEL ?= debug
 
-BUILD_ENV ?= ENV=$(ENV) VERSION=$(VERSION) COMMIT=$(COMMIT) LOG_LEVEL=$(LOG_LEVEL) AWS_REGION=${REGION} AWS_ACCESS_KEY_ID=${ACCESS_KEY_ID} AWS_DYNAMODB_KEY=${AWS_DYNAMODB_KEY} AWS_SECRET_ACCESS_KEY=${SECRET_ACCESS_KEY} TABLE_NAME=$(VOICE_KOREA_TABLE_NAME) BASE_URL=$(BASE_URL)
+BUILD_ENV ?= ENV=$(ENV) VERSION=$(VERSION) COMMIT=$(COMMIT) LOG_LEVEL=$(LOG_LEVEL) AWS_REGION=${REGION} AWS_ACCESS_KEY_ID=${ACCESS_KEY_ID} AWS_DYNAMODB_KEY=${AWS_DYNAMODB_KEY} AWS_SECRET_ACCESS_KEY=${SECRET_ACCESS_KEY} TABLE_NAME=$(VOICE_KOREA_TABLE_NAME) BASE_URL=$(BASE_URL) API_URL=${API_URL}
 
 setup.tool:
 	cargo install dioxus-cli --version 0.6.0-alpha.4
