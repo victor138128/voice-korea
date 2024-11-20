@@ -9,9 +9,11 @@ use crate::api::common::CommonQueryResponse;
 pub async fn search(
     q: String,
 ) -> Result<CommonQueryResponse<models::prelude::SearchResult>, ServerFnError> {
-    dioxus_logger::tracing::debug!("/v1/search: {:?}", q);
+    use urlencoding::encode;
+    let encoded_q = encode(&q);
+    dioxus_logger::tracing::debug!("/v1/search: {:?}", encoded_q);
     let url = if let Some(url) = option_env!("API_URL") {
-        format!("{}/v1/search?query={}", url, q)
+        format!("{}/v1/search?query={}", url, encoded_q)
     } else {
         return Err(ServerFnError::new("\"API URL\" Not found"));
     };
