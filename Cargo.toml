@@ -1,7 +1,5 @@
 [workspace]
-members = [
-    "platform",
-]
+members = ["package/models", "package/api", "platform"]
 resolver = "1"
 
 [workspace.package]
@@ -9,3 +7,6 @@ version = "1.0.0"
 authors = ["Biyard"]
 description = "iitp"
 edition = "2021"
+
+[workspace.dependencies]
+models = { version = "1.0.0", path = "package/models" }
