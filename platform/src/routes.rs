@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 
 use crate::prelude::*;
+use crate::presentations::attributes::AttributePage;
 use crate::presentations::create::CreatePage;
 use crate::presentations::dashboard::DashboardPage;
 use crate::presentations::find_email::FindEmailPage;
@@ -30,6 +31,8 @@ pub enum Route {
             SelectResponseDetailPage { lang: Language, title: String, select_type: String },
             #[route("/:title/survey-summary")]
             SurveySummaryPage { lang: Language, title: String },
+            #[route("/attributes")]
+            AttributePage { lang: Language },
         #[end_layout]
 
         #[route("/")]

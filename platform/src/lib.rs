@@ -11,6 +11,7 @@ pub mod pages {
 }
 
 pub mod presentations {
+    pub mod attributes;
     pub mod create;
     pub mod dashboard;
     pub mod find_email;
@@ -48,8 +49,10 @@ pub mod layouts {
 }
 
 pub mod components {
+    pub mod alert;
     pub mod bottom;
     pub mod button;
+    pub mod icons;
     pub mod input;
     pub mod select;
     pub mod table_row;
