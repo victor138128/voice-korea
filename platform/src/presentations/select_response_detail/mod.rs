@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use crate::prelude::*;
-use component::select_panel::SelectPanelPage;
+use component::{select_attribute::SelectAttributePage, select_panel::SelectPanelPage};
 use dioxus::prelude::*;
 
 #[derive(PartialEq, Props, Clone)]
@@ -23,32 +23,45 @@ pub fn SelectResponseDetailPage(props: SelectResponseDetailProps) -> Element {
     let translates = i18n::translate(props.lang.clone());
 
     rsx! {
-        // SelectAttributePage {
-        //     ctrl,
-        //     lang: props.lang,
-        //     title: props.title,
-        //     select_type: props.select_type,
+        if ctrl.get_step() == 1 {
+            SelectAttributePage {
+                ctrl,
+                lang: props.lang,
+                title: props.title,
+                select_type: props.select_type,
 
-        //     temporary_save: translates.temporary_save,
-        //     attribute_title: translates.attribute_title,
-        //     attribute_description: translates.attribute_description,
-        //     attribute_select_label: translates.attribute_select_label,
-        //     nation: translates.nation,
-        //     gender: translates.gender,
-        //     age: translates.age,
-        //     add_attribute: translates.add_attribute,
-        //     cancel: translates.cancel,
-        //     save: translates.save,
-        // }
+                temporary_save: translates.temporary_save,
+                attribute_title: translates.attribute_title,
+                attribute_description: translates.attribute_description,
+                attribute_select_label: translates.attribute_select_label,
+                nation: translates.nation,
+                gender: translates.gender,
+                age: translates.age,
+                add_attribute: translates.add_attribute,
+                cancel: translates.cancel,
+                save: translates.save,
+            }
+        } else {
+            SelectPanelPage {
+                ctrl: ctrl.clone(),
+                lang: props.lang,
+                select_type: props.select_type,
+                panel_groups: ctrl.get_panel_groups(),
+                panels: ctrl.get_panels(),
+                select_panel_groups: ctrl.get_select_panel_groups(),
+                select_panels: ctrl.get_select_panels(),
+                total_select_count: ctrl.get_total_select_count(),
 
-        SelectPanelPage {
-            ctrl: ctrl.clone(),
-            lang: props.lang,
-            select_type: props.select_type,
-            panel_groups: ctrl.get_panel_groups(),
-            panels: ctrl.get_panels(),
-            select_panel_groups: ctrl.get_select_panel_groups(),
-            select_panels: ctrl.get_select_panels(),
+                temporary_save: translates.temporary_save,
+                select_responsive_panel: translates.select_responsive_panel,
+                select_response_panel_description: translates.select_responsive_panel_description,
+                selection_panel_groups: translates.selection_panel_groups,
+                cancel: translates.cancel,
+                save: translates.save,
+                select_all: translates.select_all,
+                search_results: translates.search_results,
+                panel: translates.panel,
+            }
         }
     }
 }

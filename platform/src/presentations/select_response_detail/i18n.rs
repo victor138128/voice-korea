@@ -11,6 +11,13 @@ pub struct SelectResponseDetailTranslate {
     pub add_attribute: String,
     pub cancel: String,
     pub save: String,
+
+    pub select_responsive_panel: String,
+    pub select_responsive_panel_description: String,
+    pub selection_panel_groups: String,
+    pub select_all: String,
+    pub search_results: String,
+    pub panel: String,
 }
 
 pub fn translate(lang: Language) -> SelectResponseDetailTranslate {
@@ -26,6 +33,13 @@ pub fn translate(lang: Language) -> SelectResponseDetailTranslate {
             add_attribute: "Add Attribute".to_string(),
             cancel: "Cancel".to_string(),
             save: "Save".to_string(),
+
+            select_responsive_panel: "Select Responsive Panel".to_string(),
+            select_responsive_panel_description: "Select a panel to offer your survey".to_string(),
+            selection_panel_groups: "Selection panel recruitment group".to_string(),
+            select_all: "Select All".to_string(),
+            search_results: "Search Results".to_string(),
+            panel: "Panel".to_string(),
         },
         Language::Ko => SelectResponseDetailTranslate {
             temporary_save: "임시 저장".to_string(),
@@ -38,6 +52,13 @@ pub fn translate(lang: Language) -> SelectResponseDetailTranslate {
             add_attribute: "속성 추가하기".to_string(),
             cancel: "취소".to_string(),
             save: "저장".to_string(),
+
+            select_responsive_panel: "응답 패널 선택".to_string(),
+            select_responsive_panel_description: "설문조사를 제공할 패널 선택".to_string(),
+            selection_panel_groups: "선택 패널 모집군".to_string(),
+            select_all: "전체 선택하기".to_string(),
+            search_results: "검색 결과".to_string(),
+            panel: "패널".to_string(),
         },
     }
 }

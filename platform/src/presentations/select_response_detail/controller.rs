@@ -6,20 +6,20 @@ use crate::api::v1::surveys::GetSurveyResponse;
 //FIXME: move to model file
 #[derive(Debug, Clone, PartialEq)]
 pub struct PanelGroup {
-    country: String,
-    gender: String,
-    age: String,
-    occupation: String,
-    value: u64,
+    pub country: String,
+    pub gender: String,
+    pub age: String,
+    pub occupation: String,
+    pub value: u64,
 }
 
 //FIXME: move to model file
 #[derive(Debug, Clone, PartialEq)]
 pub struct Panel {
-    country: String,
-    gender: String,
-    age: String,
-    occupation: String,
+    pub country: String,
+    pub gender: String,
+    pub age: String,
+    pub occupation: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -30,6 +30,9 @@ pub struct Controller {
     panels: Signal<Vec<Panel>>,
     select_panel_groups: Signal<Vec<u64>>,
     select_panels: Signal<Vec<u64>>,
+    total_select_count: Signal<u64>,
+    click_total_check: Signal<bool>,
+    step: Signal<u64>,
 }
 
 impl Controller {
@@ -112,6 +115,9 @@ impl Controller {
             }), //FIXME: fix to get api
             select_panel_groups: use_signal(|| vec![]),
             select_panels: use_signal(|| vec![]),
+            total_select_count: use_signal(|| 0),
+            click_total_check: use_signal(|| false),
+            step: use_signal(|| 1),
         };
 
         // let _ = use_effect(move || {
@@ -138,24 +144,61 @@ impl Controller {
         (self.select_panels)()
     }
 
+    pub fn get_total_select_count(&self) -> u64 {
+        (self.total_select_count)()
+    }
+
+    pub fn change_step(&mut self, step: u64) {
+        self.step.set(step);
+    }
+
+    pub fn get_step(&self) -> u64 {
+        (self.step)()
+    }
+
     pub fn change_select_panel_groups(&mut self, ind: u64, value: bool) {
         let mut groups = self.get_select_panel_groups();
+        let panel_groups = self.get_panel_groups();
         if value {
+            let panel = panel_groups.get(ind as usize).unwrap();
             groups.push(ind);
+            self.total_select_count
+                .set((self.total_select_count)() + panel.value);
         } else {
+            let panel = panel_groups.get(ind as usize).unwrap();
             let ind = groups.iter().position(|x| *x == ind).unwrap();
             groups.remove(ind);
+            self.total_select_count
+                .set((self.total_select_count)() - panel.value);
         }
         self.select_panel_groups.set(groups);
+    }
+
+    pub fn clicked_panels_all(&mut self) {
+        let mut select_panels = vec![];
+        let panels = self.get_panels();
+        for (i, _panel) in panels.iter().enumerate() {
+            select_panels.push(i as u64);
+        }
+        self.select_panels.set(select_panels.clone());
+        self.total_select_count
+            .set(select_panels.clone().len() as u64);
+        self.click_total_check.set(true);
+    }
+
+    pub fn get_click_total_check(&self) -> bool {
+        (self.click_total_check)()
     }
 
     pub fn change_select_panels(&mut self, ind: u64, value: bool) {
         let mut panels = self.get_select_panels();
         if value {
             panels.push(ind);
+            self.total_select_count.set((self.total_select_count)() + 1);
         } else {
             let ind = panels.iter().position(|x| *x == ind).unwrap();
             panels.remove(ind);
+            self.total_select_count.set((self.total_select_count)() - 1);
         }
         self.select_panels.set(panels);
     }
