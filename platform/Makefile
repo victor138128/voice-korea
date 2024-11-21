@@ -1,5 +1,5 @@
 SERVICE ?= $(shell basename `git rev-parse --show-toplevel`)
-VERSION ?= v0.1.0
+VERSION ?= $(shell cargo pkgid | cut -d'#' -f2)
 COMMIT ?= $(shell git rev-parse --short HEAD)
 ENV ?= local
 HOST ?= 0.0.0.0:8080
