@@ -26,8 +26,10 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
 models.workspace = true
 uuid = { version = "1.11.0", features = ["v4"] }
+by-axum = "0.1.2"
 
 
 [features]
 default = []
 reload = ["listenfd"]
+lambda = ["by-axum/lambda"]

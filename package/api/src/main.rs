@@ -1,4 +1,3 @@
-use axum::{routing::get, Router};
 use tokio::net::TcpListener;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -16,9 +15,7 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .try_init();
 
-    let app = Router::new()
-        .route("/version", get(version))
-        .nest("/v1", v1::router());
+    let app = by_axum::new().nest("/v1", v1::router());
     #[cfg(feature = "reload")]
     {
         use listenfd::ListenFd;
@@ -37,7 +34,7 @@ async fn main() {
             "[AUTO-RELOAD] listening on {}",
             listener.local_addr().unwrap()
         );
-        axum::serve(listener, app).await.unwrap();
+        by_axum::serve(listener, app).await.unwrap();
     }
     #[cfg(not(feature = "reload"))]
     {
@@ -46,20 +43,6 @@ async fn main() {
             .await
             .unwrap();
         tracing::info!("listening on {}", listener.local_addr().unwrap());
-        axum::serve(listener, app).await.unwrap();
+        by_axum::serve(listener, app).await.unwrap();
     }
-}
-
-async fn version() -> String {
-    match option_env!("VERSION") {
-        Some(version) => match option_env!("COMMIT") {
-            Some(commit) => format!("{}-{}", version, commit),
-            None => format!("{}", version),
-        },
-        None => match option_env!("DATE") {
-            Some(date) => date.to_string(),
-            None => "unknown".to_string(),
-        },
-    }
-    .to_string()
 }
