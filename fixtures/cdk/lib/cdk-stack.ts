@@ -23,85 +23,41 @@ export class CdkStack extends cdk.Stack {
     let acmId = process.env.ACM_ID || "";
     let hostedZoneId = process.env.HOSTED_ZONE_ID || "";
     let tableName = process.env.TABLE_NAME || "";
-
-    const assetsBucket = new s3.Bucket(this, "Bucket", {
-      bucketName: domain,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-    });
+    let codePath = process.env.WORKSPACE_ROOT + "/.build/platform" || "";
+    let indexes = [
+      {
+        name: "type-index",
+        partitionKey: "type",
+        sortKey: "created_at",
+      },
+      {
+        name: "gsi1-index",
+        partitionKey: "gsi1",
+        sortKey: "created_at",
+      },
+      {
+        name: "gsi2-index",
+        partitionKey: "gsi2",
+        sortKey: "created_at",
+      },
+      {
+        name: "auth-key-index",
+        partitionKey: "auth_key",
+        sortKey: "created_at",
+      },
+    ];
+    let enableDyanmo = process.env.ENABLE_DYNAMO === "true";
+    let enableS3 = process.env.ENABLE_S3 === "true";
 
     const certificate = acm.Certificate.fromCertificateArn(
       this,
       "Certificate",
-      acmId
+      acmId,
     );
-
-    const table = new dynamodb.Table(this, "DynamoDB", {
-      partitionKey: {
-        name: "id",
-        type: dynamodb.AttributeType.STRING,
-      },
-      tableName,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-    });
-
-    table.addGlobalSecondaryIndex({
-      indexName: "type-index",
-      partitionKey: {
-        name: "type",
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: "created_at",
-        type: dynamodb.AttributeType.NUMBER,
-      },
-      projectionType: dynamodb.ProjectionType.ALL,
-    });
-
-    table.addGlobalSecondaryIndex({
-      indexName: "gsi1-index",
-      partitionKey: {
-        name: "gsi1",
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: "created_at",
-        type: dynamodb.AttributeType.NUMBER,
-      },
-      projectionType: dynamodb.ProjectionType.ALL,
-    });
-
-    table.addGlobalSecondaryIndex({
-      indexName: "gsi2-index",
-      partitionKey: {
-        name: "gsi2",
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: "created_at",
-        type: dynamodb.AttributeType.NUMBER,
-      },
-      projectionType: dynamodb.ProjectionType.ALL,
-    });
-
-    table.addGlobalSecondaryIndex({
-      indexName: "auth-key-index",
-      partitionKey: {
-        name: "auth_key",
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: "created_at",
-        type: dynamodb.AttributeType.NUMBER,
-      },
-      projectionType: dynamodb.ProjectionType.ALL,
-    });
 
     const func = new lambda.Function(this, "Function", {
       runtime: lambda.Runtime.PROVIDED_AL2023,
-      code: lambda.Code.fromAsset(
-        process.env.WORKSPACE_ROOT + "/.build/platform"
-      ),
+      code: lambda.Code.fromAsset(codePath),
       handler: "bootstrap",
       environment: {
         NO_COLOR: "true",
@@ -110,26 +66,61 @@ export class CdkStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(30),
     });
 
-    table.grantReadWriteData(func);
+    if (enableDyanmo) {
+      const table = new dynamodb.Table(this, "DynamoDB", {
+        partitionKey: {
+          name: "id",
+          type: dynamodb.AttributeType.STRING,
+        },
+        tableName,
+        removalPolicy: cdk.RemovalPolicy.RETAIN,
+        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      });
+
+      for (let index of indexes) {
+        table.addGlobalSecondaryIndex({
+          indexName: index.name,
+          partitionKey: {
+            name: index.partitionKey,
+            type: dynamodb.AttributeType.STRING,
+          },
+          sortKey: {
+            name: index.sortKey,
+            type: dynamodb.AttributeType.NUMBER,
+          },
+          projectionType: dynamodb.ProjectionType.ALL,
+        });
+      }
+
+      table.grantReadWriteData(func);
+    }
 
     const api = new apigateway.LambdaRestApi(this, "Api", {
       handler: func,
       proxy: true,
     });
 
-    const s3Origin = new origins.S3Origin(assetsBucket);
-    const apiOrigin = new origins.RestApiOrigin(api);
-
-    const cf = new cloudfront.Distribution(this, "Distribution", {
+    let distributionProps: any = {
       defaultBehavior: {
-        origin: apiOrigin,
+        origin: new origins.RestApiOrigin(api),
         cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
         allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
         cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
         originRequestPolicy:
           cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
       },
-      additionalBehaviors: {
+      domainNames: [domain],
+      certificate,
+    };
+
+    if (enableS3) {
+      const assetsBucket = new s3.Bucket(this, "Bucket", {
+        bucketName: domain,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+      });
+
+      const s3Origin = new origins.S3Origin(assetsBucket);
+      distributionProps.additionalBehaviors = {
         "/assets/*": {
           origin: s3Origin,
           cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
@@ -170,10 +161,14 @@ export class CdkStack extends cdk.Stack {
           origin: s3Origin,
           cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
         },
-      },
-      domainNames: [domain],
-      certificate,
-    });
+      };
+    }
+
+    const cf = new cloudfront.Distribution(
+      this,
+      "Distribution",
+      distributionProps,
+    );
 
     const zone = route53.HostedZone.fromHostedZoneAttributes(
       this,
@@ -181,7 +176,7 @@ export class CdkStack extends cdk.Stack {
       {
         zoneName: domain,
         hostedZoneId,
-      }
+      },
     );
 
     new route53.ARecord(this, "IpV4Record", {

@@ -4,9 +4,7 @@ COMMIT ?= $(shell git rev-parse --short HEAD)
 LOG_LEVEL ?= info
 VERSION ?= v0.1.0
 
-
 BUILD_ENV ?= ENV=$(ENV) PORT=$(PORT) VERSION=${VERSION} COMMIT=$(COMMIT) LOG_LEVEL=$(LOG_LEVEL)
-
 
 setup.tool:
 	cargo install cargo-watch systemfd
