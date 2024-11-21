@@ -4,6 +4,7 @@ pub mod prelude {
     pub use crate::utils::context::*;
 
     pub use crate::pages::not_found::NotFoundPage;
+    pub use dioxus::document::eval;
 }
 
 pub mod pages {
@@ -50,7 +51,9 @@ pub mod layouts {
 pub mod components {
     pub mod bottom;
     pub mod button;
+    pub mod icons;
     pub mod input;
+    pub mod popup;
     pub mod select;
     pub mod table_row;
 }

@@ -23,7 +23,8 @@ pub struct SelectAttributeProps {
 
 #[component]
 pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
-    let mut ctrl = props.ctrl;
+    let mut ctrl = props.ctrl.clone();
+    let title = ctrl.get_title();
     let navigator = use_navigator();
 
     rsx! {
@@ -155,7 +156,7 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                                 onclick: move |_| {
                                     navigator.push(Route::SurveySummaryPage {
                                         lang: props.lang.clone(),
-                                        title: ctrl.get_title(),
+                                        title: title.clone(),
                                     });
                                 },
                                 {props.save}
