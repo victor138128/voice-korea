@@ -77,7 +77,10 @@ pub async fn get_survey() -> Result<GetSurveyResponse, ServerFnError> {
 
     let survey = match res_summary {
         Ok(v) => match v {
-            Some(summary) => summary,
+            Some(summary) => {
+                tracing::debug!("this line come: {}", summary.title);
+                summary
+            }
             None => return Err(ServerFnError::ServerError(format!("not exists survey"))),
         },
         Err(e) => {

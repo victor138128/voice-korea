@@ -8,20 +8,18 @@ pub mod prelude {
 }
 
 pub mod pages {
-    pub mod not_found;
-}
-
-pub mod presentations {
     pub mod create;
     pub mod dashboard;
     pub mod find_email;
+    pub mod id {
+        pub mod select_response;
+        pub mod survey_summary;
+        pub mod write_question;
+        pub mod write_title;
+    }
     pub mod login;
+    pub mod not_found;
     pub mod reset_password;
-    pub mod select_response;
-    pub mod select_response_detail;
-    pub mod survey_summary;
-    pub mod write_question;
-    pub mod write_title;
 }
 
 pub mod service {

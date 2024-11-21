@@ -1,16 +1,16 @@
 use dioxus::prelude::*;
 
+use crate::pages::create::CreatePage;
+use crate::pages::dashboard::DashboardPage;
+use crate::pages::find_email::FindEmailPage;
+use crate::pages::id::select_response::response_type::SelectResponseDetailPage;
+use crate::pages::id::select_response::SelectResponsePage;
+use crate::pages::id::survey_summary::SurveySummaryPage;
+use crate::pages::id::write_question::WriteQuestionPage;
+use crate::pages::id::write_title::WriteTitlePage;
+use crate::pages::login::LoginPage;
+use crate::pages::reset_password::ResetPasswordPage;
 use crate::prelude::*;
-use crate::presentations::create::CreatePage;
-use crate::presentations::dashboard::DashboardPage;
-use crate::presentations::find_email::FindEmailPage;
-use crate::presentations::login::LoginPage;
-use crate::presentations::reset_password::ResetPasswordPage;
-use crate::presentations::select_response::SelectResponsePage;
-use crate::presentations::select_response_detail::SelectResponseDetailPage;
-use crate::presentations::survey_summary::SurveySummaryPage;
-use crate::presentations::write_question::WriteQuestionPage;
-use crate::presentations::write_title::WriteTitlePage;
 use crate::utils::context::{default_lang, Language};
 
 #[derive(Clone, Routable, Debug, PartialEq)]

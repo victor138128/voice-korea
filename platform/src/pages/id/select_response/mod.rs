@@ -8,8 +8,9 @@ pub struct SelectResponseProps {
     survey_id: String,
 }
 
-pub mod controller;
-pub mod i18n;
+mod controller;
+mod i18n;
+pub mod response_type;
 
 #[component]
 pub fn SelectResponsePage(props: SelectResponseProps) -> Element {

@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::{
+    pages::id::select_response::response_type::controller::{self, Panel, PanelGroup},
     prelude::*,
-    presentations::select_response_detail::controller::{self, Panel, PanelGroup},
 };
 use dioxus::prelude::*;
 use dioxus_logger::tracing;

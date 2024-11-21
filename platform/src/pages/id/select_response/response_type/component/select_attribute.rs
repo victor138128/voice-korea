@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::{prelude::*, presentations::select_response_detail::controller};
+use crate::{pages::id::select_response::response_type::controller, prelude::*};
 use dioxus::prelude::*;
 
 #[derive(PartialEq, Props, Clone)]

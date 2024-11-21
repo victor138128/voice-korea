@@ -10,8 +10,8 @@ pub struct SelectResponseDetailProps {
     select_type: String,
 }
 
-pub mod controller;
-pub mod i18n;
+mod controller;
+mod i18n;
 pub mod component {
     pub mod select_attribute;
     pub mod select_panel;
