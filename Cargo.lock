@@ -609,9 +609,6 @@ name = "bitflags"
 version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b048fb63fd8b5923fc5aa7b340d8e156aec7ec02f0c78fa8a6ddc2613f6f71de"
-dependencies = [
- "serde",
-]
 
 [[package]]
 name = "block-buffer"
@@ -893,11 +890,10 @@ dependencies = [
 
 [[package]]
 name = "dioxus"
-version = "0.6.0-alpha.4"
+version = "0.6.0-alpha.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f345989a3d92adf2814167135a9ebd99f706a43549a173add035f34c8a378d8a"
+checksum = "b7ae41ff3005907dd9641ec0fba547b6195d71621c4ef617d2b6b18f36b223c3"
 dependencies = [
- "axum",
  "dioxus-config-macro",
  "dioxus-core",
  "dioxus-core-macro",
@@ -907,11 +903,8 @@ dependencies = [
  "dioxus-history",
  "dioxus-hooks",
  "dioxus-html",
- "dioxus-liveview",
  "dioxus-router",
  "dioxus-signals",
- "dioxus-ssr",
- "dioxus-static-site-generation",
  "dioxus-web",
  "manganis",
  "serde",
@@ -919,9 +912,9 @@ dependencies = [
 
 [[package]]
 name = "dioxus-aws"
-version = "0.6.4"
+version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "229056fcd59783cd78f6b3934c8c2335758d14e3b2dbae7c5de4d7fac78fd6cc"
+checksum = "a97eaed9181c842f0befc1ac84fcd9e11d47bf1b814cd7c57152ba3d3c6cb7f6"
 dependencies = [
  "axum",
  "axum-core",
@@ -1130,9 +1123,6 @@ dependencies = [
  "keyboard-types",
  "lazy-js-bundle",
  "rustversion",
- "serde",
- "serde_json",
- "serde_repr",
  "tracing",
 ]
 
@@ -1154,9 +1144,6 @@ version = "0.6.0-alpha.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b6a574b0ed0ed0e84409d8c4410868c7a3d92d900d50509bead97a32874589a"
 dependencies = [
- "dioxus-core",
- "dioxus-core-types",
- "dioxus-html",
  "js-sys",
  "lazy-js-bundle",
  "rustc-hash",
@@ -1196,34 +1183,6 @@ dependencies = [
  "dioxus-html",
  "dioxus-rsx",
  "dioxus-signals",
-]
-
-[[package]]
-name = "dioxus-liveview"
-version = "0.6.0-alpha.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0929b480d4fad3a5a0b42e653faffd95a46fc941f4185b447ee00da209172c1"
-dependencies = [
- "axum",
- "dioxus-cli-config",
- "dioxus-core",
- "dioxus-devtools",
- "dioxus-document",
- "dioxus-history",
- "dioxus-html",
- "dioxus-interpreter-js",
- "futures-channel",
- "futures-util",
- "generational-box",
- "rustc-hash",
- "serde",
- "serde_json",
- "slab",
- "thiserror 1.0.69",
- "tokio",
- "tokio-stream",
- "tokio-util",
- "tracing",
 ]
 
 [[package]]
@@ -1305,28 +1264,6 @@ dependencies = [
  "dioxus-core",
  "dioxus-core-types",
  "rustc-hash",
-]
-
-[[package]]
-name = "dioxus-static-site-generation"
-version = "0.6.0-alpha.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8434bbaf91620d4b5f18d90b3318e6447f26c49c8afca91fd7a100aa24fb0300"
-dependencies = [
- "axum",
- "dioxus-cli-config",
- "dioxus-devtools",
- "dioxus-fullstack",
- "dioxus-isrg",
- "dioxus-lib",
- "dioxus-router",
- "dioxus-ssr",
- "dioxus-web",
- "http 1.1.0",
- "tokio",
- "tower 0.4.13",
- "tower-http 0.5.2",
- "tracing",
 ]
 
 [[package]]
@@ -1486,7 +1423,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ad9cdb4b747e485a12abb0e6566612956c7a1bafa3bdb8d682c5b6d403589e48"
 dependencies = [
  "num-traits",
- "serde",
 ]
 
 [[package]]
@@ -2234,7 +2170,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b750dcadc39a09dbadd74e118f6dd6598df77fa01df0cfcdc52c28dece74528a"
 dependencies = [
  "bitflags",
- "serde",
 ]
 
 [[package]]
@@ -2762,11 +2697,12 @@ checksum = "953ec861398dccce10c670dfeaf3ec4911ca479e9c02154b3a215178c5f566f2"
 
 [[package]]
 name = "platform"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
  "aws-sdk-sesv2",
+ "axum",
  "chrono",
  "dioxus",
  "dioxus-aws",
@@ -3266,17 +3202,6 @@ dependencies = [
  "percent-encoding",
  "serde",
  "thiserror 1.0.69",
-]
-
-[[package]]
-name = "serde_repr"
-version = "0.1.19"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c64451ba24fc7a6a2d60fc75dd9c83c90903b19028d4eff35e88fc1e86564e9"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]

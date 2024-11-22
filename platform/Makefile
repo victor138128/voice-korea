@@ -41,7 +41,7 @@ LOG_LEVEL ?= debug
 BUILD_ENV ?= ENV=$(ENV) VERSION=$(VERSION) COMMIT=$(COMMIT) LOG_LEVEL=$(LOG_LEVEL) AWS_REGION=${REGION} AWS_ACCESS_KEY_ID=${ACCESS_KEY_ID} AWS_DYNAMODB_KEY=${AWS_DYNAMODB_KEY} AWS_SECRET_ACCESS_KEY=${SECRET_ACCESS_KEY} TABLE_NAME=$(VOICE_KOREA_TABLE_NAME) BASE_URL=$(BASE_URL) API_URL=${API_URL}
 
 setup.tool:
-	cargo install dioxus-cli --version 0.6.0-alpha.4
+	cargo install dioxus-cli --version 0.6.0-alpha.5
 	npm i -g tailwindcss
 
 run: public/tailwind.css

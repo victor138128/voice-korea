@@ -31,16 +31,16 @@ jobs:
           toolchain: stable
 
       - name: Cache builder
-        id: cache-builder
+        id: web-cache-builder
         uses: actions/cache@v3
         with:
-          key: cache-builder-new
+          key: web-cache-builder
           path: |
             target
 
       - name: Install dependencies
         run: |
-          cargo install --version 0.6.0-alpha.4 dioxus-cli
+          cargo install --version 0.6.0-alpha.5 dioxus-cli
           cargo install toml-cli
 
       - name: Deploy APIs
