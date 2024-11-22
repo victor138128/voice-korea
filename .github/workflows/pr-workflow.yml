@@ -32,7 +32,7 @@ jobs:
 
       - name: Install dioxus-cli
         run: |
-          cargo install dioxus-cli --version 0.6.0-alpha.3
+          cargo install --version 0.6.0-alpha.4 dioxus-cli
 
       - name: Dioxus Lint
         env:
@@ -65,7 +65,7 @@ jobs:
 
       - name: Install dioxus-cli
         run: |
-          cargo install dioxus-cli --version 0.6.0-alpha.3
+          cargo install --version 0.6.0-alpha.4 dioxus-cli
 
       - name: Cache builder
         id: test-cache-builder

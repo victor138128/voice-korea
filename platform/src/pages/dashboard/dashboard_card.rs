@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::{presentations::dashboard::StatusButton, routes::Route};
+use crate::{pages::dashboard::StatusButton, routes::Route};
 use dioxus::prelude::*;
 
 use super::Language;
