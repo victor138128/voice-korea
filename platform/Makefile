@@ -1,5 +1,5 @@
 SERVICE ?= $(shell basename `git rev-parse --show-toplevel`)
-VERSION ?= v0.1.0
+VERSION ?= $(shell cargo pkgid | cut -d'#' -f2)
 COMMIT ?= $(shell git rev-parse --short HEAD)
 ENV ?= local
 HOST ?= 0.0.0.0:8080
@@ -46,7 +46,7 @@ setup.tool:
 
 run: public/tailwind.css
 	$(BUILD_ENV) dx serve -p platform
-	
+
 clean:
 	rm -rf dist public/tailwind.css .aws-sam
 
@@ -59,3 +59,6 @@ build: public/tailwind.css
 .ONESHELL:
 build-lambda: clean public/tailwind.css
 	$(BUILD_ENV) dx build --release --server-features lambda -p platform
+
+version:
+	@echo $(VERSION)

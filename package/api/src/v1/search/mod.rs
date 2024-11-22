@@ -1,4 +1,4 @@
-use axum::{extract::Query, routing::get, Json, Router};
+use by_axum::axum::{extract::Query, routing::get, Json, Router};
 use serde::Deserialize;
 
 use crate::{common::CommonQueryResponse, utils::error::ApiError};
@@ -15,8 +15,9 @@ struct SearchParams {
 async fn search_handler(
     Query(params): Query<SearchParams>,
 ) -> Result<Json<CommonQueryResponse<SearchResult>>, ApiError> {
+    let log = by_axum::log::new_log_for_api(by_axum::log::root(), "GET", "/v1/search");
     if params.query.trim().is_empty() {
-        tracing::error!("Query Required");
+        slog::error!(log, "Query Required");
         return Err(ApiError::ValidationError("\"Query Required\"".to_string()));
     }
     Ok(Json(CommonQueryResponse {
