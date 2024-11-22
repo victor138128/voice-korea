@@ -23,7 +23,7 @@ export class CdkStack extends cdk.Stack {
     let acmId = process.env.ACM_ID || "";
     let hostedZoneId = process.env.HOSTED_ZONE_ID || "";
     let tableName = process.env.TABLE_NAME || "";
-    let codePath = process.env.WORKSPACE_ROOT + "/.build/platform" || "";
+    let codePath = process.env.CODE_PATH || "";
     let indexes = [
       {
         name: "type-index",
