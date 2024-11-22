@@ -32,7 +32,7 @@ jobs:
 
       - name: Install dioxus-cli
         run: |
-          cargo install --version 0.6.0-alpha.4 dioxus-cli
+          cargo install dioxus-cli --version 0.6.0-alpha.4 --force
 
       - name: Dioxus Lint
         env:
@@ -73,7 +73,7 @@ jobs:
 
       - name: Install dioxus-cli
         run: |
-          cargo install --version 0.6.0-alpha.4 dioxus-cli
+          cargo install dioxus-cli --version 0.6.0-alpha.4 --force
 
       - name: Testing
         env:
