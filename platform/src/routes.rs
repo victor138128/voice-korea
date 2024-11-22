@@ -27,10 +27,10 @@ pub enum Route {
             WriteQuestionPage { lang: Language, survey_id: String },
             #[route("/id/:survey_id/select-response")]
             SelectResponsePage { lang: Language, survey_id: String },
-            #[route("/:title/select-response/type/:select_type")]
-            SelectResponseDetailPage { lang: Language, title: String, select_type: String },
-            #[route("/:title/survey-summary")]
-            SurveySummaryPage { lang: Language, title: String },
+            #[route("/id/:survey_id/select-response/type/:select_type")]
+            SelectResponseDetailPage { lang: Language, survey_id: String, select_type: String },
+            #[route("/id/:survey_id/survey-summary")]
+            SurveySummaryPage { lang: Language, survey_id: String },
             #[route("/attributes")]
             AttributePage { lang: Language },
         #[end_layout]
