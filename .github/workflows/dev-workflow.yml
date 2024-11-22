@@ -50,7 +50,7 @@ jobs:
         run: |
           env
           npm i -g aws-cdk tailwindcss
-          ENV=dev make deploy
+          ENV=dev make deploy-web-if-needed
 
   api-deployment:
     runs-on: ubuntu-22.04
@@ -87,7 +87,7 @@ jobs:
           ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          ENV=dev make deploy-api
+          ENV=dev make deploy-api-if-needed
 
   create-release-pr:
     runs-on: ubuntu-latest
