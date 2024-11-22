@@ -196,7 +196,7 @@ pub fn PersonalAuthorize(props: PersonalProps) -> Element {
                     div {
                         class: "flex flex-row w-full h-full justify-start items-center px-[20px] py-[30px]",
                         img {
-                            src: asset!("public/images/phone.png"),
+                            src: asset!("/public/images/phone.png"),
                             alt: "Cellphone"
                         }
                         div {
@@ -211,7 +211,7 @@ pub fn PersonalAuthorize(props: PersonalProps) -> Element {
                             }
                         }
                         img {
-                            src: asset!("public/images/right-arrow.png"),
+                            src: asset!("/public/images/right-arrow.png"),
                             alt: "Right Arrow"
                         }
                     }

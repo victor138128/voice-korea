@@ -29,6 +29,7 @@ impl<T> Default for CommonQueryResponse<T> {
     }
 }
 
+#[allow(dead_code)]
 impl<T> CommonQueryResponse<T>
 where
     T: std::fmt::Debug + serde::de::DeserializeOwned + serde::Serialize,

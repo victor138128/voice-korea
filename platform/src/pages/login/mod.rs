@@ -55,7 +55,7 @@ pub struct MemberInfoProps {
 pub fn LoginPage(props: LoginPageProps) -> Element {
     let ctrl = controller::Controller::init();
     let translates = i18n::translate(props.lang.clone());
-    let logo_path = asset!("public/images/logo.png");
+    let logo_path = asset!("/public/images/logo.png");
 
     let login_message = translates.login;
     let email_message = translates.email;

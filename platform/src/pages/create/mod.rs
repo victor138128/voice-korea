@@ -51,7 +51,7 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
                                     ctrl.set_step(i);
                                 },
                                 img {
-                                    src: asset!("public/images/current-step.png"),
+                                    src: asset!("/public/images/current-step.png"),
                                     alt: "Current Step"
                                 }
                             }
@@ -61,14 +61,14 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
                                     ctrl.set_step(i);
                                 },
                                 img {
-                                    src: asset!("public/images/prev-step.png"),
+                                    src: asset!("/public/images/prev-step.png"),
                                     alt: "Prev Step"
                                 }
                             }
                         } else {
                             div {
                                 img {
-                                    src: asset!("public/images/not-current-step.png"),
+                                    src: asset!("/public/images/not-current-step.png"),
                                     alt: "Next Step"
                                 }
                             }

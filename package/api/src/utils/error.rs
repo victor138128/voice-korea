@@ -9,8 +9,11 @@ pub enum ApiError {
     #[error("input error: {0}")]
     ValidationError(String),
 
+    #[allow(dead_code)]
     #[error("DynamoDB Create Failed. Reason({0})")]
     DynamoCreateException(String),
+
+    #[allow(dead_code)]
     #[error("DynamoDB Query Failed. Reason({0})")]
     DynamoQueryException(String),
 }

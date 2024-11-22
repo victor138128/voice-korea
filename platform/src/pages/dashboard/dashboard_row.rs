@@ -39,7 +39,7 @@ pub fn DashboardRow(
                         div {
                             class: "w-[20px] h-[20px] mr-[10px]",
                             img {
-                                src: asset!("public/images/info.png"),
+                                src: asset!("/public/images/info.png"),
                                 width: 20,
                                 height: 20,
                                 alt: "Info"

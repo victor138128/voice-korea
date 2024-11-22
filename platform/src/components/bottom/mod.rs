@@ -31,7 +31,7 @@ pub fn Bottom(props: BottomProps) -> Element {
                     class: "flex flex-col w-max h-min justify-center items-center",
                     img {
                         class: "flex flex-col pb-[20px]",
-                        src: asset!("public/images/logo-white.png"),
+                        src: asset!("/public/images/logo-white.png"),
                         width: 40,
                         height: 40,
                         alt: "Voice Korea Logo"

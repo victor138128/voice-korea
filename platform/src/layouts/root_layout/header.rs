@@ -13,7 +13,7 @@ pub struct HeaderProps {
 
 #[component]
 pub fn Header(props: HeaderProps) -> Element {
-    let logo_path = asset!("public/images/logo.png");
+    let logo_path = asset!("/public/images/logo.png");
     let navigator = use_navigator();
     rsx! {
         div {

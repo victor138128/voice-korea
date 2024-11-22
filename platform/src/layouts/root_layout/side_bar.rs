@@ -62,7 +62,7 @@ pub fn SideBar(props: SidebarProps) -> Element {
                             {props.user_settings}
                         }
                         img {
-                            src: asset!("public/images/config.png"),
+                            src: asset!("/public/images/config.png"),
                             class: "w-[24px] h-[24px]",
                         }
                     }
@@ -104,12 +104,12 @@ pub fn SectionMenus(
                 div { class: "font-bold text-[16px] text-white", "{title}"}
                 if expanded() {
                     img {
-                        src: asset!("public/images/arrow-down.png"),
+                        src: asset!("/public/images/arrow-down.png"),
                         class: "w-[18px] h-[9px]",
                     }
                 } else {
                     img {
-                        src: asset!("public/images/arrow-down.png"),
+                        src: asset!("/public/images/arrow-down.png"),
                         class: "w-[18px] h-[9px]",
                         style: "transform: scaleY(-1);"
                     }

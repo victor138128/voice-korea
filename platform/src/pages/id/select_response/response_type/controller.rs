@@ -224,10 +224,12 @@ impl Controller {
         (self.panels)()
     }
 
+    #[allow(dead_code)]
     pub fn get_title(&self) -> String {
         self.get_survey().survey.title.clone()
     }
 
+    #[allow(dead_code)]
     pub fn get_survey(&self) -> GetSurveyResponse {
         (self.survey_response)()
     }
