@@ -53,7 +53,7 @@ jobs:
 
       - name: Install dioxus-cli
         run: |
-          cargo install dioxus-cli --version 0.6.0-alpha.3
+          cargo install dioxus-cli --version 0.6.0-alpha.4
 
       - name: Cache builder
         id: test-cache-builder
