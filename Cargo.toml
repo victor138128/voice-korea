@@ -1,6 +1,6 @@
 [workspace]
 members = ["package/models", "package/api", "platform"]
-resolver = "1"
+resolver = "2"
 
 [workspace.package]
 version = "1.0.0"

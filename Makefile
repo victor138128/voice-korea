@@ -36,17 +36,15 @@ deploy.web: build cdk-deploy.web s3-sync cdn-invalidate
 deploy.api: build-api cdk-deploy.api
 
 deploy-web-if-needed:
-	$(eval DEPLOYED_VERSION := $(shell curl https://$(DOMAIN)/api/version | tr -d \"))
-	$(eval CURRENT_VERSION := $(shell make -f platform/Makefile version))
-	$(eval SHOULD_UPGRADE := $(shell if [ $(DEPLOYED_VERSION) != $(CURRENT_VERSION) ] ; then echo "true"; else echo "false"; fi))
-	$(eval RESULT := $(shell if [ $(SHOULD_UPGRADE) = "true" ] ; then make deploy.web > /dev/null; echo "completed deployement"; else echo "already latest version"; fi))
+	$(eval DEPLOYED_VERSION := $(shell curl https://$(DOMAIN)/api/version | tr -d \" | cut -d'-' -f1 ))
+	$(eval CURRENT_VERSION := $(shell toml get platform/Cargo.toml package.version | tr -d \"))
+	$(eval RESULT := $(shell if [ "$(DEPLOYED_VERSION)" != "$(CURRENT_VERSION)" ] ; then make deploy.web > /dev/null; echo "completed deployement"; else echo "deployed version: $(DEPLOYED_VERSION)"; echo "current version: $(CURRENT_VERSION)"; echo "already latest version"; fi))
 	@echo "$(RESULT)"
 
 deploy-api-if-needed:
-	$(eval DEPLOYED_VERSION := $(shell curl https://$(API_DOMAIN)/version | tr -d \" ))
-	$(eval CURRENT_VERSION := $(shell cargo pkgid -p api | cut -d'#' -f2))
-	$(eval SHOULD_UPGRADE := $(shell if [ "$(DEPLOYED_VERSION)" != "$(CURRENT_VERSION)" ] ; then echo "true"; else echo "false"; fi))
-	$(eval RESULT := $(shell if [ $(SHOULD_UPGRADE) = "true" ] ; then make deploy.api > /dev/null; echo "completed deployement"; else echo "already latest version"; fi))
+	$(eval DEPLOYED_VERSION := $(shell curl https://$(API_DOMAIN)/version | tr -d \" | cut -d'-' -f1))
+	$(eval CURRENT_VERSION := $(shell toml get package/api/Cargo.toml package.version | tr -d \"))
+	$(eval RESULT := $(shell if [ "$(DEPLOYED_VERSION)" != "$(CURRENT_VERSION)" ] ; then make deploy.api > /dev/null; echo "completed deployement"; else echo "deployed version: $(DEPLOYED_VERSION)"; echo "current version: $(CURRENT_VERSION)"; echo "already latest version"; fi))
 	@echo "$(RESULT)"
 
 clean:
