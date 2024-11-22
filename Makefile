@@ -1,6 +1,8 @@
 ENV ?= local
 
 SERVICE ?= $(shell basename `git rev-parse --show-toplevel`)
+COMMIT ?= $(shell git rev-parse --short HEAD)
+
 ACCESS_KEY_ID ?= $(shell aws configure get aws_access_key_id $(AWS_FLAG))
 SECRET_ACCESS_KEY ?= $(shell aws configure get aws_secret_access_key $(AWS_FLAG))
 REGION ?= $(shell aws configure get region)
@@ -59,7 +61,7 @@ build: clean
 	mv .build/platform/web/server .build/platform/bootstrap
 
 build-api: clean
-	cargo build -p api --release --features lambda
+	cd package/api && ENV=$(ENV) make build
 	mkdir -p .build/api
 	cp target/release/api .build/api/bootstrap
 
