@@ -63,10 +63,6 @@ jobs:
           target: wasm32-unknown-unknown
           toolchain: stable
 
-      - name: Install dioxus-cli
-        run: |
-          cargo install --version 0.6.0-alpha.4 dioxus-cli
-
       - name: Cache builder
         id: test-cache-builder
         uses: actions/cache@v3
@@ -74,6 +70,10 @@ jobs:
           key: test-cache-builder
           path: |
             target
+
+      - name: Install dioxus-cli
+        run: |
+          cargo install --version 0.6.0-alpha.4 dioxus-cli
 
       - name: Testing
         env:
