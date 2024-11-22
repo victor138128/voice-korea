@@ -5,10 +5,8 @@ use dioxus_logger::tracing;
 use crate::{
     components::{button::Button, select::Select},
     models::survey::StatusType,
+    pages::id::write_question::controller::{Controller, ObjectiveQuestionOption, QuestionStep},
     prelude::Language,
-    presentations::write_question::controller::{
-        Controller, ObjectiveQuestionOption, QuestionStep,
-    },
 };
 
 #[derive(Props, Clone, PartialEq)]

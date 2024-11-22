@@ -13,8 +13,8 @@ pub struct QuestionModel {
     questions: Vec<String>,
 }
 
-pub mod controller;
-pub mod i18n;
+mod controller;
+mod i18n;
 
 #[component]
 pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {

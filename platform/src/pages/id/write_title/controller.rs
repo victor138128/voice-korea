@@ -37,8 +37,6 @@ impl Controller {
 
         ctrl.survey_id.set(id.clone());
 
-        tracing::debug!("url: /v1/email/{}/surveys/{}", id, email);
-
         let _ = use_effect(move || {
             let id_value = id.clone();
             let email_value = email.clone();

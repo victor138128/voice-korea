@@ -49,7 +49,7 @@ pub fn SideBar(props: SidebarProps) -> Element {
                         onselected: props.onselected,
                         title: props.property_management,
                         menus: vec![
-                            MenuItem {title: {props.property_status}, link: Route::DashboardPage { lang: props.lang }},
+                            MenuItem {title: {props.property_status}, link: Route::AttributePage { lang: props.lang }},
                         ]
                     }
                 }

@@ -1,10 +1,9 @@
 #![allow(non_snake_case)]
-use crate::{prelude::*, presentations::select_response_detail::controller};
+use crate::{pages::id::select_response::response_type::controller, prelude::*};
 use dioxus::prelude::*;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct SelectAttributeProps {
-    ctrl: controller::Controller,
     lang: Language,
     title: String,
     select_type: String,
@@ -23,8 +22,7 @@ pub struct SelectAttributeProps {
 
 #[component]
 pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
-    let mut ctrl = props.ctrl;
-    let navigator = use_navigator();
+    let mut ctrl = controller::use_controller();
 
     rsx! {
         div {
@@ -153,10 +151,7 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                             div {
                                 class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#2168c3] text-white font-medium text-[20px] mr-[20px]",
                                 onclick: move |_| {
-                                    navigator.push(Route::SurveySummaryPage {
-                                        lang: props.lang.clone(),
-                                        title: ctrl.get_title(),
-                                    });
+                                    ctrl.change_step(controller::Step::Panel);
                                 },
                                 {props.save}
                             }

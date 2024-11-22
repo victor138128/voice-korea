@@ -4,23 +4,23 @@ pub mod prelude {
     pub use crate::utils::context::*;
 
     pub use crate::pages::not_found::NotFoundPage;
+    pub use dioxus::document::eval;
 }
 
 pub mod pages {
-    pub mod not_found;
-}
-
-pub mod presentations {
+    pub mod attributes;
     pub mod create;
     pub mod dashboard;
     pub mod find_email;
+    pub mod id {
+        pub mod select_response;
+        pub mod survey_summary;
+        pub mod write_question;
+        pub mod write_title;
+    }
     pub mod login;
+    pub mod not_found;
     pub mod reset_password;
-    pub mod select_response;
-    pub mod select_response_detail;
-    pub mod survey_summary;
-    pub mod write_question;
-    pub mod write_title;
 }
 
 pub mod service {
@@ -48,9 +48,13 @@ pub mod layouts {
 }
 
 pub mod components {
+    pub mod alert;
     pub mod bottom;
     pub mod button;
+    pub mod checkbox;
+    pub mod icons;
     pub mod input;
+    pub mod popup;
     pub mod select;
     pub mod table_row;
 }
