@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct SelectAttribute {
     pub id: usize,
     pub name: String,
-    pub value: String,
+    pub value: Vec<String>,
     pub is_stored: bool,   //저장 되었는지 유무
     pub is_search: bool,   //검색 되었는지 유무
     pub is_selected: bool, //선택 되었는지 유무
@@ -28,7 +28,14 @@ impl Controller {
                     SelectAttribute {
                         id: 0,
                         name: "연령".to_string(),
-                        value: "10대, 20대, 30대, 40대, 50대, 60대".to_string(),
+                        value: vec![
+                            "10대".to_string(),
+                            "20대".to_string(),
+                            "30대".to_string(),
+                            "40대".to_string(),
+                            "50대".to_string(),
+                            "60대 이상".to_string(),
+                        ],
                         is_stored: false,
                         is_search: false,
                         is_selected: false,
@@ -36,7 +43,7 @@ impl Controller {
                     SelectAttribute {
                         id: 1,
                         name: "성별".to_string(),
-                        value: "남성, 여성".to_string(),
+                        value: vec!["남성".to_string(), "여성".to_string()],
                         is_stored: false,
                         is_search: false,
                         is_selected: false,
@@ -44,8 +51,13 @@ impl Controller {
                     SelectAttribute {
                         id: 2,
                         name: "소득".to_string(),
-                        value: "200만원 이하, 300만원 이하, 400만원 이하, 500만원 이하, 이외"
-                            .to_string(),
+                        value: vec![
+                            "200만원 이하".to_string(),
+                            "300만원 이하".to_string(),
+                            "400만원 이하".to_string(),
+                            "500만원 이하".to_string(),
+                            "이외".to_string(),
+                        ],
                         is_stored: false,
                         is_search: false,
                         is_selected: false,
@@ -57,7 +69,28 @@ impl Controller {
             enable_modal: use_signal(|| false),
         };
 
+        use_context_provider(|| ctrl);
+
         ctrl
+    }
+
+    pub fn attribute_value_string(&mut self, value: Vec<String>) -> String {
+        let mut str = "".to_string();
+        for (i, v) in value.iter().enumerate() {
+            if i == 0 {
+                str = format!("{}", v);
+            } else {
+                str = format!("{}, {}", str, v);
+            }
+        }
+        str
+        // for (i, v) in value.iter().enumerate() {
+        //     if i != value.len() {
+        //         str = format!("{} ,{}", str, v)
+        //     } else {
+        //         str = format!
+        //     }
+        // }
     }
 
     pub fn get_total_attributes(&self) -> Vec<SelectAttribute> {
@@ -177,4 +210,9 @@ impl Controller {
         };
         self.attributes.set(attributes);
     }
+}
+
+#[allow(dead_code)]
+pub fn use_controller() -> Controller {
+    use_context()
 }

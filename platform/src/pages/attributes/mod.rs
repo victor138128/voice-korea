@@ -132,6 +132,7 @@ pub fn AttributePage(props: AttributeProps) -> Element {
 
 #[component]
 fn AttributeTable(translates: TabelTranslates, search_attributes: Vec<SelectAttribute>) -> Element {
+    let mut ctrl = controller::use_controller();
     rsx! {
         div {
             class: "flex flex-col w-full justify-start items-start",
@@ -182,7 +183,7 @@ fn AttributeTable(translates: TabelTranslates, search_attributes: Vec<SelectAttr
                     }
                     div {
                         class: "text-[#5e5e5e] font-medium text-[20px]",
-                        {attribute.value.clone()}
+                        {ctrl.attribute_value_string(attribute.value.clone())}
                     }
                 }
             }

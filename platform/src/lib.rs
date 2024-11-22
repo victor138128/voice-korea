@@ -51,6 +51,7 @@ pub mod components {
     pub mod alert;
     pub mod bottom;
     pub mod button;
+    pub mod checkbox;
     pub mod icons;
     pub mod input;
     pub mod popup;

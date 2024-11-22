@@ -183,15 +183,20 @@ impl Controller {
     }
 
     pub fn clicked_panels_all(&mut self) {
+        let check = (self.click_total_check)();
         let mut select_panels = vec![];
         let panels = self.get_panels();
-        for (i, _panel) in panels.iter().enumerate() {
-            select_panels.push(i as u64);
+
+        if !check {
+            for (i, _panel) in panels.iter().enumerate() {
+                select_panels.push(i as u64);
+            }
         }
+
         self.select_panels.set(select_panels.clone());
         self.total_select_count
             .set(select_panels.clone().len() as u64);
-        self.click_total_check.set(true);
+        self.click_total_check.set(!check);
     }
 
     pub fn get_click_total_check(&self) -> bool {

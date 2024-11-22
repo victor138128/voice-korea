@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::{
+    components::checkbox::Checkbox,
     pages::id::select_response::response_type::controller::{self, Panel, PanelGroup},
     prelude::*,
 };
@@ -113,16 +114,15 @@ pub fn PanelRow(
             div {
                 class: "flex flex-row w-full justify-start items-start",
                 div {
-                    class: "pr-[20px]",
-                    onclick: move |_| {
-                        let value = ctrl.get_select_panels().contains(&(index as u64));
-                        ctrl.change_select_panels(index as u64, !value);
+                    class: "flex flex-row w-min h-min justify-center items-center pr-[20px]",
+                    Checkbox {
+                        id: format!("check panel {}", index),
+                        onchange: move |_| {
+                            let value = ctrl.get_select_panels().contains(&(index as u64));
+                            ctrl.change_select_panels(index as u64, !value);
+                        },
+                        checked: ctrl.get_select_panels().contains(&(index as u64))
                     },
-                    img {
-                        class: "pr-[10px]",
-                        src: if ctrl.get_select_panels().contains(&(index as u64)) {asset!("public/images/enable_check.png")} else {asset!("public/images/not_enable_check.png")},
-                        alt: "check"
-                    }
                 }
                 div {
                     class: "w-[100px] text-black font-semibold text-[20px] pr-[20px]",
@@ -196,17 +196,16 @@ pub fn PanelTable(
             div {
                 class: "flex flex-col w-full h-min justify-start items-start",
                 div {
-                    class: "flex flex-row mb-[10px]",
+                    class: "flex flex-row justify-start items-start mb-[10px]",
                     div {
-                        class: "ml-[10px] mr-[10px]",
-                        onclick: move |_| {
-                            ctrl.clicked_panels_all();
+                        class: "mr-[6px]",
+                        Checkbox {
+                            id: format!("check all"),
+                            onchange: move |_| {
+                                ctrl.clicked_panels_all();
+                            },
+                            checked: ctrl.get_click_total_check()
                         },
-                        img {
-                            class: "pr-[10px]",
-                            src: if ctrl.get_click_total_check() {asset!("public/images/enable_check.png")} else {asset!("public/images/not_enable_check.png")},
-                            alt: "check-all"
-                        }
                     }
                     div {
                         class: "text-[20px] font-normal text-black",
@@ -245,21 +244,20 @@ fn AttributeRow(
     let mut ctrl = controller::use_controller();
     rsx! {
         div {
-            class: "flex flex-row w-full h-[80px] justify-between items-start p-[30px]",
+            class: "flex flex-row w-full h-[100px] justify-between items-start p-[30px]",
             style: format!("background-color: {}", background_color),
             div {
                 class: "flex flex-row w-full justify-start items-start",
                 div {
-                    class: "pr-[20px]",
-                    onclick: move |_| {
-                        let value = ctrl.get_select_panel_groups().contains(&(index as u64));
-                        ctrl.change_select_panel_groups(index as u64, !value);
+                    class: "flex flex-row w-min h-min justify-center items-center pr-[20px]",
+                    Checkbox {
+                        id: format!("check attribute {}", index),
+                        onchange: move |_| {
+                            let value = ctrl.get_select_panel_groups().contains(&(index as u64));
+                            ctrl.change_select_panel_groups(index as u64, !value);
+                        },
+                        checked: ctrl.get_select_panel_groups().contains(&(index as u64))
                     },
-                    img {
-                        class: "pr-[10px]",
-                        src: if ctrl.get_select_panel_groups().contains(&(index as u64)) {asset!("public/images/enable_check.png")} else {asset!("public/images/not_enable_check.png")},
-                        alt: "check"
-                    }
                 }
                 div {
                     class: "w-[190px] text-black font-semibold text-[20px] pr-[20px]",
