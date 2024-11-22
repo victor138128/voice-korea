@@ -38,13 +38,14 @@ deploy.api: build-api cdk-deploy.api
 deploy-web-if-needed:
 	$(eval DEPLOYED_VERSION := $(shell curl https://$(DOMAIN)/api/version | tr -d \" | cut -d'-' -f1 ))
 	$(eval CURRENT_VERSION := $(shell toml get platform/Cargo.toml package.version | tr -d \"))
-	if [ "$(DEPLOYED_VERSION)" != "$(CURRENT_VERSION)" ] ; then make deploy.web > /dev/null; echo "completed deployement"; else echo "deployed version: $(DEPLOYED_VERSION)"; echo "current version: $(CURRENT_VERSION)"; echo "already latest version"; fi
-	@echo "$(RESULT)"
+	$(eval CMD := $(shell if [ "$(DEPLOYED_VERSION)" != "$(CURRENT_VERSION)" ] ; then echo "make deploy.web"; else echo "echo \"deployed version: $(DEPLOYED_VERSION), current version: $(CURRENT_VERSION), already latest version\""; fi))
+	$(CMD)
 
 deploy-api-if-needed:
 	$(eval DEPLOYED_VERSION := $(shell curl https://$(API_DOMAIN)/version | tr -d \" | cut -d'-' -f1))
 	$(eval CURRENT_VERSION := $(shell toml get package/api/Cargo.toml package.version | tr -d \"))
-	if [ "$(DEPLOYED_VERSION)" != "$(CURRENT_VERSION)" ] ; then make deploy.api > /dev/null; echo "completed deployement"; else echo "deployed version: $(DEPLOYED_VERSION)"; echo "current version: $(CURRENT_VERSION)"; echo "already latest version"; fi
+	$(eval CMD := $(shell if [ "$(DEPLOYED_VERSION)" != "$(CURRENT_VERSION)" ] ; then echo "make deploy.api"; else echo "echo \"deployed version: $(DEPLOYED_VERSION), current version: $(CURRENT_VERSION), already latest version\""; fi))
+	$(CMD)
 
 clean:
 	rm -rf .build
