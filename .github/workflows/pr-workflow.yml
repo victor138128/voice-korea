@@ -18,12 +18,6 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.PULL_KEY_REPO }}
 
-      - uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
-
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           components: clippy, rustfmt
@@ -32,7 +26,7 @@ jobs:
 
       - name: Install dioxus-cli
         run: |
-          cargo install dioxus-cli --version 0.6.0-alpha.4 --force
+          cargo install dioxus-cli --version 0.6.0-alpha.4
 
       - name: Dioxus Lint
         env:
@@ -51,17 +45,15 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.PULL_KEY_REPO }}
 
-      - uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
-
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           components: clippy, rustfmt
           target: wasm32-unknown-unknown
           toolchain: stable
+
+      - name: Install dioxus-cli
+        run: |
+          cargo install dioxus-cli --version 0.6.0-alpha.4
 
       - name: Cache builder
         id: test-cache-builder
@@ -70,10 +62,6 @@ jobs:
           key: test-cache-builder
           path: |
             target
-
-      - name: Install dioxus-cli
-        run: |
-          cargo install dioxus-cli --version 0.6.0-alpha.4 --force
 
       - name: Testing
         env:
