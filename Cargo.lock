@@ -69,7 +69,6 @@ checksum = "86fdf8605db99b54d3cd748a44c6d04df638eb5dafb219b135d0149bd0db01f6"
 name = "api"
 version = "0.1.0"
 dependencies = [
- "axum",
  "by-axum",
  "easy-dynamodb",
  "listenfd",
@@ -643,12 +642,11 @@ checksum = "79296716171880943b8470b5f8d03aa55eb2e645a4874bdbb28adb49162e012c"
 
 [[package]]
 name = "by-axum"
-version = "0.1.2"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a76a031f65dc6123f54bba62350763f5398308292d85271c11f7c53c04d974fc"
+checksum = "2f0e83c27e502cf8951e868b497f4da41ecb382e532ffad243d64fb8884de88a"
 dependencies = [
  "axum",
- "axum-core",
  "dioxus-aws",
  "http 1.1.0",
  "lambda_http 0.13.0",
