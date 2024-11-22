@@ -1,5 +1,5 @@
 SERVICE ?= $(shell basename `git rev-parse --show-toplevel`)
-VERSION ?= $(shell cargo pkgid | cut -d'#' -f2)
+VERSION ?= $(shell toml get Cargo.toml package.version | tr -d \")
 COMMIT ?= $(shell git rev-parse --short HEAD)
 ENV ?= local
 HOST ?= 0.0.0.0:8080
@@ -42,6 +42,7 @@ BUILD_ENV ?= ENV=$(ENV) VERSION=$(VERSION) COMMIT=$(COMMIT) LOG_LEVEL=$(LOG_LEVE
 
 setup.tool:
 	cargo install dioxus-cli --version 0.6.0-alpha.5
+	cargo install toml-cli
 	npm i -g tailwindcss
 
 run: public/tailwind.css
