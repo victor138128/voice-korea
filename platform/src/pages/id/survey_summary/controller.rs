@@ -1,47 +1,67 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
-use dioxus_logger::tracing;
 
 use crate::{
-    api::v1::surveys::{get_survey, GetSurveyResponse},
-    models::question::Question,
+    api::v1::surveys::GetSurveyResponse, models::question::Question,
+    service::login_service::use_login_service,
 };
+
+use super::{Language, Route};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
-    survey_response: Signal<GetSurveyResponse>,
+    survey: Resource<GetSurveyResponse>,
     summary_clicked: Signal<bool>,
     panel_clicked: Signal<bool>,
     survey_list_clicked: Signal<bool>,
+    pub survey_id: Signal<String>,
 }
 
 impl Controller {
-    pub fn init() -> Self {
+    pub fn init(lang: Language, id: String) -> Self {
+        let navigator = use_navigator();
+        let email: String = use_login_service().get_email().clone();
+
+        if email.is_empty() {
+            navigator.push(Route::LoginPage { lang });
+        };
+
+        let id_copy = id.clone();
+
+        let survey_response = use_resource(move || {
+            let id_value = id.clone();
+            let email_value = email.clone();
+            async move {
+                crate::utils::api::get::<GetSurveyResponse>(&format!(
+                    "/v1/email/{}/surveys/{}",
+                    email_value, id_value
+                ))
+                .await
+            }
+        });
+
         let mut ctrl = Self {
-            survey_response: use_signal(|| GetSurveyResponse::default()),
+            survey: survey_response,
             summary_clicked: use_signal(|| false),
             panel_clicked: use_signal(|| false),
             survey_list_clicked: use_signal(|| false),
+            survey_id: use_signal(|| "".to_string()),
         };
 
-        let _ = use_effect(move || {
-            spawn(async move {
-                match get_survey().await {
-                    Ok(res) => {
-                        ctrl.survey_response.set(res);
-                    }
-                    Err(e) => {
-                        tracing::error!("Error: {:?}", e);
-                    }
-                }
-            });
-        });
+        ctrl.survey_id.set(id_copy.clone());
 
         ctrl
     }
 
     pub fn get_questions(&self) -> Vec<Question> {
-        (self.survey_response)().questions
+        self.get_survey().questions
+    }
+
+    pub fn get_survey(&self) -> GetSurveyResponse {
+        match (self.survey.value())() {
+            Some(value) => value,
+            None => GetSurveyResponse::default(),
+        }
     }
 
     pub fn get_summary_clicked(&self) -> bool {
@@ -65,7 +85,6 @@ impl Controller {
     }
 
     pub fn change_survey_list_clicked(&mut self) {
-        tracing::info!("clciked");
         self.survey_list_clicked
             .set(!self.get_survey_list_clicked());
     }

@@ -7,7 +7,7 @@ use dioxus::prelude::*;
 #[derive(PartialEq, Props, Clone)]
 pub struct SelectResponseDetailProps {
     lang: Language,
-    title: String,
+    survey_id: String,
     select_type: String,
 }
 
@@ -27,7 +27,7 @@ pub fn SelectResponseDetailPage(props: SelectResponseDetailProps) -> Element {
         if let Step::Attribute = ctrl.get_step() {
             SelectAttributePage {
                 lang: props.lang,
-                title: props.title,
+                survey_id: props.survey_id,
                 select_type: props.select_type,
 
                 temporary_save: translates.temporary_save,

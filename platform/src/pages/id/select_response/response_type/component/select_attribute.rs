@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 #[derive(PartialEq, Props, Clone)]
 pub struct SelectAttributeProps {
     lang: Language,
-    title: String,
+    survey_id: String,
     select_type: String,
 
     temporary_save: String,
@@ -141,7 +141,7 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                             Link {
                                 to: Route::SelectResponsePage {
                                     lang: props.lang.clone(),
-                                    survey_id: props.title.clone()
+                                    survey_id: props.survey_id.clone()
                                 },
                                 div {
                                     class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#434343] text-white font-medium text-[20px] mr-[20px]",

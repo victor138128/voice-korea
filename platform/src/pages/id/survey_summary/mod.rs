@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 #[derive(PartialEq, Props, Clone)]
 pub struct SurveySummaryProps {
     lang: Language,
-    title: String,
+    survey_id: String,
 }
 
 pub struct QuestionModel {
@@ -18,7 +18,7 @@ mod i18n;
 
 #[component]
 pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
-    let ctrl = controller::Controller::init();
+    let ctrl = controller::Controller::init(props.lang, props.survey_id.clone());
     let translates = i18n::translate(props.lang.clone());
     rsx! {
         div {
@@ -154,7 +154,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                 Link {
                     to: Route::SelectResponsePage {
                         lang: props.lang.clone(),
-                        survey_id: props.title.clone()
+                        survey_id: props.survey_id.clone()
                     },
                     div {
                         class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#434343] text-white font-medium text-[20px]",

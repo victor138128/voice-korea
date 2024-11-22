@@ -14,7 +14,7 @@ pub mod response_type;
 
 #[component]
 pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
-    let ctrl = controller::Controller::init(props.survey_id.clone());
+    let ctrl = controller::Controller::init(props.lang, props.survey_id.clone());
     let survey_response = ctrl.get_survey();
     let question_list = survey_response.questions.len() as u64;
     let translates = i18n::translate(props.lang.clone());
@@ -24,6 +24,8 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
         + question_list.to_string().as_str()
         + question_list_info_second.as_str();
     let navigator = use_navigator();
+    let survey_id_copy = props.survey_id.clone();
+    let survey_id_copy_v2 = props.survey_id.clone();
 
     const RESPONSE_ATTRIBUTE_IMAGE: Asset = asset!("public/images/select-response-attribute.png");
     const RESPONSE_PANEL_IMAGE: Asset = asset!("public/images/select-response-panel.png");
@@ -45,7 +47,7 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
                     class: "flex flex-row w-full h-[110px] rounded-[10px] bg-white mb-[10px]",
                     div {
                         class: "flex flex-row w-full h-[110px] items-center justify-start text-[#2168c3] font-semibold text-[30px] pl-[30px]",
-                        "{survey_response.survey.title}"
+                        {ctrl.get_title()}
                     }
                 }
                 div {
@@ -80,7 +82,7 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
                             onclick: move |_| {
                                 navigator.push(Route::SelectResponseDetailPage {
                                     lang: props.lang.clone(),
-                                    title: ctrl.get_title(),
+                                    survey_id: survey_id_copy.clone(),
                                     select_type: "attribute".to_string()
                                 });
                             },
@@ -102,7 +104,7 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
                             onclick: move |_| {
                                 navigator.push(Route::SelectResponseDetailPage {
                                     lang: props.lang.clone(),
-                                    title: ctrl.get_title(),
+                                    survey_id: survey_id_copy_v2.clone(),
                                     select_type: "panel".to_string()
                                 });
                             },
@@ -129,7 +131,7 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
                         onclick: move |_| {
                             navigator.push(Route::WriteQuestionPage {
                                 lang: props.lang.clone(),
-                                survey_id: survey_response.survey.title.clone() //FIXME: fix to id
+                                survey_id: props.survey_id.clone(),
                             });
                         },
                         class: "flex flex-row w-[200px] h-[50px] bg-[#434343]",
