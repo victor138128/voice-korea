@@ -16,6 +16,13 @@ pub struct ResponseReportTranslate {
     pub draft: String,
     pub in_progress: String,
     pub complete: String,
+
+    pub response_summary: String,
+    pub total_number_of_responses: String,
+    pub completion_rate: String,
+    pub normal_time_required: String,
+    pub most_skipped_questions: String,
+    pub response_attribute: String,
 }
 
 pub fn translate(lang: Language) -> ResponseReportTranslate {
@@ -36,6 +43,13 @@ pub fn translate(lang: Language) -> ResponseReportTranslate {
             draft: "Draft".to_string(),
             in_progress: "In Progress".to_string(),
             complete: "Complete".to_string(),
+
+            response_summary: "Response Summary".to_string(),
+            total_number_of_responses: "Total Number of Responses".to_string(),
+            completion_rate: "Completion Rate".to_string(),
+            normal_time_required: "Normal Time Required".to_string(),
+            most_skipped_questions: "Most Skipped Questions".to_string(),
+            response_attribute: "Response Attribute".to_string(),
         },
         Language::Ko => ResponseReportTranslate {
             survey_summary: "설문 요약".to_string(),
@@ -53,6 +67,13 @@ pub fn translate(lang: Language) -> ResponseReportTranslate {
             draft: "초안".to_string(),
             in_progress: "진행중".to_string(),
             complete: "완성".to_string(),
+
+            response_summary: "응답 요약".to_string(),
+            total_number_of_responses: "총 응답 수".to_string(),
+            completion_rate: "완성률".to_string(),
+            normal_time_required: "통상 소요 시간".to_string(),
+            most_skipped_questions: "가장 많이 건너뛴 질문".to_string(),
+            response_attribute: "응답 속성".to_string(),
         },
     }
 }

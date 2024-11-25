@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use crate::prelude::*;
-use components::response_list::ResponseList;
+use components::{response_list::ResponseList, response_summary::ResponseSummary};
 use controller::SelectPage;
 use dioxus::prelude::*;
 
@@ -14,6 +14,7 @@ pub mod controller;
 pub mod i18n;
 pub mod components {
     pub mod response_list;
+    pub mod response_summary;
 }
 
 #[component]
@@ -35,7 +36,7 @@ pub fn ResponseReportPage(props: ResponseReportProps) -> Element {
                                 onclick: move |_| {
                                     ctrl.change_select_page(SelectPage::Summary);
                                 },
-                                {translates.survey_summary}
+                                {translates.survey_summary.clone()}
                             }
                         }
                         div {
@@ -51,7 +52,7 @@ pub fn ResponseReportPage(props: ResponseReportProps) -> Element {
                             onclick: move |_| {
                                 ctrl.change_select_page(SelectPage::Summary);
                             },
-                            {translates.survey_summary}
+                            {translates.survey_summary.clone()}
                         }
                         div {
                             div {
@@ -67,11 +68,21 @@ pub fn ResponseReportPage(props: ResponseReportProps) -> Element {
                 div {
                     class: "flex flex-col max-w-[1300px] min-w-[600px] w-full justify-start items-start mt-[10px] px-[30px] py-[20px] bg-white rounded-lg",
                     if ctrl.get_select_page() == SelectPage::Summary {
-
+                        ResponseSummary {
+                            response_report: translates.response_report.clone(),
+                            response_download: translates.response_download.clone(),
+                            response_summary: translates.response_summary,
+                            total_number_of_responses: translates.total_number_of_responses,
+                            completion_rate: translates.completion_rate,
+                            normal_time_required: translates.normal_time_required,
+                            most_skipped_questions: translates.most_skipped_questions,
+                            response_attribute: translates.response_attribute,
+                            survey_summary: translates.survey_summary.clone(),
+                        }
                     } else {
                         ResponseList {
                             response_report: translates.response_report.clone(),
-                            response_download: translates.response_download,
+                            response_download: translates.response_download.clone(),
                             total_respondents: translates.total_respondents,
                             respondent_type: translates.respondent_type,
                             status: translates.status,

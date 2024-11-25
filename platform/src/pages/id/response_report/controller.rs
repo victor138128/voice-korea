@@ -1,6 +1,5 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
