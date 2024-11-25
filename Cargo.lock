@@ -2718,6 +2718,9 @@ dependencies = [
  "slog-term",
  "static_str_ops",
  "urlencoding",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
 ]
 
 [[package]]

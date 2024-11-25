@@ -101,7 +101,10 @@ pub enum SurveyStatus {
         started_at: u64,
         ended_at: Option<u64>,
     },
-    Finished,
+    Finished {
+        started_at: u64,
+        ended_at: Option<u64>,
+    },
 }
 
 impl fmt::Display for SurveyStatus {
@@ -112,7 +115,10 @@ impl fmt::Display for SurveyStatus {
                 started_at,
                 ended_at,
             } => write!(f, "in_progress {started_at} {}", ended_at.unwrap_or(0)),
-            SurveyStatus::Finished => write!(f, "finished"),
+            SurveyStatus::Finished {
+                started_at,
+                ended_at,
+            } => write!(f, "finished {started_at} {}", ended_at.unwrap_or(0)),
         }
     }
 }
