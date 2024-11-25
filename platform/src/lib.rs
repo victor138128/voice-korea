@@ -13,6 +13,7 @@ pub mod pages {
     pub mod dashboard;
     pub mod find_email;
     pub mod id {
+        pub mod response_report;
         pub mod select_response;
         pub mod survey_summary;
         pub mod write_question;

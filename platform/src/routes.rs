@@ -4,6 +4,7 @@ use crate::pages::attributes::AttributePage;
 use crate::pages::create::CreatePage;
 use crate::pages::dashboard::DashboardPage;
 use crate::pages::find_email::FindEmailPage;
+use crate::pages::id::response_report::ResponseReportPage;
 use crate::pages::id::select_response::response_type::SelectResponseDetailPage;
 use crate::pages::id::select_response::SelectResponsePage;
 use crate::pages::id::survey_summary::SurveySummaryPage;
@@ -31,6 +32,8 @@ pub enum Route {
             SelectResponseDetailPage { lang: Language, survey_id: String, select_type: String },
             #[route("/id/:survey_id/survey-summary")]
             SurveySummaryPage { lang: Language, survey_id: String },
+            #[route("/id/:survey_id/response-report")]
+            ResponseReportPage { lang: Language, survey_id: String },
             #[route("/attributes")]
             AttributePage { lang: Language },
         #[end_layout]
