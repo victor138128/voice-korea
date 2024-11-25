@@ -29,6 +29,7 @@ pub mod service {
 }
 
 pub mod models {
+    pub mod pi;
     pub mod question;
     pub mod survey;
     pub mod user;
@@ -55,6 +56,7 @@ pub mod components {
     pub mod checkbox;
     pub mod icons;
     pub mod input;
+    pub mod pi_graph;
     pub mod popup;
     pub mod select;
     pub mod table_row;

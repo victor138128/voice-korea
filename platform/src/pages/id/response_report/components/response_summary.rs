@@ -1,6 +1,8 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 
+use crate::{components::pi_graph::PiGraph, models::pi::PiChart};
+
 #[derive(Props, Clone, PartialEq)]
 pub struct ResponseSummaryProps {
     pub response_report: String,
@@ -65,6 +67,35 @@ pub fn ResponseSummary(props: ResponseSummaryProps) -> Element {
                 div {
                     class: "text-black font-semibold text-[24px] mb-[20px]",
                     {props.response_attribute}
+                }
+                PiGraph {
+                    chart_data: vec![
+                        PiChart {
+                            label: "NCHE",
+                            percentage: 0.69,
+                            color: "#4a90e2"
+                        },
+                        PiChart {
+                            label: "HOTEL",
+                            percentage: 0.132,
+                            color: "#b0c4de"
+                        },
+                        PiChart {
+                            label: "B&B",
+                            percentage: 0.132,
+                            color: "#f5a623"
+                        },
+                        PiChart {
+                            label: "PENSION",
+                            percentage: 0.086,
+                            color: "#7ed321"
+                        },
+                        PiChart {
+                            label: "GUESTHOUSE",
+                            percentage: 0.053,
+                            color: "#50e3c2"
+                        }
+                    ]
                 }
             }
             div {

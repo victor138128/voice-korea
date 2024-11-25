@@ -1,8 +1,9 @@
 #![allow(non_snake_case)]
-use crate::prelude::*;
 use components::{response_list::ResponseList, response_summary::ResponseSummary};
 use controller::SelectPage;
 use dioxus::prelude::*;
+
+use crate::prelude::Language;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ResponseReportProps {
