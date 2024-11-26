@@ -51,6 +51,7 @@ pub mod layouts {
 
 pub mod components {
     pub mod alert;
+    pub mod bar_graph;
     pub mod bottom;
     pub mod button;
     pub mod checkbox;
