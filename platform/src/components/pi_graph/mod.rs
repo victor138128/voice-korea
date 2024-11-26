@@ -7,7 +7,6 @@ pub fn PiGraph(chart_data: Vec<PiChart>) -> Element {
     rsx! {
         div {
             class: "chart-container",
-            // 차트와 레이블을 나란히 배치
             div {
                 class: "labels",
                 {chart_data.iter().map(|segment| rsx!(
