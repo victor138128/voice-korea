@@ -1,11 +1,14 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 
+use crate::models::pi::PiChart;
+
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
     pub select_page: Signal<SelectPage>,
     pub panels: Signal<Vec<Response>>,
     pub clicked_index: Signal<usize>,
+    pub attributes: Signal<Vec<Attributes>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -27,6 +30,12 @@ pub enum ResponseStatus {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct Attributes {
+    pub label: String,
+    pub chart_datas: Vec<PiChart>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct Response {
     pub response_type: ResponseType,
     pub response_status: ResponseStatus,
@@ -40,6 +49,100 @@ impl Controller {
         let mut ctrl = Self {
             select_page: use_signal(|| SelectPage::Summary),
             clicked_index: use_signal(|| 0),
+            attributes: use_signal(|| {
+                vec![
+                    Attributes {
+                        label: "연령".to_string(),
+                        chart_datas: vec![
+                            PiChart {
+                                label: "20~30대",
+                                percentage: 0.6,
+                                color: "#5778a3",
+                            },
+                            PiChart {
+                                label: "30~40대",
+                                percentage: 0.13,
+                                color: "#a8c9e5",
+                            },
+                            PiChart {
+                                label: "40~50대",
+                                percentage: 0.13,
+                                color: "#e49343",
+                            },
+                            PiChart {
+                                label: "50~60대",
+                                percentage: 0.06,
+                                color: "#f5c086",
+                            },
+                            PiChart {
+                                label: "60~70대",
+                                percentage: 0.03,
+                                color: "#6b9f59",
+                            },
+                            PiChart {
+                                label: "70대 이상",
+                                percentage: 0.03,
+                                color: "#9ccf85",
+                            },
+                        ],
+                    },
+                    Attributes {
+                        label: "성별".to_string(),
+                        chart_datas: vec![
+                            PiChart {
+                                label: "남성",
+                                percentage: 0.5,
+                                color: "#5778a3",
+                            },
+                            PiChart {
+                                label: "여성",
+                                percentage: 0.3,
+                                color: "#a8c9e5",
+                            },
+                            PiChart {
+                                label: "모름",
+                                percentage: 0.2,
+                                color: "#e49343",
+                            },
+                        ],
+                    },
+                    Attributes {
+                        label: "직업".to_string(),
+                        chart_datas: vec![
+                            PiChart {
+                                label: "자영업",
+                                percentage: 0.6,
+                                color: "#5778a3",
+                            },
+                            PiChart {
+                                label: "사무직",
+                                percentage: 0.13,
+                                color: "#a8c9e5",
+                            },
+                            PiChart {
+                                label: "전문직",
+                                percentage: 0.13,
+                                color: "#e49343",
+                            },
+                            PiChart {
+                                label: "현장직",
+                                percentage: 0.06,
+                                color: "#f5c086",
+                            },
+                            PiChart {
+                                label: "무직",
+                                percentage: 0.03,
+                                color: "#6b9f59",
+                            },
+                            PiChart {
+                                label: "기타",
+                                percentage: 0.03,
+                                color: "#9ccf85",
+                            },
+                        ],
+                    },
+                ]
+            }),
             panels: use_signal(|| {
                 vec![
                     Response {
@@ -168,6 +271,10 @@ impl Controller {
         ctrl.clicked_index.set(ctrl.get_panels().len());
         use_context_provider(|| ctrl);
         ctrl
+    }
+
+    pub fn get_attributes(&self) -> Vec<Attributes> {
+        (self.attributes)()
     }
 
     pub fn get_clicked_index(&self) -> usize {

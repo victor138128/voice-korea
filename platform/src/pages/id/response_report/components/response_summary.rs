@@ -1,7 +1,9 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 
-use crate::{components::pi_graph::PiGraph, models::pi::PiChart};
+use crate::{
+    components::pi_graph::PiGraph, pages::id::response_report::controller::use_controller,
+};
 
 #[derive(Props, Clone, PartialEq)]
 pub struct ResponseSummaryProps {
@@ -18,6 +20,7 @@ pub struct ResponseSummaryProps {
 
 #[component]
 pub fn ResponseSummary(props: ResponseSummaryProps) -> Element {
+    let ctrl = use_controller();
     rsx! {
         div {
             class: "flex flex-col w-full justify-start items-start",
@@ -65,38 +68,39 @@ pub fn ResponseSummary(props: ResponseSummaryProps) -> Element {
             div {
                 class: "flex flex-col w-full justify-start items-start mb-[30px]",
                 div {
-                    class: "text-black font-semibold text-[24px] mb-[20px]",
+                    class: "text-black font-semibold text-[24px] mb-[40px]",
                     {props.response_attribute}
                 }
-                PiGraph {
-                    chart_data: vec![
-                        PiChart {
-                            label: "NCHE",
-                            percentage: 0.69,
-                            color: "#4a90e2"
-                        },
-                        PiChart {
-                            label: "HOTEL",
-                            percentage: 0.132,
-                            color: "#b0c4de"
-                        },
-                        PiChart {
-                            label: "B&B",
-                            percentage: 0.132,
-                            color: "#f5a623"
-                        },
-                        PiChart {
-                            label: "PENSION",
-                            percentage: 0.086,
-                            color: "#7ed321"
-                        },
-                        PiChart {
-                            label: "GUESTHOUSE",
-                            percentage: 0.053,
-                            color: "#50e3c2"
+                for (index, attribute) in ctrl.get_attributes().iter().enumerate() {
+                    div {
+                        class: "flex flex-col w-full justify-start items-start mb-[40px]",
+                        div {
+                            class: "text-black font-semibold text-[24px] mb-[20px]",
+                            {format!("{}. {}", index + 1, attribute.label.clone())}
                         }
-                    ]
+                        PiGraph {
+                            chart_data: attribute.chart_datas.clone(),
+                        }
+                    }
                 }
+                // pi_graph {
+                //     width: 45,
+                //     height: 45,
+                //     pi_data: vec![
+                //         PiData {
+                //             name: "Test1".to_string(),
+                //             value: 25,
+                //         },
+                //         PiData {
+                //             name: "Test2".to_string(),
+                //             value: 50,
+                //         },
+                //         PiData {
+                //             name: "Test3".to_string(),
+                //             value: 25,
+                //         },
+                //     ]
+                // }
             }
             div {
                 class: "flex flex-col w-full justify-start items-start mb-[30px]",

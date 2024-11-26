@@ -7,6 +7,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# by-chart = { path = "/home/victor/dioxus-library/packages/by-chart" }
 serde = { version = "1.0.197", features = ["derive"] }
 dioxus = { version = "0.6.0-alpha.5", features = [
   "default",
@@ -53,5 +54,5 @@ server = [
   "axum",
 ]
 lambda = ["dioxus-aws/lambda", "server"]
-web = ["dioxus-aws/web", "web-sys", "wasm-bindgen", "wasm-bindgen-futures"]
+web = ["web-sys", "wasm-bindgen", "wasm-bindgen-futures"]
 static_str_ops = ["dep:static_str_ops"]

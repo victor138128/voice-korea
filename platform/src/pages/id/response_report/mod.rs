@@ -59,7 +59,7 @@ pub fn ResponseReportPage(props: ResponseReportProps) -> Element {
                             div {
                                 class: "flex flex-row w-[150px] justify-center items-center text-[#686868] font-semibold text-[22px] h-[45px] border-[2px] border-b-[#2168c3] border-r-transparent border-t-transparent border-l-transparent",
                                 onclick: move |_| {
-                                    ctrl.change_select_page(SelectPage::Summary);
+                                    ctrl.change_select_page(SelectPage::Response);
                                 },
                                 {translates.individual_response}
                             }

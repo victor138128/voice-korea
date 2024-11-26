@@ -1074,7 +1074,6 @@ dependencies = [
  "tower-layer",
  "tracing",
  "tracing-futures",
- "web-sys",
 ]
 
 [[package]]
