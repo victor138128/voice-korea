@@ -22,6 +22,17 @@ pub struct Panel {
     pub occupation: String,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct SelectAttribute {
+    pub id: usize,
+    pub name: String,
+    pub value: Vec<String>,
+    pub initial_value: String,
+    pub is_stored: bool,   //저장 되었는지 유무
+    pub is_search: bool,   //검색 되었는지 유무
+    pub is_selected: bool, //선택 되었는지 유무
+}
+
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
     response_count: Signal<String>,
@@ -32,7 +43,11 @@ pub struct Controller {
     select_panels: Signal<Vec<u64>>,
     total_select_count: Signal<u64>,
     click_total_check: Signal<bool>,
+    show_add_attribute_modal: Signal<bool>,
     step: Signal<Step>,
+    attributes: Signal<Vec<SelectAttribute>>,
+    pub selected_attributes: Signal<Vec<SelectAttribute>>,
+    pub search_attributes: Signal<Vec<SelectAttribute>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -119,10 +134,72 @@ impl Controller {
                     },
                 ]
             }), //FIXME: fix to get api
+            attributes: use_signal(|| {
+                vec![
+                    SelectAttribute {
+                        id: 0,
+                        name: "직업".to_string(),
+                        value: vec![
+                            "자영업".to_string(),
+                            "사무직".to_string(),
+                            "전문직".to_string(),
+                            "현장직".to_string(),
+                            "무직".to_string(),
+                            "기타".to_string(),
+                        ],
+                        initial_value: "자영업".to_string(),
+                        is_stored: false,
+                        is_search: false,
+                        is_selected: false,
+                    },
+                    SelectAttribute {
+                        id: 1,
+                        name: "성별".to_string(),
+                        value: vec!["남성".to_string(), "여성".to_string(), "중성".to_string()],
+                        initial_value: "남성".to_string(),
+                        is_stored: false,
+                        is_search: false,
+                        is_selected: false,
+                    },
+                    SelectAttribute {
+                        id: 2,
+                        name: "연령".to_string(),
+                        value: vec![
+                            "20~30대".to_string(),
+                            "30~40대".to_string(),
+                            "40~50대".to_string(),
+                            "50~60대".to_string(),
+                            "60~70대".to_string(),
+                            "70대 이상".to_string(),
+                        ],
+                        initial_value: "20~30대".to_string(),
+                        is_stored: false,
+                        is_search: false,
+                        is_selected: false,
+                    },
+                    SelectAttribute {
+                        id: 3,
+                        name: "국가".to_string(),
+                        value: vec![
+                            "대한민국".to_string(),
+                            "일본".to_string(),
+                            "중국".to_string(),
+                            "기타".to_string(),
+                        ],
+                        initial_value: "대한민국".to_string(),
+                        is_stored: false,
+                        is_search: false,
+                        is_selected: false,
+                    },
+                ]
+            }),
+            selected_attributes: use_signal(|| vec![]),
+            search_attributes: use_signal(|| vec![]),
             select_panel_groups: use_signal(|| vec![]),
             select_panels: use_signal(|| vec![]),
             total_select_count: use_signal(|| 0),
             click_total_check: use_signal(|| false),
+            show_add_attribute_modal: use_signal(|| false),
             step: use_signal(|| Step::Attribute),
         };
 
@@ -142,6 +219,136 @@ impl Controller {
         // });
 
         ctrl
+    }
+
+    pub fn change_attribute_selected(&mut self, index: usize, selected: bool) {
+        let mut attributes = (self.attributes)();
+        let attribute = attributes.get(index).unwrap().clone();
+        attributes[index] = SelectAttribute {
+            is_selected: selected,
+            ..attribute
+        };
+        self.attributes.set(attributes);
+    }
+
+    pub fn change_clicked_add_attribute(&mut self, clicked: bool) {
+        self.show_add_attribute_modal.set(clicked);
+    }
+
+    pub fn clicked_save_button(&mut self) {
+        let mut attributes = vec![];
+        let mut search_attributes = (self.search_attributes)();
+
+        for attribute in (self.attributes)() {
+            let name = attribute.name.clone();
+            let value = attribute.value.clone();
+
+            if attribute.is_search {
+                search_attributes.push(SelectAttribute {
+                    is_search: false,
+                    is_selected: false,
+                    is_stored: true,
+                    initial_value: attribute.initial_value.clone(),
+                    ..attribute
+                });
+
+                attributes.push(SelectAttribute {
+                    id: attribute.id,
+                    name,
+                    value,
+                    initial_value: attribute.initial_value.clone(),
+                    is_stored: true,
+                    is_search: false,
+                    is_selected: false,
+                });
+            } else {
+                attributes.push(SelectAttribute {
+                    id: attribute.id,
+                    name,
+                    value,
+                    initial_value: attribute.initial_value.clone(),
+                    is_stored: attribute.is_stored,
+                    is_search: false,
+                    is_selected: false,
+                });
+            }
+        }
+
+        self.selected_attributes.set(vec![]);
+        self.attributes.set(attributes);
+        self.search_attributes.set(search_attributes);
+        self.show_add_attribute_modal.set(false);
+    }
+
+    pub fn clicked_cancel_button(&mut self) {
+        let mut attributes = vec![];
+
+        for attribute in (self.attributes)() {
+            let name = attribute.name.clone();
+            let value = attribute.value.clone();
+
+            attributes.push(SelectAttribute {
+                id: attribute.id,
+                name: name.clone(),
+                value: value.clone(),
+                initial_value: attribute.initial_value.clone(),
+                is_stored: attribute.is_stored,
+                is_search: false,
+                is_selected: false,
+            });
+        }
+
+        self.selected_attributes.set(vec![]);
+        self.attributes.set(attributes);
+        self.show_add_attribute_modal.set(false);
+    }
+
+    pub fn clicked_add_button(&mut self) {
+        let mut selected_attributes = vec![];
+        let mut attributes = vec![];
+
+        for attribute in (self.attributes)() {
+            let attr = if attribute.is_selected || attribute.is_search {
+                let att = SelectAttribute {
+                    is_search: true,
+                    is_selected: false,
+                    ..attribute
+                };
+                selected_attributes.push(att.clone());
+                att
+            } else {
+                SelectAttribute { ..attribute }
+            };
+
+            attributes.push(attr);
+        }
+
+        self.selected_attributes.set(selected_attributes);
+        self.attributes.set(attributes);
+    }
+
+    pub fn get_clicked_add_attribute(&self) -> bool {
+        (self.show_add_attribute_modal)()
+    }
+
+    pub fn get_total_attributes(&self) -> Vec<SelectAttribute> {
+        let mut attributes = vec![];
+
+        for attribute in (self.attributes)() {
+            if !attribute.is_search && !attribute.is_stored {
+                attributes.push(attribute);
+            }
+        }
+
+        attributes
+    }
+
+    pub fn get_search_attributes(&self) -> Vec<SelectAttribute> {
+        (self.search_attributes)()
+    }
+
+    pub fn get_selected_attributes(&self) -> Vec<SelectAttribute> {
+        (self.selected_attributes)()
     }
 
     pub fn get_select_panel_groups(&self) -> Vec<u64> {
