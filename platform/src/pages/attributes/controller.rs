@@ -18,6 +18,7 @@ pub struct Controller {
     pub selected_attributes: Signal<Vec<SelectAttribute>>,
     pub enable_modal: Signal<bool>,
     pub search_attributes: Signal<Vec<SelectAttribute>>,
+    pub write_attribute: Signal<String>,
 }
 
 impl Controller {
@@ -75,11 +76,20 @@ impl Controller {
             selected_attributes: use_signal(|| vec![]),
             search_attributes: use_signal(|| vec![]),
             enable_modal: use_signal(|| false),
+            write_attribute: use_signal(|| "".to_string()),
         };
 
         use_context_provider(|| ctrl);
 
         ctrl
+    }
+
+    pub fn get_write_attribute(&self) -> String {
+        (self.write_attribute)()
+    }
+
+    pub fn edit_write_attribute(&mut self, value: String) {
+        self.write_attribute.set(value);
     }
 
     pub fn attribute_value_string(&mut self, value: Vec<String>) -> String {
@@ -190,7 +200,10 @@ impl Controller {
         let mut attributes = vec![];
 
         for attribute in (self.attributes)() {
-            let attr = if attribute.is_selected || attribute.is_search {
+            let attr = if attribute.is_selected
+                || attribute.is_search
+                || (self.get_write_attribute() == attribute.name && !attribute.is_stored)
+            {
                 let att = SelectAttribute {
                     is_search: true,
                     is_selected: false,
@@ -207,6 +220,8 @@ impl Controller {
 
         self.selected_attributes.set(selected_attributes);
         self.attributes.set(attributes);
+
+        self.edit_write_attribute("".to_string());
     }
 
     pub fn change_attribute_selected(&mut self, index: usize, selected: bool) {

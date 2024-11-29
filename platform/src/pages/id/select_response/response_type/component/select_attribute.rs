@@ -75,7 +75,11 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                         ctrl.change_attribute_selected(id, selected);
                     },
                     total_attributes: ctrl.get_total_attributes(),
-                    selected_attributes: (ctrl.selected_attributes)()
+                    selected_attributes: (ctrl.selected_attributes)(),
+                    write_attribute: ctrl.get_write_attribute(),
+                    edit_write_attribute: move |value: String| {
+                        ctrl.edit_write_attribute(value);
+                    }
                 }
             }
             div {
@@ -214,6 +218,8 @@ fn AttributeAddModal(
     change_attribute_selected: EventHandler<(usize, bool)>,
     total_attributes: Vec<SelectAttribute>,
     selected_attributes: Vec<SelectAttribute>,
+    write_attribute: String,
+    edit_write_attribute: EventHandler<String>,
 ) -> Element {
     rsx! {
         div {
@@ -245,9 +251,14 @@ fn AttributeAddModal(
                                     color: "#8a8a8a"
                                 }
                             }
-                            div {
-                                class: "text-[#9f9f9f] font-normal text-[18px]",
-                                {translates.search_hint}
+                            input {
+                                class: "flex flex-row px-[10px] py-[10px] w-full h-full",
+                                r#type: "text",
+                                placeholder: translates.search_hint,
+                                value: write_attribute,
+                                oninput: move |event| {
+                                    edit_write_attribute.call(event.value());
+                                }
                             }
                         }
                         div {
@@ -307,6 +318,7 @@ fn AttributeAddModal(
                             class: "flex flex-row w-full h-[50px] justify-center items-center rounded-lg bg-[#d6d6d6] border-[1px] border-[#c8c8c8] mt-[60px] mb-[70px]",
                             onclick: move |e| {
                                 clicked_add_button.call(e);
+                                edit_write_attribute.call("".to_string());
                             },
                             div {
                                 class: "font-medium text-[20px] text-black",

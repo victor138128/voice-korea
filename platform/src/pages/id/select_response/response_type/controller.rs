@@ -54,6 +54,7 @@ pub struct Controller {
     attributes: Signal<Vec<SelectAttribute>>,
     pub selected_attributes: Signal<Vec<SelectAttribute>>,
     pub search_attributes: Signal<Vec<SelectAttribute>>,
+    write_attribute: Signal<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -221,11 +222,20 @@ impl Controller {
             show_add_attribute_modal: use_signal(|| false),
             step: use_signal(|| Step::Attribute),
             bar_index: use_signal(|| 0),
+            write_attribute: use_signal(|| "".to_string()),
         };
 
         use_context_provider(|| ctrl);
 
         ctrl
+    }
+
+    pub fn get_write_attribute(&self) -> String {
+        (self.write_attribute)()
+    }
+
+    pub fn edit_write_attribute(&mut self, value: String) {
+        self.write_attribute.set(value);
     }
 
     pub async fn clicked_panel_save_button(&mut self, select_type: String) {
@@ -538,7 +548,10 @@ impl Controller {
         let mut attributes = vec![];
 
         for attribute in (self.attributes)() {
-            let attr = if attribute.is_selected || attribute.is_search {
+            let attr = if attribute.is_selected
+                || attribute.is_search
+                || (self.get_write_attribute() == attribute.name && !attribute.is_stored)
+            {
                 let att = SelectAttribute {
                     is_search: true,
                     is_selected: false,
@@ -555,6 +568,8 @@ impl Controller {
 
         self.selected_attributes.set(selected_attributes);
         self.attributes.set(attributes);
+
+        self.edit_write_attribute("".to_string());
     }
 
     pub fn get_clicked_add_attribute(&self) -> bool {
