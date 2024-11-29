@@ -75,7 +75,7 @@ pub async fn get_survey() -> Result<GetSurveyResponse, ServerFnError> {
         )
         .await?;
 
-    let survey = match res_summary {
+    let mut survey: SurveySummary = match res_summary {
         Ok(v) => match v {
             Some(summary) => summary,
             None => return Err(ServerFnError::ServerError(format!("not exists survey"))),
@@ -99,6 +99,13 @@ pub async fn get_survey() -> Result<GetSurveyResponse, ServerFnError> {
         }
     };
 
+    // survey.quotas = Some(vec![
+    //     Quota {
+    //         Attribute {
+
+    //         }
+    //     }
+    // ]);
     Ok(GetSurveyResponse {
         survey,
         responders: vec![],

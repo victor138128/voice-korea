@@ -64,38 +64,38 @@ impl Controller {
             attributes: use_signal(|| {
                 vec![
                     Attributes {
-                        label: "연령".to_string(),
+                        label: "연봉".to_string(),
                         chart_datas: vec![
                             PiChart {
-                                label: "20~30대",
-                                percentage: 0.6,
+                                label: "2000만원 이하",
+                                percentage: 0.4,
                                 color: "#5778a3",
                             },
                             PiChart {
-                                label: "30~40대",
-                                percentage: 0.13,
+                                label: "2000만원~4000만원",
+                                percentage: 0.2,
                                 color: "#a8c9e5",
                             },
                             PiChart {
-                                label: "40~50대",
-                                percentage: 0.13,
+                                label: "4000만원~6000만원",
+                                percentage: 0.1,
                                 color: "#e49343",
                             },
                             PiChart {
-                                label: "50~60대",
-                                percentage: 0.06,
+                                label: "6000만원~8000만원",
+                                percentage: 0.1,
                                 color: "#f5c086",
                             },
                             PiChart {
-                                label: "60~70대",
-                                percentage: 0.03,
+                                label: "8000만원 이상",
+                                percentage: 0.2,
                                 color: "#6b9f59",
                             },
-                            PiChart {
-                                label: "70대 이상",
-                                percentage: 0.03,
-                                color: "#9ccf85",
-                            },
+                            // PiChart {
+                            //     label: "1억 이상",
+                            //     percentage: 0.1,
+                            //     color: "#9ccf85",
+                            // },
                         ],
                     },
                     Attributes {
@@ -103,53 +103,53 @@ impl Controller {
                         chart_datas: vec![
                             PiChart {
                                 label: "남성",
-                                percentage: 0.5,
+                                percentage: 0.8,
                                 color: "#5778a3",
                             },
                             PiChart {
                                 label: "여성",
-                                percentage: 0.3,
+                                percentage: 0.2,
+                                color: "#a8c9e5",
+                            },
+                        ],
+                    },
+                    Attributes {
+                        label: "지역".to_string(),
+                        chart_datas: vec![
+                            PiChart {
+                                label: "서울",
+                                percentage: 0.6,
+                                color: "#5778a3",
+                            },
+                            PiChart {
+                                label: "부산",
+                                percentage: 0.2,
                                 color: "#a8c9e5",
                             },
                             PiChart {
-                                label: "모름",
+                                label: "기타",
                                 percentage: 0.2,
                                 color: "#e49343",
                             },
                         ],
                     },
                     Attributes {
-                        label: "직업".to_string(),
+                        label: "연령".to_string(),
                         chart_datas: vec![
                             PiChart {
-                                label: "자영업",
+                                label: "20대",
                                 percentage: 0.6,
                                 color: "#5778a3",
                             },
                             PiChart {
-                                label: "사무직",
-                                percentage: 0.13,
+                                label: "30대",
+                                percentage: 0.1,
                                 color: "#a8c9e5",
                             },
                             PiChart {
-                                label: "전문직",
-                                percentage: 0.13,
+                                label: "40대",
+                                percentage: 0.3,
                                 color: "#e49343",
-                            },
-                            PiChart {
-                                label: "현장직",
-                                percentage: 0.06,
-                                color: "#f5c086",
-                            },
-                            PiChart {
-                                label: "무직",
-                                percentage: 0.03,
-                                color: "#6b9f59",
-                            },
-                            PiChart {
-                                label: "기타",
-                                percentage: 0.03,
-                                color: "#9ccf85",
                             },
                         ],
                     },
@@ -230,10 +230,10 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "대한민국".to_string(),
+                            "2000만원 이하".to_string(),
+                            "서울".to_string(),
                             "남성".to_string(),
-                            "30대".to_string(),
-                            "자영업".to_string(),
+                            "20대".to_string(),
                         ],
                     },
                     Response {
@@ -242,10 +242,10 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "대한민국".to_string(),
-                            "남성".to_string(),
+                            "2000만원 이하".to_string(),
+                            "부산".to_string(),
+                            "여성".to_string(),
                             "30대".to_string(),
-                            "자영업".to_string(),
                         ],
                     },
                     Response {
@@ -254,10 +254,10 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "대한민국".to_string(),
+                            "2000만원~4000만원".to_string(),
+                            "부산".to_string(),
                             "남성".to_string(),
-                            "30대".to_string(),
-                            "자영업".to_string(),
+                            "40대".to_string(),
                         ],
                     },
                     Response {
@@ -266,10 +266,10 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "대한민국".to_string(),
+                            "2000만원~4000만원".to_string(),
+                            "서울".to_string(),
                             "남성".to_string(),
-                            "30대".to_string(),
-                            "자영업".to_string(),
+                            "20대".to_string(),
                         ],
                     },
                     Response {
@@ -278,10 +278,10 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "대한민국".to_string(),
-                            "남성".to_string(),
-                            "30대".to_string(),
-                            "자영업".to_string(),
+                            "8000만원 이상".to_string(),
+                            "기타".to_string(),
+                            "여성".to_string(),
+                            "40대".to_string(),
                         ],
                     },
                     Response {
@@ -290,10 +290,10 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "대한민국".to_string(),
+                            "4000만원~6000만원".to_string(),
+                            "기타".to_string(),
                             "남성".to_string(),
-                            "30대".to_string(),
-                            "자영업".to_string(),
+                            "20대".to_string(),
                         ],
                     },
                     Response {
@@ -302,10 +302,10 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "대한민국".to_string(),
+                            "6000만원~8000만원".to_string(),
+                            "서울".to_string(),
                             "남성".to_string(),
-                            "30대".to_string(),
-                            "자영업".to_string(),
+                            "40대".to_string(),
                         ],
                     },
                     Response {
@@ -314,10 +314,10 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "대한민국".to_string(),
+                            "8000만원 이상".to_string(),
+                            "서울".to_string(),
                             "남성".to_string(),
-                            "30대".to_string(),
-                            "자영업".to_string(),
+                            "20대".to_string(),
                         ],
                     },
                     Response {
@@ -326,10 +326,10 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "대한민국".to_string(),
+                            "2000만원 이하".to_string(),
+                            "서울".to_string(),
                             "남성".to_string(),
-                            "30대".to_string(),
-                            "자영업".to_string(),
+                            "20대".to_string(),
                         ],
                     },
                     Response {
@@ -338,10 +338,10 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "대한민국".to_string(),
+                            "2000만원 이하".to_string(),
+                            "서울".to_string(),
                             "남성".to_string(),
-                            "30대".to_string(),
-                            "자영업".to_string(),
+                            "20대".to_string(),
                         ],
                     },
                 ]

@@ -1,7 +1,9 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 
-use crate::api::v1::surveys::GetSurveyResponse;
+use crate::{api::v1::surveys::GetSurveyResponse, service::login_service::use_login_service};
+
+use super::{Language, Route};
 
 //FIXME: move to model file
 #[derive(Debug, Clone, PartialEq)]
@@ -36,7 +38,7 @@ pub struct SelectAttribute {
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
     response_count: Signal<String>,
-    survey_response: Signal<GetSurveyResponse>,
+    survey_response: Resource<GetSurveyResponse>,
     panel_groups: Signal<Vec<PanelGroup>>,
     panels: Signal<Vec<Panel>>,
     select_panel_groups: Signal<Vec<u64>>,
@@ -57,10 +59,29 @@ pub enum Step {
 }
 
 impl Controller {
-    pub fn init() -> Self {
+    pub fn init(lang: Language, id: String) -> Self {
+        let navigator = use_navigator();
+        let email: String = use_login_service().get_email().clone();
+
+        if email.is_empty() {
+            navigator.push(Route::LoginPage { lang });
+        };
+
+        let survey_response = use_resource(move || {
+            let id_value = id.clone();
+            let email_value = email.clone();
+            async move {
+                crate::utils::api::get::<GetSurveyResponse>(&format!(
+                    "/v1/email/{}/surveys/{}",
+                    email_value, id_value
+                ))
+                .await
+            }
+        });
+
         let ctrl = Self {
             response_count: use_signal(|| "0".to_string()),
-            survey_response: use_signal(|| GetSurveyResponse::default()),
+            survey_response,
             panel_groups: use_signal(|| {
                 vec![
                     PanelGroup {
@@ -438,7 +459,10 @@ impl Controller {
 
     #[allow(dead_code)]
     pub fn get_survey(&self) -> GetSurveyResponse {
-        (self.survey_response)()
+        match (self.survey_response.value())() {
+            Some(value) => value,
+            None => GetSurveyResponse::default(),
+        }
     }
 
     pub fn get_response_count(&mut self) -> String {
