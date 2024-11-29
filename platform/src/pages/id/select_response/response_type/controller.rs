@@ -38,6 +38,7 @@ pub struct SelectAttribute {
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
     response_count: Signal<String>,
+    pub bar_index: Signal<usize>,
     survey_response: Resource<GetSurveyResponse>,
     panel_groups: Signal<Vec<PanelGroup>>,
     panels: Signal<Vec<Panel>>,
@@ -159,16 +160,16 @@ impl Controller {
                 vec![
                     SelectAttribute {
                         id: 0,
-                        name: "직업".to_string(),
+                        name: "연령".to_string(),
                         value: vec![
-                            "자영업".to_string(),
-                            "사무직".to_string(),
-                            "전문직".to_string(),
-                            "현장직".to_string(),
-                            "무직".to_string(),
-                            "기타".to_string(),
+                            "10대".to_string(),
+                            "20대".to_string(),
+                            "30대".to_string(),
+                            "40대".to_string(),
+                            "50대".to_string(),
+                            "60대 이상".to_string(),
                         ],
-                        initial_value: "자영업".to_string(),
+                        initial_value: "10대".to_string(),
                         is_stored: false,
                         is_search: false,
                         is_selected: false,
@@ -184,30 +185,24 @@ impl Controller {
                     },
                     SelectAttribute {
                         id: 2,
-                        name: "연령".to_string(),
+                        name: "연봉".to_string(),
                         value: vec![
-                            "20~30대".to_string(),
-                            "30~40대".to_string(),
-                            "40~50대".to_string(),
-                            "50~60대".to_string(),
-                            "60~70대".to_string(),
-                            "70대 이상".to_string(),
+                            "2000만원 이하".to_string(),
+                            "2000만원~4000만원".to_string(),
+                            "4000만원~6000만원".to_string(),
+                            "6000만원~8000만원".to_string(),
+                            "8000만원 이상".to_string(),
                         ],
-                        initial_value: "20~30대".to_string(),
+                        initial_value: "2000만원 이하".to_string(),
                         is_stored: false,
                         is_search: false,
                         is_selected: false,
                     },
                     SelectAttribute {
                         id: 3,
-                        name: "국가".to_string(),
-                        value: vec![
-                            "대한민국".to_string(),
-                            "일본".to_string(),
-                            "중국".to_string(),
-                            "기타".to_string(),
-                        ],
-                        initial_value: "대한민국".to_string(),
+                        name: "지역".to_string(),
+                        value: vec!["서울".to_string(), "부산".to_string(), "기타".to_string()],
+                        initial_value: "서울".to_string(),
                         is_stored: false,
                         is_search: false,
                         is_selected: false,
@@ -222,6 +217,7 @@ impl Controller {
             click_total_check: use_signal(|| false),
             show_add_attribute_modal: use_signal(|| false),
             step: use_signal(|| Step::Attribute),
+            bar_index: use_signal(|| 0),
         };
 
         use_context_provider(|| ctrl);
