@@ -1,4 +1,7 @@
 #![allow(non_snake_case)]
+use crate::api::v1::surveys::upsert_survey::{upsert_survey, SurveyUpdateItem};
+use std::collections::HashMap;
+
 use dioxus::prelude::*;
 
 use crate::{api::v1::surveys::GetSurveyResponse, service::login_service::use_login_service};
@@ -8,20 +11,20 @@ use super::{Language, Route};
 //FIXME: move to model file
 #[derive(Debug, Clone, PartialEq)]
 pub struct PanelGroup {
-    pub country: String,
-    pub gender: String,
-    pub age: String,
-    pub occupation: String,
+    pub payload: String,
+    pub gender: String, //
+    pub age: String,    //
+    pub region: String,
     pub value: u64,
 }
 
 //FIXME: move to model file
 #[derive(Debug, Clone, PartialEq)]
 pub struct Panel {
-    pub country: String,
+    pub payload: String,
     pub gender: String,
     pub age: String,
-    pub occupation: String,
+    pub region: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -86,38 +89,38 @@ impl Controller {
             panel_groups: use_signal(|| {
                 vec![
                     PanelGroup {
-                        country: "대한민국(Korea)".to_string(),
+                        region: "서울".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
-                        occupation: "사무직".to_string(),
+                        payload: "2000만원 이하".to_string(),
                         value: 50,
                     },
                     PanelGroup {
-                        country: "대한민국(Korea)".to_string(),
+                        region: "부산".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
-                        occupation: "자영업자".to_string(),
+                        payload: "2000만원 이하".to_string(),
                         value: 50,
                     },
                     PanelGroup {
-                        country: "대한민국(Korea)".to_string(),
-                        gender: "남성".to_string(),
+                        region: "서울".to_string(),
+                        gender: "여성".to_string(),
                         age: "30대".to_string(),
-                        occupation: "무직".to_string(),
+                        payload: "2000만원 이하".to_string(),
                         value: 50,
                     },
                     PanelGroup {
-                        country: "대한민국(Korea)".to_string(),
-                        gender: "남성".to_string(),
-                        age: "30대".to_string(),
-                        occupation: "전문직".to_string(),
+                        region: "서울".to_string(),
+                        gender: "여성".to_string(),
+                        age: "40대".to_string(),
+                        payload: "2000만원 이하".to_string(),
                         value: 50,
                     },
                     PanelGroup {
-                        country: "대한민국(Korea)".to_string(),
+                        region: "기타".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
-                        occupation: "현장직".to_string(),
+                        payload: "2000만원 이하".to_string(),
                         value: 50,
                     },
                 ]
@@ -125,34 +128,34 @@ impl Controller {
             panels: use_signal(|| {
                 vec![
                     Panel {
-                        country: "대한민국(Korea)".to_string(),
+                        region: "서울".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
-                        occupation: "사무직".to_string(),
+                        payload: "2000만원 이하".to_string(),
                     },
                     Panel {
-                        country: "대한민국(Korea)".to_string(),
+                        region: "부산".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
-                        occupation: "자영업자".to_string(),
+                        payload: "2000만원 이하".to_string(),
                     },
                     Panel {
-                        country: "대한민국(Korea)".to_string(),
-                        gender: "남성".to_string(),
+                        region: "서울".to_string(),
+                        gender: "여성".to_string(),
                         age: "30대".to_string(),
-                        occupation: "무직".to_string(),
+                        payload: "2000만원 이하".to_string(),
                     },
                     Panel {
-                        country: "대한민국(Korea)".to_string(),
-                        gender: "남성".to_string(),
-                        age: "30대".to_string(),
-                        occupation: "전문직".to_string(),
+                        region: "서울".to_string(),
+                        gender: "여성".to_string(),
+                        age: "40대".to_string(),
+                        payload: "2000만원 이하".to_string(),
                     },
                     Panel {
-                        country: "대한민국(Korea)".to_string(),
+                        region: "기타".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
-                        occupation: "현장직".to_string(),
+                        payload: "2000만원 이하".to_string(),
                     },
                 ]
             }), //FIXME: fix to get api
@@ -222,20 +225,230 @@ impl Controller {
 
         use_context_provider(|| ctrl);
 
-        // let _ = use_effect(move || {
-        //     spawn(async move {
-        //         match get_survey().await {
-        //             Ok(res) => {
-        //                 ctrl.survey_response.set(res);
-        //             }
-        //             Err(e) => {
-        //                 tracing::error!("Error: {:?}", e);
-        //             }
-        //         }
-        //     });
-        // });
-
         ctrl
+    }
+
+    pub async fn clicked_panel_save_button(&mut self, select_type: String) {
+        let email: String = use_login_service().get_email().clone();
+        let survey = self.get_survey();
+        if select_type != "attribute".to_string() {
+            let panels = (self.panels)();
+            let mut map: HashMap<(String, String, String, String), u32> = HashMap::new();
+
+            for i in (self.select_panels)() {
+                let group = panels[i as usize].clone();
+
+                let (payload, region, gender, age) =
+                    (group.payload, group.region, group.gender, group.age);
+
+                if let Some(count) =
+                    map.get_mut(&(payload.clone(), region.clone(), gender.clone(), age.clone()))
+                {
+                    *count += 1;
+                } else {
+                    map.insert(
+                        (payload.clone(), region.clone(), gender.clone(), age.clone()),
+                        1,
+                    );
+                }
+            }
+
+            let keys: Vec<_> = map.keys().collect();
+
+            for (ind, key) in keys.iter().enumerate() {
+                let (payload, region, gender, age) = key.clone().clone();
+
+                let salary_tier: Option<u16> = if payload == "2000만원 이하" {
+                    Some(1)
+                } else if payload == "2000만원~4000만원" {
+                    Some(2)
+                } else if payload == "4000만원~6000만원" {
+                    Some(3)
+                } else if payload == "6000만원~8000만원" {
+                    Some(4)
+                } else {
+                    Some(5)
+                };
+
+                let region_code: Option<u16> = if region == "서울" {
+                    Some(02)
+                } else if region == "부산" {
+                    Some(051)
+                } else {
+                    Some(00)
+                };
+
+                let gender_value: Option<crate::models::survey::Gender> = if gender == "남성" {
+                    Some(crate::models::survey::Gender::Male)
+                } else if gender == "여성" {
+                    Some(crate::models::survey::Gender::Female)
+                } else {
+                    Some(crate::models::survey::Gender::Others)
+                };
+
+                let age_value: Option<crate::models::survey::Age> = if age == "10대" {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 10,
+                        inclusive_max: 19,
+                    })
+                } else if age == "20대" {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 20,
+                        inclusive_max: 29,
+                    })
+                } else if age == "30대" {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 30,
+                        inclusive_max: 39,
+                    })
+                } else if age == "40대" {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 40,
+                        inclusive_max: 49,
+                    })
+                } else if age == "50대" {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 50,
+                        inclusive_max: 59,
+                    })
+                } else {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 60,
+                        inclusive_max: 150,
+                    })
+                };
+
+                let quota = map.get(&(payload, region, gender, age)).unwrap().clone();
+
+                if keys.len() != if ind > 0 { ind - 1 } else { 0 } {
+                    let _ = upsert_survey(
+                        email.clone(),
+                        survey.survey.id.clone(),
+                        crate::models::survey::StatusType::TemporarySave,
+                        SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
+                            salary_tier,
+                            region_code,
+                            gender: gender_value,
+                            age: age_value,
+                            quota: quota as u64,
+                        }),
+                    )
+                    .await;
+                } else {
+                    let _ = upsert_survey(
+                        email.clone(),
+                        survey.survey.id.clone(),
+                        crate::models::survey::StatusType::Save,
+                        SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
+                            salary_tier,
+                            region_code,
+                            gender: gender_value,
+                            age: age_value,
+                            quota: quota as u64,
+                        }),
+                    )
+                    .await;
+                }
+            }
+        } else {
+            let panel_groups = (self.panel_groups)();
+
+            for (ind, i) in (self.select_panel_groups)().iter().enumerate() {
+                let group = panel_groups[*i as usize].clone();
+
+                let salary_tier: Option<u16> = if group.payload == "2000만원 이하" {
+                    Some(1)
+                } else if group.payload == "2000만원~4000만원" {
+                    Some(2)
+                } else if group.payload == "4000만원~6000만원" {
+                    Some(3)
+                } else if group.payload == "6000만원~8000만원" {
+                    Some(4)
+                } else {
+                    Some(5)
+                };
+
+                let region_code: Option<u16> = if group.region == "서울" {
+                    Some(02)
+                } else if group.region == "부산" {
+                    Some(051)
+                } else {
+                    Some(00)
+                };
+
+                let gender: Option<crate::models::survey::Gender> = if group.gender == "남성" {
+                    Some(crate::models::survey::Gender::Male)
+                } else if group.gender == "여성" {
+                    Some(crate::models::survey::Gender::Female)
+                } else {
+                    Some(crate::models::survey::Gender::Others)
+                };
+
+                let age: Option<crate::models::survey::Age> = if group.age == "10대" {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 10,
+                        inclusive_max: 19,
+                    })
+                } else if group.age == "20대" {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 20,
+                        inclusive_max: 29,
+                    })
+                } else if group.age == "30대" {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 30,
+                        inclusive_max: 39,
+                    })
+                } else if group.age == "40대" {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 40,
+                        inclusive_max: 49,
+                    })
+                } else if group.age == "50대" {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 50,
+                        inclusive_max: 59,
+                    })
+                } else {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 60,
+                        inclusive_max: 150,
+                    })
+                };
+
+                let quota = group.value;
+
+                if (self.select_panel_groups)().len() != if ind > 0 { ind - 1 } else { 0 } {
+                    let _ = upsert_survey(
+                        email.clone(),
+                        survey.survey.id.clone(),
+                        crate::models::survey::StatusType::TemporarySave,
+                        SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
+                            salary_tier,
+                            region_code,
+                            gender,
+                            age,
+                            quota,
+                        }),
+                    )
+                    .await;
+                } else {
+                    let _ = upsert_survey(
+                        email.clone(),
+                        survey.survey.id.clone(),
+                        crate::models::survey::StatusType::Save,
+                        SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
+                            salary_tier,
+                            region_code,
+                            gender,
+                            age,
+                            quota,
+                        }),
+                    )
+                    .await;
+                }
+            }
+        }
     }
 
     pub fn change_attribute_selected(&mut self, index: usize, selected: bool) {

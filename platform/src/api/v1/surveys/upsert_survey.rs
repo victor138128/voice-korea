@@ -86,7 +86,18 @@ pub async fn upsert_survey(
         } => {
             let _ = update_question_survey(id, title.unwrap(), question.unwrap()).await;
         }
-        _ => {}
+        SurveyUpdateItem::AddResponder(_quota) => {
+            //TODO: save, temporary save, back 상태일 때 구현
+            //save: 저장 후 QuestionSequence를 Summary 상태로 이동
+            //temporary save: 저장만 구현
+            //back: QuestionSequence를 AddQuestion 상태로 이동
+        }
+        SurveyUpdateItem::RemoveResponder(_quota_id) => {
+            //FIXME: quota_id는 어떻게 산정할지?
+        }
+        SurveyUpdateItem::SetPeriod(start_date, end_date) => {
+            tracing::debug!("start: {} end: {}", start_date, end_date);
+        }
     }
 
     Ok(())

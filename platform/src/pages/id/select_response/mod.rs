@@ -14,7 +14,7 @@ pub mod response_type;
 
 #[component]
 pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
-    let ctrl = controller::Controller::init(props.lang, props.survey_id.clone());
+    let mut ctrl = controller::Controller::init(props.lang, props.survey_id.clone());
     let survey_response = ctrl.get_survey();
     let question_list = survey_response.questions.len() as u64;
     let translates = i18n::translate(props.lang.clone());
@@ -129,10 +129,14 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
                     Button {
                         button_text: translates.back,
                         onclick: move |_| {
-                            navigator.push(Route::WriteQuestionPage {
-                                lang: props.lang.clone(),
-                                survey_id: props.survey_id.clone(),
-                            });
+                            let survey_id = props.survey_id.clone();
+                            async move {
+                                ctrl.back_button_clicked().await;
+                                navigator.push(Route::WriteQuestionPage {
+                                    lang: props.lang.clone(),
+                                    survey_id: survey_id.clone(),
+                                });
+                            }
                         },
                         class: "flex flex-row w-[200px] h-[50px] bg-[#434343]",
                     }

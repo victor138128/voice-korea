@@ -88,6 +88,12 @@ pub fn SelectPanelPage(props: SelectPanelProps) -> Element {
                         }
                         div {
                             class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#2168c3] text-white font-medium text-[20px] mr-[20px]",
+                            onclick: move |_| {
+                                let select_type = props.select_type.clone();
+                                async move {
+                                    ctrl.clicked_panel_save_button(select_type.clone()).await;
+                                }
+                            },
                             {props.save}
                         }
                     }
@@ -129,8 +135,8 @@ pub fn PanelRow(
                     {format!("{} {}", panel_string, index + 1)}
                 }
                 div {
-                    class: "w-[190px] text-[#5e5e5e] font-normal text-[20px] pr-[20px]",
-                    {panel.country.clone()}
+                    class: "w-[70px] text-[#5e5e5e] font-normal text-[20px] pr-[20px]",
+                    {panel.region.clone()}
                 }
                 div {
                     class: "w-[70px] text-[#5e5e5e] font-normal text-[20px] pr-[20px]",
@@ -142,7 +148,7 @@ pub fn PanelRow(
                 }
                 div {
                     class: "text-[#5e5e5e] font-normal text-[20px] pr-[20px]",
-                    {panel.occupation.clone()}
+                    {panel.payload.clone()}
                 }
             }
         }
@@ -264,8 +270,8 @@ fn AttributeRow(
                     {format!("{} {}", selection_panel_groups, index + 1)}
                 }
                 div {
-                    class: "w-[190px] text-[#5e5e5e] font-normal text-[20px] pr-[20px]",
-                    {panel.country.clone()}
+                    class: "w-[70px] text-[#5e5e5e] font-normal text-[20px] pr-[20px]",
+                    {panel.region.clone()}
                 }
                 div {
                     class: "w-[70px] text-[#5e5e5e] font-normal text-[20px] pr-[20px]",
@@ -277,7 +283,7 @@ fn AttributeRow(
                 }
                 div {
                     class: "text-[#5e5e5e] font-normal text-[20px] pr-[20px]",
-                    {panel.occupation.clone()}
+                    {panel.payload.clone()}
                 }
             }
             div {
