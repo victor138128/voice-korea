@@ -347,9 +347,9 @@ impl Controller {
         (self.search_attributes)()
     }
 
-    pub fn get_selected_attributes(&self) -> Vec<SelectAttribute> {
-        (self.selected_attributes)()
-    }
+    // pub fn get_selected_attributes(&self) -> Vec<SelectAttribute> {
+    //     (self.selected_attributes)()
+    // }
 
     pub fn get_select_panel_groups(&self) -> Vec<u64> {
         (self.select_panel_groups)()
