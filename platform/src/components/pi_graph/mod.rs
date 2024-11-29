@@ -8,7 +8,7 @@ pub fn PiGraph(chart_data: Vec<PiChart>) -> Element {
         div {
             class: "chart-container",
             div {
-                class: "labels",
+                class: "labels rounded-lg border border-[#e7e8e8] h-min p-3",
                 {chart_data.iter().map(|segment| rsx!(
                     div {
                         class: "label-item",

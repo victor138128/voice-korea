@@ -23,6 +23,12 @@ pub struct ResponseReportTranslate {
     pub normal_time_required: String,
     pub most_skipped_questions: String,
     pub response_attribute: String,
+
+    pub number_of_replies: String,
+    pub number_of_skipped: String,
+    pub item: String,
+    pub reply: String,
+    pub total: String,
 }
 
 pub fn translate(lang: Language) -> ResponseReportTranslate {
@@ -50,6 +56,12 @@ pub fn translate(lang: Language) -> ResponseReportTranslate {
             normal_time_required: "Normal Time Required".to_string(),
             most_skipped_questions: "Most Skipped Questions".to_string(),
             response_attribute: "Response Attribute".to_string(),
+
+            number_of_replies: "Number of Replies".to_string(),
+            number_of_skipped: "Number of Skipped".to_string(),
+            item: "Item".to_string(),
+            reply: "Reply".to_string(),
+            total: "Total".to_string(),
         },
         Language::Ko => ResponseReportTranslate {
             survey_summary: "설문 요약".to_string(),
@@ -74,6 +86,12 @@ pub fn translate(lang: Language) -> ResponseReportTranslate {
             normal_time_required: "통상 소요 시간".to_string(),
             most_skipped_questions: "가장 많이 건너뛴 질문".to_string(),
             response_attribute: "응답 속성".to_string(),
+
+            number_of_replies: "답변한 수".to_string(),
+            number_of_skipped: "건너뛴 수".to_string(),
+            item: "보기".to_string(),
+            reply: "응답".to_string(),
+            total: "총계".to_string(),
         },
     }
 }

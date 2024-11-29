@@ -18,6 +18,10 @@ pub struct SelectResponseDetailTranslate {
     pub select_all: String,
     pub search_results: String,
     pub panel: String,
+
+    pub search_hint: String,
+    pub search_result: String,
+    pub selected_attribute: String,
 }
 
 pub fn translate(lang: Language) -> SelectResponseDetailTranslate {
@@ -40,6 +44,10 @@ pub fn translate(lang: Language) -> SelectResponseDetailTranslate {
             select_all: "Select All".to_string(),
             search_results: "Search Results".to_string(),
             panel: "Panel".to_string(),
+
+            search_result: "Search Results".to_string(),
+            selected_attribute: "Currently Selected Attribute".to_string(),
+            search_hint: "Please enter the property you want to search for".to_string(),
         },
         Language::Ko => SelectResponseDetailTranslate {
             temporary_save: "임시 저장".to_string(),
@@ -59,6 +67,10 @@ pub fn translate(lang: Language) -> SelectResponseDetailTranslate {
             select_all: "전체 선택하기".to_string(),
             search_results: "검색 결과".to_string(),
             panel: "패널".to_string(),
+
+            search_result: "검색 결과".to_string(),
+            selected_attribute: "현재 선택된 속성".to_string(),
+            search_hint: "검색을 원하는 속성을 입력해 주세요".to_string(),
         },
     }
 }

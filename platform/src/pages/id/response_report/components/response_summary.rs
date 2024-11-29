@@ -1,7 +1,10 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 
-use crate::{components::pi_graph::PiGraph, models::pi::PiChart};
+use crate::{
+    components::{bar_graph::BarGraph, pi_graph::PiGraph},
+    pages::id::response_report::controller::use_controller,
+};
 
 #[derive(Props, Clone, PartialEq)]
 pub struct ResponseSummaryProps {
@@ -14,10 +17,17 @@ pub struct ResponseSummaryProps {
     pub most_skipped_questions: String,
     pub response_attribute: String,
     pub survey_summary: String,
+
+    pub number_of_replies: String,
+    pub number_of_skipped: String,
+    pub item: String,
+    pub reply: String,
+    pub total: String,
 }
 
 #[component]
 pub fn ResponseSummary(props: ResponseSummaryProps) -> Element {
+    let ctrl = use_controller();
     rsx! {
         div {
             class: "flex flex-col w-full justify-start items-start",
@@ -65,44 +75,110 @@ pub fn ResponseSummary(props: ResponseSummaryProps) -> Element {
             div {
                 class: "flex flex-col w-full justify-start items-start mb-[30px]",
                 div {
-                    class: "text-black font-semibold text-[24px] mb-[20px]",
+                    class: "text-black font-semibold text-[24px] mb-[40px]",
                     {props.response_attribute}
                 }
-                PiGraph {
-                    chart_data: vec![
-                        PiChart {
-                            label: "NCHE",
-                            percentage: 0.69,
-                            color: "#4a90e2"
-                        },
-                        PiChart {
-                            label: "HOTEL",
-                            percentage: 0.132,
-                            color: "#b0c4de"
-                        },
-                        PiChart {
-                            label: "B&B",
-                            percentage: 0.132,
-                            color: "#f5a623"
-                        },
-                        PiChart {
-                            label: "PENSION",
-                            percentage: 0.086,
-                            color: "#7ed321"
-                        },
-                        PiChart {
-                            label: "GUESTHOUSE",
-                            percentage: 0.053,
-                            color: "#50e3c2"
+                for (index, attribute) in ctrl.get_attributes().iter().enumerate() {
+                    div {
+                        class: "flex flex-col w-full justify-start items-start mb-[40px]",
+                        div {
+                            class: "text-black font-semibold text-[24px] mb-[20px]",
+                            {format!("{}. {}", index + 1, attribute.label.clone())}
                         }
-                    ]
+                        PiGraph {
+                            chart_data: attribute.chart_datas.clone(),
+                        }
+                    }
                 }
-            }
+            },
             div {
                 class: "flex flex-col w-full justify-start items-start mb-[30px]",
                 div {
-                    class: "text-black font-semibold text-[24px] mb-[20px]",
+                    class: "text-black font-semibold text-[24px] mb-[40px]",
                     {props.survey_summary}
+                }
+                for (index, survey) in ctrl.get_surveys().iter().enumerate() {
+                    div {
+                        class: "flex flex-col w-full justify-start items-start mb-[40px]",
+                        div {
+                            class: "text-black font-semibold text-[20px] mb-[10px]",
+                            {format!("Q{}", index + 1)}
+                        }
+                        div {
+                            class: "px-[10px]",
+                            div {
+                                class: "text-[#838a90] font-semibold text-[24px] mb-[10px]",
+                                {survey.title.clone()}
+                            }
+                            div {
+                                class: "flex flex-row w-full justify-start items-start text-[#838a90] font-medium text-[16px] mb-[15px]",
+                                div {
+                                    class: "mr-[7px]",
+                                    {format!("{}:", props.number_of_replies)}
+                                }
+                                div {
+                                    class: "mr-[20px]",
+                                    {format!("{}", survey.answer)}
+                                }
+                                div {
+                                    class: "mr-[7px]",
+                                    {format!("{}:", props.number_of_skipped)}
+                                }
+                                div {
+                                    {format!("{}", survey.skipped_answer)}
+                                }
+                            }
+                            div {
+                                class: "flex flex-row w-full justify-start items-start mb-[20px]",
+                                BarGraph {
+                                    labels: survey.labels.clone(),
+                                    values: survey.value_percents.clone(),
+                                    colors: survey.colors.clone(),
+                                }
+                            }
+                            div {
+                                class: "flex flex-col w-[700px] justify-start items-start mb-[30px]",
+                                div {
+                                    class: "flex flex-row w-full h-[40px] justify-start items-center bg-[#edeeee]",
+                                    div {
+                                        class: "flex flex-row w-[350px] h-full justify-start items-center border border-white px-[10px]",
+                                        {props.item.clone()}
+                                    }
+                                    div {
+                                        class: "flex flex-row w-[350px] h-full justify-start items-center border border-white px-[10px]",
+                                        {props.reply.clone()}
+                                    }
+                                }
+                                for (i, label) in survey.labels.iter().enumerate() {
+                                    div {
+                                        class: "flex flex-row w-full h-[40px] justify-start items-center bg-white border border-b-[#e2e3e4] border-t-transparent border-r-transparent border-l-transparent",
+                                        div {
+                                            class: "flex flex-row w-[350px] h-full justify-start items-center px-[10px]",
+                                            {label.clone()}
+                                        }
+                                        div {
+                                            class: "flex flex-row w-[350px] h-full justify-between items-center px-[10px]",
+                                            div {
+                                                {format!("{}%", survey.value_percents[i])}
+                                            }
+                                            div {
+                                                {format!("{}", survey.value_counts[i])}
+                                            }
+                                        }
+                                    }
+                                }
+                                div {
+                                    class: "flex flex-row w-full h-[40px] justify-between items-center bg-[#edeeee] px-[10px]",
+                                    div {
+                                        {props.total.clone()}
+                                    }
+                                    div {
+                                        {format!("{}", survey.answer + survey.skipped_answer)}
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

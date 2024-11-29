@@ -40,6 +40,10 @@ pub fn SelectResponseDetailPage(props: SelectResponseDetailProps) -> Element {
                 add_attribute: translates.add_attribute,
                 cancel: translates.cancel,
                 save: translates.save,
+
+                search_result: translates.search_result,
+                selected_attribute: translates.selected_attribute,
+                search_hint: translates.search_hint,
             }
         } else {
             SelectPanelPage {

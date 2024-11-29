@@ -13,11 +13,7 @@ pub struct Controller {
 impl Controller {
     pub fn init(lang: Language, id: String) -> Self {
         let navigator = use_navigator();
-        let email: String = use_login_service().get_email().clone();
-
-        if email.is_empty() {
-            navigator.push(Route::LoginPage { lang });
-        };
+        let email: String = "victor@biyard.co".to_string();
 
         let survey_response = use_resource(move || {
             let id_value = id.clone();

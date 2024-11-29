@@ -21,6 +21,7 @@ pub struct QuestionModel {
 mod controller;
 mod i18n;
 use models::prelude::{Age, Gender, Quota};
+#[allow(unused_imports)]
 #[cfg(feature = "web")]
 use wasm_bindgen::prelude::*;
 
