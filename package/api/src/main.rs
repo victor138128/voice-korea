@@ -1,15 +1,38 @@
+use std::sync::Arc;
+
 use by_axum::logger::root;
 use tokio::net::TcpListener;
 
 mod common;
+mod controllers;
+mod middleware;
 mod utils;
-mod v1;
 
 #[tokio::main]
 async fn main() {
     let log = root();
 
-    let app = by_axum::new().nest("/v1", v1::router());
+    easy_dynamodb::init(
+        log.clone(),
+        option_env!("AWS_ACCESS_KEY_ID")
+            .expect("AWS_ACCESS_KEY_ID is required")
+            .to_string(),
+        option_env!("AWS_SECRET_ACCESS_KEY")
+            .expect("AWS_SECRET_ACCESS_KEY is required")
+            .to_string(),
+        option_env!("AWS_REGION")
+            .unwrap_or("ap-northeast-2")
+            .to_string(),
+        option_env!("TABLE_NAME")
+            .expect("TABLE_NAME is required")
+            .to_string(),
+        "id".to_string(),
+        None,
+        None,
+    );
+    let db_client = Arc::new(easy_dynamodb::get_client(log.clone()));
+
+    let app = by_axum::new().nest("/", controllers::router(db_client));
 
     #[cfg(feature = "reload")]
     {

@@ -27,9 +27,14 @@ BUILD_ENV ?= AWS_ACCESS_KEY_ID=$(ACCESS_KEY_ID) AWS_SECRET_ACCESS_KEY=$(SECRET_A
 BUILD_WEB_CDK_ENV ?= SERVICE=$(SERVICE) ENV=$(ENV) DOMAIN=$(DOMAIN) TABLE_NAME=$(TABLE_NAME) ACM_ID=$(ACM_ID) HOSTED_ZONE_ID=$(HOSTED_ZONE_ID) WORKSPACE_ROOT=$(WORKSPACE_ROOT) CODE_PATH=$(PWD)/.build/platform ENABLE_S3=true ENABLE_DYNAMO=false
 BUILD_API_CDK_ENV ?= SERVICE=$(SERVICE)-api ENV=$(ENV) DOMAIN=$(API_DOMAIN) TABLE_NAME=$(TABLE_NAME) ACM_ID=$(API_ACM_ID) HOSTED_ZONE_ID=$(HOSTED_ZONE_ID) WORKSPACE_ROOT=$(WORKSPACE_ROOT) CODE_PATH=$(PWD)/.build/api ENABLE_DYNAMO=true
 
+run-api:
+	cd package/api && ${BUILD_ENV} make run
+	
 run:
 	cd package/api && make run &
 	cd platform && make run
+
+
 
 deploy.web: build cdk-deploy.web s3-sync cdn-invalidate
 
