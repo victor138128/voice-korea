@@ -6,4 +6,6 @@ description.workspace = true
 edition.workspace = true
 
 [dependencies]
+chrono = "0.4.38"
 serde = "1.0.215"
+uuid = { version = "1.11.0", features = ["v4"] }
