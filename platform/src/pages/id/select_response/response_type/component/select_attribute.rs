@@ -91,7 +91,7 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                     }
                 }
             }
-            if ctrl.get_clicked_attribute_index() != -1 {
+            if let Some(_) = ctrl.get_clicked_attribute_index() {
                 AttributeSettingModal {
                     translates: SettingModalTranslates {
                         attribute_setting: props.attribute_setting.clone(),

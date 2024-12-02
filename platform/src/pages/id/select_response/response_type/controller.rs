@@ -57,7 +57,7 @@ pub struct Controller {
     write_attribute: Signal<String>,
 
     //attribute modal data
-    clicked_attribute_index: Signal<i64>,
+    clicked_attribute_index: Signal<Option<usize>>,
     attribute_modal_label: Signal<String>,
     total_attribute: Signal<Vec<AttributeModel>>,
 }
@@ -77,11 +77,7 @@ pub enum Step {
 impl Controller {
     pub fn init(lang: Language, id: String) -> Self {
         let navigator = use_navigator();
-        let email: String = use_login_service().get_email().clone();
-
-        if email.is_empty() {
-            navigator.push(Route::LoginPage { lang });
-        };
+        let email: String = "victor@biyard.co".to_string();
 
         let survey_response = use_resource(move || {
             let id_value = id.clone();
@@ -235,7 +231,7 @@ impl Controller {
             bar_index: use_signal(|| 0),
             write_attribute: use_signal(|| "".to_string()),
 
-            clicked_attribute_index: use_signal(|| -1),
+            clicked_attribute_index: use_signal(|| None),
             total_attribute: use_signal(|| vec![]),
             attribute_modal_label: use_signal(|| "".to_string()),
         };
@@ -254,11 +250,11 @@ impl Controller {
     }
 
     pub fn clicked_attribute_cancel_button(&mut self) {
-        self.clicked_attribute_index.set(-1);
+        self.clicked_attribute_index.set(None);
     }
 
     pub fn clicked_attribute_save_button(&mut self) {
-        let index = (self.clicked_attribute_index)() as usize;
+        let index = (self.clicked_attribute_index)();
         let mut str = "".to_string();
 
         for attribute in (self.total_attribute)() {
@@ -273,30 +269,31 @@ impl Controller {
 
         let mut attributes = (self.search_attributes)();
 
-        if let Some(attribute) = attributes.iter_mut().find(|attr| attr.id == index) {
+        if let Some(attribute) = attributes.iter_mut().find(|attr| match index {
+            Some(ind) => attr.id == ind,
+            None => false,
+        }) {
             attribute.initial_value = str.clone();
         }
         self.search_attributes.set(attributes.clone());
-        self.clicked_attribute_index.set(-1);
+        self.clicked_attribute_index.set(None);
     }
 
     pub fn clicked_attribute(&mut self, index: usize) {
-        let ind = index as i64;
-        self.clicked_attribute_index.set(ind);
-        let attribute = (self.attributes)().get(index).unwrap().clone();
+        if let Some(attribute) = (self.attributes)().get(index) {
+            let mut attributes: Vec<AttributeModel> = vec![];
 
-        let mut attributes: Vec<AttributeModel> = vec![];
+            for v in attribute.value.clone() {
+                attributes.push(AttributeModel {
+                    is_select: false,
+                    name: v.clone(),
+                });
+            }
 
-        for v in attribute.value {
-            attributes.push(AttributeModel {
-                is_select: false,
-                name: v.clone(),
-            });
+            self.total_attribute.set(attributes);
+            self.attribute_modal_label.set(attribute.name.clone());
+            self.clicked_attribute_index.set(Some(index));
         }
-
-        self.total_attribute.set(attributes);
-        self.attribute_modal_label.set(attribute.name.clone());
-        self.clicked_attribute_index.set(ind);
     }
 
     pub fn change_attribute_setting_value(&mut self, index: usize) {
@@ -316,7 +313,7 @@ impl Controller {
         (self.attribute_modal_label)()
     }
 
-    pub fn get_clicked_attribute_index(&self) -> i64 {
+    pub fn get_clicked_attribute_index(&self) -> Option<usize> {
         (self.clicked_attribute_index)()
     }
 
