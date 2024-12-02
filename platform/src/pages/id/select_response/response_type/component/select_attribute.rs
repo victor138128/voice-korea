@@ -2,11 +2,11 @@
 use crate::{
     components::{
         alert::AlertModal,
+        checkbox::Checkbox,
         icons::{Add, Close, Search},
     },
-    pages::{
-        id::select_response::response_type::controller,
-        id::select_response::response_type::controller::SelectAttribute,
+    pages::id::select_response::response_type::controller::{
+        self, AttributeModel, SelectAttribute,
     },
     prelude::*,
 };
@@ -32,6 +32,8 @@ pub struct SelectAttributeProps {
     search_result: String,
     selected_attribute: String,
     search_hint: String,
+
+    attribute_setting: String,
 }
 
 #[derive(PartialEq, Props, Clone)]
@@ -40,6 +42,13 @@ pub struct ModalTranslates {
     search_result: String,
     add_attribute: String,
     selected_attribute: String,
+    cancel: String,
+    save: String,
+}
+
+#[derive(PartialEq, Props, Clone)]
+pub struct SettingModalTranslates {
+    attribute_setting: String,
     cancel: String,
     save: String,
 }
@@ -80,6 +89,26 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                     edit_write_attribute: move |value: String| {
                         ctrl.edit_write_attribute(value);
                     }
+                }
+            }
+            if let Some(_) = ctrl.get_clicked_attribute_index() {
+                AttributeSettingModal {
+                    translates: SettingModalTranslates {
+                        attribute_setting: props.attribute_setting.clone(),
+                        cancel: props.cancel.clone(),
+                        save: props.save.clone()
+                    },
+                    clicked_cancel_button: move |_e: MouseEvent| {
+                        ctrl.clicked_attribute_cancel_button();
+                    },
+                    clicked_save_button: move |_e: MouseEvent| {
+                        ctrl.clicked_attribute_save_button();
+                    },
+                    change_attribute_setting_value: move |index: usize| {
+                        ctrl.change_attribute_setting_value(index);
+                    },
+                    label: ctrl.get_attribute_modal_label(),
+                    attributes: ctrl.get_total_attribute_by_modal()
                 }
             }
             div {
@@ -159,6 +188,9 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                                     } else {
                                         asset!("/public/images/age.png")
                                     },
+                                    onclick: move |_e| {
+                                        ctrl.clicked_attribute(attribute.id);
+                                    },
                                     label_name: attribute.name.clone(),
                                     label_value: attribute.initial_value.clone(),
                                 }
@@ -201,6 +233,96 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                                     {props.save.clone()}
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn AttributeSettingModal(
+    translates: SettingModalTranslates,
+    clicked_cancel_button: EventHandler<MouseEvent>,
+    clicked_save_button: EventHandler<MouseEvent>,
+    change_attribute_setting_value: EventHandler<usize>,
+    label: String,
+    attributes: Vec<AttributeModel>,
+) -> Element {
+    rsx! {
+        div {
+            class: "fixed flex flex-row w-screen h-screen backdrop-blur-sm justify-center items-center z-50",
+            AlertModal {
+                children: rsx! {
+                    div {
+                        class: "flex flex-col w-full h-min justify-start items-start",
+                        div {
+                            class: "flex flex-row w-full justify-end items-center mb-[15px]",
+                            onclick: move |e| {
+                                clicked_cancel_button.call(e);
+                            },
+                            Close {
+                                width: "23",
+                                height: "23",
+                                color: "#f7f7f7",
+                                border_color: "#aeaeae",
+                                button_color: "#000000"
+                            }
+                        }
+                        div {
+                            class: "text text-[22px] font-semibold text-black mb-[10px]",
+                            {format!("{} {}", label, translates.attribute_setting)}
+                        }
+                        div {
+                            class: "mb-[30px]",
+                            style: "width: 100%; height: 1px; background-color: #d3d3d3",
+                        }
+                        div {
+                            class: "flex flex-col w-full justify-start items-start px-[25px] py-[20px]",
+                            for (index, attribute) in attributes.iter().enumerate() {
+                                div {
+                                    class: "flex flex-row w-full justify-start items-start mb-[20px]",
+                                    div {
+                                        class: "flex flex-row w-min h-min justify-center items-center pr-[20px]",
+                                        Checkbox {
+                                            id: format!("setting attribute {}", index),
+                                            onchange: move |_| {
+                                                change_attribute_setting_value.call(index);
+                                            },
+                                            checked: attribute.is_select,
+                                        },
+                                    }
+                                    div {
+                                        class: "text-black font-normal text-[20px]",
+                                        {attribute.name.clone()}
+                                    }
+                                }
+                            }
+                        }
+                        div {
+                            style: "width: 100%; height: 1px; background-color: #d3d3d3",
+                        }
+                    }
+                },
+                width: Some(460),
+                max_width: Some(460),
+                tail: rsx! {
+                    div {
+                        class: "flex flex-row w-full h-min justify-end items-end",
+                        div {
+                            class: "flex flex-row w-[85px] h-[45px] justify-center items-center rounded-[10px] bg-[#424242] text-white font-normal text-[20px] mr-[10px]",
+                            onclick: move |e| {
+                                clicked_cancel_button.call(e);
+                            },
+                            {translates.cancel.clone()}
+                        }
+                        div {
+                            class: "flex flex-row w-[85px] h-[45px] justify-center items-center rounded-[10px] bg-[#2168c3] text-white font-normal text-[20px]",
+                            onclick: move |e| {
+                                clicked_save_button.call(e);
+                            },
+                            {translates.save.clone()}
                         }
                     }
                 }
@@ -376,7 +498,12 @@ fn AttributeAddModal(
 }
 
 #[component]
-pub fn Attribute(label_image: Asset, label_name: String, label_value: String) -> Element {
+pub fn Attribute(
+    label_image: Asset,
+    label_name: String,
+    label_value: String,
+    onclick: EventHandler<MouseEvent>,
+) -> Element {
     rsx! {
         div {
             class: "flex flex-row w-full justify-start items-start mb-[10px]",
@@ -398,6 +525,9 @@ pub fn Attribute(label_image: Asset, label_name: String, label_value: String) ->
                 }
                 div {
                     class: "flex flex-row w-full h-[80px] justify-between items-center bg-[#f9f9f9] rounded-r-lg pl-[30px] pr-[15px]",
+                    onclick: move |e| {
+                        onclick.call(e);
+                    },
                     div {
                         class: "text-black font-normal text-[20px]",
                         {label_value.clone()}

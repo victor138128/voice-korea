@@ -44,6 +44,7 @@ pub fn SelectResponseDetailPage(props: SelectResponseDetailProps) -> Element {
                 search_result: translates.search_result,
                 selected_attribute: translates.selected_attribute,
                 search_hint: translates.search_hint,
+                attribute_setting: translates.attribute_setting,
             }
         } else {
             SelectPanelPage {
