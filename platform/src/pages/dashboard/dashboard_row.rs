@@ -95,6 +95,8 @@ pub fn DashboardRow(
                                     navigator.push(
                                         Route::SelectResponsePage { lang, survey_id: survey_id.clone() }
                                     );
+                                } else {
+                                    navigator.push(Route::SurveySummaryPage { lang, survey_id: survey_id.clone()});
                                 };
                             },
                             div {

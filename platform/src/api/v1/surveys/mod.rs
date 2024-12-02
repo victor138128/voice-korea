@@ -75,7 +75,7 @@ pub async fn get_survey() -> Result<GetSurveyResponse, ServerFnError> {
         )
         .await?;
 
-    let survey = match res_summary {
+    let mut survey: SurveySummary = match res_summary {
         Ok(v) => match v {
             Some(summary) => summary,
             None => return Err(ServerFnError::ServerError(format!("not exists survey"))),
@@ -98,6 +98,31 @@ pub async fn get_survey() -> Result<GetSurveyResponse, ServerFnError> {
             questions_vec.clone()
         }
     };
+
+    //FIXME: remove this line when implement panel fully
+    survey.quotas = Some(vec![
+        Quota::Attribute {
+            salary_tier: Some(1),  //2000만원 이하
+            region_code: Some(02), //서울
+            gender: Some(Gender::Male),
+            age: Some(Age::Specific(30)),
+            quota: 30,
+        },
+        Quota::Attribute {
+            salary_tier: Some(1),   //2000만원 이하
+            region_code: Some(051), //부산
+            gender: Some(Gender::Male),
+            age: Some(Age::Specific(30)),
+            quota: 50,
+        },
+        Quota::Attribute {
+            salary_tier: Some(1),  //2000만원 이하
+            region_code: Some(02), //서울
+            gender: Some(Gender::Female),
+            age: Some(Age::Specific(30)),
+            quota: 50,
+        },
+    ]);
 
     Ok(GetSurveyResponse {
         survey,

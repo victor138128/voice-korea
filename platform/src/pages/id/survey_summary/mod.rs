@@ -1,6 +1,9 @@
 #![allow(non_snake_case)]
 use crate::{
-    models::{question::Question, survey::SurveyStatus},
+    models::{
+        question::Question,
+        survey::{Age, Gender, Quota, SurveyStatus},
+    },
     prelude::*,
 };
 use controller::use_controller;
@@ -20,16 +23,18 @@ pub struct QuestionModel {
 
 mod controller;
 mod i18n;
-use models::prelude::{Age, Gender, Quota};
 #[allow(unused_imports)]
 #[cfg(feature = "web")]
 use wasm_bindgen::prelude::*;
 
 #[component]
 pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
+    let navigator = use_navigator();
     let mut ctrl = controller::Controller::init(props.lang, props.survey_id.clone());
     let translates = i18n::translate(props.lang.clone());
     let survey_status = ctrl.get_survey_status();
+
+    let survey_id_copy = props.survey_id.clone();
 
     rsx! {
         div {
@@ -41,6 +46,9 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                         rsx! {
                             div {
                                 class: "flex flex-row w-[250px] h-[55px] mt-[55px] rounded-[8px] bg-[#2168c3] justify-center items-center text-[21px] font-semibold text-white",
+                                onclick: move |_| async move {
+                                    ctrl.clicked_start_survey().await;
+                                },
                                 {translates.start_survey}
                             }
                         }
@@ -184,6 +192,12 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                                 }
                                 div {
                                     class: "flex flex-row w-[220px] h-[50px] justify-center items-center bg-[#2168c3] rounded-lg text-white font-medium text-[20px]",
+                                    onclick: move |_| {
+                                        navigator.push(Route::ResponseReportPage {
+                                            lang: props.lang.clone(),
+                                            survey_id: survey_id_copy.clone(),
+                                        });
+                                    },
                                     {translates.check_response_report}
                                 }
                             }
@@ -193,15 +207,19 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
             }
             div {
                 class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-end items-end mt-[15px] px-[50px]",
-                Link {
-                    to: Route::SelectResponsePage {
-                        lang: props.lang.clone(),
-                        survey_id: props.survey_id.clone()
+                div {
+                    class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#434343] text-white font-medium text-[20px]",
+                    onclick: move |_| {
+                        let survey_id = props.survey_id.clone();
+                        async move {
+                            ctrl.back_button_clicked().await;
+                            navigator.push(Route::SelectResponsePage {
+                                lang: props.lang.clone(),
+                                survey_id,
+                            });
+                        }
                     },
-                    div {
-                        class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#434343] text-white font-medium text-[20px]",
-                        {translates.back}
-                    }
+                    {translates.back}
                 }
             }
         }
@@ -459,8 +477,8 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                         for panel in ctrl.get_panels() {
                             match panel {
                                 Quota::Attribute {
-                                    salary_tier: _,
-                                    region_code: _,
+                                    salary_tier,
+                                    region_code,
                                     gender,
                                     age,
                                     quota,
@@ -468,12 +486,19 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                                     rsx! {
                                         div {
                                             class: "flex flex-row w-full h-[60px] justify-between items-center odd:bg-white even:bg-[#f9f9f9] px-[20px]",
-                                            //FIXME: fix to real api data
                                             div {
                                                 class: "flex flex-row w-min justify-center items-center text-[20px] font-medium text-[#5e5e5e]",
                                                 div {
-                                                    class: "w-[180px]",
-                                                    "대한민국(Korea)"
+                                                    class: "w-[70px]",
+                                                    if let Some(region) = region_code {
+                                                        if region == 051 {
+                                                            "부산"
+                                                        } else if region == 02 {
+                                                            "서울"
+                                                        } else {
+                                                            "기타"
+                                                        }
+                                                    }
                                                 }
                                                 div {
                                                     class: "w-[70px]",
@@ -495,7 +520,7 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                                                         None => rsx! {
                                                             div {
                                                                 class: "text-[20px] font-medium text-[#5e5e5e]",
-                                                                {unknown.clone()}
+                                                                "미정"
                                                             }
                                                         }
                                                     }
@@ -504,16 +529,20 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                                                     class: "w-[100px]",
                                                     match age {
                                                         Some(a) => match a {
-                                                            Age::Range { inclusive_min, inclusive_max } => rsx! {
+                                                            Age::Range { inclusive_min, inclusive_max: _inclusive_max } => rsx! {
                                                                 div {
                                                                     class: "text-[20px] font-medium text-[#5e5e5e]",
-                                                                    {format!("{}-{}대", inclusive_min, inclusive_max)}
+                                                                    if inclusive_min == 60 {
+                                                                        {format!("{}대 이상", inclusive_min)}
+                                                                    } else {
+                                                                        {format!("{}대", inclusive_min)}
+                                                                    }
                                                                 }
                                                             },
                                                             Age::Specific(v) => rsx! {
                                                                 div {
                                                                     class: "text-[20px] font-medium text-[#5e5e5e]",
-                                                                    {format!("{}대", v)}
+                                                                    {format!("{}세", v)}
                                                                 }
                                                             }
                                                         },
@@ -526,8 +555,20 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                                                     }
                                                 }
                                                 div {
-                                                    class: "w-[150px]",
-                                                    "사무직"
+                                                    class: "w-[200px]",
+                                                    if let Some(tier) = salary_tier {
+                                                        if tier == 1 {
+                                                            "2000만원 이하"
+                                                        } else if tier == 2 {
+                                                            "2000만원~4000만원"
+                                                        } else if tier == 3 {
+                                                            "4000만원~6000만원"
+                                                        } else if tier == 4 {
+                                                            "6000만원~8000만원"
+                                                        } else {
+                                                            "8000만원 이상"
+                                                        }
+                                                    }
                                                 }
                                             }
                                             div {

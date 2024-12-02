@@ -1,13 +1,20 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
-use models::prelude::{Age, Gender, Quota};
+use dioxus_logger::tracing;
 
 use crate::{
-    api::v1::surveys::GetSurveyResponse, models::question::Question,
+    api::v1::surveys::{
+        upsert_survey::{upsert_survey, SurveyUpdateItem},
+        GetSurveyResponse,
+    },
+    models::{
+        question::Question,
+        survey::{Quota, StatusType},
+    },
     service::login_service::use_login_service,
 };
 
-use chrono::{DateTime, Local, Utc};
+use chrono::{DateTime, Local, NaiveDate, Utc};
 
 use super::{Language, Route};
 
@@ -109,6 +116,27 @@ impl Controller {
         ctrl
     }
 
+    pub async fn clicked_start_survey(&mut self) {
+        let formatted_start_date = format!(
+            "{}-{}-{}",
+            self.start_year, self.start_month, self.start_day,
+        );
+        let formatted_end_date = format!("{}-{}-{}", self.end_year, self.end_month, self.end_day);
+        let (start_timestamp, end_timestamp) =
+            self.date_to_timestamp(formatted_start_date, formatted_end_date);
+
+        let email: String = use_login_service().get_email().clone();
+        let survey = self.get_survey();
+
+        let _ = upsert_survey(
+            email.clone(),
+            survey.survey.id.clone(),
+            StatusType::Save,
+            SurveyUpdateItem::SetPeriod(start_timestamp, end_timestamp),
+        )
+        .await;
+    }
+
     pub fn set_date(&mut self, start_date: Option<String>, end_date: Option<String>) {
         match start_date {
             Some(s) => {
@@ -158,6 +186,23 @@ impl Controller {
         }
 
         survey
+    }
+
+    pub fn date_to_timestamp(
+        &mut self,
+        format_start_date: String,
+        format_end_date: String,
+    ) -> (u64, u64) {
+        let naive_start_date = NaiveDate::parse_from_str(&format_start_date, "%Y-%m-%d").unwrap();
+        let naive_end_date = NaiveDate::parse_from_str(&format_end_date, "%Y-%m-%d").unwrap();
+
+        let start_datetime = naive_start_date.and_hms_opt(0, 0, 0).unwrap();
+        let end_datetime = naive_end_date.and_hms_opt(0, 0, 0).unwrap();
+
+        let start_timestamp = start_datetime.and_utc().timestamp() as u64;
+        let end_timestamp = end_datetime.and_utc().timestamp() as u64;
+
+        (start_timestamp, end_timestamp)
     }
 
     pub fn change_period(&mut self, start_timestamp: DateTime<Utc>, end_timestamp: DateTime<Utc>) {
@@ -263,49 +308,8 @@ impl Controller {
     }
 
     pub fn get_panels(&self) -> Vec<Quota> {
-        vec![
-            Quota::Attribute {
-                salary_tier: None,
-                region_code: Some(051),
-                gender: Some(Gender::Male),
-                age: Some(Age::Specific(30)),
-                quota: 50,
-            },
-            Quota::Attribute {
-                salary_tier: None,
-                region_code: Some(051),
-                gender: Some(Gender::Male),
-                age: Some(Age::Range {
-                    inclusive_min: 30,
-                    inclusive_max: 40,
-                }),
-                quota: 50,
-            },
-            Quota::Attribute {
-                salary_tier: None,
-                region_code: Some(051),
-                gender: Some(Gender::Male),
-                age: Some(Age::Range {
-                    inclusive_min: 30,
-                    inclusive_max: 90,
-                }),
-                quota: 50,
-            },
-            Quota::Attribute {
-                salary_tier: None,
-                region_code: Some(051),
-                gender: Some(Gender::Female),
-                age: Some(Age::Specific(30)),
-                quota: 50,
-            },
-            Quota::Attribute {
-                salary_tier: None,
-                region_code: Some(051),
-                gender: Some(Gender::Female),
-                age: Some(Age::Specific(30)),
-                quota: 50,
-            },
-        ]
+        let panels = self.get_survey().survey.quotas.unwrap_or(vec![]);
+        panels
     }
 
     pub fn change_start_date(&mut self, start_date: String) {
@@ -352,6 +356,10 @@ impl Controller {
     pub fn change_survey_list_clicked(&mut self) {
         self.survey_list_clicked
             .set(!self.get_survey_list_clicked());
+    }
+
+    pub async fn back_button_clicked(&mut self) {
+        tracing::debug!("back button clicked");
     }
 }
 

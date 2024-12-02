@@ -46,6 +46,7 @@ pub struct ModalTranslates {
 
 #[component]
 pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
+    let steps = vec![0, 50, 100, 250, 500, 1000, 3000, 5000];
     let mut ctrl = controller::use_controller();
 
     rsx! {
@@ -74,7 +75,11 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                         ctrl.change_attribute_selected(id, selected);
                     },
                     total_attributes: ctrl.get_total_attributes(),
-                    selected_attributes: (ctrl.selected_attributes)()
+                    selected_attributes: (ctrl.selected_attributes)(),
+                    write_attribute: ctrl.get_write_attribute(),
+                    edit_write_attribute: move |value: String| {
+                        ctrl.edit_write_attribute(value);
+                    }
                 }
             }
             div {
@@ -101,53 +106,42 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                         div {
                             class: "flex flex-row w-full justify-start items-center mb-[50px]",
                             div {
-                                class: "flex flex-row w-[138px] h-[50px] rounded-lg border-black border-[1px] justify-center items-center text-black font-semibold text-[22px] mr-[30px]",
-                                {ctrl.get_response_count()}
-                            }
-                            div {
-                                class: "flex flex-col w-full justify-start items-start",
-                                input {
-                                    class: "flex flex-row w-full justify-start items-start bg-e3e3e3",
-                                    style: "accent-color: #3a94ff;",
-                                    "type": "range",
-                                    min: 0,
-                                    max: 5000,
-                                    value: ctrl.get_response_count(),
-                                    list: "attribute_response_value",
-                                    onchange: move |e| {
-                                        ctrl.set_response_count(e.value());
+                                class: "flex items-center space-x-4 w-full",
+                                div {
+                                    class: "flex flex-row w-[138px] h-[50px] rounded-lg border-black border-[1px] justify-center items-center text-black font-semibold text-[22px] mr-[30px]",
+                                    {ctrl.get_response_count()}
+                                }
+                                div {
+                                    class: "relative w-full",
+                                    input {
+                                        r#type: "range",
+                                        class: "w-full h-2 bg-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-400 slider-thumb",
+                                        min: "0",
+                                        max: (steps.len() - 1).to_string(),
+                                        value: (ctrl.bar_index)().to_string(),
+                                        oninput: move |e| {
+                                            if let Ok(ind) = e.value().parse::<usize>() {
+                                                if ind < steps.len() {
+                                                    ctrl.bar_index.set(ind);
+                                                    ctrl.set_response_count(steps[ind].to_string());
+                                                }
+                                            }
+                                        },
                                     },
-                                }
-                                datalist {
-                                    class: "flex flex-row w-full justify-between items-start",
-                                    id: "attribute_response_value",
-                                    option {
-                                        value: 0,
-                                        label: "0"
-                                    }
-                                    option {
-                                        value: 50,
-                                    }
-                                    option {
-                                        value: 100,
-                                    }
-                                    option {
-                                        value: 250,
-                                    }
-                                    option {
-                                        value: 500,
-                                    }
-                                    option {
-                                        value: 1000,
-                                    }
-                                    option {
-                                        value: 3000,
-                                    }
-                                    option {
-                                        value: 5000,
-                                        label: "5,000"
+                                    div {
+                                        class: "absolute top-6 w-full flex justify-between text-gray-500 text-sm",
+                                        {steps.iter().enumerate().map(|(index, &step)| {
+                                            rsx!(
+                                                span {
+                                                    class: "text-center ml-[10px]",
+                                                    key: "{index}",
+                                                    "{step}"
+                                                }
+                                            )
+                                        })}
                                     }
                                 }
+
                             }
                         }
                         div {
@@ -158,7 +152,7 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                             }
                             for attribute in ctrl.get_search_attributes() {
                                 Attribute {
-                                    label_image: if attribute.name == "국가" {
+                                    label_image: if attribute.name == "지역" || attribute.name == "연봉" {
                                         asset!("/public/images/national.png")
                                     } else if attribute.name == "성별" {
                                         asset!("/public/images/gender.png")
@@ -224,6 +218,8 @@ fn AttributeAddModal(
     change_attribute_selected: EventHandler<(usize, bool)>,
     total_attributes: Vec<SelectAttribute>,
     selected_attributes: Vec<SelectAttribute>,
+    write_attribute: String,
+    edit_write_attribute: EventHandler<String>,
 ) -> Element {
     rsx! {
         div {
@@ -255,9 +251,14 @@ fn AttributeAddModal(
                                     color: "#8a8a8a"
                                 }
                             }
-                            div {
-                                class: "text-[#9f9f9f] font-normal text-[18px]",
-                                {translates.search_hint}
+                            input {
+                                class: "flex flex-row px-[10px] py-[10px] w-full h-full",
+                                r#type: "text",
+                                placeholder: translates.search_hint,
+                                value: write_attribute,
+                                oninput: move |event| {
+                                    edit_write_attribute.call(event.value());
+                                }
                             }
                         }
                         div {
@@ -317,6 +318,7 @@ fn AttributeAddModal(
                             class: "flex flex-row w-full h-[50px] justify-center items-center rounded-lg bg-[#d6d6d6] border-[1px] border-[#c8c8c8] mt-[60px] mb-[70px]",
                             onclick: move |e| {
                                 clicked_add_button.call(e);
+                                edit_write_attribute.call("".to_string());
                             },
                             div {
                                 class: "font-medium text-[20px] text-black",

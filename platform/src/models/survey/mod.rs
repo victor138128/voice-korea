@@ -151,7 +151,6 @@ pub type ProofId = String;
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-#[serde(untagged)]
 pub enum Gender {
     Male,
     Female,

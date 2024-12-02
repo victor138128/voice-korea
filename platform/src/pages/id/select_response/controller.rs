@@ -1,4 +1,8 @@
 #![allow(non_snake_case)]
+use crate::{
+    api::v1::surveys::upsert_survey::{upsert_survey, SurveyUpdateItem},
+    models::survey::StatusType,
+};
 use dioxus::prelude::*;
 
 use crate::{api::v1::surveys::GetSurveyResponse, service::login_service::use_login_service};
@@ -32,6 +36,19 @@ impl Controller {
         });
 
         Self { survey_response }
+    }
+
+    pub async fn back_button_clicked(&mut self) {
+        let email: String = use_login_service().get_email().clone();
+        let survey = self.get_survey();
+
+        let _ = upsert_survey(
+            email.clone(),
+            survey.survey.id.clone(),
+            StatusType::Back,
+            SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Panel("".to_string())),
+        )
+        .await;
     }
 
     pub fn get_title(&self) -> String {

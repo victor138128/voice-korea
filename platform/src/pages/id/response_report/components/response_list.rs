@@ -65,7 +65,7 @@ pub fn ResponseList(props: ResponseListProps) -> Element {
                     {props.time_taken}
                 }
                 div {
-                    class: "flex flex-row justify-center items-center w-[100px]",
+                    class: "flex flex-row justify-center items-center w-[130px]",
                     {format!("{}1", props.attribute.clone())}
                 }
                 div {
@@ -126,7 +126,7 @@ pub fn ResponseList(props: ResponseListProps) -> Element {
                             {panel.inprogress_time.clone()}
                         }
                         div {
-                            class: "flex flex-row justify-center items-center w-[100px]",
+                            class: "flex flex-row justify-center items-center w-[130px]",
                             {panel.attribute.get(0).unwrap().clone()}
                         }
                         div {
