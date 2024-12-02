@@ -3,6 +3,7 @@ use crate::api::v1::surveys::upsert_survey::{upsert_survey, SurveyUpdateItem};
 use std::collections::HashMap;
 
 use dioxus::prelude::*;
+use dioxus_logger::tracing;
 
 use crate::{api::v1::surveys::GetSurveyResponse, service::login_service::use_login_service};
 
@@ -12,8 +13,8 @@ use super::{Language, Route};
 #[derive(Debug, Clone, PartialEq)]
 pub struct PanelGroup {
     pub payload: String,
-    pub gender: String, //
-    pub age: String,    //
+    pub gender: String,
+    pub age: String,
     pub region: String,
     pub value: u64,
 }
@@ -55,6 +56,17 @@ pub struct Controller {
     pub selected_attributes: Signal<Vec<SelectAttribute>>,
     pub search_attributes: Signal<Vec<SelectAttribute>>,
     write_attribute: Signal<String>,
+
+    //attribute modal data
+    clicked_attribute_index: Signal<i64>,
+    attribute_modal_label: Signal<String>,
+    total_attribute: Signal<Vec<AttributeModel>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct AttributeModel {
+    pub is_select: bool,
+    pub name: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -223,6 +235,10 @@ impl Controller {
             step: use_signal(|| Step::Attribute),
             bar_index: use_signal(|| 0),
             write_attribute: use_signal(|| "".to_string()),
+
+            clicked_attribute_index: use_signal(|| -1),
+            total_attribute: use_signal(|| vec![]),
+            attribute_modal_label: use_signal(|| "".to_string()),
         };
 
         use_context_provider(|| ctrl);
@@ -236,6 +252,74 @@ impl Controller {
 
     pub fn edit_write_attribute(&mut self, value: String) {
         self.write_attribute.set(value);
+    }
+
+    pub fn clicked_attribute_cancel_button(&mut self) {
+        self.clicked_attribute_index.set(-1);
+    }
+
+    pub fn clicked_attribute_save_button(&mut self) {
+        let index = (self.clicked_attribute_index)() as usize;
+        let mut str = "".to_string();
+
+        for attribute in (self.total_attribute)() {
+            if attribute.is_select {
+                if str == "" {
+                    str = format!("{}", attribute.name);
+                } else {
+                    str = format!("{}, {}", str, attribute.name);
+                }
+            }
+        }
+
+        let mut attributes = (self.search_attributes)();
+
+        if let Some(attribute) = attributes.iter_mut().find(|attr| attr.id == index) {
+            attribute.initial_value = str.clone();
+            tracing::debug!("initial value: {}", str);
+        }
+        self.search_attributes.set(attributes.clone());
+        self.clicked_attribute_index.set(-1);
+    }
+
+    pub fn clicked_attribute(&mut self, index: usize) {
+        let ind = index as i64;
+        self.clicked_attribute_index.set(ind);
+        let attribute = (self.attributes)().get(index).unwrap().clone();
+
+        let mut attributes: Vec<AttributeModel> = vec![];
+
+        for v in attribute.value {
+            attributes.push(AttributeModel {
+                is_select: false,
+                name: v.clone(),
+            });
+        }
+
+        self.total_attribute.set(attributes);
+        self.attribute_modal_label.set(attribute.name.clone());
+        self.clicked_attribute_index.set(ind);
+    }
+
+    pub fn change_attribute_setting_value(&mut self, index: usize) {
+        let mut attributes = (self.total_attribute)();
+        if let Some(attribute) = attributes.get_mut(index) {
+            attribute.is_select = !attribute.is_select;
+        }
+
+        self.total_attribute.set(attributes);
+    }
+
+    pub fn get_total_attribute_by_modal(&self) -> Vec<AttributeModel> {
+        (self.total_attribute)()
+    }
+
+    pub fn get_attribute_modal_label(&self) -> String {
+        (self.attribute_modal_label)()
+    }
+
+    pub fn get_clicked_attribute_index(&self) -> i64 {
+        (self.clicked_attribute_index)()
     }
 
     pub async fn clicked_panel_save_button(&mut self, select_type: String) {

@@ -22,6 +22,7 @@ pub struct SelectResponseDetailTranslate {
     pub search_hint: String,
     pub search_result: String,
     pub selected_attribute: String,
+    pub attribute_setting: String,
 }
 
 pub fn translate(lang: Language) -> SelectResponseDetailTranslate {
@@ -48,6 +49,8 @@ pub fn translate(lang: Language) -> SelectResponseDetailTranslate {
             search_result: "Search Results".to_string(),
             selected_attribute: "Currently Selected Attribute".to_string(),
             search_hint: "Please enter the property you want to search for".to_string(),
+
+            attribute_setting: "Attribute Setting".to_string(),
         },
         Language::Ko => SelectResponseDetailTranslate {
             temporary_save: "임시 저장".to_string(),
@@ -71,6 +74,8 @@ pub fn translate(lang: Language) -> SelectResponseDetailTranslate {
             search_result: "검색 결과".to_string(),
             selected_attribute: "현재 선택된 속성".to_string(),
             search_hint: "검색을 원하는 속성을 입력해 주세요".to_string(),
+
+            attribute_setting: "속성 설정".to_string(),
         },
     }
 }
