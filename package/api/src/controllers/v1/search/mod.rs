@@ -6,7 +6,7 @@ use crate::{common::CommonQueryResponse, utils::error::ApiError};
 use models::prelude::*;
 
 pub fn router() -> Router {
-    Router::new().route("/search", get(search_handler))
+    Router::new().route("/", get(search_handler))
 }
 #[derive(Deserialize)]
 struct SearchParams {
