@@ -3,7 +3,6 @@ use crate::api::v1::surveys::upsert_survey::{upsert_survey, SurveyUpdateItem};
 use std::collections::HashMap;
 
 use dioxus::prelude::*;
-use dioxus_logger::tracing;
 
 use crate::{api::v1::surveys::GetSurveyResponse, service::login_service::use_login_service};
 
@@ -276,7 +275,6 @@ impl Controller {
 
         if let Some(attribute) = attributes.iter_mut().find(|attr| attr.id == index) {
             attribute.initial_value = str.clone();
-            tracing::debug!("initial value: {}", str);
         }
         self.search_attributes.set(attributes.clone());
         self.clicked_attribute_index.set(-1);
@@ -350,7 +348,7 @@ impl Controller {
             let keys: Vec<_> = map.keys().collect();
 
             for (ind, key) in keys.iter().enumerate() {
-                let (payload, region, gender, age) = key.clone().clone();
+                let (payload, region, gender, age) = (*key).clone();
 
                 let salary_tier: Option<u16> = if payload == "2000만원 이하" {
                     Some(1)
