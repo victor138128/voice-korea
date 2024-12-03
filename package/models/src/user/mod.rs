@@ -15,10 +15,10 @@ pub struct User {
 
 const VERIFICATION_EXIPIRED_TIME: i64 = 60 * 5;
 impl User {
-    pub fn new(email: String, hashed_pw: String) -> Self {
+    pub fn new(id: String, email: String, hashed_pw: String) -> Self {
         Self {
             r#type: "user".to_string(),
-            id: uuid::Uuid::new_v4().to_string(),
+            id,
             gsi1: User::gsi1(email.clone()),
             email,
             password: hashed_pw,
@@ -44,10 +44,10 @@ pub struct AuthDocument {
 }
 
 impl AuthDocument {
-    pub fn new(email: String, random_value: String) -> Self {
+    pub fn new(id: String, email: String, random_value: String) -> Self {
         Self {
             r#type: "verify".to_string(),
-            id: uuid::Uuid::new_v4().to_string(),
+            id,
             email,
             value: random_value,
             created_at: Utc::now().timestamp(),
