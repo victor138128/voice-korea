@@ -12,5 +12,5 @@ pub fn router(db: std::sync::Arc<easy_dynamodb::Client>) -> Router {
         .route("/login", post(login::handler))
         .route("/signup", post(signup::handler))
         .route("/reset", put(reset::handler))
-        .with_state(db.clone())
+        .with_state(db)
 }
