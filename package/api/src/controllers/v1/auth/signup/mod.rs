@@ -30,7 +30,7 @@ pub async fn handler(
     )
     .await?;
     let hashed_pw = get_hash_string(body.password.as_bytes());
-    let user = User::new(body.email, hashed_pw);
+    let user = User::new(uuid::Uuid::new_v4().to_string(), body.email, hashed_pw);
 
     let result: Result<
         (Option<Vec<models::User>>, Option<String>),

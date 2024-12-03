@@ -29,7 +29,11 @@ pub async fn send_handler(
         .take(6)
         .map(char::from)
         .collect();
-    let doc = models::AuthDocument::new(body.email.clone(), random_string.clone());
+    let doc = models::AuthDocument::new(
+        uuid::Uuid::new_v4().to_string(),
+        body.email.clone(),
+        random_string.clone(),
+    );
     let doc_id = doc.id.clone();
     match db.create(doc).await {
         Ok(_) => {
