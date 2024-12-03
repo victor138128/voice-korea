@@ -62,7 +62,7 @@ pub struct EmailVerifyParams {
     pub value: String,
 }
 
-pub async fn verfiy_handler(
+pub async fn verify_handler(
     State(db): State<std::sync::Arc<easy_dynamodb::Client>>,
     Json(body): Json<EmailVerifyParams>,
 ) -> Result<String, ApiError> {

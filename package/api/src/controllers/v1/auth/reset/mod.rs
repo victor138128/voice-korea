@@ -6,7 +6,7 @@ use easy_dynamodb::Client;
 use models::User;
 use serde::Deserialize;
 
-use super::super::verification::email::{verfiy_handler, EmailVerifyParams};
+use super::super::verification::email::{verify_handler, EmailVerifyParams};
 use crate::utils::{error::ApiError, hash::get_hash_string};
 
 #[derive(Deserialize)]
@@ -21,7 +21,7 @@ pub async fn handler(
     State(db): State<Arc<Client>>,
     Json(body): Json<ResetParams>,
 ) -> Result<(), ApiError> {
-    verfiy_handler(
+    verify_handler(
         State(db.clone()),
         Json(EmailVerifyParams {
             id: body.auth_id,
