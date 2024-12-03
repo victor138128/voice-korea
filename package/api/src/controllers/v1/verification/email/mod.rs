@@ -49,7 +49,7 @@ pub async fn send_handler(
                     slog::debug!(log, "Email Send {}", v);
                     Ok(doc_id)
                 }
-                Err(e) => Err(ApiError::SMSServiceError(e.to_string())),
+                Err(e) => Err(ApiError::SESServiceError(e.to_string())),
             }
         }
         Err(e) => Err(ApiError::DynamoCreateException(e.to_string())),

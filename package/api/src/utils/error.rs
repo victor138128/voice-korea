@@ -23,8 +23,8 @@ pub enum ApiError {
     #[error("JWT Generation Failed. Reason({0})")]
     JWTGenerationFail(String),
 
-    #[error("AWS SMS Service is Failed. Reason({0})")]
-    SMSServiceError(String),
+    #[error("AWS SES Service is Failed. Reason({0})")]
+    SESServiceError(String),
 
     #[error("Email verification code {0} does not match")]
     AuthKeyNotMatch(String),
@@ -41,7 +41,7 @@ impl IntoResponse for ApiError {
             ApiError::DynamoQueryException(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::InvalidCredentials(_) => StatusCode::UNAUTHORIZED,
             ApiError::JWTGenerationFail(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            ApiError::SMSServiceError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::SESServiceError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::AuthKeyNotMatch(_) => StatusCode::NOT_ACCEPTABLE,
             ApiError::DuplicateUser => StatusCode::CONFLICT,
         };
