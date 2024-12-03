@@ -16,6 +16,21 @@ pub enum ApiError {
     #[allow(dead_code)]
     #[error("DynamoDB Query Failed. Reason({0})")]
     DynamoQueryException(String),
+
+    #[error("Wrong User Login info ({0})")]
+    InvalidCredentials(String),
+
+    #[error("JWT Generation Failed. Reason({0})")]
+    JWTGenerationFail(String),
+
+    #[error("AWS SES Service is Failed. Reason({0})")]
+    SESServiceError(String),
+
+    #[error("Email verification code {0} does not match")]
+    AuthKeyNotMatch(String),
+
+    #[error("Email already used")]
+    DuplicateUser,
 }
 
 impl IntoResponse for ApiError {
@@ -24,6 +39,11 @@ impl IntoResponse for ApiError {
             ApiError::ValidationError(_) => StatusCode::BAD_REQUEST,
             ApiError::DynamoCreateException(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::DynamoQueryException(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::InvalidCredentials(_) => StatusCode::UNAUTHORIZED,
+            ApiError::JWTGenerationFail(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::SESServiceError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::AuthKeyNotMatch(_) => StatusCode::NOT_ACCEPTABLE,
+            ApiError::DuplicateUser => StatusCode::CONFLICT,
         };
 
         let error_id = uuid::Uuid::new_v4();
