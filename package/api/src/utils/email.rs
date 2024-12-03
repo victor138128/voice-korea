@@ -9,8 +9,8 @@ use aws_sdk_sesv2::{
 };
 pub async fn send_email(
     email: String,
-    body: Content,
     subject: Content,
+    body: Content,
 ) -> Result<String, SdkError<SendEmailError>> {
     let config = defaults(BehaviorVersion::latest())
         .region(Region::new(
