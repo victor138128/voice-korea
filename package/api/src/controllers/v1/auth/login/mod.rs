@@ -41,7 +41,6 @@ pub async fn handler(
         None => return Err(ApiError::InvalidCredentials(email)),
     };
     let hashed_password = get_hash_string(body.password.as_bytes());
-    println!("hased {}", hashed_password);
     if user.password != hashed_password {
         return Err(ApiError::InvalidCredentials(email));
     }
