@@ -6,7 +6,7 @@ use dioxus::prelude::*;
 
 use crate::{api::v1::surveys::GetSurveyResponse, service::login_service::use_login_service};
 
-use super::{Language, Route};
+use super::Language;
 
 //FIXME: move to model file
 #[derive(Debug, Clone, PartialEq)]
@@ -75,8 +75,7 @@ pub enum Step {
 }
 
 impl Controller {
-    pub fn init(lang: Language, id: String) -> Self {
-        let navigator = use_navigator();
+    pub fn init(_lang: Language, id: String) -> Self {
         let email: String = "victor@biyard.co".to_string();
 
         let survey_response = use_resource(move || {
