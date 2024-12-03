@@ -1,6 +1,7 @@
 use aws_sdk_sesv2::types::Content;
 use by_axum::axum::{extract::State, Json};
 use by_axum::log::root;
+use chrono::Utc;
 use models::AuthDocument;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
@@ -74,7 +75,8 @@ pub async fn verify_handler(
         Err(e) => return Err(ApiError::DynamoQueryException(e.to_string())),
     };
     let auth_doc_id = auth.id.clone();
-    if auth.value != body.value || auth.deleted_at.is_some() {
+
+    if auth.value != body.value || auth.expired_at < Utc::now().timestamp() {
         return Err(ApiError::AuthKeyNotMatch(body.id));
     }
 

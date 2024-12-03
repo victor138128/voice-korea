@@ -60,6 +60,7 @@ dependencies = [
  "aws-config",
  "aws-sdk-sesv2",
  "by-axum",
+ "chrono",
  "easy-dynamodb",
  "jsonwebtoken",
  "listenfd",
