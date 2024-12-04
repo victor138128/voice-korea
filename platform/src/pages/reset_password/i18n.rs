@@ -23,9 +23,11 @@ pub struct ResetPasswordTranslate {
     pub input_password_error: String,
     pub invalid_password_pattern: String,
     pub failed_password_store_data: String,
+    pub not_exists_user: String,
     pub not_matched_password: String,
     pub incollect_email_form: String,
     pub not_matched_authentication: String,
+    pub retry_send_authentication: String,
 }
 
 pub fn translate(lang: Language) -> ResetPasswordTranslate {
@@ -52,9 +54,11 @@ pub fn translate(lang: Language) -> ResetPasswordTranslate {
             input_password_error: "Please enter your password.".to_string(),
             invalid_password_pattern: "Please make up at least 8 characters using a combination of letters, numbers, and special symbols.".to_string(),
             failed_password_store_data: "Password change failed. Please try again later.".to_string(),
+            not_exists_user: "This user does not exist.".to_string(),
             not_matched_password: "The two passwords do not match.".to_string(),
             incollect_email_form: "The email format is incorrect.".to_string(),
             not_matched_authentication: "The authentication number does not match.".to_string(),
+            retry_send_authentication: "Please try again after sending the authentication number.".to_string(),
         },
         Language::Ko => ResetPasswordTranslate {
             reset_password: "비밀번호 재설정".to_string(),
@@ -78,9 +82,11 @@ pub fn translate(lang: Language) -> ResetPasswordTranslate {
             input_password_error: "패스워드를 입력해주세요.".to_string(),
             invalid_password_pattern: "영문, 숫자, 특수기호 조합으로 8자 이상 구성해주세요.".to_string(),
             failed_password_store_data: "비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해주세요.".to_string(),
+            not_exists_user: "존재하지 않는 유저입니다.".to_string(),
             not_matched_password: "두 개의 비밀번호가 일치하지 않습니다.".to_string(),
             incollect_email_form: "이메일 형식이 올바르지 않습니다.".to_string(),
             not_matched_authentication: "인증번호가 일치하지 않습니다.".to_string(),
+            retry_send_authentication: "인증번호 전송 후 다시 시도해주세요.".to_string(),
         },
     }
 }

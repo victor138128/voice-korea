@@ -2,7 +2,7 @@
 use dioxus::prelude::*;
 
 use crate::{
-    api::v1::users::login::{login_user, LoginUserRequest},
+    api::v1::users::login::{login_user, LoginRequest},
     service::login_service::use_login_service,
 };
 
@@ -63,23 +63,21 @@ impl Controller {
     pub async fn login_clicked(&mut self, lang: Language) {
         let mut login_service = use_login_service();
         let navigator = use_navigator();
-        let res = login_user(LoginUserRequest {
+        let res = login_user(LoginRequest {
             email: self.get_email(),
             password: self.get_password(),
         })
         .await;
 
         match res {
-            Ok(_) => {
-                login_service.setup(self.get_email());
+            Ok(token) => {
+                login_service.setup(self.get_email(), token);
                 navigator.push(Route::DashboardPage { lang });
             }
             Err(e) => match e {
                 ServerFnError::ServerError(v) => {
-                    if v == "not matched" {
+                    if v.contains("Wrong User") {
                         self.not_matched_error.set(true);
-                    } else if v == "not exists user" {
-                        self.not_exists_error.set(true);
                     } else {
                         self.login_failed_error.set(true);
                     }

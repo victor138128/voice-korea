@@ -9,34 +9,32 @@ use serde::{Deserialize, Serialize};
 use crate::{models::user::User, utils::hash::get_hash_string};
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct LoginUserRequest {
+pub struct LoginRequest {
     pub email: String,
     pub password: String,
 }
 
 #[server(endpoint = "/v1/users/login", input = Json, output = Json)]
-pub async fn login_user(req: LoginUserRequest) -> Result<(), ServerFnError> {
-    use easy_dynamodb::error::DynamoException;
-    let log = crate::utils::logger::new_api("POST", &format!("/v1/users/signup"));
-    let cli = crate::utils::db::get(&log);
+pub async fn login_user(req: LoginRequest) -> Result<String, ServerFnError> {
+    use dioxus_logger::tracing;
+    use reqwest::Client;
+    let client = Client::new();
+    dioxus_logger::tracing::debug!("/v1/auth/login: {:?}", req.email);
+    let url = if let Some(url) = option_env!("API_URL") {
+        format!("{}/v1/auth/login", url)
+    } else {
+        return Err(ServerFnError::new("\"API URL\" Not found"));
+    };
 
-    let pw_hash = get_hash_string(req.password.as_bytes());
+    let data = req;
 
-    match cli.get::<User>(req.email.as_str()).await {
-        Ok(v) => match v {
-            Some(user) => {
-                if user.email == req.email && user.hashed_password == pw_hash {
-                    Ok(())
-                } else {
-                    return Err(ServerFnError::ServerError(format!("not matched")));
-                }
-            }
-            None => {
-                return Err(ServerFnError::ServerError(format!("not exists user")));
-            }
-        },
-        Err(e) => {
-            return Err(ServerFnError::ServerError(format!("login failed {:?}", e)));
-        }
+    let res = client.post(url).json(&data).send().await?;
+
+    if res.status().is_success() {
+        let body = res.text().await?;
+        Ok(body)
+    } else {
+        let body = res.text().await?;
+        return Err(dioxus::prelude::ServerFnError::ServerError(body));
     }
 }

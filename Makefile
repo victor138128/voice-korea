@@ -29,12 +29,13 @@ BUILD_API_CDK_ENV ?= SERVICE=$(SERVICE)-api ENV=$(ENV) DOMAIN=$(API_DOMAIN) TABL
 
 run-api:
 	cd package/api && ${BUILD_ENV} make run
-	
+
+run-platform:
+	cd platform && ${BUILD_ENV} make run
+
 run:
-	cd package/api && make run &
-	cd platform && make run
-
-
+	cd package/api && ${BUILD_ENV} make run &
+	cd platform && ${BUILD_ENV} make run
 
 deploy.web: build cdk-deploy.web s3-sync cdn-invalidate
 

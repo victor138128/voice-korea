@@ -3,9 +3,9 @@ use dioxus::prelude::*;
 use dioxus_logger::tracing;
 use regex::Regex;
 
-use crate::api::{
-    aws::ses::send_email,
-    v1::users::signup::{signup_user, SignupUserRequest},
+use crate::api::v1::{
+    auth::{send_notification, SendNotificationParams},
+    users::signup::{signup_user, SignupRequest},
 };
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -30,6 +30,7 @@ pub struct Controller {
     cellphone_number: Signal<String>,
     simple_address: Signal<String>,
     detail_address: Signal<String>,
+    auth_key: Signal<String>,
 
     email_address_error: Signal<bool>,
     password_error: Signal<bool>,
@@ -73,6 +74,8 @@ impl Controller {
             invalid_authkey_error: use_signal(|| false),
             already_exists_user_error: use_signal(|| false),
             unknown_error: use_signal(|| false),
+
+            auth_key: use_signal(|| "".to_string()),
             // click_send_authentication: use_signal(|| false),
             // click_search_address: use_signal(|| false),
             // click_complete_join_membership: use_signal(|| false),
@@ -279,7 +282,23 @@ impl Controller {
         }
 
         self.email_address_error.set(false);
-        let _ = send_email(vec![self.get_email_address()]).await;
+        let res = send_notification(SendNotificationParams {
+            email: self.get_email_address(),
+        })
+        .await;
+
+        match res {
+            Ok(s) => {
+                self.auth_key.set(s);
+            }
+            Err(e) => {
+                tracing::error!("send email failed: {}", e);
+            }
+        }
+    }
+
+    pub fn get_auth_key(&self) -> String {
+        (self.auth_key)()
     }
 
     pub fn set_click_search_address(&mut self) {
@@ -314,8 +333,9 @@ impl Controller {
         self.password_error.set(false);
         self.password_check_error.set(false);
         self.password_pattern_error.set(false);
-        let res = signup_user(SignupUserRequest {
-            auth_key: self.get_authentication_number(),
+        let res = signup_user(SignupRequest {
+            auth_id: self.get_auth_key(),
+            auth_value: self.get_authentication_number(),
             email: self.get_email_address(),
             password: self.get_password(),
         })
@@ -326,13 +346,14 @@ impl Controller {
                 self.invalid_authkey_error.set(false);
                 self.already_exists_user_error.set(false);
                 self.unknown_error.set(true);
+                self.auth_key.set("".to_string());
                 self.set_step(1);
             }
             Err(e) => match e {
                 ServerFnError::ServerError(v) => {
-                    if v == "Auth key is not exists" {
+                    if v.contains("does not match") {
                         self.invalid_authkey_error.set(true);
-                    } else if v == "already exists user" {
+                    } else if v.contains("Email already used") {
                         self.already_exists_user_error.set(true);
                     } else {
                         self.unknown_error.set(true);
