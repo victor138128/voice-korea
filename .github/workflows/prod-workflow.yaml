@@ -40,7 +40,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cargo install --version 0.6.0-alpha.5 dioxus-cli
+          cargo install --version 0.6.0-rc.0 dioxus-cli
           cargo install toml-cli
 
       - name: Deploy APIs
