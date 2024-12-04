@@ -28,6 +28,7 @@ pub struct ResetPasswordTranslate {
     pub incollect_email_form: String,
     pub not_matched_authentication: String,
     pub retry_send_authentication: String,
+    pub not_exists_email: String,
 }
 
 pub fn translate(lang: Language) -> ResetPasswordTranslate {
@@ -59,6 +60,7 @@ pub fn translate(lang: Language) -> ResetPasswordTranslate {
             incollect_email_form: "The email format is incorrect.".to_string(),
             not_matched_authentication: "The authentication number does not match.".to_string(),
             retry_send_authentication: "Please try again after sending the authentication number.".to_string(),
+            not_exists_email: "Not exists email".to_string(),
         },
         Language::Ko => ResetPasswordTranslate {
             reset_password: "비밀번호 재설정".to_string(),
@@ -87,6 +89,7 @@ pub fn translate(lang: Language) -> ResetPasswordTranslate {
             incollect_email_form: "이메일 형식이 올바르지 않습니다.".to_string(),
             not_matched_authentication: "인증번호가 일치하지 않습니다.".to_string(),
             retry_send_authentication: "인증번호 전송 후 다시 시도해주세요.".to_string(),
+            not_exists_email: "이메일이 존재하지 않습니다.".to_string(),
         },
     }
 }

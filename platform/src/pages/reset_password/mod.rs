@@ -113,7 +113,7 @@ pub fn ResetPasswordPage(props: ResetPasswordPageProps) -> Element {
                         incollect_email_form: translates.incollect_email_form,
                         retry_send_authentication: translates.retry_send_authentication,
                         not_matched_authentication: translates.not_matched_authentication,
-                        not_exists_email: "이메일이 존재하지 않습니다.".to_string(),
+                        not_exists_email: translates.not_exists_email,
                     }
                 }
             }
