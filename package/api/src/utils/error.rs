@@ -31,6 +31,12 @@ pub enum ApiError {
 
     #[error("Email already used")]
     DuplicateUser,
+
+    #[error("Reqwest Client Create Failed")]
+    ReqwestClientFailed(String),
+
+    #[error("Reqwest Failed")]
+    ReqwestFailed(String),
 }
 
 impl IntoResponse for ApiError {
@@ -44,6 +50,8 @@ impl IntoResponse for ApiError {
             ApiError::SESServiceError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::AuthKeyNotMatch(_) => StatusCode::NOT_ACCEPTABLE,
             ApiError::DuplicateUser => StatusCode::CONFLICT,
+            ApiError::ReqwestClientFailed(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::ReqwestFailed(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
         let error_id = uuid::Uuid::new_v4();
