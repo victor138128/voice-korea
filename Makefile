@@ -65,7 +65,7 @@ build: clean
 	mv .build/platform/web/server .build/platform/bootstrap
 
 build-api: clean
-	cd package/api && ENV=$(ENV) make build
+	cd package/api && $(BUILD_ENV) ENV=${ENV} make build
 	mkdir -p .build/api
 	cp target/release/api .build/api/bootstrap
 

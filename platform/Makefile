@@ -15,14 +15,12 @@ ifeq ("$(ENV)","prod")
 	LOG_LEVEL ?= info
 	VOICE_KOREA_TABLE_NAME = voice-korea-prod
 	BASE_URL = https://voice-korea.biyard.co
-#FIXME: Change URL
-	API_URL = https://voice-korea-api.biyard.co
+	API_URL = https://voice-korea-api.dev.biyard.co
 endif
 
 ifeq ("$(ENV)","dev")
 	VOICE_KOREA_TABLE_NAME = voice-korea-dev
 	BASE_URL = https://voice-korea.dev.biyard.co
-#FIXME: Change URL
 	API_URL = https://voice-korea-api.dev.biyard.co
 endif
 

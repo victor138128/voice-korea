@@ -81,6 +81,8 @@ async fn list_survey(
         Ok(v) => v.json().await,
         Err(e) => return Err(ApiError::ReqwestFailed(e.to_string())),
     };
+
+    //FIXME: remove code after nonce_lab add updated_at to their response.
     let survey = match res {
         Ok(v) => v,
         Err(e) => {
@@ -88,6 +90,13 @@ async fn list_survey(
             return Err(ApiError::JSONSerdeError(e.to_string()));
         }
     };
+    let survey = survey
+        .into_iter()
+        .map(|mut v| {
+            v.updated_at = chrono::Utc::now().timestamp_millis();
+            v
+        })
+        .collect();
 
     Ok(Json(survey))
 }
@@ -159,6 +168,7 @@ async fn list_survey_draft(
             let mut survey = SurveySummary::default();
             survey.draft_id = Some(survey_draft.id);
             survey.draft_status = Some(survey_draft.status);
+            survey.updated_at = survey_draft.updated_at;
             survey.title = survey_draft.title;
             survey
         })
@@ -201,6 +211,7 @@ async fn upsert_survey_draft(
     if let Some(status) = req.status {
         survey_draft.status = status;
     }
+    survey_draft.updated_at = chrono::Utc::now().timestamp_millis();
     let _ = db.upsert(survey_draft).await;
     Ok(Json(draft_id))
 }
