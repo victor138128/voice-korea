@@ -33,6 +33,7 @@ pub struct EmailAuthenticationi18nProps {
     check_title: String,
     check_description: Vec<String>,
 
+    retry_send_authentication: String,
     incollect_email_form: String,
     not_matched_authentication: String,
     not_exists_email: String,
@@ -50,6 +51,7 @@ pub struct ResetNewPasswordi18nProps {
     invalid_password_pattern: String,
     failed_password_store_data: String,
     not_matched_password: String,
+    not_exists_user: String,
 }
 
 #[derive(PartialEq, Props, Clone)]
@@ -109,8 +111,9 @@ pub fn ResetPasswordPage(props: ResetPasswordPageProps) -> Element {
                         check_description: translates.check_description,
 
                         incollect_email_form: translates.incollect_email_form,
+                        retry_send_authentication: translates.retry_send_authentication,
                         not_matched_authentication: translates.not_matched_authentication,
-                        not_exists_email: "이메일이 존재하지 않습니다.".to_string(),
+                        not_exists_email: translates.not_exists_email,
                     }
                 }
             }
@@ -128,6 +131,7 @@ pub fn ResetPasswordPage(props: ResetPasswordPageProps) -> Element {
                         input_password_error: translates.input_password_error,
                         invalid_password_pattern: translates.invalid_password_pattern,
                         failed_password_store_data: translates.failed_password_store_data,
+                        not_exists_user: translates.not_exists_user,
                         not_matched_password: translates.not_matched_password
                     }
                 }
@@ -234,7 +238,7 @@ pub fn ResetNewPassword(props: ResetNewPasswordProps) -> Element {
                                     } else if ctrl.get_password_unknown_error() {
                                         div {
                                             class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
-                                            {props.i18n.failed_password_store_data},
+                                            {props.i18n.not_exists_user},
                                         }
                                     }
                                 },
@@ -440,6 +444,12 @@ pub fn EmailAuthentication(props: EmailAuthenticationProps) -> Element {
                                     div {
                                         class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
                                         {props.i18n.not_matched_authentication},
+                                    }
+                                }
+                                else if ctrl.get_unknown_error() {
+                                    div {
+                                        class: "mt-[10px] font-normal text-[#ff0000] text-[12px]",
+                                        {props.i18n.retry_send_authentication},
                                     }
                                 }
                             }

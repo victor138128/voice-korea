@@ -1,13 +1,14 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
+use dioxus_logger::tracing;
 use regex::Regex;
 
-use crate::api::{
-    aws::ses::send_email,
-    v1::users::{
-        reset::{reset_password, ResetPasswordRequest},
-        verify::{verify_email, VerifyEmailRequest},
+use crate::api::v1::{
+    auth::{
+        send_notification, verify_authentication, SendNotificationParams,
+        VerifyAuthenticationParams,
     },
+    users::reset::{reset_password, ResetRequest},
 };
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -16,6 +17,7 @@ pub struct Controller {
     name: Signal<String>,
     phone_number: Signal<String>,
     authentication_number: Signal<String>,
+    auth_key: Signal<String>,
     step: Signal<u64>,
     new_password: Signal<String>,
     new_password_check: Signal<String>,
@@ -37,6 +39,7 @@ impl Controller {
             name: use_signal(|| "".to_string()),
             phone_number: use_signal(|| "".to_string()),
             authentication_number: use_signal(|| "".to_string()),
+            auth_key: use_signal(|| "".to_string()),
             step: use_signal(|| 0),
             new_password: use_signal(|| "".to_string()),
             new_password_check: use_signal(|| "".to_string()),
@@ -69,6 +72,10 @@ impl Controller {
 
     pub fn get_authentication_number(&self) -> String {
         (self.authentication_number)()
+    }
+
+    pub fn get_auth_key(&self) -> String {
+        (self.auth_key)()
     }
 
     pub fn get_step(&self) -> u64 {
@@ -152,27 +159,38 @@ impl Controller {
         }
 
         self.email_address_error.set(false);
-        let _ = send_email(vec![self.get_email()]).await;
+        let res = send_notification(SendNotificationParams {
+            email: self.get_email(),
+        })
+        .await;
+
+        match res {
+            Ok(s) => {
+                self.auth_key.set(s);
+            }
+            Err(e) => {
+                tracing::error!("send email failed: {}", e);
+            }
+        }
     }
 
     pub async fn clicked_email_authentication(&mut self) {
-        let res = verify_email(VerifyEmailRequest {
-            email: self.get_email(),
-            verification_code: self.get_authentication_number(),
+        let res = verify_authentication(VerifyAuthenticationParams {
+            id: self.get_auth_key(),
+            value: self.get_authentication_number(),
         })
         .await;
 
         match res {
             Ok(_) => {
                 self.invalid_authkey_error.set(false);
+                self.unknown_error.set(false);
                 self.set_step(1);
             }
             Err(e) => match e {
                 ServerFnError::ServerError(v) => {
-                    if v == "Auth key is not exists" {
+                    if v.contains("does not match") {
                         self.invalid_authkey_error.set(true);
-                    } else if v == "Email is not exists" {
-                        self.not_exists_email_error.set(true);
                     } else {
                         self.unknown_error.set(true);
                     }
@@ -207,7 +225,9 @@ impl Controller {
             return;
         }
 
-        let res = reset_password(ResetPasswordRequest {
+        let res = reset_password(ResetRequest {
+            auth_id: self.get_auth_key(),
+            auth_value: self.get_authentication_number(),
             email: self.get_email(),
             password: self.get_new_password(),
         })
