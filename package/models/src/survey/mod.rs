@@ -266,6 +266,7 @@ pub struct CreateSurveyDto {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub enum SurveyDraftStatus {
     #[default]
+    Init,
     Title,
     Quotas,
     Question,
