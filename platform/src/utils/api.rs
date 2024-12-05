@@ -52,4 +52,8 @@ impl ReqwestClient {
         self.client
             .post(format!("{}{}", self.base_url.clone(), endpoint))
     }
+    pub fn patch(&self, endpoint: &str) -> RequestBuilder {
+        self.client
+            .patch(format!("{}{}", self.base_url.clone(), endpoint))
+    }
 }

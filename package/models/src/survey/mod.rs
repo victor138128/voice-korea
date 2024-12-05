@@ -236,7 +236,6 @@ pub struct CreateSurveyResponse {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ListSurveyDraftRequest {
-    pub page: Option<i32>,
     pub size: Option<i32>,
     pub bookmark: Option<String>,
 }
