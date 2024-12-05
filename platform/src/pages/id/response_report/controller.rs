@@ -127,7 +127,7 @@ impl Controller {
                                 color: "#a8c9e5",
                             },
                             PiChart {
-                                label: "기타",
+                                label: "대구",
                                 percentage: 0.2,
                                 color: "#e49343",
                             },
@@ -137,7 +137,7 @@ impl Controller {
                         label: "연령".to_string(),
                         chart_datas: vec![
                             PiChart {
-                                label: "20대",
+                                label: "18~29세",
                                 percentage: 0.6,
                                 color: "#5778a3",
                             },
@@ -233,7 +233,7 @@ impl Controller {
                             "2000만원 이하".to_string(),
                             "서울".to_string(),
                             "남성".to_string(),
-                            "20대".to_string(),
+                            "18~29세".to_string(),
                         ],
                     },
                     Response {
@@ -269,7 +269,7 @@ impl Controller {
                             "2000만원~4000만원".to_string(),
                             "서울".to_string(),
                             "남성".to_string(),
-                            "20대".to_string(),
+                            "18~29세".to_string(),
                         ],
                     },
                     Response {
@@ -279,7 +279,7 @@ impl Controller {
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
                             "8000만원 이상".to_string(),
-                            "기타".to_string(),
+                            "대구".to_string(),
                             "여성".to_string(),
                             "40대".to_string(),
                         ],
@@ -291,9 +291,9 @@ impl Controller {
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
                             "4000만원~6000만원".to_string(),
-                            "기타".to_string(),
+                            "대구".to_string(),
                             "남성".to_string(),
-                            "20대".to_string(),
+                            "18~29세".to_string(),
                         ],
                     },
                     Response {
@@ -317,7 +317,7 @@ impl Controller {
                             "8000만원 이상".to_string(),
                             "서울".to_string(),
                             "남성".to_string(),
-                            "20대".to_string(),
+                            "18~29세".to_string(),
                         ],
                     },
                     Response {
@@ -329,7 +329,7 @@ impl Controller {
                             "2000만원 이하".to_string(),
                             "서울".to_string(),
                             "남성".to_string(),
-                            "20대".to_string(),
+                            "18~29세".to_string(),
                         ],
                     },
                     Response {
@@ -341,7 +341,7 @@ impl Controller {
                             "2000만원 이하".to_string(),
                             "서울".to_string(),
                             "남성".to_string(),
-                            "20대".to_string(),
+                            "18~29세".to_string(),
                         ],
                     },
                 ]

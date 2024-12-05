@@ -16,7 +16,7 @@ use crate::{
 
 use chrono::{DateTime, Local, NaiveDate, Utc};
 
-use super::{Language, Route};
+use super::Language;
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
@@ -43,16 +43,13 @@ pub struct Controller {
     pub end_day: Signal<String>,
 
     pub initialize: Signal<bool>,
+    pub invalid_date: Signal<bool>,
 }
 
 impl Controller {
-    pub fn init(lang: Language, id: String) -> Self {
-        let navigator = use_navigator();
-        let email: String = use_login_service().get_email().clone();
-
-        if email.is_empty() {
-            navigator.push(Route::LoginPage { lang });
-        };
+    pub fn init(_lang: Language, id: String) -> Self {
+        let _navigator = use_navigator();
+        let email: String = "victor@biyard.co".to_string();
 
         let id_copy = id.clone();
 
@@ -91,6 +88,7 @@ impl Controller {
             end_day: use_signal(|| "".to_string()),
 
             initialize: use_signal(|| false),
+            invalid_date: use_signal(|| false),
         };
 
         if !(ctrl.initialize)() {
@@ -125,6 +123,11 @@ impl Controller {
         let (start_timestamp, end_timestamp) =
             self.date_to_timestamp(formatted_start_date, formatted_end_date);
 
+        if start_timestamp >= end_timestamp {
+            self.invalid_date.set(true);
+            return;
+        }
+
         let email: String = use_login_service().get_email().clone();
         let survey = self.get_survey();
 
@@ -158,6 +161,10 @@ impl Controller {
             }
             None => {}
         }
+    }
+
+    pub fn get_invalid_date(&self) -> bool {
+        (self.invalid_date)()
     }
 
     pub fn get_survey_status(&mut self) -> crate::models::survey::SurveyStatus {

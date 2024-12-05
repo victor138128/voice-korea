@@ -124,7 +124,7 @@ impl Controller {
                         value: 50,
                     },
                     PanelGroup {
-                        region: "기타".to_string(),
+                        region: "서울".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
                         payload: "2000만원 이하".to_string(),
@@ -159,7 +159,7 @@ impl Controller {
                         payload: "2000만원 이하".to_string(),
                     },
                     Panel {
-                        region: "기타".to_string(),
+                        region: "부산".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
                         payload: "2000만원 이하".to_string(),
@@ -172,14 +172,15 @@ impl Controller {
                         id: 0,
                         name: "연령".to_string(),
                         value: vec![
-                            "10대".to_string(),
-                            "20대".to_string(),
+                            "17세 이하".to_string(),
+                            "18~29세".to_string(),
                             "30대".to_string(),
                             "40대".to_string(),
                             "50대".to_string(),
-                            "60대 이상".to_string(),
+                            "60대".to_string(),
+                            "70대 이상".to_string(),
                         ],
-                        initial_value: "10대".to_string(),
+                        initial_value: "17세 이하".to_string(),
                         is_stored: false,
                         is_search: false,
                         is_selected: false,
@@ -187,7 +188,7 @@ impl Controller {
                     SelectAttribute {
                         id: 1,
                         name: "성별".to_string(),
-                        value: vec!["남성".to_string(), "여성".to_string(), "중성".to_string()],
+                        value: vec!["남성".to_string(), "여성".to_string()],
                         initial_value: "남성".to_string(),
                         is_stored: false,
                         is_search: false,
@@ -211,7 +212,25 @@ impl Controller {
                     SelectAttribute {
                         id: 3,
                         name: "지역".to_string(),
-                        value: vec!["서울".to_string(), "부산".to_string(), "기타".to_string()],
+                        value: vec![
+                            "서울".to_string(),
+                            "부산".to_string(),
+                            "대구".to_string(),
+                            "인천".to_string(),
+                            "광주".to_string(),
+                            "대전".to_string(),
+                            "울산".to_string(),
+                            "세종".to_string(),
+                            "경기".to_string(),
+                            "강원".to_string(),
+                            "충북".to_string(),
+                            "충남".to_string(),
+                            "전북".to_string(),
+                            "전남".to_string(),
+                            "경북".to_string(),
+                            "경남".to_string(),
+                            "제주".to_string(),
+                        ],
                         initial_value: "서울".to_string(),
                         is_stored: false,
                         is_search: false,
@@ -362,8 +381,36 @@ impl Controller {
                     Some(02)
                 } else if region == "부산" {
                     Some(051)
+                } else if region == "대구" {
+                    Some(053)
+                } else if region == "인천" {
+                    Some(032)
+                } else if region == "광주" {
+                    Some(062)
+                } else if region == "대전" {
+                    Some(042)
+                } else if region == "울산" {
+                    Some(052)
+                } else if region == "세종" {
+                    Some(044)
+                } else if region == "경기" {
+                    Some(031)
+                } else if region == "강원" {
+                    Some(033)
+                } else if region == "충북" {
+                    Some(043)
+                } else if region == "충남" {
+                    Some(041)
+                } else if region == "전북" {
+                    Some(063)
+                } else if region == "전남" {
+                    Some(061)
+                } else if region == "경북" {
+                    Some(054)
+                } else if region == "경남" {
+                    Some(055)
                 } else {
-                    Some(00)
+                    Some(064)
                 };
 
                 let gender_value: Option<crate::models::survey::Gender> = if gender == "남성" {
@@ -374,14 +421,14 @@ impl Controller {
                     Some(crate::models::survey::Gender::Others)
                 };
 
-                let age_value: Option<crate::models::survey::Age> = if age == "10대" {
+                let age_value: Option<crate::models::survey::Age> = if age == "17세 이하" {
                     Some(crate::models::survey::Age::Range {
-                        inclusive_min: 10,
-                        inclusive_max: 19,
+                        inclusive_min: 0,
+                        inclusive_max: 17,
                     })
-                } else if age == "20대" {
+                } else if age == "18~29세" {
                     Some(crate::models::survey::Age::Range {
-                        inclusive_min: 20,
+                        inclusive_min: 18,
                         inclusive_max: 29,
                     })
                 } else if age == "30대" {
@@ -399,10 +446,15 @@ impl Controller {
                         inclusive_min: 50,
                         inclusive_max: 59,
                     })
-                } else {
+                } else if age == "60대" {
                     Some(crate::models::survey::Age::Range {
                         inclusive_min: 60,
-                        inclusive_max: 150,
+                        inclusive_max: 69,
+                    })
+                } else {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 70,
+                        inclusive_max: 200,
                     })
                 };
 
@@ -460,8 +512,36 @@ impl Controller {
                     Some(02)
                 } else if group.region == "부산" {
                     Some(051)
+                } else if group.region == "대구" {
+                    Some(053)
+                } else if group.region == "인천" {
+                    Some(032)
+                } else if group.region == "광주" {
+                    Some(062)
+                } else if group.region == "대전" {
+                    Some(042)
+                } else if group.region == "울산" {
+                    Some(052)
+                } else if group.region == "세종" {
+                    Some(044)
+                } else if group.region == "경기" {
+                    Some(031)
+                } else if group.region == "강원" {
+                    Some(033)
+                } else if group.region == "충북" {
+                    Some(043)
+                } else if group.region == "충남" {
+                    Some(041)
+                } else if group.region == "전북" {
+                    Some(063)
+                } else if group.region == "전남" {
+                    Some(061)
+                } else if group.region == "경북" {
+                    Some(054)
+                } else if group.region == "경남" {
+                    Some(055)
                 } else {
-                    Some(00)
+                    Some(064)
                 };
 
                 let gender: Option<crate::models::survey::Gender> = if group.gender == "남성" {
@@ -472,14 +552,14 @@ impl Controller {
                     Some(crate::models::survey::Gender::Others)
                 };
 
-                let age: Option<crate::models::survey::Age> = if group.age == "10대" {
+                let age: Option<crate::models::survey::Age> = if group.age == "17세 이하" {
                     Some(crate::models::survey::Age::Range {
-                        inclusive_min: 10,
-                        inclusive_max: 19,
+                        inclusive_min: 0,
+                        inclusive_max: 17,
                     })
-                } else if group.age == "20대" {
+                } else if group.age == "18~29세" {
                     Some(crate::models::survey::Age::Range {
-                        inclusive_min: 20,
+                        inclusive_min: 18,
                         inclusive_max: 29,
                     })
                 } else if group.age == "30대" {
@@ -497,10 +577,15 @@ impl Controller {
                         inclusive_min: 50,
                         inclusive_max: 59,
                     })
-                } else {
+                } else if group.age == "60대" {
                     Some(crate::models::survey::Age::Range {
                         inclusive_min: 60,
-                        inclusive_max: 150,
+                        inclusive_max: 69,
+                    })
+                } else {
+                    Some(crate::models::survey::Age::Range {
+                        inclusive_min: 70,
+                        inclusive_max: 200,
                     })
                 };
 
