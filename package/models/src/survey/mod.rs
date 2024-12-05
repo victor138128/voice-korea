@@ -191,6 +191,9 @@ pub struct SurveySummary {
     participated: bool,
     #[serde(rename = "estimatedMinutes")]
     pub estimated_minutes: u32,
+    //FIXME: remove serde(default)
+    #[serde(default)]
+    pub updated_at: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
@@ -199,6 +202,7 @@ pub struct SurveyDocument {
     pub r#type: String,
     pub gsi1: String,
     pub created_at: i64,
+    pub updated_at: i64,
     pub status: SurveyDraftStatus,
 
     pub title: String,
@@ -212,6 +216,7 @@ impl SurveyDocument {
         survey.id = id;
         survey.r#type = SurveyDocument::get_type();
         survey.created_at = chrono::Utc::now().timestamp_millis();
+        survey.updated_at = chrono::Utc::now().timestamp_millis();
         survey
     }
     pub fn gsi1(id: String) -> String {
