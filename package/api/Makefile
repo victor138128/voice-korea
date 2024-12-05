@@ -8,8 +8,7 @@ ifeq ("$(ENV)","prod")
 endif
 
 ifeq ("$(ENV)","local")
-	NONCE_LAB_API_TOKEN ?= eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInR5cGUiOiJ2ZW5kb3IiLCJpYXQiOjE3MzI1NDg2NDN9.R5CCPQx8UHDjHWqp4abpBYd2372-iF7btJvap6V4iTA5HvFZgEMjhichDn4ZKXKrR_cJmeyAnYhZpFqfmpME0w
-	LOG_LEVEL ?= error
+	LOG_LEVEL ?= debug
 endif
 
 NONCE_LAB_API_ENDPOINT = "http://15.165.76.144:7878"
