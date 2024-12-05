@@ -1,36 +1,24 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
+use models::prelude::{Survey, SurveyDraftStatus, UpsertSurveyDraftRequest};
 
 use crate::{
-    api::v1::surveys::{
-        upsert_survey::{upsert_survey, SurveyUpdateItem},
-        GetSurveyResponse,
-    },
+    api::v2::survey::{get_survey_draft, upsert_survey_draft},
     models::survey::StatusType,
-    service::login_service::use_login_service,
 };
-
-use super::{Language, Route};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
-    survey: Signal<GetSurveyResponse>,
+    survey: Signal<Survey>,
     pub survey_title: Signal<String>,
     pub survey_id: Signal<String>,
 }
 
 impl Controller {
-    pub fn init(lang: Language, id: String) -> Self {
-        let navigator = use_navigator();
-        let email: String = use_login_service().get_email().clone();
-
-        if email.is_empty() {
-            navigator.push(Route::LoginPage { lang });
-        };
-
+    pub fn init(id: String) -> Self {
         let mut ctrl = Self {
-            survey: use_signal(|| GetSurveyResponse::default()),
+            survey: use_signal(|| Survey::default()),
             survey_title: use_signal(|| "".to_string()),
             survey_id: use_signal(|| "".to_string()),
         };
@@ -39,21 +27,21 @@ impl Controller {
 
         let _ = use_effect(move || {
             let id_value = id.clone();
-            let email_value = email.clone();
             spawn(async move {
-                let res = async move {
-                    crate::utils::api::get::<GetSurveyResponse>(&format!(
-                        "/v1/email/{}/surveys/{}",
-                        email_value, id_value
-                    ))
-                    .await
+                let _ = async move {
+                    match get_survey_draft(id_value).await {
+                        Ok(res) => {
+                            tracing::debug!("survey title: {}", res.clone().title.clone());
+
+                            ctrl.survey_title.set(res.clone().title.clone());
+                            ctrl.survey.set(res);
+                        }
+                        Err(e) => {
+                            tracing::error!("Error: {:?}", e);
+                        }
+                    }
                 }
                 .await;
-
-                tracing::debug!("survey title: {}", res.clone().survey.title);
-
-                ctrl.survey_title.set(res.clone().survey.title);
-                ctrl.survey.set(res)
             });
         });
 
@@ -61,10 +49,6 @@ impl Controller {
 
         ctrl
     }
-
-    // pub fn get_survey(&self) -> GetSurveyResponse {
-    //     (self.survey)()
-    // }
 
     pub fn get_survey_title(&self) -> String {
         (self.survey_title)()
@@ -80,13 +64,25 @@ impl Controller {
 
     pub async fn write_survey_title(&mut self, status: StatusType, title: String) {
         tracing::info!("write survey title button clicked {title}");
-        let email = use_login_service().get_email().clone();
-        let _ = upsert_survey(
-            email,
-            self.get_survey_id(),
-            status,
-            SurveyUpdateItem::Title(title),
-        )
-        .await;
+
+        if status == StatusType::TemporarySave {
+            let _ = upsert_survey_draft(UpsertSurveyDraftRequest {
+                id: Some(self.get_survey_id()),
+                status: Some(SurveyDraftStatus::Title),
+                title: Some(title.clone()),
+                quotas: None,
+                questions: None,
+            })
+            .await;
+        } else {
+            let _ = upsert_survey_draft(UpsertSurveyDraftRequest {
+                id: Some(self.get_survey_id()),
+                status: Some(SurveyDraftStatus::Question),
+                title: Some(title.clone()),
+                quotas: None,
+                questions: None,
+            })
+            .await;
+        }
     }
 }

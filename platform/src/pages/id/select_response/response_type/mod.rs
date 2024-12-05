@@ -20,7 +20,7 @@ pub mod component {
 
 #[component]
 pub fn SelectResponseDetailPage(props: SelectResponseDetailProps) -> Element {
-    let ctrl = controller::Controller::init(props.lang.clone(), props.survey_id.clone());
+    let ctrl = controller::Controller::init(props.survey_id.clone());
     let translates = i18n::translate(props.lang.clone());
 
     rsx! {

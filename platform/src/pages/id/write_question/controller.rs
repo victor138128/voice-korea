@@ -1,17 +1,16 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
-
-use crate::{
-    api::v1::surveys::{
-        upsert_survey::{upsert_survey, SurveyUpdateItem},
-        GetSurveyResponse,
-    },
-    models::{question::QuestionType, survey::StatusType},
-    service::login_service::use_login_service,
+use models::prelude::{
+    SurveyDraftStatus, SurveyQuestion, SurveyQuestionType, UpsertSurveyDraftRequest,
 };
 
-use super::{Language, Route};
+use crate::{
+    api::v2::survey::{get_survey_draft, upsert_survey_draft},
+    models::survey::StatusType,
+};
+
+use super::Language;
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub enum QuestionStep {
@@ -22,7 +21,7 @@ pub enum QuestionStep {
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
     step: Signal<QuestionStep>,
-    pub survey_response: Resource<GetSurveyResponse>,
+    pub survey_response: Resource<models::prelude::Survey>,
     question_types: Signal<Vec<QuestionOption>>,
     question_title: Signal<String>,
     selected_question_types: Signal<u64>,
@@ -30,6 +29,8 @@ pub struct Controller {
     deleted_key_list: Signal<Vec<usize>>,
     update_key: Signal<usize>,
     update_button_clicked: Signal<bool>,
+
+    survey_id: Signal<String>,
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -45,27 +46,17 @@ pub struct ObjectiveQuestionOption {
 }
 
 impl Controller {
-    pub fn init(lang: Language, id: String) -> Self {
-        let navigator = use_navigator();
-        let email: String = use_login_service().get_email().clone();
-
-        if email.is_empty() {
-            navigator.push(Route::LoginPage { lang });
-        };
-
-        let survey_response = use_resource(move || {
+    pub fn init(_lang: Language, id: String) -> Self {
+        let id_copy = id.clone();
+        let survey_response: Resource<models::prelude::Survey> = use_resource(move || {
             let id_value = id.clone();
-            let email_value = email.clone();
             async move {
-                crate::utils::api::get::<GetSurveyResponse>(&format!(
-                    "/v1/email/{}/surveys/{}",
-                    email_value, id_value
-                ))
-                .await
+                let survey = get_survey_draft(id_value).await;
+                survey.unwrap_or_default()
             }
         });
 
-        let ctrl = Self {
+        let mut ctrl = Self {
             step: use_signal(|| QuestionStep::List),
             survey_response,
             question_title: use_signal(|| "".to_string()),
@@ -101,9 +92,16 @@ impl Controller {
             deleted_key_list: use_signal(|| vec![]),
             update_key: use_signal(|| 0),
             update_button_clicked: use_signal(|| false),
+            survey_id: use_signal(|| "".to_string()),
         };
 
+        ctrl.survey_id.set(id_copy);
+
         ctrl
+    }
+
+    pub fn get_survey_id(&self) -> String {
+        (self.survey_id)()
     }
 
     pub fn clear_data(&mut self) {
@@ -143,10 +141,10 @@ impl Controller {
         (self.selected_question_types)()
     }
 
-    pub fn get_survey(&mut self) -> GetSurveyResponse {
+    pub fn get_survey(&mut self) -> models::prelude::Survey {
         match (self.survey_response.value())() {
             Some(value) => value,
-            None => GetSurveyResponse::default(),
+            None => models::prelude::Survey::default(),
         }
     }
 
@@ -199,16 +197,15 @@ impl Controller {
         self.objective_questions.set(objectives);
     }
 
-    pub async fn write_question(&mut self, status: StatusType) {
+    pub async fn write_question(&mut self, _status: StatusType) {
         let selected_question_type = self.get_selected_question();
         let question_title = self.get_question_title();
-        let email: String = use_login_service().get_email().clone();
-        let survey = self.get_survey();
+
+        let mut questions = self.get_survey().questions;
 
         if (self.update_button_clicked)() {
-            let questions = self.get_survey().questions;
             let question = questions.get((self.update_key)()).unwrap();
-            if selected_question_type == 0 {
+            let survey_question: SurveyQuestion = if selected_question_type == 0 {
                 //객관식
                 let object_options = self.get_objective_questions();
                 let mut options: Vec<String> = vec![];
@@ -216,49 +213,39 @@ impl Controller {
                 for d in object_options {
                     options.push(d.text_value);
                 }
-                let _ = upsert_survey(
-                    email,
-                    survey.survey.id,
-                    status,
-                    SurveyUpdateItem::UpdateQuestion {
-                        id: question.id.clone(),
-                        title: Some(survey.survey.title),
-                        question: Some(QuestionType::SingleChoice {
-                            question: Some(question_title),
-                            options,
-                        }),
-                    },
-                )
-                .await;
+
+                SurveyQuestion {
+                    question_id: question.question_id,
+                    title: question_title,
+                    description: question.description.clone(),
+                    answer_type: SurveyQuestionType::SingleChoice,
+                    options: Some(options),
+                }
             } else if selected_question_type == 1 {
                 //단답형
-                let _ = upsert_survey(
-                    email,
-                    survey.survey.id,
-                    status,
-                    SurveyUpdateItem::UpdateQuestion {
-                        id: question.id.clone(),
-                        title: Some(survey.survey.title),
-                        question: Some(QuestionType::Text(Some(question_title))),
-                    },
-                )
-                .await;
+                SurveyQuestion {
+                    question_id: question.question_id,
+                    title: question_title,
+                    description: question.description.clone(),
+                    answer_type: SurveyQuestionType::ShortAnswer,
+                    options: None,
+                }
             } else {
                 //서술형
-                let _ = upsert_survey(
-                    email,
-                    survey.survey.id,
-                    status,
-                    SurveyUpdateItem::UpdateQuestion {
-                        id: question.id.clone(),
-                        title: Some(survey.survey.title),
-                        question: Some(QuestionType::LongText(Some(question_title))),
-                    },
-                )
-                .await;
-            }
+                SurveyQuestion {
+                    question_id: question.question_id,
+                    title: question_title,
+                    description: question.description.clone(),
+                    answer_type: SurveyQuestionType::LongAnswer,
+                    options: None,
+                }
+            };
+
+            questions[(self.update_key)()] = survey_question;
+
+            tracing::debug!("questions title: {}", questions[(self.update_key)()].title);
         } else {
-            if selected_question_type == 0 {
+            let survey_question: SurveyQuestion = if selected_question_type == 0 {
                 //객관식
                 let object_options = self.get_objective_questions();
                 let mut options: Vec<String> = vec![];
@@ -266,45 +253,44 @@ impl Controller {
                 for d in object_options {
                     options.push(d.text_value);
                 }
-                let _ = upsert_survey(
-                    email,
-                    survey.survey.id,
-                    status,
-                    SurveyUpdateItem::AddQuestion {
-                        title: survey.survey.title,
-                        question: QuestionType::SingleChoice {
-                            question: Some(question_title),
-                            options,
-                        },
-                    },
-                )
-                .await;
+                SurveyQuestion {
+                    question_id: None,
+                    title: question_title,
+                    description: None,
+                    answer_type: SurveyQuestionType::SingleChoice,
+                    options: Some(options),
+                }
             } else if selected_question_type == 1 {
                 //단답형
-                let _ = upsert_survey(
-                    email,
-                    survey.survey.id,
-                    status,
-                    SurveyUpdateItem::AddQuestion {
-                        title: survey.survey.title,
-                        question: QuestionType::Text(Some(question_title)),
-                    },
-                )
-                .await;
+                SurveyQuestion {
+                    question_id: None,
+                    title: question_title,
+                    description: None,
+                    answer_type: SurveyQuestionType::ShortAnswer,
+                    options: None,
+                }
             } else {
                 //서술형
-                let _ = upsert_survey(
-                    email,
-                    survey.survey.id,
-                    status,
-                    SurveyUpdateItem::AddQuestion {
-                        title: survey.survey.title,
-                        question: QuestionType::LongText(Some(question_title)),
-                    },
-                )
-                .await;
-            }
-        }
+                SurveyQuestion {
+                    question_id: None,
+                    title: question_title,
+                    description: None,
+                    answer_type: SurveyQuestionType::LongAnswer,
+                    options: None,
+                }
+            };
+
+            questions.push(survey_question);
+        };
+
+        let _ = upsert_survey_draft(UpsertSurveyDraftRequest {
+            id: Some(self.get_survey_id()),
+            status: Some(SurveyDraftStatus::Question),
+            title: None,
+            quotas: None,
+            questions: Some(questions),
+        })
+        .await;
     }
 
     pub async fn remove_question(&mut self, index: usize) {
@@ -322,15 +308,11 @@ impl Controller {
         let questions = self.get_survey().questions;
         let question = questions.get(index);
 
-        let question_title = question.unwrap().question.clone();
+        let question_title = question.unwrap().title.clone();
         let options = question.unwrap().options.clone();
+        self.question_title.set(question_title.clone());
 
-        let gsi2: Vec<&str> = question.unwrap().gsi2.split("#").collect();
-        let survey_type = gsi2[3];
-
-        if survey_type == "single-choice" {
-            self.question_title.set(question_title.clone());
-
+        if question.unwrap().answer_type == SurveyQuestionType::SingleChoice {
             let mut os: Vec<ObjectiveQuestionOption> = vec![];
 
             for (i, d) in options.unwrap().iter().enumerate() {
@@ -342,11 +324,9 @@ impl Controller {
 
             self.objective_questions.set(os);
             self.selected_question_types.set(0);
-        } else if survey_type == "text" {
-            self.question_title.set(question_title.clone());
+        } else if question.unwrap().answer_type == SurveyQuestionType::ShortAnswer {
             self.selected_question_types.set(1);
         } else {
-            self.question_title.set(question_title.clone());
             self.selected_question_types.set(2);
         }
     }
@@ -355,60 +335,60 @@ impl Controller {
         let keys = (self.deleted_key_list)();
         let questions = self.get_survey().questions;
 
-        let email: String = use_login_service().get_email().clone();
-        let survey = self.get_survey();
+        let mut unremoved_questions = vec![];
 
-        for i in keys {
-            let question = questions.get(i);
+        for (i, d) in questions.iter().enumerate() {
+            if keys.contains(&i) {
+                continue;
+            }
 
-            let _ = upsert_survey(
-                email.clone(),
-                survey.survey.id.clone(),
-                StatusType::TemporarySave,
-                SurveyUpdateItem::RemoveQuestion(question.unwrap().id.clone()),
-            )
-            .await;
+            unremoved_questions.push(d.clone());
         }
+
+        let _ = upsert_survey_draft(UpsertSurveyDraftRequest {
+            id: Some(self.get_survey_id()),
+            status: Some(SurveyDraftStatus::Question),
+            title: None,
+            quotas: None,
+            questions: Some(unremoved_questions),
+        })
+        .await;
+
+        self.deleted_key_list.set(vec![]);
     }
 
     pub async fn clicked_save(&mut self) {
         let keys = (self.deleted_key_list)();
         let questions = self.get_survey().questions;
 
-        let email: String = use_login_service().get_email().clone();
-        let survey = self.get_survey();
+        let mut unremoved_questions = vec![];
 
-        for i in keys.clone() {
-            let question = questions.get(i);
+        for (i, d) in questions.iter().enumerate() {
+            if keys.contains(&i) {
+                continue;
+            }
 
-            let _ = upsert_survey(
-                email.clone(),
-                survey.survey.id.clone(),
-                StatusType::TemporarySave,
-                SurveyUpdateItem::RemoveQuestion(question.unwrap().id.clone()),
-            )
-            .await;
+            unremoved_questions.push(d.clone());
         }
 
-        let _ = upsert_survey(
-            email.clone(),
-            survey.survey.id.clone(),
-            StatusType::Save,
-            SurveyUpdateItem::RemoveQuestion("".to_string()),
-        )
+        let _ = upsert_survey_draft(UpsertSurveyDraftRequest {
+            id: Some(self.get_survey_id()),
+            status: Some(SurveyDraftStatus::Quotas),
+            title: None,
+            quotas: None,
+            questions: Some(unremoved_questions),
+        })
         .await;
     }
 
     pub async fn clicked_back(&mut self) {
-        let email: String = use_login_service().get_email().clone();
-        let survey = self.get_survey();
-
-        let _ = upsert_survey(
-            email.clone(),
-            survey.survey.id.clone(),
-            StatusType::Back,
-            SurveyUpdateItem::RemoveQuestion("".to_string()),
-        )
+        let _ = upsert_survey_draft(UpsertSurveyDraftRequest {
+            id: Some(self.get_survey_id()),
+            status: Some(SurveyDraftStatus::Title),
+            title: None,
+            quotas: None,
+            questions: None,
+        })
         .await;
     }
 }

@@ -163,10 +163,6 @@ impl Controller {
         }
     }
 
-    pub fn get_invalid_date(&self) -> bool {
-        (self.invalid_date)()
-    }
-
     pub fn get_survey_status(&mut self) -> crate::models::survey::SurveyStatus {
         let survey: crate::models::survey::SurveyStatus = self.get_survey().survey.status;
 

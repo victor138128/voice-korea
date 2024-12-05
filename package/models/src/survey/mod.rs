@@ -41,6 +41,18 @@ pub enum SurveyStatus {
     Finished,
 }
 
+impl fmt::Display for SurveyStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            SurveyStatus::Draft => write!(f, "draft"),
+            SurveyStatus::InProgress {} => {
+                write!(f, "in_progress")
+            }
+            SurveyStatus::Finished {} => write!(f, "finished"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SurveyQuestion {
     #[serde(rename = "id")]

@@ -1,12 +1,8 @@
 #![allow(non_snake_case)]
-use crate::api::v1::surveys::upsert_survey::{upsert_survey, SurveyUpdateItem};
+use crate::api::v2::survey::get_survey_draft;
 use std::collections::HashMap;
 
 use dioxus::prelude::*;
-
-use crate::{api::v1::surveys::GetSurveyResponse, service::login_service::use_login_service};
-
-use super::Language;
 
 //FIXME: move to model file
 #[derive(Debug, Clone, PartialEq)]
@@ -42,7 +38,7 @@ pub struct SelectAttribute {
 pub struct Controller {
     response_count: Signal<String>,
     pub bar_index: Signal<usize>,
-    survey_response: Resource<GetSurveyResponse>,
+    survey_response: Resource<models::prelude::Survey>,
     panel_groups: Signal<Vec<PanelGroup>>,
     panels: Signal<Vec<Panel>>,
     select_panel_groups: Signal<Vec<u64>>,
@@ -75,18 +71,12 @@ pub enum Step {
 }
 
 impl Controller {
-    pub fn init(_lang: Language, id: String) -> Self {
-        let email: String = "victor@biyard.co".to_string();
-
-        let survey_response = use_resource(move || {
+    pub fn init(id: String) -> Self {
+        let survey_response: Resource<models::prelude::Survey> = use_resource(move || {
             let id_value = id.clone();
-            let email_value = email.clone();
             async move {
-                crate::utils::api::get::<GetSurveyResponse>(&format!(
-                    "/v1/email/{}/surveys/{}",
-                    email_value, id_value
-                ))
-                .await
+                let survey = get_survey_draft(id_value).await;
+                survey.unwrap_or_default()
             }
         });
 
@@ -336,8 +326,7 @@ impl Controller {
     }
 
     pub async fn clicked_panel_save_button(&mut self, select_type: String) {
-        let email: String = use_login_service().get_email().clone();
-        let survey = self.get_survey();
+        // let survey = self.get_survey();
         if select_type != "attribute".to_string() {
             let panels = (self.panels)();
             let mut map: HashMap<(String, String, String, String), u32> = HashMap::new();
@@ -362,263 +351,263 @@ impl Controller {
 
             let keys: Vec<_> = map.keys().collect();
 
-            for (ind, key) in keys.iter().enumerate() {
-                let (payload, region, gender, age) = (*key).clone();
+            for (ind, _key) in keys.iter().enumerate() {
+                // let (payload, region, gender, age) = (*key).clone();
 
-                let salary_tier: Option<u16> = if payload == "2000만원 이하" {
-                    Some(1)
-                } else if payload == "2000만원~4000만원" {
-                    Some(2)
-                } else if payload == "4000만원~6000만원" {
-                    Some(3)
-                } else if payload == "6000만원~8000만원" {
-                    Some(4)
-                } else {
-                    Some(5)
-                };
+                // let salary_tier: Option<u16> = if payload == "2000만원 이하" {
+                //     Some(1)
+                // } else if payload == "2000만원~4000만원" {
+                //     Some(2)
+                // } else if payload == "4000만원~6000만원" {
+                //     Some(3)
+                // } else if payload == "6000만원~8000만원" {
+                //     Some(4)
+                // } else {
+                //     Some(5)
+                // };
 
-                let region_code: Option<u16> = if region == "서울" {
-                    Some(02)
-                } else if region == "부산" {
-                    Some(051)
-                } else if region == "대구" {
-                    Some(053)
-                } else if region == "인천" {
-                    Some(032)
-                } else if region == "광주" {
-                    Some(062)
-                } else if region == "대전" {
-                    Some(042)
-                } else if region == "울산" {
-                    Some(052)
-                } else if region == "세종" {
-                    Some(044)
-                } else if region == "경기" {
-                    Some(031)
-                } else if region == "강원" {
-                    Some(033)
-                } else if region == "충북" {
-                    Some(043)
-                } else if region == "충남" {
-                    Some(041)
-                } else if region == "전북" {
-                    Some(063)
-                } else if region == "전남" {
-                    Some(061)
-                } else if region == "경북" {
-                    Some(054)
-                } else if region == "경남" {
-                    Some(055)
-                } else {
-                    Some(064)
-                };
+                // let region_code: Option<u16> = if region == "서울" {
+                //     Some(02)
+                // } else if region == "부산" {
+                //     Some(051)
+                // } else if region == "대구" {
+                //     Some(053)
+                // } else if region == "인천" {
+                //     Some(032)
+                // } else if region == "광주" {
+                //     Some(062)
+                // } else if region == "대전" {
+                //     Some(042)
+                // } else if region == "울산" {
+                //     Some(052)
+                // } else if region == "세종" {
+                //     Some(044)
+                // } else if region == "경기" {
+                //     Some(031)
+                // } else if region == "강원" {
+                //     Some(033)
+                // } else if region == "충북" {
+                //     Some(043)
+                // } else if region == "충남" {
+                //     Some(041)
+                // } else if region == "전북" {
+                //     Some(063)
+                // } else if region == "전남" {
+                //     Some(061)
+                // } else if region == "경북" {
+                //     Some(054)
+                // } else if region == "경남" {
+                //     Some(055)
+                // } else {
+                //     Some(064)
+                // };
 
-                let gender_value: Option<crate::models::survey::Gender> = if gender == "남성" {
-                    Some(crate::models::survey::Gender::Male)
-                } else if gender == "여성" {
-                    Some(crate::models::survey::Gender::Female)
-                } else {
-                    Some(crate::models::survey::Gender::Others)
-                };
+                // let gender_value: Option<crate::models::survey::Gender> = if gender == "남성" {
+                //     Some(crate::models::survey::Gender::Male)
+                // } else if gender == "여성" {
+                //     Some(crate::models::survey::Gender::Female)
+                // } else {
+                //     Some(crate::models::survey::Gender::Others)
+                // };
 
-                let age_value: Option<crate::models::survey::Age> = if age == "17세 이하" {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 0,
-                        inclusive_max: 17,
-                    })
-                } else if age == "18~29세" {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 18,
-                        inclusive_max: 29,
-                    })
-                } else if age == "30대" {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 30,
-                        inclusive_max: 39,
-                    })
-                } else if age == "40대" {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 40,
-                        inclusive_max: 49,
-                    })
-                } else if age == "50대" {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 50,
-                        inclusive_max: 59,
-                    })
-                } else if age == "60대" {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 60,
-                        inclusive_max: 69,
-                    })
-                } else {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 70,
-                        inclusive_max: 200,
-                    })
-                };
+                // let age_value: Option<crate::models::survey::Age> = if age == "17세 이하" {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 0,
+                //         inclusive_max: 17,
+                //     })
+                // } else if age == "18~29세" {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 18,
+                //         inclusive_max: 29,
+                //     })
+                // } else if age == "30대" {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 30,
+                //         inclusive_max: 39,
+                //     })
+                // } else if age == "40대" {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 40,
+                //         inclusive_max: 49,
+                //     })
+                // } else if age == "50대" {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 50,
+                //         inclusive_max: 59,
+                //     })
+                // } else if age == "60대" {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 60,
+                //         inclusive_max: 69,
+                //     })
+                // } else {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 70,
+                //         inclusive_max: 200,
+                //     })
+                // };
 
-                let quota = map.get(&(payload, region, gender, age)).unwrap().clone();
+                // let quota = map.get(&(payload, region, gender, age)).unwrap().clone();
 
                 if keys.len() != if ind > 0 { ind - 1 } else { 0 } {
-                    let _ = upsert_survey(
-                        email.clone(),
-                        survey.survey.id.clone(),
-                        crate::models::survey::StatusType::TemporarySave,
-                        SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
-                            salary_tier,
-                            region_code,
-                            gender: gender_value,
-                            age: age_value,
-                            quota: quota as u64,
-                        }),
-                    )
-                    .await;
+                    // let _ = upsert_survey(
+                    //     email.clone(),
+                    //     survey.survey.id.clone(),
+                    //     crate::models::survey::StatusType::TemporarySave,
+                    //     SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
+                    //         salary_tier,
+                    //         region_code,
+                    //         gender: gender_value,
+                    //         age: age_value,
+                    //         quota: quota as u64,
+                    //     }),
+                    // )
+                    // .await;
                 } else {
-                    let _ = upsert_survey(
-                        email.clone(),
-                        survey.survey.id.clone(),
-                        crate::models::survey::StatusType::Save,
-                        SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
-                            salary_tier,
-                            region_code,
-                            gender: gender_value,
-                            age: age_value,
-                            quota: quota as u64,
-                        }),
-                    )
-                    .await;
+                    // let _ = upsert_survey(
+                    //     email.clone(),
+                    //     survey.survey.id.clone(),
+                    //     crate::models::survey::StatusType::Save,
+                    //     SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
+                    //         salary_tier,
+                    //         region_code,
+                    //         gender: gender_value,
+                    //         age: age_value,
+                    //         quota: quota as u64,
+                    //     }),
+                    // )
+                    // .await;
                 }
             }
         } else {
-            let panel_groups = (self.panel_groups)();
+            // let panel_groups = (self.panel_groups)();
 
-            for (ind, i) in (self.select_panel_groups)().iter().enumerate() {
-                let group = panel_groups[*i as usize].clone();
+            for (ind, _i) in (self.select_panel_groups)().iter().enumerate() {
+                // let group = panel_groups[*i as usize].clone();
 
-                let salary_tier: Option<u16> = if group.payload == "2000만원 이하" {
-                    Some(1)
-                } else if group.payload == "2000만원~4000만원" {
-                    Some(2)
-                } else if group.payload == "4000만원~6000만원" {
-                    Some(3)
-                } else if group.payload == "6000만원~8000만원" {
-                    Some(4)
-                } else {
-                    Some(5)
-                };
+                // let salary_tier: Option<u16> = if group.payload == "2000만원 이하" {
+                //     Some(1)
+                // } else if group.payload == "2000만원~4000만원" {
+                //     Some(2)
+                // } else if group.payload == "4000만원~6000만원" {
+                //     Some(3)
+                // } else if group.payload == "6000만원~8000만원" {
+                //     Some(4)
+                // } else {
+                //     Some(5)
+                // };
 
-                let region_code: Option<u16> = if group.region == "서울" {
-                    Some(02)
-                } else if group.region == "부산" {
-                    Some(051)
-                } else if group.region == "대구" {
-                    Some(053)
-                } else if group.region == "인천" {
-                    Some(032)
-                } else if group.region == "광주" {
-                    Some(062)
-                } else if group.region == "대전" {
-                    Some(042)
-                } else if group.region == "울산" {
-                    Some(052)
-                } else if group.region == "세종" {
-                    Some(044)
-                } else if group.region == "경기" {
-                    Some(031)
-                } else if group.region == "강원" {
-                    Some(033)
-                } else if group.region == "충북" {
-                    Some(043)
-                } else if group.region == "충남" {
-                    Some(041)
-                } else if group.region == "전북" {
-                    Some(063)
-                } else if group.region == "전남" {
-                    Some(061)
-                } else if group.region == "경북" {
-                    Some(054)
-                } else if group.region == "경남" {
-                    Some(055)
-                } else {
-                    Some(064)
-                };
+                // let region_code: Option<u16> = if group.region == "서울" {
+                //     Some(02)
+                // } else if group.region == "부산" {
+                //     Some(051)
+                // } else if group.region == "대구" {
+                //     Some(053)
+                // } else if group.region == "인천" {
+                //     Some(032)
+                // } else if group.region == "광주" {
+                //     Some(062)
+                // } else if group.region == "대전" {
+                //     Some(042)
+                // } else if group.region == "울산" {
+                //     Some(052)
+                // } else if group.region == "세종" {
+                //     Some(044)
+                // } else if group.region == "경기" {
+                //     Some(031)
+                // } else if group.region == "강원" {
+                //     Some(033)
+                // } else if group.region == "충북" {
+                //     Some(043)
+                // } else if group.region == "충남" {
+                //     Some(041)
+                // } else if group.region == "전북" {
+                //     Some(063)
+                // } else if group.region == "전남" {
+                //     Some(061)
+                // } else if group.region == "경북" {
+                //     Some(054)
+                // } else if group.region == "경남" {
+                //     Some(055)
+                // } else {
+                //     Some(064)
+                // };
 
-                let gender: Option<crate::models::survey::Gender> = if group.gender == "남성" {
-                    Some(crate::models::survey::Gender::Male)
-                } else if group.gender == "여성" {
-                    Some(crate::models::survey::Gender::Female)
-                } else {
-                    Some(crate::models::survey::Gender::Others)
-                };
+                // let gender: Option<crate::models::survey::Gender> = if group.gender == "남성" {
+                //     Some(crate::models::survey::Gender::Male)
+                // } else if group.gender == "여성" {
+                //     Some(crate::models::survey::Gender::Female)
+                // } else {
+                //     Some(crate::models::survey::Gender::Others)
+                // };
 
-                let age: Option<crate::models::survey::Age> = if group.age == "17세 이하" {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 0,
-                        inclusive_max: 17,
-                    })
-                } else if group.age == "18~29세" {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 18,
-                        inclusive_max: 29,
-                    })
-                } else if group.age == "30대" {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 30,
-                        inclusive_max: 39,
-                    })
-                } else if group.age == "40대" {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 40,
-                        inclusive_max: 49,
-                    })
-                } else if group.age == "50대" {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 50,
-                        inclusive_max: 59,
-                    })
-                } else if group.age == "60대" {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 60,
-                        inclusive_max: 69,
-                    })
-                } else {
-                    Some(crate::models::survey::Age::Range {
-                        inclusive_min: 70,
-                        inclusive_max: 200,
-                    })
-                };
+                // let age: Option<crate::models::survey::Age> = if group.age == "17세 이하" {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 0,
+                //         inclusive_max: 17,
+                //     })
+                // } else if group.age == "18~29세" {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 18,
+                //         inclusive_max: 29,
+                //     })
+                // } else if group.age == "30대" {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 30,
+                //         inclusive_max: 39,
+                //     })
+                // } else if group.age == "40대" {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 40,
+                //         inclusive_max: 49,
+                //     })
+                // } else if group.age == "50대" {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 50,
+                //         inclusive_max: 59,
+                //     })
+                // } else if group.age == "60대" {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 60,
+                //         inclusive_max: 69,
+                //     })
+                // } else {
+                //     Some(crate::models::survey::Age::Range {
+                //         inclusive_min: 70,
+                //         inclusive_max: 200,
+                //     })
+                // };
 
-                let quota = group.value;
+                // let quota = group.value;
 
                 if (self.select_panel_groups)().len() != if ind > 0 { ind - 1 } else { 0 } {
-                    let _ = upsert_survey(
-                        email.clone(),
-                        survey.survey.id.clone(),
-                        crate::models::survey::StatusType::TemporarySave,
-                        SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
-                            salary_tier,
-                            region_code,
-                            gender,
-                            age,
-                            quota,
-                        }),
-                    )
-                    .await;
+                    // let _ = upsert_survey(
+                    //     email.clone(),
+                    //     survey.survey.id.clone(),
+                    //     crate::models::survey::StatusType::TemporarySave,
+                    //     SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
+                    //         salary_tier,
+                    //         region_code,
+                    //         gender,
+                    //         age,
+                    //         quota,
+                    //     }),
+                    // )
+                    // .await;
                 } else {
-                    let _ = upsert_survey(
-                        email.clone(),
-                        survey.survey.id.clone(),
-                        crate::models::survey::StatusType::Save,
-                        SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
-                            salary_tier,
-                            region_code,
-                            gender,
-                            age,
-                            quota,
-                        }),
-                    )
-                    .await;
+                    // let _ = upsert_survey(
+                    //     email.clone(),
+                    //     survey.id.clone(),
+                    //     crate::models::survey::StatusType::Save,
+                    //     SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
+                    //         salary_tier,
+                    //         region_code,
+                    //         gender,
+                    //         age,
+                    //         quota,
+                    //     }),
+                    // )
+                    // .await;
                 }
             }
         }
@@ -841,14 +830,14 @@ impl Controller {
 
     #[allow(dead_code)]
     pub fn get_title(&self) -> String {
-        self.get_survey().survey.title.clone()
+        self.get_survey().title.clone()
     }
 
     #[allow(dead_code)]
-    pub fn get_survey(&self) -> GetSurveyResponse {
+    pub fn get_survey(&self) -> models::prelude::Survey {
         match (self.survey_response.value())() {
             Some(value) => value,
-            None => GetSurveyResponse::default(),
+            None => models::prelude::Survey::default(),
         }
     }
 
