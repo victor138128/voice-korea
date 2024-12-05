@@ -6,6 +6,9 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum ApiError {
+    #[error("Not Found")]
+    NotFound,
+
     #[error("input error: {0}")]
     ValidationError(String),
 
@@ -37,11 +40,18 @@ pub enum ApiError {
 
     #[error("Reqwest Failed")]
     ReqwestFailed(String),
+
+    #[error("JSON serialize Failed")]
+    JSONSerdeError(String),
+
+    #[error("Survey Draft ({0}) Not Found ")]
+    SurveyNotFound(String),
 }
 
 impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
         let status_code = match &self {
+            ApiError::NotFound => StatusCode::NOT_FOUND,
             ApiError::ValidationError(_) => StatusCode::BAD_REQUEST,
             ApiError::DynamoCreateException(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::DynamoQueryException(_) => StatusCode::INTERNAL_SERVER_ERROR,
@@ -52,6 +62,8 @@ impl IntoResponse for ApiError {
             ApiError::DuplicateUser => StatusCode::CONFLICT,
             ApiError::ReqwestClientFailed(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::ReqwestFailed(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::JSONSerdeError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::SurveyNotFound(_) => StatusCode::NOT_FOUND,
         };
 
         let error_id = uuid::Uuid::new_v4();
