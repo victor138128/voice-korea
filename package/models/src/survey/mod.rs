@@ -1,15 +1,26 @@
 use core::fmt;
+use serde::{Deserialize, Deserializer, Serialize};
 
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-pub struct SurveySequenceModel {
-    pub id: String,
-    pub sequence: i64,
-}
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct Survey {
+    pub id: u32,
+    pub draft_id: Option<String>,
+    pub draft_status: Option<SurveyDraftStatus>,
     pub title: String,
+    pub description: Option<String>,
+    pub status: SurveyStatus,
+    #[serde(rename = "startedAt")]
+    pub created_at: String,
+    #[serde(rename = "endedAt")]
+    pub ended_at: String,
+    #[serde(rename = "rewardPoints")]
+    pub reward_points: u32,
+    #[serde(rename = "questionCount")]
+    pub question_count: u32,
+    participated: bool,
+    #[serde(rename = "estimatedMinutes")]
+    pub estimated_minutes: u32,
+    pub quotas: Vec<Quota>,
     pub questions: Vec<SurveyQuestion>,
 }
 
@@ -19,20 +30,38 @@ impl Survey {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub enum SurveyStatus {
+    #[default]
+    #[serde(rename = "draft")]
+    Draft,
+    #[serde(rename = "in_progress")]
+    InProgress,
+    #[serde(rename = "finished")]
+    Finished,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SurveyQuestion {
-    pub question_id: u64,
-    pub question_type: SurveyQuestionType,
-    pub question: String,
-    pub answers: Vec<String>,
+    #[serde(rename = "id")]
+    pub question_id: Option<u64>,
+    pub title: String,
+    pub description: Option<String>,
+    #[serde(rename = "answerType")]
+    pub answer_type: SurveyQuestionType,
+    pub options: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum SurveyQuestionType {
-    #[serde(rename = "multiple_choice")]
+    #[serde(rename = "MULTIPLE_CHOICE")]
     MultipleChoice,
-    #[serde(rename = "subjective")]
-    Subjective,
+    #[serde(rename = "SINGLE_CHOICE")]
+    SingleChoice,
+    #[serde(rename = "LONG_ANSWER")]
+    LongAnswer,
+    #[serde(rename = "SHORT_ANSWER")]
+    ShortAnswer,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
@@ -48,14 +77,6 @@ pub enum QuestionSequence {
     Summary,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
-pub enum StatusType {
-    #[default]
-    TemporarySave,
-    Save,
-    Back,
-}
-
 impl fmt::Display for QuestionSequence {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -67,68 +88,44 @@ impl fmt::Display for QuestionSequence {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct TotalSurveySummaries {
-    pub surveys: Vec<SurveySummary>,
-}
+// #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+// #[serde(rename_all = "snake_case")]
+// pub enum Quota {
+//     Attribute {
+//         // e.g. 1, 2, 3, 4, 5
+//         salary_tier: Option<SalaryTier>,
+//         // e.g. 02(Seoul), 051(Busan) and so on.
+//         region_code: Option<RegionCode>,
+//         gender: Option<Gender>,
+//         age: Option<Age>,
+//         quota: u64,
+//     },
+//     Panel(ProofId),
+// }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
-pub struct SurveySummary {
-    pub id: String,
-    pub status: SurveyStatus,
-    pub title: String,
-    pub updated_at: u64,
-    pub created_at: u64,
-    pub questions: u64,
-    pub responses: Option<u64>,
-    pub expected_responses: Option<u64>,
-    pub quotas: Option<Vec<Quota>>,
-    pub r#type: String,
-    // list surveys by account
-    pub gsi1: String,
-    // list surveys by status
-    pub gsi2: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum SurveyStatus {
-    #[default]
-    Draft,
-    InProgress {
-        started_at: u64,
-        ended_at: Option<u64>,
-    },
-    Finished,
-}
-
-impl fmt::Display for SurveyStatus {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            SurveyStatus::Draft => write!(f, "draft"),
-            SurveyStatus::InProgress {
-                started_at,
-                ended_at,
-            } => write!(f, "in_progress {started_at} {}", ended_at.unwrap_or(0)),
-            SurveyStatus::Finished => write!(f, "finished"),
-        }
-    }
+pub struct Quota {
+    attribute: Option<Attribute>,
+    panel: Option<Panel>,
+    quota: u64,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum Quota {
-    Attribute {
-        // e.g. 1, 2, 3, 4, 5
-        salary_tier: Option<SalaryTier>,
+pub struct Attribute {
+    // e.g. 1, 2, 3, 4, 5
+    salary_tier: Option<SalaryTier>,
+    // e.g. 02(Seoul), 051(Busan) and so on.
+    region_code: Option<RegionCode>,
+    gender: Option<Gender>,
+    age: Option<Age>,
+}
 
-        // e.g. 02(Seoul), 051(Busan) and so on.
-        region_code: Option<RegionCode>,
-        gender: Option<Gender>,
-        age: Option<Age>,
-        quota: u64,
-    },
-    Panel(ProofId),
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct Panel {
+    panel: Vec<ProofId>,
 }
 
 // SalaryTier means the annual salary range of the respondent.
@@ -141,13 +138,26 @@ pub type RegionCode = u16;
 
 pub type ProofId = String;
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
-#[serde(untagged)]
 pub enum Gender {
     Male,
     Female,
     Others,
+}
+
+impl<'de> Deserialize<'de> for Gender {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s: &str = Deserialize::deserialize(deserializer)?;
+        match s {
+            "남자" => Ok(Gender::Male),
+            "여자" => Ok(Gender::Female),
+            _ => Ok(Gender::Others),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
@@ -155,7 +165,112 @@ pub enum Gender {
 pub enum Age {
     Specific(u8),
     Range {
-        inclusive_min: u8,
-        inclusive_max: u8,
+        #[serde(rename = "inclusiveMin")]
+        inclusive_min: Option<u8>,
+        #[serde(rename = "inclusiveMax")]
+        inclusive_max: Option<u8>,
     },
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct SurveySummary {
+    pub id: u32,
+    pub draft_id: Option<String>,
+    pub draft_status: Option<SurveyDraftStatus>,
+    pub title: String,
+    pub description: Option<String>,
+    pub status: SurveyStatus,
+    #[serde(rename = "startedAt")]
+    pub started_at: String,
+    #[serde(rename = "endedAt")]
+    pub ended_at: String,
+    #[serde(rename = "rewardPoints")]
+    pub reward_points: u32,
+    #[serde(rename = "questionCount")]
+    pub question_count: u32,
+    participated: bool,
+    #[serde(rename = "estimatedMinutes")]
+    pub estimated_minutes: u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct SurveyDocument {
+    pub id: String,
+    pub r#type: String,
+    pub gsi1: String,
+    pub created_at: i64,
+    pub status: SurveyDraftStatus,
+
+    pub title: String,
+    pub quotas: Vec<Quota>,
+    pub questions: Vec<SurveyQuestion>,
+}
+impl SurveyDocument {
+    pub fn new(id: String) -> Self {
+        let mut survey = SurveyDocument::default();
+        survey.gsi1 = SurveyDocument::gsi1(id.clone());
+        survey.id = id;
+        survey.r#type = SurveyDocument::get_type();
+        survey.created_at = chrono::Utc::now().timestamp_millis();
+        survey
+    }
+    pub fn gsi1(id: String) -> String {
+        format!("{}/{}", Self::get_type(), id)
+    }
+    pub fn get_type() -> String {
+        "survey_draft".to_string()
+    }
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateSurveyRequest {
+    pub draft_id: String,
+    pub started_at: u64, //TIMESTAMP
+    pub ended_at: u64,   //TIMESTAMP
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateSurveyResponse {
+    pub survey_id: u32,
+    pub id: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ListSurveyDraftRequest {
+    pub size: Option<i32>,
+    pub bookmark: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ListSurveyDraftResponse {
+    pub bookmark: Option<String>,
+    pub survey: Vec<SurveySummary>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct CreateSurveyDto {
+    pub custom_id: String,
+    pub status: SurveyStatus,
+    pub started_at: u64,
+    pub ended_at: u64,
+    pub title: String,
+    pub quotas: Vec<Quota>,
+    pub questions: Vec<SurveyQuestion>,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub enum SurveyDraftStatus {
+    #[default]
+    Title,
+    Quotas,
+    Question,
+    Complete,
+}
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct UpsertSurveyDraftRequest {
+    pub id: Option<String>,
+    pub status: Option<SurveyDraftStatus>,
+    pub title: Option<String>,
+    pub quotas: Option<Vec<Quota>>,
+    pub questions: Option<Vec<SurveyQuestion>>,
 }
