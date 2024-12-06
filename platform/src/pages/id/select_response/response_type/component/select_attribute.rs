@@ -2,7 +2,6 @@
 use crate::{
     components::{
         alert::AlertModal,
-        checkbox::Checkbox,
         icons::{Add, Close, Search},
     },
     pages::id::select_response::response_type::controller::{
@@ -72,13 +71,13 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                         save: props.save.clone()
                     },
                     clicked_cancel_button: move |_e: MouseEvent| {
-                        ctrl.clicked_cancel_button();
+                        ctrl.clicked_attribute_modal_cancel_button();
                     },
                     clicked_add_button: move |_e: MouseEvent| {
                         ctrl.clicked_add_button();
                     },
                     clicked_save_button: move |_e: MouseEvent| {
-                        ctrl.clicked_save_button();
+                        ctrl.clicked_attribute_modal_save_button();
                     },
                     change_attribute_selected: move |(id, selected): (usize, bool)| {
                         ctrl.change_attribute_selected(id, selected);
@@ -228,7 +227,10 @@ pub fn SelectAttributePage(props: SelectAttributeProps) -> Element {
                                 div {
                                     class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#2168c3] text-white font-medium text-[20px] mr-[20px]",
                                     onclick: move |_| {
-                                        ctrl.change_step(controller::Step::Panel);
+                                        let survey_id_copy = props.survey_id.clone();
+                                        async move {
+                                            ctrl.clicked_save_button(props.lang, survey_id_copy.clone()).await;
+                                        }
                                     },
                                     {props.save.clone()}
                                 }
@@ -272,7 +274,7 @@ fn AttributeSettingModal(
                         }
                         div {
                             class: "text text-[22px] font-semibold text-black mb-[10px]",
-                            {format!("{} {}", label, translates.attribute_setting)}
+                            {format!("{} {}", label.clone(), translates.attribute_setting)}
                         }
                         div {
                             class: "mb-[30px]",
@@ -285,12 +287,12 @@ fn AttributeSettingModal(
                                     class: "flex flex-row w-full justify-start items-start mb-[20px]",
                                     div {
                                         class: "flex flex-row w-min h-min justify-center items-center pr-[20px]",
-                                        Checkbox {
-                                            id: format!("setting attribute {}", index),
-                                            onchange: move |_| {
-                                                change_attribute_setting_value.call(index);
-                                            },
-                                            checked: attribute.is_select,
+                                        input {
+                                            r#type: "radio",
+                                            name: label.clone(),
+                                            value: index,
+                                            checked: attribute.is_select, // 선택 여부
+                                            oninput: move |_| change_attribute_setting_value.call(index), // 선택 시 상태 변경
                                         },
                                     }
                                     div {

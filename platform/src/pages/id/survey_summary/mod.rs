@@ -8,6 +8,7 @@ use dioxus_logger::tracing;
 pub struct SurveySummaryProps {
     lang: Language,
     survey_id: String,
+    is_draft: bool,
 }
 
 pub struct QuestionModel {
@@ -25,7 +26,8 @@ use wasm_bindgen::prelude::*;
 #[component]
 pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
     let navigator = use_navigator();
-    let mut ctrl = controller::Controller::init(props.lang, props.survey_id.clone());
+    let mut ctrl =
+        controller::Controller::init(props.lang, props.survey_id.clone(), props.is_draft);
     let translates = i18n::translate(props.lang.clone());
     let survey_status = ctrl.get_survey_status();
 
@@ -42,7 +44,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                             div {
                                 class: "flex flex-row w-[250px] h-[55px] mt-[55px] rounded-[8px] bg-[#2168c3] justify-center items-center text-[21px] font-semibold text-white",
                                 onclick: move |_| async move {
-                                    ctrl.clicked_start_survey().await;
+                                    ctrl.clicked_start_survey(props.lang).await;
                                 },
                                 {translates.start_survey}
                             }
@@ -477,89 +479,120 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                                             class: "flex flex-row w-full h-[60px] justify-between items-center odd:bg-white even:bg-[#f9f9f9] px-[20px]",
                                             div {
                                                 class: "flex flex-row w-min justify-center items-center text-[20px] font-medium text-[#5e5e5e]",
-                                                div {
-                                                    class: "w-[70px]",
-                                                    if let Some(region) = attribute.region_code {
-                                                        if region == 051 {
-                                                            "부산"
-                                                        } else if region == 02 {
-                                                            "서울"
-                                                        } else {
-                                                            "기타"
+                                                if !attribute.region_code.is_none() {
+                                                    div {
+                                                        class: "w-[70px]",
+                                                        if let Some(region) = attribute.region_code {
+                                                            if region == 051 {
+                                                                "부산"
+                                                            } else if region == 02 {
+                                                                "서울"
+                                                            } else if region == 053 {
+                                                                "대구"
+                                                            } else if region == 032 {
+                                                                "인천"
+                                                            } else if region == 062 {
+                                                                "광주"
+                                                            } else if region == 042 {
+                                                                "대전"
+                                                            } else if region == 052 {
+                                                                "울산"
+                                                            } else if region == 044 {
+                                                                "세종"
+                                                            } else if region == 031 {
+                                                                "경기"
+                                                            } else if region == 033 {
+                                                                "강원"
+                                                            } else if region == 043 {
+                                                                "충북"
+                                                            } else if region == 041 {
+                                                                "충남"
+                                                            } else if region == 063 {
+                                                                "전북"
+                                                            } else if region == 061 {
+                                                                "전남"
+                                                            } else if region == 054 {
+                                                                "경북"
+                                                            } else if region == 055 {
+                                                                "경남"
+                                                            } else if region == 064 {
+                                                                "제주"
+                                                            }
                                                         }
                                                     }
                                                 }
-                                                div {
-                                                    class: "w-[70px]",
-                                                    match attribute.gender {
-                                                        Some(g) => match g {
-                                                            models::prelude::Gender::Male => rsx! {
-                                                                div {
-                                                                    class: "text-[20px] font-medium text-[#5e5e5e]",
-                                                                    "남성"
-                                                                }
-                                                            },
-                                                            _ => rsx! {
-                                                                div {
-                                                                    class: "text-[20px] font-medium text-[#5e5e5e]",
-                                                                    "여성"
-                                                                }
-                                                            }
-                                                        },
-                                                        None => rsx! {
-                                                            div {
-                                                                class: "text-[20px] font-medium text-[#5e5e5e]",
-                                                                "미정"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                div {
-                                                    class: "w-[100px]",
-                                                    match attribute.age {
-                                                        Some(a) => match a {
-                                                            models::prelude::Age::Range { inclusive_min, inclusive_max } => rsx! {
-                                                                div {
-                                                                    class: "text-[20px] font-medium text-[#5e5e5e]",
-                                                                    if inclusive_min.is_none() && inclusive_max.is_none() {
-                                                                        {format!("미정")}
-                                                                    } else if inclusive_min.is_none() {
-                                                                        {format!("{}세 이하", inclusive_max.unwrap())}
-                                                                    } else if inclusive_max.is_none() {
-                                                                        {format!("{}세 이하", inclusive_min.unwrap())}
-                                                                    } else {
-                                                                        {format!("{}~{}세", inclusive_min.unwrap(), inclusive_max.unwrap())}
+                                                if !attribute.gender.is_none() {
+                                                    div {
+                                                        class: "w-[70px]",
+                                                        match attribute.gender {
+                                                            Some(g) => match g {
+                                                                models::prelude::Gender::Male => rsx! {
+                                                                    div {
+                                                                        class: "text-[20px] font-medium text-[#5e5e5e]",
+                                                                        "남성"
+                                                                    }
+                                                                },
+                                                                _ => rsx! {
+                                                                    div {
+                                                                        class: "text-[20px] font-medium text-[#5e5e5e]",
+                                                                        "여성"
                                                                     }
                                                                 }
                                                             },
-                                                            models::prelude::Age::Specific(v) => rsx! {
+                                                            None => rsx! {}
+                                                        }
+                                                    }
+                                                }
+                                                if !attribute.age.is_none() {
+                                                    div {
+                                                        class: "w-[100px]",
+                                                        match attribute.age {
+                                                            Some(a) => match a {
+                                                                models::prelude::Age::Range { inclusive_min, inclusive_max } => rsx! {
+                                                                    div {
+                                                                        class: "text-[20px] font-medium text-[#5e5e5e]",
+                                                                        if inclusive_min.is_none() && inclusive_max.is_none() {
+                                                                            {format!("미정")}
+                                                                        } else if inclusive_min.is_none() {
+                                                                            {format!("{}세 이하", inclusive_max.unwrap())}
+                                                                        } else if inclusive_max.is_none() {
+                                                                            {format!("{}세 이하", inclusive_min.unwrap())}
+                                                                        } else {
+                                                                            {format!("{}~{}세", inclusive_min.unwrap(), inclusive_max.unwrap())}
+                                                                        }
+                                                                    }
+                                                                },
+                                                                models::prelude::Age::Specific(v) => rsx! {
+                                                                    div {
+                                                                        class: "text-[20px] font-medium text-[#5e5e5e]",
+                                                                        {format!("{}세", v)}
+                                                                    }
+                                                                }
+                                                            },
+                                                            None => rsx! {
                                                                 div {
                                                                     class: "text-[20px] font-medium text-[#5e5e5e]",
-                                                                    {format!("{}세", v)}
+                                                                    {unknown.clone()}
                                                                 }
-                                                            }
-                                                        },
-                                                        None => rsx! {
-                                                            div {
-                                                                class: "text-[20px] font-medium text-[#5e5e5e]",
-                                                                {unknown.clone()}
                                                             }
                                                         }
                                                     }
                                                 }
-                                                div {
-                                                    class: "w-[200px]",
-                                                    if let Some(tier) = attribute.salary_tier {
-                                                        if tier == 1 {
-                                                            "2000만원 이하"
-                                                        } else if tier == 2 {
-                                                            "2000만원~4000만원"
-                                                        } else if tier == 3 {
-                                                            "4000만원~6000만원"
-                                                        } else if tier == 4 {
-                                                            "6000만원~8000만원"
-                                                        } else {
-                                                            "8000만원 이상"
+                                                if !attribute.salary_tier.is_none() {
+                                                    div {
+                                                        class: "w-[200px]",
+                                                        if let Some(tier) = attribute.salary_tier {
+                                                            if tier == 1 {
+                                                                "2000만원 이하"
+                                                            } else if tier == 2 {
+                                                                "2000만원~4000만원"
+                                                            } else if tier == 3 {
+                                                                "4000만원~6000만원"
+                                                            } else if tier == 4 {
+                                                                "6000만원~8000만원"
+                                                            } else {
+                                                                "8000만원 이상"
+                                                            }
                                                         }
                                                     }
                                                 }

@@ -1,8 +1,10 @@
 #![allow(non_snake_case)]
-use crate::api::v2::survey::get_survey_draft;
+use crate::api::v2::survey::{get_survey_draft, upsert_survey_draft};
 use std::collections::HashMap;
 
 use dioxus::prelude::*;
+
+use super::{Language, Route};
 
 //FIXME: move to model file
 #[derive(Debug, Clone, PartialEq)]
@@ -64,6 +66,7 @@ pub struct AttributeModel {
     pub name: String,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub enum Step {
     Attribute,
@@ -306,8 +309,12 @@ impl Controller {
 
     pub fn change_attribute_setting_value(&mut self, index: usize) {
         let mut attributes = (self.total_attribute)();
-        if let Some(attribute) = attributes.get_mut(index) {
-            attribute.is_select = !attribute.is_select;
+        for (i, attribute) in attributes.iter_mut().enumerate() {
+            if index == i {
+                attribute.is_select = true;
+            } else {
+                attribute.is_select = false;
+            }
         }
 
         self.total_attribute.set(attributes);
@@ -450,164 +457,13 @@ impl Controller {
                 // let quota = map.get(&(payload, region, gender, age)).unwrap().clone();
 
                 if keys.len() != if ind > 0 { ind - 1 } else { 0 } {
-                    // let _ = upsert_survey(
-                    //     email.clone(),
-                    //     survey.survey.id.clone(),
-                    //     crate::models::survey::StatusType::TemporarySave,
-                    //     SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
-                    //         salary_tier,
-                    //         region_code,
-                    //         gender: gender_value,
-                    //         age: age_value,
-                    //         quota: quota as u64,
-                    //     }),
-                    // )
-                    // .await;
                 } else {
-                    // let _ = upsert_survey(
-                    //     email.clone(),
-                    //     survey.survey.id.clone(),
-                    //     crate::models::survey::StatusType::Save,
-                    //     SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
-                    //         salary_tier,
-                    //         region_code,
-                    //         gender: gender_value,
-                    //         age: age_value,
-                    //         quota: quota as u64,
-                    //     }),
-                    // )
-                    // .await;
                 }
             }
         } else {
-            // let panel_groups = (self.panel_groups)();
-
             for (ind, _i) in (self.select_panel_groups)().iter().enumerate() {
-                // let group = panel_groups[*i as usize].clone();
-
-                // let salary_tier: Option<u16> = if group.payload == "2000만원 이하" {
-                //     Some(1)
-                // } else if group.payload == "2000만원~4000만원" {
-                //     Some(2)
-                // } else if group.payload == "4000만원~6000만원" {
-                //     Some(3)
-                // } else if group.payload == "6000만원~8000만원" {
-                //     Some(4)
-                // } else {
-                //     Some(5)
-                // };
-
-                // let region_code: Option<u16> = if group.region == "서울" {
-                //     Some(02)
-                // } else if group.region == "부산" {
-                //     Some(051)
-                // } else if group.region == "대구" {
-                //     Some(053)
-                // } else if group.region == "인천" {
-                //     Some(032)
-                // } else if group.region == "광주" {
-                //     Some(062)
-                // } else if group.region == "대전" {
-                //     Some(042)
-                // } else if group.region == "울산" {
-                //     Some(052)
-                // } else if group.region == "세종" {
-                //     Some(044)
-                // } else if group.region == "경기" {
-                //     Some(031)
-                // } else if group.region == "강원" {
-                //     Some(033)
-                // } else if group.region == "충북" {
-                //     Some(043)
-                // } else if group.region == "충남" {
-                //     Some(041)
-                // } else if group.region == "전북" {
-                //     Some(063)
-                // } else if group.region == "전남" {
-                //     Some(061)
-                // } else if group.region == "경북" {
-                //     Some(054)
-                // } else if group.region == "경남" {
-                //     Some(055)
-                // } else {
-                //     Some(064)
-                // };
-
-                // let gender: Option<crate::models::survey::Gender> = if group.gender == "남성" {
-                //     Some(crate::models::survey::Gender::Male)
-                // } else if group.gender == "여성" {
-                //     Some(crate::models::survey::Gender::Female)
-                // } else {
-                //     Some(crate::models::survey::Gender::Others)
-                // };
-
-                // let age: Option<crate::models::survey::Age> = if group.age == "17세 이하" {
-                //     Some(crate::models::survey::Age::Range {
-                //         inclusive_min: 0,
-                //         inclusive_max: 17,
-                //     })
-                // } else if group.age == "18~29세" {
-                //     Some(crate::models::survey::Age::Range {
-                //         inclusive_min: 18,
-                //         inclusive_max: 29,
-                //     })
-                // } else if group.age == "30대" {
-                //     Some(crate::models::survey::Age::Range {
-                //         inclusive_min: 30,
-                //         inclusive_max: 39,
-                //     })
-                // } else if group.age == "40대" {
-                //     Some(crate::models::survey::Age::Range {
-                //         inclusive_min: 40,
-                //         inclusive_max: 49,
-                //     })
-                // } else if group.age == "50대" {
-                //     Some(crate::models::survey::Age::Range {
-                //         inclusive_min: 50,
-                //         inclusive_max: 59,
-                //     })
-                // } else if group.age == "60대" {
-                //     Some(crate::models::survey::Age::Range {
-                //         inclusive_min: 60,
-                //         inclusive_max: 69,
-                //     })
-                // } else {
-                //     Some(crate::models::survey::Age::Range {
-                //         inclusive_min: 70,
-                //         inclusive_max: 200,
-                //     })
-                // };
-
-                // let quota = group.value;
-
                 if (self.select_panel_groups)().len() != if ind > 0 { ind - 1 } else { 0 } {
-                    // let _ = upsert_survey(
-                    //     email.clone(),
-                    //     survey.survey.id.clone(),
-                    //     crate::models::survey::StatusType::TemporarySave,
-                    //     SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
-                    //         salary_tier,
-                    //         region_code,
-                    //         gender,
-                    //         age,
-                    //         quota,
-                    //     }),
-                    // )
-                    // .await;
                 } else {
-                    // let _ = upsert_survey(
-                    //     email.clone(),
-                    //     survey.id.clone(),
-                    //     crate::models::survey::StatusType::Save,
-                    //     SurveyUpdateItem::AddResponder(crate::models::survey::Quota::Attribute {
-                    //         salary_tier,
-                    //         region_code,
-                    //         gender,
-                    //         age,
-                    //         quota,
-                    //     }),
-                    // )
-                    // .await;
                 }
             }
         }
@@ -627,7 +483,136 @@ impl Controller {
         self.show_add_attribute_modal.set(clicked);
     }
 
-    pub fn clicked_save_button(&mut self) {
+    pub async fn clicked_save_button(&mut self, lang: Language, survey_id: String) {
+        let mut quotas = self.get_survey().quotas;
+
+        let navigator = use_navigator();
+        let search_attributes = self.get_search_attributes();
+        let mut region: Option<u16> = None;
+        let mut age: Option<models::prelude::Age> = None;
+        let mut payload: Option<u16> = None;
+        let mut gender: Option<models::prelude::Gender> = None;
+        let response: u64 = self.get_response_count().parse().unwrap();
+
+        for attribute in search_attributes {
+            if attribute.name == "지역" {
+                region = if attribute.initial_value == "서울" {
+                    Some(02)
+                } else if attribute.initial_value == "부산" {
+                    Some(051)
+                } else if attribute.initial_value == "대구" {
+                    Some(053)
+                } else if attribute.initial_value == "인천" {
+                    Some(032)
+                } else if attribute.initial_value == "광주" {
+                    Some(062)
+                } else if attribute.initial_value == "대전" {
+                    Some(042)
+                } else if attribute.initial_value == "울산" {
+                    Some(052)
+                } else if attribute.initial_value == "세종" {
+                    Some(044)
+                } else if attribute.initial_value == "경기" {
+                    Some(031)
+                } else if attribute.initial_value == "강원" {
+                    Some(033)
+                } else if attribute.initial_value == "충북" {
+                    Some(043)
+                } else if attribute.initial_value == "충남" {
+                    Some(041)
+                } else if attribute.initial_value == "전북" {
+                    Some(063)
+                } else if attribute.initial_value == "전남" {
+                    Some(061)
+                } else if attribute.initial_value == "경북" {
+                    Some(054)
+                } else if attribute.initial_value == "경남" {
+                    Some(055)
+                } else {
+                    Some(064)
+                };
+            } else if attribute.name == "연봉" {
+                payload = if attribute.initial_value == "2000만원 이하" {
+                    Some(1)
+                } else if attribute.initial_value == "2000만원~4000만원" {
+                    Some(2)
+                } else if attribute.initial_value == "4000만원~6000만원" {
+                    Some(3)
+                } else if attribute.initial_value == "6000만원~8000만원" {
+                    Some(4)
+                } else {
+                    Some(5)
+                };
+            } else if attribute.name == "성별" {
+                gender = if attribute.initial_value == "남성" {
+                    Some(models::prelude::Gender::Male)
+                } else {
+                    Some(models::prelude::Gender::Female)
+                };
+            } else {
+                age = if attribute.initial_value == "17세 이하" {
+                    Some(models::prelude::Age::Range {
+                        inclusive_min: None,
+                        inclusive_max: Some(17),
+                    })
+                } else if attribute.initial_value == "18~29세" {
+                    Some(models::prelude::Age::Range {
+                        inclusive_min: Some(18),
+                        inclusive_max: Some(29),
+                    })
+                } else if attribute.initial_value == "30대" {
+                    Some(models::prelude::Age::Range {
+                        inclusive_min: Some(30),
+                        inclusive_max: Some(39),
+                    })
+                } else if attribute.initial_value == "40대" {
+                    Some(models::prelude::Age::Range {
+                        inclusive_min: Some(40),
+                        inclusive_max: Some(49),
+                    })
+                } else if attribute.initial_value == "50대" {
+                    Some(models::prelude::Age::Range {
+                        inclusive_min: Some(50),
+                        inclusive_max: Some(59),
+                    })
+                } else if attribute.initial_value == "60대" {
+                    Some(models::prelude::Age::Range {
+                        inclusive_min: Some(60),
+                        inclusive_max: Some(69),
+                    })
+                } else {
+                    Some(models::prelude::Age::Range {
+                        inclusive_min: Some(70),
+                        inclusive_max: None,
+                    })
+                };
+            }
+        }
+
+        quotas.push(models::prelude::Quota {
+            attribute: Some(models::prelude::Attribute {
+                salary_tier: payload,
+                region_code: region,
+                gender,
+                age,
+            }),
+            panel: None,
+            quota: response,
+        });
+
+        let _ = upsert_survey_draft(models::prelude::UpsertSurveyDraftRequest {
+            id: Some(survey_id.clone()),
+            status: Some(models::prelude::SurveyDraftStatus::Quotas),
+            title: None,
+            quotas: Some(quotas),
+            questions: None,
+        })
+        .await;
+
+        navigator.push(Route::SelectResponsePage { lang, survey_id });
+    }
+
+    pub fn clicked_attribute_modal_save_button(&mut self) {
         let mut attributes = vec![];
         let mut search_attributes = (self.search_attributes)();
 
@@ -672,7 +657,7 @@ impl Controller {
         self.show_add_attribute_modal.set(false);
     }
 
-    pub fn clicked_cancel_button(&mut self) {
+    pub fn clicked_attribute_modal_cancel_button(&mut self) {
         let mut attributes = vec![];
 
         for attribute in (self.attributes)() {

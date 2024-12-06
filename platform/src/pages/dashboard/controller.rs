@@ -45,15 +45,18 @@ impl Controller {
 
                         let total_surveys: Vec<Survey> = surveys
                             .into_iter()
-                            .map(|survey| Survey {
-                                survey_id: survey.id.to_string(),
-                                draft_id: survey.draft_id.unwrap_or("".to_string()),
-                                survey_sequence: survey.draft_status,
-                                survey_type: survey.status.to_string(),
-                                title: survey.title,
-                                update_date: Self::format_date(0), //FIXME: fix to api
-                                response_count: 1,                 //FIXME: fix to api
-                                total_response_count: 50,          //FIXME: fix to api
+                            .map(|survey| {
+                                let updated_at = survey.updated_at as u64;
+                                Survey {
+                                    survey_id: survey.id.to_string(),
+                                    draft_id: survey.draft_id.unwrap_or("".to_string()),
+                                    survey_sequence: survey.draft_status,
+                                    survey_type: survey.status.to_string(),
+                                    title: survey.title,
+                                    update_date: Self::format_date(updated_at / 1000),
+                                    response_count: 1,        //FIXME: fix to api
+                                    total_response_count: 50, //FIXME: fix to api
+                                }
                             })
                             .collect();
                         ctrl.surveys.set(total_surveys);
