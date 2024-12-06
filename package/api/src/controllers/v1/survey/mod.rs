@@ -198,16 +198,14 @@ async fn upsert_survey_draft(
     let draft_id = survey_draft.id.clone();
     if let Some(title) = req.title {
         survey_draft.title = title;
-        survey_draft.status = SurveyDraftStatus::Quotas;
-    }
-    if let Some(quotas) = req.quotas {
-        survey_draft.quotas = quotas;
-        survey_draft.status = SurveyDraftStatus::Question;
     }
     if let Some(questions) = req.questions {
         survey_draft.questions = questions;
-        survey_draft.status = SurveyDraftStatus::Complete;
     }
+    if let Some(quotas) = req.quotas {
+        survey_draft.quotas = quotas;
+    }
+
     if let Some(status) = req.status {
         survey_draft.status = status;
     }
