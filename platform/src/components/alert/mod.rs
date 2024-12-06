@@ -13,9 +13,9 @@ pub fn AlertModal(
             class: "absolute flex flex-row w-screen h-screen backdrop-blur-sm justify-center items-center z-50",
             div {
                 class: if let Some(max_width) = max_width {
-                    format!("relative flex flex-col min-w-[{}px] max-w-[{}px] bg-white rounded-lg border-[1px] border-[#9f9f9f] justify-center items-center", width, max_width)
+                    format!("relative flex flex-col min-w-[{}px] max-w-[{}px] h-min max-h-[750px] bg-white rounded-lg border-[1px] border-[#9f9f9f] justify-start items-center overflow-y-auto", width, max_width)
                 } else {
-                    format!("relative flex flex-col w-[{}px] bg-white rounded-lg border-[1px] border-[#9f9f9f] justify-center items-center", width)
+                    format!("relative flex flex-col w-[{}px] h-min max-h-[750px] bg-white rounded-lg border-[1px] border-[#9f9f9f] justify-start items-center overflow-y-auto", width)
                 },
                 style: "top: -120px; left: -250px; padding-left: 30px; padding-right: 30px; padding-top: 20px; padding-bottom: 20px",
                 {children}

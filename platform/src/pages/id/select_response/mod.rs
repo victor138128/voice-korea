@@ -14,6 +14,8 @@ pub mod response_type;
 
 #[component]
 pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
+    let survey_id_copy = props.survey_id.clone();
+    let id_copy = props.survey_id.clone();
     let mut ctrl = controller::Controller::init(props.survey_id.clone());
     let survey_response = ctrl.get_survey();
     let question_list = survey_response.questions.len() as u64;
@@ -24,25 +26,12 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
         + question_list.to_string().as_str()
         + question_list_info_second.as_str();
     let navigator = use_navigator();
-    let survey_id_copy = props.survey_id.clone();
-    let survey_id_copy_v2 = props.survey_id.clone();
-
-    const RESPONSE_ATTRIBUTE_IMAGE: Asset = asset!("/public/images/select-response-attribute.png");
-    const RESPONSE_PANEL_IMAGE: Asset = asset!("/public/images/select-response-panel.png");
 
     rsx! {
         div {
             class: "flex flex-col w-full h-full justify-start items-center",
             div {
                 class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[55px] px-[50px]",
-                div {
-                    class: "flex flex-row w-full justify-end items-end mb-[20px]",
-                    Button {
-                        button_text: translates.temporary_save,
-                        onclick: move |_| {},
-                        class: "flex flex-row w-[200px] h-[50px] bg-[#1e5eaf]",
-                    }
-                }
                 div {
                     class: "flex flex-row w-full h-[110px] rounded-[10px] bg-white mb-[10px]",
                     div {
@@ -62,7 +51,7 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
                     }
                 }
                 div {
-                    class: "flex flex-col w-full h-[420px] rounded-[10px] bg-white mb-[10px] justify-between items-start py-[30px] px-[30px]",
+                    class: "flex flex-col w-full h-min rounded-[10px] bg-white mb-[10px] justify-between items-start py-[30px] px-[30px]",
                     div {
                         class: "flex flex-col w-full justify-start items-start",
                         div {
@@ -70,59 +59,97 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
                             "{translates.collect_response_title}"
                         }
                         div {
-                            class: "text-[#5e5e5e] font-normal text-[22px] mb-[10px]",
+                            class: "text-[#5e5e5e] font-normal text-[22px] mb-[20px]",
                             "{translates.collect_response_description}"
                         }
                     }
                     div {
-                        class: "flex flex-row w-full justify-start items-start",
-                        div {
-                            class: "flex flex-1 rounded-xl h-[240px] mr-[10px]",
-                            style: "background-image: url('{RESPONSE_ATTRIBUTE_IMAGE}');",
-                            onclick: move |_| {
-                                navigator.push(Route::SelectResponseDetailPage {
-                                    lang: props.lang.clone(),
-                                    survey_id: survey_id_copy.clone(),
-                                    select_type: "attribute".to_string()
-                                });
-                            },
-                            div {
-                                class: "flex flex-col w-full h-full justify-center items-center",
-                                div {
-                                    class: "text-[28px] font-semibold text-white mb-[20px]",
-                                    "{translates.select_response_attribute_title}"
+                        class: "flex flex-col w-full h-min justify-start items-start mb-[15px]",
+                        for (i, attribute) in ctrl.get_attributes().iter().enumerate() {
+                            if i % 2 == 1 {
+                                AttributeRow {
+                                    background_color: "#ffffff".to_string(),
+                                    region: attribute.region.clone(),
+                                    gender: attribute.gender.clone(),
+                                    age: attribute.age.clone(),
+                                    payload: attribute.payload.clone(),
+                                    value: attribute.value,
                                 }
-                                div {
-                                    class: "flex flex-row w-full justify-center items-center text-[16px] font-normal text-white whitespace-pre-line content-center px-[10px]",
-                                    "{translates.select_response_attribute_description}"
-                                }
-                            }
-                        }
-                        div {
-                            class: "flex flex-1 rounded-xl h-[240px]",
-                            style: "background-image: url('{RESPONSE_PANEL_IMAGE}');",
-                            onclick: move |_| {
-                                navigator.push(Route::SelectResponseDetailPage {
-                                    lang: props.lang.clone(),
-                                    survey_id: survey_id_copy_v2.clone(),
-                                    select_type: "panel".to_string()
-                                });
-                            },
-                            div {
-                                class: "flex flex-col w-full h-full justify-center items-center",
-                                div {
-                                    class: "text-[28px] font-semibold text-white mb-[20px]",
-
-                                    "{translates.select_response_panel_title}"
-                                }
-                                div {
-                                    class: "flex flex-row w-full justify-center items-center text-[16px] font-normal text-white whitespace-pre-line content-center px-[10px]",
-
-                                    "{translates.select_response_panel_description}"
+                            } else {
+                                AttributeRow {
+                                    background_color: "#f9f9f9".to_string(),
+                                    region: attribute.region.clone(),
+                                    gender: attribute.gender.clone(),
+                                    age: attribute.age.clone(),
+                                    payload: attribute.payload.clone(),
+                                    value: attribute.value,
                                 }
                             }
                         }
                     }
+                    div {
+                        class: "flex flex-row w-full justify-end items-end",
+                        Button {
+                            button_text: translates.add_attribute,
+                            onclick: move |_| {
+                                navigator.push(Route::SelectResponseDetailPage {
+                                    lang: props.lang.clone(),
+                                    survey_id: survey_id_copy.clone(),
+                                    select_type: "attribute".to_string(),
+                                });
+                            },
+                            class: "flex flex-row w-[160px] h-[50px] bg-[#1e5eaf]",
+                        }
+                    }
+                    // div {
+                    //     class: "flex flex-row w-full justify-start items-start",
+                    //     div {
+                    //         class: "flex flex-1 rounded-xl h-[240px] mr-[10px]",
+                    //         style: "background-image: url('{RESPONSE_ATTRIBUTE_IMAGE}');",
+                    //         onclick: move |_| {
+                    //             navigator.push(Route::SelectResponseDetailPage {
+                    //                 lang: props.lang.clone(),
+                    //                 survey_id: survey_id_copy.clone(),
+                    //                 select_type: "attribute".to_string()
+                    //             });
+                    //         },
+                    //         div {
+                    //             class: "flex flex-col w-full h-full justify-center items-center",
+                    //             div {
+                    //                 class: "text-[28px] font-semibold text-white mb-[20px]",
+                    //                 "{translates.select_response_attribute_title}"
+                    //             }
+                    //             div {
+                    //                 class: "flex flex-row w-full justify-center items-center text-[16px] font-normal text-white whitespace-pre-line content-center px-[10px]",
+                    //                 "{translates.select_response_attribute_description}"
+                    //             }
+                    //         }
+                    //     }
+                    //     div {
+                    //         class: "flex flex-1 rounded-xl h-[240px]",
+                    //         style: "background-image: url('{RESPONSE_PANEL_IMAGE}');",
+                    //         onclick: move |_| {
+                    //             navigator.push(Route::SelectResponseDetailPage {
+                    //                 lang: props.lang.clone(),
+                    //                 survey_id: survey_id_copy_v2.clone(),
+                    //                 select_type: "panel".to_string()
+                    //             });
+                    //         },
+                    //         div {
+                    //             class: "flex flex-col w-full h-full justify-center items-center",
+                    //             div {
+                    //                 class: "text-[28px] font-semibold text-white mb-[20px]",
+
+                    //                 "{translates.select_response_panel_title}"
+                    //             }
+                    //             div {
+                    //                 class: "flex flex-row w-full justify-center items-center text-[16px] font-normal text-white whitespace-pre-line content-center px-[10px]",
+
+                    //                 "{translates.select_response_panel_description}"
+                    //             }
+                    //         }
+                    //     }
+                    // }
                 }
                 div {
                     class: "flex flex-row w-full justify-end items-end mb-[20px]",
@@ -138,8 +165,82 @@ pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
                                 });
                             }
                         },
-                        class: "flex flex-row w-[200px] h-[50px] bg-[#434343]",
+                        class: "flex flex-row w-[200px] h-[50px] bg-[#434343] mr-[15px]",
                     }
+                    Button {
+                        button_text: translates.save,
+                        onclick: move |_| {
+                            let survey_id = id_copy.clone();
+                            async move {
+                                ctrl.save_button_clicked().await;
+                                navigator.push(Route::SurveySummaryPage {
+                                    lang: props.lang.clone(),
+                                    survey_id: survey_id.clone(),
+                                    is_draft: true,
+                                });
+                            }
+                        },
+                        class: "flex flex-row w-[200px] h-[50px] bg-[#1e5eaf]",
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn AttributeRow(
+    background_color: String,
+    region: String,
+    gender: String,
+    age: String,
+    payload: String,
+    value: u64,
+) -> Element {
+    rsx! {
+        div {
+            class: "flex flex-row w-full h-[100px] justify-between items-start p-[30px]",
+            style: format!("background-color: {}", background_color),
+            div {
+                class: "flex flex-row w-full justify-start items-start",
+                if region != "" {
+                    div {
+                        class: "w-[70px] text-[#5e5e5e] font-normal text-[20px] pr-[20px]",
+                        {region.clone()}
+                    }
+                }
+                if gender != "" {
+                    div {
+                        class: "w-[70px] text-[#5e5e5e] font-normal text-[20px] pr-[20px]",
+                        {gender.clone()}
+                    }
+                }
+                if age != "" {
+                    div {
+                        class: "w-[120px] text-[#5e5e5e] font-normal text-[20px] pr-[20px]",
+                        {age.clone()}
+                    }
+                }
+                if payload != "" {
+                    div {
+                        class: "text-[#5e5e5e] font-normal text-[20px] pr-[20px]",
+                        {payload.clone()}
+                    }
+                }
+            }
+            div {
+                class: "flex flex-row w-min justify-start items-start",
+                div {
+                    class: "text-black font-medium text-[20px] mr-[5px]",
+                    "총 "
+                }
+                div {
+                    class: "text-[#1e5eaf] font-medium text-[20px]",
+                    {value.to_string()}
+                }
+                div {
+                    class: "text-black font-medium text-[20px]",
+                    "명"
                 }
             }
         }

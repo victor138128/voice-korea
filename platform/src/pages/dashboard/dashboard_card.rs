@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::{pages::dashboard::StatusButton, routes::Route};
 use dioxus::prelude::*;
+use dioxus_logger::tracing;
 use models::prelude::SurveyDraftStatus;
 
 use super::Language;
@@ -74,6 +75,7 @@ pub fn DashboardCard(
                     div {
                         class: "flex flex-row w-full h-[55px] rounded-[8px] border-solid border-[3px] border-[#1e5eaf] bg-white items-center justify-center",
                         onclick: move |_| {
+                            tracing::debug!("this line come");
                             if survey_sequence == SurveyDraftStatus::Title {
                                 navigator.push(
                                     Route::WriteTitlePage {
@@ -89,7 +91,7 @@ pub fn DashboardCard(
                                     Route::SelectResponsePage { lang, survey_id: draft_id.clone() }
                                 );
                             } else {
-                                navigator.push(Route::SurveySummaryPage { lang, survey_id: draft_id.clone() });
+                                navigator.push(Route::SurveySummaryPage { lang, survey_id: draft_id.clone(), is_draft: true });
                             }
                         },
                         div {
@@ -100,6 +102,10 @@ pub fn DashboardCard(
                 } else {
                     div {
                         class: "flex flex-row w-full h-[55px] rounded-[8px] border-solid border-[3px] border-[#1e5eaf] bg-white items-center justify-center",
+                        onclick: move |_| {
+                            tracing::debug!("this line come");
+                            navigator.push(Route::SurveySummaryPage { lang, survey_id: survey_id.clone(), is_draft: false });
+                        },
                         div {
                             class: "text-[20px] font-medium text-[#1e5eaf]",
                             "{analysis_result}"
