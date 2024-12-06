@@ -163,11 +163,12 @@ impl<'de> Deserialize<'de> for Gender {
     where
         D: Deserializer<'de>,
     {
-        let s: &str = Deserialize::deserialize(deserializer)?;
-        match s {
-            "남자" => Ok(Gender::Male),
-            "여자" => Ok(Gender::Female),
-            _ => Ok(Gender::Others),
+        let s: String = Deserialize::deserialize(deserializer)?;
+        match s.as_str() {
+            "male" | "남자" => Ok(Gender::Male),
+            "female" | "여자" => Ok(Gender::Female),
+            "others" | "기타" => Ok(Gender::Others),
+            _ => Err(serde::de::Error::custom(format!("Invalid gender: {}", s))),
         }
     }
 }
