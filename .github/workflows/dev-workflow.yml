@@ -86,6 +86,7 @@ jobs:
           REGION: ap-northeast-2
           ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NONCE_LAB_API_TOKEN: ${{ secrets.NONCE_LAB_API_TOKEN }}
         run: |
           ENV=dev make deploy-api-if-needed
 
