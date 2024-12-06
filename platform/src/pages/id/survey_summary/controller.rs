@@ -43,23 +43,18 @@ pub struct Controller {
 impl Controller {
     pub fn init(_lang: Language, id: String, is_draft: bool) -> Self {
         let id_copy = id.clone();
-        let survey_response: Resource<models::prelude::Survey> = if is_draft {
-            use_resource(move || {
-                let id_value = id.clone();
-                async move {
-                    let survey = get_survey_draft(id_value).await;
-                    survey.unwrap_or_default()
+
+        let survey_response: Resource<models::prelude::Survey> = use_resource(move || {
+            let id_value = id.clone();
+            async move {
+                if is_draft {
+                    get_survey_draft(id_value).await.unwrap_or_default()
+                } else {
+                    let id_num: u32 = id_value.parse().unwrap();
+                    get_survey(id_num).await.unwrap_or_default()
                 }
-            })
-        } else {
-            use_resource(move || {
-                let id_value = id.clone().parse().unwrap();
-                async move {
-                    let survey = get_survey(id_value).await;
-                    survey.unwrap_or_default()
-                }
-            })
-        };
+            }
+        });
 
         let mut ctrl = Self {
             survey: survey_response,
