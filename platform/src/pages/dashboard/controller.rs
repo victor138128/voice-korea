@@ -4,18 +4,17 @@ use std::time::{Duration, UNIX_EPOCH};
 use chrono::{self, DateTime, Local};
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
+use models::prelude::{SurveyDraftStatus, UpsertSurveyDraftRequest};
 
-use crate::{
-    api::v1::surveys::{list_surveys, upsert_survey::create_empty_survey},
-    service::login_service::use_login_service,
-};
+use crate::api::v2::survey::{list_surveys, upsert_survey_draft};
 
 use super::{Language, Route};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Survey {
     pub survey_id: String,
-    pub survey_sequence: String,
+    pub draft_id: String,
+    pub survey_sequence: Option<SurveyDraftStatus>,
     pub survey_type: String,
     pub title: String,
     pub update_date: String,
@@ -31,14 +30,7 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn init(lang: Language) -> Self {
-        let navigator = use_navigator();
-        let email: String = use_login_service().get_email().clone();
-
-        if email.is_empty() {
-            navigator.push(Route::LoginPage { lang });
-        };
-
+    pub fn init() -> Self {
         let mut ctrl = Self {
             surveys: use_signal(|| vec![]),
             clicked_type: use_signal(|| 0),
@@ -46,22 +38,22 @@ impl Controller {
         };
 
         let _ = use_effect(move || {
-            let value = email.clone();
             spawn(async move {
-                match list_surveys(value, None, None, None).await {
+                match list_surveys().await {
                     Ok(res) => {
-                        let surveys = res.items;
+                        let surveys = res;
 
                         let total_surveys: Vec<Survey> = surveys
                             .into_iter()
                             .map(|survey| Survey {
                                 survey_id: survey.id.to_string(),
-                                survey_sequence: survey.gsi2.to_string(),
+                                draft_id: survey.draft_id.unwrap_or("".to_string()),
+                                survey_sequence: survey.draft_status,
                                 survey_type: survey.status.to_string(),
                                 title: survey.title,
-                                update_date: Self::format_date(survey.updated_at),
-                                response_count: survey.responses.unwrap_or_default(),
-                                total_response_count: survey.expected_responses.unwrap_or_default(),
+                                update_date: Self::format_date(0), //FIXME: fix to api
+                                response_count: 1,                 //FIXME: fix to api
+                                total_response_count: 50,          //FIXME: fix to api
                             })
                             .collect();
                         ctrl.surveys.set(total_surveys);
@@ -100,8 +92,14 @@ impl Controller {
 
     pub async fn clicked_create_survey(&mut self, lang: Language) {
         let navigator = use_navigator();
-        let email = use_login_service().get_email().clone();
-        let res = create_empty_survey(email).await;
+        let res = upsert_survey_draft(UpsertSurveyDraftRequest {
+            id: None,
+            status: Some(SurveyDraftStatus::Title),
+            title: Some("".to_string()),
+            quotas: None,
+            questions: None,
+        })
+        .await;
 
         match res {
             Ok(v) => {

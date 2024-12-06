@@ -56,7 +56,7 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                 class: "flex flex-row w-full h-[110px] rounded-[10px] bg-white mb-[10px]",
                 div {
                     class: "flex flex-row w-full h-[110px] items-center justify-start text-[#2168c3] font-semibold text-[30px] pl-[30px]",
-                    "{survey.survey.title}"
+                    "{survey.title}"
                 }
             }
             div {
@@ -136,7 +136,6 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                     }
                 }
             }
-
         }
     }
 }

@@ -4,6 +4,7 @@ use controller::Survey;
 use dashboard_card::DashboardCard;
 use dashboard_row::DashboardRow;
 use dioxus::prelude::*;
+use dioxus_logger::tracing;
 
 pub mod controller;
 pub mod dashboard_card;
@@ -47,7 +48,7 @@ pub struct DashboardListTypeProps {
 
 #[component]
 pub fn DashboardPage(props: DashboardPageProps) -> Element {
-    let mut ctrl = controller::Controller::init(props.lang);
+    let mut ctrl = controller::Controller::init();
     let translates = i18n::translate(props.lang.clone());
 
     rsx! {
@@ -146,6 +147,8 @@ pub fn StatusButton(
     let survey_type_label: String;
     let label_bg_color: String;
     let label_text_color: String;
+
+    tracing::debug!("survey type: {}", survey_type);
     if survey_type == "draft" {
         survey_type_label = draft_label;
         label_bg_color = "bg-[#e5e5e5]".to_string();
@@ -176,8 +179,9 @@ pub fn DashboardCardTypes(props: DashboardCardTypeProps) -> Element {
             for survey in surveys.iter() {
                 DashboardCard {
                     lang: props.lang,
+                    draft_id: survey.draft_id.clone(),
                     survey_id: survey.survey_id.clone(),
-                    survey_sequence: survey.survey_sequence.clone(),
+                    survey_sequence: survey.survey_sequence.clone().unwrap_or_default().clone(),
                     survey_type: survey.survey_type.clone(),
                     title: survey.title.clone(),
                     update_date: survey.update_date.clone(),
@@ -233,7 +237,8 @@ pub fn DashboardListTypes(props: DashboardListTypeProps) -> Element {
                     DashboardRow {
                         lang: props.lang,
                         survey_id: survey.survey_id.clone(),
-                        survey_sequence: survey.survey_sequence.clone(),
+                        draft_id: survey.draft_id.clone(),
+                        survey_sequence: survey.survey_sequence.clone().unwrap_or_default().clone(),
                         survey_type: survey.survey_type.clone(),
                         title: survey.title.clone(),
                         update_date: survey.update_date.clone(),

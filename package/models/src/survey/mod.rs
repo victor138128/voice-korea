@@ -41,6 +41,18 @@ pub enum SurveyStatus {
     Finished,
 }
 
+impl fmt::Display for SurveyStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            SurveyStatus::Draft => write!(f, "draft"),
+            SurveyStatus::InProgress {} => {
+                write!(f, "in_progress")
+            }
+            SurveyStatus::Finished {} => write!(f, "finished"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SurveyQuestion {
     #[serde(rename = "id")]
@@ -106,20 +118,20 @@ impl fmt::Display for QuestionSequence {
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Quota {
-    attribute: Option<Attribute>,
-    panel: Option<Panel>,
-    quota: u64,
+    pub attribute: Option<Attribute>,
+    pub panel: Option<Panel>,
+    pub quota: u64,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Attribute {
     // e.g. 1, 2, 3, 4, 5
-    salary_tier: Option<SalaryTier>,
+    pub salary_tier: Option<SalaryTier>,
     // e.g. 02(Seoul), 051(Busan) and so on.
-    region_code: Option<RegionCode>,
-    gender: Option<Gender>,
-    age: Option<Age>,
+    pub region_code: Option<RegionCode>,
+    pub gender: Option<Gender>,
+    pub age: Option<Age>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
