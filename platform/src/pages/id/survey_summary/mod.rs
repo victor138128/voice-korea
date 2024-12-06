@@ -1,11 +1,5 @@
 #![allow(non_snake_case)]
-use crate::{
-    models::{
-        question::Question,
-        survey::{Age, Gender, Quota, SurveyStatus},
-    },
-    prelude::*,
-};
+use crate::prelude::*;
 use controller::use_controller;
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
@@ -23,6 +17,7 @@ pub struct QuestionModel {
 
 mod controller;
 mod i18n;
+use models::prelude::SurveyQuestionType;
 #[allow(unused_imports)]
 #[cfg(feature = "web")]
 use wasm_bindgen::prelude::*;
@@ -42,7 +37,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
             div {
                 class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-end items-end mt-[15px] px-[50px]",
                 match survey_status {
-                    SurveyStatus::Draft => {
+                    models::prelude::SurveyStatus::Draft => {
                         rsx! {
                             div {
                                 class: "flex flex-row w-[250px] h-[55px] mt-[55px] rounded-[8px] bg-[#2168c3] justify-center items-center text-[21px] font-semibold text-white",
@@ -53,7 +48,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                             }
                         }
                     },
-                    SurveyStatus::InProgress { started_at: _, ended_at: _ } => {
+                    models::prelude::SurveyStatus::InProgress => {
                         rsx! {
                             div {
                                 class: "flex flex-row w-[250px] h-[55px] mt-[55px] rounded-[8px] bg-[#8e8e8e] justify-center items-center text-[21px] font-semibold text-white",
@@ -77,11 +72,11 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                     class: "flex flex-col w-full justify-center items-start max-w-[1200px] h-[100px] rounded-[10px] bg-white px-[30px]",
                     div {
                         class: "text-[#2168c3] font-semibold text-[30px] mb-[20px]",
-                        {ctrl.get_survey().survey.title}
+                        {ctrl.get_survey().title}
                     },
                 }
             }
-            if let SurveyStatus::Draft = survey_status {
+            if let models::prelude::SurveyStatus::Draft = survey_status {
                 div {
                     class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px]",
                     div {
@@ -140,7 +135,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                 num_of_detail: translates.num_of_detail,
                 num_of: translates.num_of,
             }
-            if let SurveyStatus::InProgress { started_at: _, ended_at: _ } = survey_status {
+            if let models::prelude::SurveyStatus::InProgress = survey_status {
                 div {
                     class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px]",
                     div {
@@ -158,7 +153,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                         }
                     }
                 }
-            } else if let SurveyStatus::Finished { started_at: _, ended_at: _ } = survey_status {
+            } else if let models::prelude::SurveyStatus::Finished = survey_status {
                 div {
                     class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px]",
                     div {
@@ -183,7 +178,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                                     class: "flex flex-col w-full h-min justify-start items-start",
                                     div {
                                         class: "text-[#4c4c4c] font-semibold text-[30px] mb-[15px]",
-                                        {ctrl.get_survey().survey.title}
+                                        {ctrl.get_survey().title}
                                     }
                                     div {
                                         class: "text-[#4c4c4c] font-normal text-[20px]",
@@ -474,15 +469,9 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                                 "명"
                             }
                         }
-                        for panel in ctrl.get_panels() {
-                            match panel {
-                                Quota::Attribute {
-                                    salary_tier,
-                                    region_code,
-                                    gender,
-                                    age,
-                                    quota,
-                                } => {
+                        for quota in ctrl.get_quotas() {
+                            match quota.attribute {
+                                Some(attribute) => {
                                     rsx! {
                                         div {
                                             class: "flex flex-row w-full h-[60px] justify-between items-center odd:bg-white even:bg-[#f9f9f9] px-[20px]",
@@ -490,7 +479,7 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                                                 class: "flex flex-row w-min justify-center items-center text-[20px] font-medium text-[#5e5e5e]",
                                                 div {
                                                     class: "w-[70px]",
-                                                    if let Some(region) = region_code {
+                                                    if let Some(region) = attribute.region_code {
                                                         if region == 051 {
                                                             "부산"
                                                         } else if region == 02 {
@@ -502,9 +491,9 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                                                 }
                                                 div {
                                                     class: "w-[70px]",
-                                                    match gender {
+                                                    match attribute.gender {
                                                         Some(g) => match g {
-                                                            Gender::Male => rsx! {
+                                                            models::prelude::Gender::Male => rsx! {
                                                                 div {
                                                                     class: "text-[20px] font-medium text-[#5e5e5e]",
                                                                     "남성"
@@ -527,19 +516,23 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                                                 }
                                                 div {
                                                     class: "w-[100px]",
-                                                    match age {
+                                                    match attribute.age {
                                                         Some(a) => match a {
-                                                            Age::Range { inclusive_min, inclusive_max: _inclusive_max } => rsx! {
+                                                            models::prelude::Age::Range { inclusive_min, inclusive_max } => rsx! {
                                                                 div {
                                                                     class: "text-[20px] font-medium text-[#5e5e5e]",
-                                                                    if inclusive_min == 60 {
-                                                                        {format!("{}대 이상", inclusive_min)}
+                                                                    if inclusive_min.is_none() && inclusive_max.is_none() {
+                                                                        {format!("미정")}
+                                                                    } else if inclusive_min.is_none() {
+                                                                        {format!("{}세 이하", inclusive_max.unwrap())}
+                                                                    } else if inclusive_max.is_none() {
+                                                                        {format!("{}세 이하", inclusive_min.unwrap())}
                                                                     } else {
-                                                                        {format!("{}대", inclusive_min)}
+                                                                        {format!("{}~{}세", inclusive_min.unwrap(), inclusive_max.unwrap())}
                                                                     }
                                                                 }
                                                             },
-                                                            Age::Specific(v) => rsx! {
+                                                            models::prelude::Age::Specific(v) => rsx! {
                                                                 div {
                                                                     class: "text-[20px] font-medium text-[#5e5e5e]",
                                                                     {format!("{}세", v)}
@@ -556,7 +549,7 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                                                 }
                                                 div {
                                                     class: "w-[200px]",
-                                                    if let Some(tier) = salary_tier {
+                                                    if let Some(tier) = attribute.salary_tier {
                                                         if tier == 1 {
                                                             "2000만원 이하"
                                                         } else if tier == 2 {
@@ -579,7 +572,7 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                                                 }
                                                 div {
                                                     class: "text-[#1e5eaf]",
-                                                    {format!("{}", {quota})}
+                                                    {format!("{}", {quota.quota})}
                                                 }
                                                 div {
                                                     "명"
@@ -624,7 +617,7 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
 #[component]
 pub fn ListSurvey(
     question_count: u64,
-    question_list: Vec<Question>,
+    question_list: Vec<models::prelude::SurveyQuestion>,
     response_list: String,
     total: String,
     num_of_detail: String,
@@ -636,18 +629,17 @@ pub fn ListSurvey(
     let mut questions: Vec<QuestionModel> = vec![];
 
     for question in question_list {
-        let question_title = question.question.clone();
+        let question_title = question.title.clone();
         let options = question.options.clone();
 
-        let gsi2: Vec<&str> = question.gsi2.split("#").collect();
-        let survey_type = gsi2[3];
+        let survey_type = question.answer_type;
 
-        if survey_type == "single-choice" {
+        if survey_type == SurveyQuestionType::SingleChoice {
             questions.push(QuestionModel {
                 title: question_title.clone(),
                 questions: options.unwrap(),
             });
-        } else if survey_type == "text" {
+        } else if survey_type == SurveyQuestionType::ShortAnswer {
             questions.push(QuestionModel {
                 title: question_title.clone(),
                 questions: vec![],

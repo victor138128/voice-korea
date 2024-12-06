@@ -2,17 +2,7 @@
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
 
-use crate::{
-    api::v1::surveys::{
-        upsert_survey::{upsert_survey, SurveyUpdateItem},
-        GetSurveyResponse,
-    },
-    models::{
-        question::Question,
-        survey::{Quota, StatusType},
-    },
-    service::login_service::use_login_service,
-};
+use crate::api::v2::survey::get_survey_draft;
 
 use chrono::{DateTime, Local, NaiveDate, Utc};
 
@@ -20,7 +10,7 @@ use super::Language;
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
-    survey: Resource<GetSurveyResponse>,
+    survey: Resource<models::prelude::Survey>,
     summary_clicked: Signal<bool>,
     panel_clicked: Signal<bool>,
     survey_list_clicked: Signal<bool>,
@@ -48,20 +38,12 @@ pub struct Controller {
 
 impl Controller {
     pub fn init(_lang: Language, id: String) -> Self {
-        let _navigator = use_navigator();
-        let email: String = "victor@biyard.co".to_string();
-
         let id_copy = id.clone();
-
-        let survey_response = use_resource(move || {
+        let survey_response: Resource<models::prelude::Survey> = use_resource(move || {
             let id_value = id.clone();
-            let email_value = email.clone();
             async move {
-                crate::utils::api::get::<GetSurveyResponse>(&format!(
-                    "/v1/email/{}/surveys/{}",
-                    email_value, id_value
-                ))
-                .await
+                let survey = get_survey_draft(id_value).await;
+                survey.unwrap_or_default()
             }
         });
 
@@ -128,16 +110,13 @@ impl Controller {
             return;
         }
 
-        let email: String = use_login_service().get_email().clone();
-        let survey = self.get_survey();
-
-        let _ = upsert_survey(
-            email.clone(),
-            survey.survey.id.clone(),
-            StatusType::Save,
-            SurveyUpdateItem::SetPeriod(start_timestamp, end_timestamp),
-        )
-        .await;
+        // let _ = upsert_survey(
+        //     email.clone(),
+        //     survey.survey.id.clone(),
+        //     StatusType::Save,
+        //     SurveyUpdateItem::SetPeriod(start_timestamp, end_timestamp),
+        // )
+        // .await;
     }
 
     pub fn set_date(&mut self, start_date: Option<String>, end_date: Option<String>) {
@@ -163,32 +142,31 @@ impl Controller {
         }
     }
 
-    pub fn get_survey_status(&mut self) -> crate::models::survey::SurveyStatus {
-        let survey: crate::models::survey::SurveyStatus = self.get_survey().survey.status;
+    pub fn get_survey_status(&mut self) -> models::prelude::SurveyStatus {
+        let survey = self.get_survey();
+        let status: models::prelude::SurveyStatus = survey.status;
 
-        match survey {
-            crate::models::survey::SurveyStatus::InProgress {
-                started_at,
-                ended_at,
-            } => {
-                let start_timestamp = DateTime::from_timestamp(started_at as i64, 0).unwrap();
-                let end_timestamp = DateTime::from_timestamp(ended_at.unwrap() as i64, 0).unwrap();
+        match status {
+            models::prelude::SurveyStatus::InProgress => {
+                let started_at: i64 = survey.created_at.parse().unwrap();
+                let ended_at: i64 = survey.ended_at.parse().unwrap();
+                let start_timestamp = DateTime::from_timestamp(started_at, 0).unwrap();
+                let end_timestamp = DateTime::from_timestamp(ended_at, 0).unwrap();
 
                 self.change_period(start_timestamp, end_timestamp);
             }
-            crate::models::survey::SurveyStatus::Finished {
-                started_at,
-                ended_at,
-            } => {
-                let start_timestamp = DateTime::from_timestamp(started_at as i64, 0).unwrap();
-                let end_timestamp = DateTime::from_timestamp(ended_at.unwrap() as i64, 0).unwrap();
+            models::prelude::SurveyStatus::Finished => {
+                let started_at: i64 = survey.created_at.parse().unwrap();
+                let ended_at: i64 = survey.ended_at.parse().unwrap();
+                let start_timestamp = DateTime::from_timestamp(started_at, 0).unwrap();
+                let end_timestamp = DateTime::from_timestamp(ended_at, 0).unwrap();
 
                 self.change_period(start_timestamp, end_timestamp);
             }
             _ => {}
         }
 
-        survey
+        status
     }
 
     pub fn date_to_timestamp(
@@ -257,47 +235,43 @@ impl Controller {
         let mut attributes = 0;
         let mut attribute_vec = vec![0, 0, 0, 0];
 
-        for panel in self.get_panels() {
-            match panel {
-                Quota::Attribute {
-                    salary_tier,
-                    region_code,
-                    gender,
-                    age,
-                    quota,
-                } => {
-                    match salary_tier {
+        for quota in self.get_quotas() {
+            let attribute = quota.attribute;
+
+            match attribute {
+                Some(a) => {
+                    match a.salary_tier {
                         Some(_s) => {
                             attribute_vec[0] = attribute_vec[0] + 1;
                         }
                         None => {}
-                    };
+                    }
 
-                    match region_code {
+                    match a.region_code {
                         Some(_r) => {
                             attribute_vec[1] = attribute_vec[1] + 1;
                         }
                         None => {}
                     };
 
-                    match gender {
+                    match a.gender {
                         Some(_g) => {
                             attribute_vec[2] = attribute_vec[2] + 1;
                         }
                         None => {}
                     };
 
-                    match age {
+                    match a.age {
                         Some(_a) => {
                             attribute_vec[3] = attribute_vec[3] + 1;
                         }
                         None => {}
                     };
-
-                    panels += quota;
                 }
-                _ => {}
-            }
+                None => {}
+            };
+
+            panels += quota.quota;
         }
 
         for i in attribute_vec {
@@ -310,9 +284,9 @@ impl Controller {
         self.total_attributes.set(attributes);
     }
 
-    pub fn get_panels(&self) -> Vec<Quota> {
-        let panels = self.get_survey().survey.quotas.unwrap_or(vec![]);
-        panels
+    pub fn get_quotas(&self) -> Vec<models::prelude::Quota> {
+        let quotas = self.get_survey().quotas;
+        quotas
     }
 
     pub fn change_start_date(&mut self, start_date: String) {
@@ -325,14 +299,14 @@ impl Controller {
         self.set_date(None, Some(end_date.clone()));
     }
 
-    pub fn get_questions(&self) -> Vec<Question> {
+    pub fn get_questions(&self) -> Vec<models::prelude::SurveyQuestion> {
         self.get_survey().questions
     }
 
-    pub fn get_survey(&self) -> GetSurveyResponse {
+    pub fn get_survey(&self) -> models::prelude::Survey {
         match (self.survey.value())() {
             Some(value) => value,
-            None => GetSurveyResponse::default(),
+            None => models::prelude::Survey::default(),
         }
     }
 
