@@ -39,6 +39,9 @@ pub struct Survey {
     pub started_at: Option<i64>,
     pub ended_at: Option<i64>,
     pub nonce_lab_id: Option<u32>,
+    //TODO:
+    pub response_count: Option<u64>,
+    pub total_response_count: Option<u64>,
 }
 impl Survey {
     pub fn new(id: String, user_id: String) -> Self {
