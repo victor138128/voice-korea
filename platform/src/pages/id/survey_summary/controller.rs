@@ -1,10 +1,14 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
+use models::prelude::CreateSurveyRequest;
 
-use crate::api::v2::survey::get_survey_draft;
+use crate::{
+    api::v2::survey::{create_survey, get_survey, get_survey_draft},
+    routes::Route,
+};
 
-use chrono::{DateTime, Local, NaiveDate, Utc};
+use chrono::{DateTime, Local, NaiveDate, TimeZone, Utc};
 
 use super::Language;
 
@@ -37,13 +41,18 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn init(_lang: Language, id: String) -> Self {
+    pub fn init(_lang: Language, id: String, is_draft: bool) -> Self {
         let id_copy = id.clone();
+
         let survey_response: Resource<models::prelude::Survey> = use_resource(move || {
             let id_value = id.clone();
             async move {
-                let survey = get_survey_draft(id_value).await;
-                survey.unwrap_or_default()
+                if is_draft {
+                    get_survey_draft(id_value).await.unwrap_or_default()
+                } else {
+                    let id_num: u32 = id_value.parse().unwrap();
+                    get_survey(id_num).await.unwrap_or_default()
+                }
             }
         });
 
@@ -96,19 +105,51 @@ impl Controller {
         ctrl
     }
 
-    pub async fn clicked_start_survey(&mut self) {
-        let formatted_start_date = format!(
-            "{}-{}-{}",
-            self.start_year, self.start_month, self.start_day,
-        );
-        let formatted_end_date = format!("{}-{}-{}", self.end_year, self.end_month, self.end_day);
-        let (start_timestamp, end_timestamp) =
-            self.date_to_timestamp(formatted_start_date, formatted_end_date);
+    pub fn get_survey_id(&self) -> String {
+        (self.survey_id)()
+    }
 
-        if start_timestamp >= end_timestamp {
-            self.invalid_date.set(true);
-            return;
-        }
+    pub async fn clicked_start_survey(&mut self, lang: Language) {
+        let navigator = use_navigator();
+        let start_year: i32 = (self.start_year)().parse().unwrap();
+        let start_month: u32 = (self.start_month)().parse().unwrap();
+        let start_day: u32 = (self.start_day)().parse().unwrap();
+
+        let end_year: i32 = (self.end_year)().parse().unwrap();
+        let end_month: u32 = (self.end_month)().parse().unwrap();
+        let end_day: u32 = (self.end_day)().parse().unwrap();
+
+        let naive_start_date = NaiveDate::from_ymd_opt(start_year, start_month, start_day)
+            .expect("Invalid date components");
+        let naive_start_datetime = naive_start_date
+            .and_hms_opt(0, 0, 0)
+            .expect("Invalid time components");
+
+        // UTC DateTime 생성
+        let start_datetime = Utc.from_utc_datetime(&naive_start_datetime);
+
+        let start_timestamp = start_datetime.timestamp();
+
+        let naive_end_date =
+            NaiveDate::from_ymd_opt(end_year, end_month, end_day).expect("Invalid date components");
+        let naive_end_datetime = naive_end_date
+            .and_hms_opt(23, 59, 59)
+            .expect("Invalid time components");
+
+        // UTC DateTime 생성
+        let end_datetime = Utc.from_utc_datetime(&naive_end_datetime);
+        let end_timestamp = end_datetime.timestamp();
+
+        tracing::debug!("datetime: {} {}", start_timestamp, end_timestamp);
+
+        let _ = create_survey(CreateSurveyRequest {
+            draft_id: self.get_survey_id(),
+            started_at: start_timestamp as u64,
+            ended_at: end_timestamp as u64,
+        })
+        .await;
+
+        navigator.push(Route::DashboardPage { lang });
 
         // let _ = upsert_survey(
         //     email.clone(),
@@ -148,20 +189,21 @@ impl Controller {
 
         match status {
             models::prelude::SurveyStatus::InProgress => {
-                let started_at: i64 = survey.created_at.parse().unwrap();
-                let ended_at: i64 = survey.ended_at.parse().unwrap();
-                let start_timestamp = DateTime::from_timestamp(started_at, 0).unwrap();
-                let end_timestamp = DateTime::from_timestamp(ended_at, 0).unwrap();
+                tracing::debug!(
+                    "created_at: {} ended_at: {}",
+                    survey.created_at,
+                    survey.ended_at
+                );
+                let started_at: DateTime<Utc> = survey.created_at.parse().unwrap();
+                let ended_at: DateTime<Utc> = survey.ended_at.parse().unwrap();
 
-                self.change_period(start_timestamp, end_timestamp);
+                self.change_period(started_at, ended_at);
             }
             models::prelude::SurveyStatus::Finished => {
-                let started_at: i64 = survey.created_at.parse().unwrap();
-                let ended_at: i64 = survey.ended_at.parse().unwrap();
-                let start_timestamp = DateTime::from_timestamp(started_at, 0).unwrap();
-                let end_timestamp = DateTime::from_timestamp(ended_at, 0).unwrap();
+                let started_at: DateTime<Utc> = survey.created_at.parse().unwrap();
+                let ended_at: DateTime<Utc> = survey.ended_at.parse().unwrap();
 
-                self.change_period(start_timestamp, end_timestamp);
+                self.change_period(started_at, ended_at);
             }
             _ => {}
         }
@@ -169,22 +211,22 @@ impl Controller {
         status
     }
 
-    pub fn date_to_timestamp(
-        &mut self,
-        format_start_date: String,
-        format_end_date: String,
-    ) -> (u64, u64) {
-        let naive_start_date = NaiveDate::parse_from_str(&format_start_date, "%Y-%m-%d").unwrap();
-        let naive_end_date = NaiveDate::parse_from_str(&format_end_date, "%Y-%m-%d").unwrap();
+    // pub fn date_to_timestamp(
+    //     &mut self,
+    //     format_start_date: String,
+    //     format_end_date: String,
+    // ) -> (u64, u64) {
+    //     let naive_start_date = NaiveDate::parse_from_str(&format_start_date, "%Y-%m-%d").unwrap();
+    //     let naive_end_date = NaiveDate::parse_from_str(&format_end_date, "%Y-%m-%d").unwrap();
 
-        let start_datetime = naive_start_date.and_hms_opt(0, 0, 0).unwrap();
-        let end_datetime = naive_end_date.and_hms_opt(0, 0, 0).unwrap();
+    //     let start_datetime = naive_start_date.and_hms_opt(0, 0, 0).unwrap();
+    //     let end_datetime = naive_end_date.and_hms_opt(0, 0, 0).unwrap();
 
-        let start_timestamp = start_datetime.and_utc().timestamp() as u64;
-        let end_timestamp = end_datetime.and_utc().timestamp() as u64;
+    //     let start_timestamp = start_datetime.and_utc().timestamp() as u64;
+    //     let end_timestamp = end_datetime.and_utc().timestamp() as u64;
 
-        (start_timestamp, end_timestamp)
-    }
+    //     (start_timestamp, end_timestamp)
+    // }
 
     pub fn change_period(&mut self, start_timestamp: DateTime<Utc>, end_timestamp: DateTime<Utc>) {
         // yyyy-mm-dd 형식으로 변환

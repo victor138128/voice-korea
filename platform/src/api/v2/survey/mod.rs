@@ -33,17 +33,17 @@ pub async fn get_survey(id: u32) -> Result<models::prelude::Survey, ServerFnErro
     Ok(res.json().await?)
 }
 
-// #[server(endpoint = "/v2/survey/create", input = Json, output = Json)]
-// pub async fn create_survey(
-//     req: models::prelude::CreateSurveyRequest,
-// ) -> Result<models::prelude::CreateSurveyResponse, ServerFnError> {
-//     use crate::utils::api::ReqwestClient;
+#[server(endpoint = "/v2/survey/create", input = Json, output = Json)]
+pub async fn create_survey(
+    req: models::prelude::CreateSurveyRequest,
+) -> Result<models::prelude::CreateSurveyResponse, ServerFnError> {
+    use crate::utils::api::ReqwestClient;
 
-//     let client = ReqwestClient::new()?;
-//     let res = client.post("/v1/survey").json(&req).send().await?;
-//     let res = res.error_for_status()?;
-//     Ok(res.json().await?)
-// }
+    let client = ReqwestClient::new()?;
+    let res = client.post("/v1/survey").json(&req).send().await?;
+    let res = res.error_for_status()?;
+    Ok(res.json().await?)
+}
 
 #[server(endpoint = "/v2/survey/draft", input = GetUrl, output = Json)]
 pub async fn get_survey_draft(id: String) -> Result<models::prelude::Survey, ServerFnError> {

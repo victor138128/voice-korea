@@ -96,7 +96,7 @@ pub fn DashboardRow(
                                         Route::SelectResponsePage { lang, survey_id: draft_id.clone() }
                                     );
                                 } else {
-                                    navigator.push(Route::SurveySummaryPage { lang, survey_id: draft_id.clone() });
+                                    navigator.push(Route::SurveySummaryPage { lang, survey_id: draft_id.clone(), is_draft: true });
                                 }
                             },
                             div {
@@ -107,6 +107,9 @@ pub fn DashboardRow(
                     } else {
                         div {
                             class: "flex flex-row w-[200px] h-[55px] rounded-[8px] border-solid border border-[#b0b0b0] bg-white items-center justify-center",
+                            onclick: move |_| {
+                                navigator.push(Route::SurveySummaryPage { lang, survey_id: survey_id.clone(), is_draft: false });
+                            },
                             div {
                                 class: "text-[20px] font-medium text-[#1e5eaf]",
                                 "{analysis_result}"
