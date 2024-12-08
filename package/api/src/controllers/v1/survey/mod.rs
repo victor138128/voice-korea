@@ -1,8 +1,12 @@
-use crate::utils::{error::ApiError, nonce_lab};
+use crate::{
+    middleware::auth::authorization_middleware,
+    utils::{error::ApiError, jwt::Claims, nonce_lab},
+};
 use by_axum::axum::{
     extract::{Path, Query, State},
+    middleware,
     routing::get,
-    Json, Router,
+    Extension, Json, Router,
 };
 mod local_models;
 
@@ -24,6 +28,7 @@ pub fn router(db: Arc<Client>) -> Router {
         .route("/", get(list_survey).patch(upsert_survey_draft))
         .route("/:id", get(get_survey).post(progress_survey))
         .with_state(db)
+        .layer(middleware::from_fn(authorization_middleware))
 }
 
 #[derive(Deserialize)]
@@ -33,6 +38,7 @@ pub struct GetParams {
 }
 
 async fn list_survey(
+    Extension(claims): Extension<Claims>,
     State(db): State<Arc<Client>>,
     Query(params): Query<GetParams>,
 ) -> Result<Json<ListSurveyResponse>, ApiError> {
@@ -44,7 +50,7 @@ async fn list_survey(
             "gsi1-index",
             params.bookmark,
             Some(params.size.unwrap_or(10)),
-            vec![("gsi1", Survey::get_gsi1(""))],
+            vec![("gsi1", Survey::get_gsi1(&claims.id))],
         )
         .await;
     let (survey, bookmark) = match result {
@@ -55,35 +61,26 @@ async fn list_survey(
 }
 
 async fn get_survey(
+    Extension(claims): Extension<Claims>,
     State(db): State<Arc<Client>>,
     Path(id): Path<String>,
 ) -> Result<Json<Survey>, ApiError> {
-    // let nonce_lab_client = nonce_lab::NonceLabClient::new()
-    //     .map_err(|e| ApiError::ReqwestClientFailed(e.to_string()))?;
-    // match nonce_lab_client
-    //     .get(&format!("/v1/vendor/survey/{}", id))
-    //     .send()
-    //     .await
-    // {
-    //     Ok(v) => match v.json().await {
-    //         Ok(v) => Ok(Json(v)),
-    //         Err(e) => {
-    //             slog::error!(root(), "{e:?}");
-    //             Err(ApiError::JSONSerdeError(e.to_string()))
-    //         }
-    //     },
-    //     Err(e) => Err(ApiError::ReqwestFailed(e.to_string())),
-    // }
-
     let result: Result<Option<Survey>, easy_dynamodb::error::DynamoException> = db.get(&id).await;
     match result {
-        Ok(Some(v)) => Ok(Json(v)),
+        Ok(Some(v)) => {
+            if v.creator != claims.id {
+                Err(ApiError::InvalidCredentials("Not Creator".to_string()))
+            } else {
+                Ok(Json(v))
+            }
+        }
         Ok(None) => Err(ApiError::SurveyNotFound(id)),
         Err(e) => Err(ApiError::DynamoQueryException(e.to_string())),
     }
 }
 
 async fn upsert_survey_draft(
+    Extension(claims): Extension<Claims>,
     State(db): State<Arc<Client>>,
     Json(req): Json<UpsertSurveyDraftRequest>,
 ) -> Result<Json<String>, ApiError> {
@@ -101,7 +98,7 @@ async fn upsert_survey_draft(
             Err(e) => return Err(ApiError::DynamoQueryException(e.to_string())),
         }
     } else {
-        Survey::new(uuid::Uuid::new_v4().to_string(), String::default())
+        Survey::new(uuid::Uuid::new_v4().to_string(), claims.id)
     };
 
     let draft_id = survey.id.clone();
@@ -141,12 +138,16 @@ enum UpdateField {
 
 //Update Survey Status from Draft to in_progress
 async fn progress_survey(
+    Extension(claims): Extension<Claims>,
     State(db): State<Arc<Client>>,
     Path(id): Path<String>,
 ) -> Result<Json<ProgressSurveyResponse>, ApiError> {
     let result: Result<Option<Survey>, easy_dynamodb::error::DynamoException> = db.get(&id).await;
     let survey = match result {
         Ok(Some(v)) => {
+            if v.creator != claims.id {
+                return Err(ApiError::InvalidCredentials("Not Ownder".to_string()));
+            }
             if v.status != SurveyStatus::Draft {
                 return Err(ApiError::SurveyInProgress);
             }
