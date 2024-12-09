@@ -67,27 +67,27 @@ impl Controller {
                         label: "연봉".to_string(),
                         chart_datas: vec![
                             PiChart {
-                                label: "2000만원 이하",
+                                label: "2400만원 이하",
                                 percentage: 0.4,
                                 color: "#5778a3",
                             },
                             PiChart {
-                                label: "2000만원~4000만원",
+                                label: "2400만원~5000만원",
                                 percentage: 0.2,
                                 color: "#a8c9e5",
                             },
                             PiChart {
-                                label: "4000만원~6000만원",
+                                label: "5000만원~8000만원",
                                 percentage: 0.1,
                                 color: "#e49343",
                             },
                             PiChart {
-                                label: "6000만원~8000만원",
+                                label: "8000만원~10000만원",
                                 percentage: 0.1,
                                 color: "#f5c086",
                             },
                             PiChart {
-                                label: "8000만원 이상",
+                                label: "10000만원 이상",
                                 percentage: 0.2,
                                 color: "#6b9f59",
                             },
@@ -230,7 +230,7 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "2000만원 이하".to_string(),
+                            "2400만원 이하".to_string(),
                             "서울".to_string(),
                             "남성".to_string(),
                             "18~29세".to_string(),
@@ -242,7 +242,7 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "2000만원 이하".to_string(),
+                            "2400만원 이하".to_string(),
                             "부산".to_string(),
                             "여성".to_string(),
                             "30대".to_string(),
@@ -254,7 +254,7 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "2000만원~4000만원".to_string(),
+                            "2400만원~5000만원".to_string(),
                             "부산".to_string(),
                             "남성".to_string(),
                             "40대".to_string(),
@@ -266,7 +266,7 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "2000만원~4000만원".to_string(),
+                            "2400만원~5000만원".to_string(),
                             "서울".to_string(),
                             "남성".to_string(),
                             "18~29세".to_string(),
@@ -278,7 +278,7 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "8000만원 이상".to_string(),
+                            "10000만원 이상".to_string(),
                             "대구".to_string(),
                             "여성".to_string(),
                             "40대".to_string(),
@@ -290,7 +290,7 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "4000만원~6000만원".to_string(),
+                            "5000만원~8000만원".to_string(),
                             "대구".to_string(),
                             "남성".to_string(),
                             "18~29세".to_string(),
@@ -302,7 +302,7 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "6000만원~8000만원".to_string(),
+                            "5000만원~8000만원".to_string(),
                             "서울".to_string(),
                             "남성".to_string(),
                             "40대".to_string(),
@@ -314,7 +314,7 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "8000만원 이상".to_string(),
+                            "10000만원 이상".to_string(),
                             "서울".to_string(),
                             "남성".to_string(),
                             "18~29세".to_string(),
@@ -326,7 +326,7 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "2000만원 이하".to_string(),
+                            "2400만원 이하".to_string(),
                             "서울".to_string(),
                             "남성".to_string(),
                             "18~29세".to_string(),
@@ -338,7 +338,7 @@ impl Controller {
                         final_update_date: "2024-09-09".to_string(),
                         inprogress_time: "10m30s".to_string(),
                         attribute: vec![
-                            "2000만원 이하".to_string(),
+                            "2400만원 이하".to_string(),
                             "서울".to_string(),
                             "남성".to_string(),
                             "18~29세".to_string(),

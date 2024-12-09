@@ -56,15 +56,15 @@ impl Controller {
                     match attr.salary_tier {
                         Some(salary) => {
                             if salary == 1 {
-                                sal = "2000만원 이하".to_string();
+                                sal = "2400만원 이하".to_string();
                             } else if salary == 2 {
-                                sal = "2000만원~4000만원".to_string();
+                                sal = "2400만원~5000만원".to_string();
                             } else if salary == 3 {
-                                sal = "4000만원~6000만원".to_string();
+                                sal = "5000만원~8000만원".to_string();
                             } else if salary == 4 {
-                                sal = "6000만원~8000만원".to_string();
+                                sal = "8000만원~10000만원".to_string();
                             } else {
-                                sal = "8000만원 이상".to_string();
+                                sal = "10000만원 이상".to_string();
                             }
                         }
                         None => {}

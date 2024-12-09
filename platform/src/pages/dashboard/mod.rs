@@ -50,6 +50,43 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
     let mut ctrl = controller::Controller::init();
     let translates = i18n::translate(props.lang.clone());
 
+    #[cfg(feature = "web")]
+    use_effect(move || {
+        let runtime = Runtime::current().expect("Get runtime failed");
+        use wasm_bindgen::JsCast;
+        let handler =
+            wasm_bindgen::closure::Closure::wrap(Box::new(move |event: web_sys::KeyboardEvent| {
+                let _guard = RuntimeGuard::new(runtime.clone());
+                // FIXME: sometimes key code returns undefined from JS which causes panic in Dioxus.
+                //        it seems like a bug in Dioxus.
+                let window = web_sys::window().expect("no windows exists");
+                let document = window.document().expect("window has no `document`");
+                if let Some(active_element) = document.active_element() {
+                    if active_element.tag_name().to_lowercase() != "body" {
+                        return;
+                    }
+                };
+                if event.code() == "Slash" {
+                    event.prevent_default();
+                    if let Some(document) = web_sys::window().unwrap().document() {
+                        if let Some(input) = document.get_element_by_id("search-input") {
+                            input
+                                .dyn_ref::<web_sys::HtmlInputElement>()
+                                .unwrap()
+                                .focus()
+                                .unwrap();
+                        }
+                    }
+                }
+            }) as Box<dyn FnMut(_)>);
+
+        web_sys::window()
+            .unwrap()
+            .add_event_listener_with_callback("keydown", handler.as_ref().unchecked_ref())
+            .expect("failed to add event listener");
+        handler.forget();
+    });
+
     rsx! {
         div {
             class: "flex flex-col w-full h-full pt-[45px] pr-[45px] pl-[35px] items-start justify-start",
@@ -66,10 +103,17 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                             height: 24
                         }
                         input {
+                            id: "search-input",
                             class: "flex flex-1 text-[21px] text-[#8a8a8a] font-normal",
                             "type": "text",
                             style: "border:0px; padding: 5px; border-color: transparent; outline-style: none; box-shadow: none",
                             placeholder: "{translates.search}",
+                            onkeydown: move |e: Event<KeyboardData>| async move {
+                                if e.code() == Code::Enter && ctrl.get_search_text() != "" {
+                                    ctrl.search_text().await;
+                                }
+                            },
+                            oninput: move |e| ctrl.change_search_text(e.value()),
                             min: 0,
                         }
                     }

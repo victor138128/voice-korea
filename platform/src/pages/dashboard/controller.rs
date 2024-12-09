@@ -31,6 +31,7 @@ pub struct Controller {
     pub surveys: Signal<Vec<Survey>>,
     pub clicked_type: Signal<u64>, //0: type-1, 1: type-2
     pub is_error: Signal<bool>,
+    pub text: Signal<String>,
 }
 
 impl Controller {
@@ -40,6 +41,7 @@ impl Controller {
             surveys: use_signal(|| vec![]),
             clicked_type: use_signal(|| 0),
             is_error: use_signal(|| false),
+            text: use_signal(|| "".to_string()),
         };
         let res = use_resource(|| async move {
             match list_surveys(Some(100), None).await {
@@ -59,6 +61,18 @@ impl Controller {
         }
 
         ctrl
+    }
+
+    pub fn get_search_text(&self) -> String {
+        (self.text)()
+    }
+
+    pub fn change_search_text(&mut self, text: String) {
+        self.text.set(text);
+    }
+
+    pub async fn search_text(&mut self) {
+        tracing::debug!("search text: {}", self.get_search_text());
     }
 
     pub fn format_date(timestamp: u64) -> String {
