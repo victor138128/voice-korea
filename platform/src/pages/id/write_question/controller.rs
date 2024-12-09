@@ -10,7 +10,7 @@ use crate::{
     models::survey::StatusType,
 };
 
-use super::Language;
+use super::{Language, Route};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub enum QuestionStep {
@@ -48,12 +48,11 @@ pub struct ObjectiveQuestionOption {
 impl Controller {
     #[allow(unused_variables)]
     pub fn init(lang: Language, id: String) -> Self {
+        let navigator = use_navigator();
         #[cfg(feature = "web")]
         {
-            use super::Route;
             use crate::service::login_service::use_login_service;
 
-            let navigator = use_navigator();
             let token = use_login_service().get_cookie_value();
             if token.is_none() {
                 navigator.push(Route::LoginPage { lang });
@@ -106,6 +105,15 @@ impl Controller {
             update_key: use_signal(|| 0),
             update_button_clicked: use_signal(|| false),
             survey_id: use_signal(|| "".to_string()),
+        };
+
+        let draft_status = ctrl.get_survey().draft_status;
+        let title = ctrl.get_survey().title;
+
+        if (!draft_status.is_none() && draft_status != Some(SurveyDraftStatus::Question))
+            || (draft_status.is_none() && title != "")
+        {
+            navigator.push(Route::DashboardPage { lang });
         };
 
         ctrl.survey_id.set(id_copy);

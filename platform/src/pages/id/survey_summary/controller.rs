@@ -43,12 +43,11 @@ pub struct Controller {
 
 impl Controller {
     pub fn init(lang: Language, id: String) -> Self {
+        let navigator = use_navigator();
         #[cfg(feature = "web")]
         {
-            use super::Route;
             use crate::service::login_service::use_login_service;
 
-            let navigator = use_navigator();
             let token = use_login_service().get_cookie_value();
             if token.is_none() {
                 navigator.push(Route::LoginPage { lang });
@@ -112,6 +111,12 @@ impl Controller {
         ctrl.object_count.set(object_count);
         ctrl.subject_count.set(subject_count);
         ctrl.total_count.set(total_count);
+
+        let draft_status = ctrl.get_survey().draft_status;
+
+        if !draft_status.is_none() && draft_status != Some(SurveyDraftStatus::Complete) {
+            navigator.push(Route::DashboardPage { lang });
+        };
 
         use_context_provider(|| ctrl);
 
@@ -339,7 +344,16 @@ impl Controller {
     }
 
     pub async fn back_button_clicked(&mut self) {
-        tracing::debug!("back button clicked");
+        let _ = upsert_survey_draft(UpsertSurveyDraftRequest {
+            id: Some(self.get_survey_id()),
+            status: Some(SurveyDraftStatus::Quotas),
+            title: None,
+            quotas: None,
+            questions: None,
+            started_at: None,
+            ended_at: None,
+        })
+        .await;
     }
 }
 

@@ -361,6 +361,7 @@ impl Controller {
             }),
         };
         ctrl.clicked_index.set(ctrl.get_panels().len());
+
         use_context_provider(|| ctrl);
         ctrl
     }

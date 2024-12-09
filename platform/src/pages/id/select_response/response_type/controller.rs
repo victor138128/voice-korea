@@ -3,6 +3,7 @@ use crate::api::v2::survey::{get_survey, upsert_survey_draft};
 use std::collections::HashMap;
 
 use dioxus::prelude::*;
+use models::prelude::SurveyDraftStatus;
 
 use super::{Language, Route};
 
@@ -76,12 +77,11 @@ pub enum Step {
 impl Controller {
     #[allow(unused_variables)]
     pub fn init(lang: Language, id: String) -> Self {
+        let navigator = use_navigator();
         #[cfg(feature = "web")]
         {
-            use super::Route;
             use crate::service::login_service::use_login_service;
 
-            let navigator = use_navigator();
             let token = use_login_service().get_cookie_value();
             if token.is_none() {
                 navigator.push(Route::LoginPage { lang });
@@ -258,6 +258,15 @@ impl Controller {
             clicked_attribute_index: use_signal(|| None),
             total_attribute: use_signal(|| vec![]),
             attribute_modal_label: use_signal(|| "".to_string()),
+        };
+
+        let draft_status = ctrl.get_survey().draft_status;
+        let title = ctrl.get_survey().title;
+
+        if (!draft_status.is_none() && draft_status != Some(SurveyDraftStatus::Quotas))
+            || (draft_status.is_none() && title != "")
+        {
+            navigator.push(Route::DashboardPage { lang });
         };
 
         use_context_provider(|| ctrl);
