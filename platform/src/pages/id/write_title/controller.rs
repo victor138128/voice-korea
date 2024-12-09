@@ -8,6 +8,8 @@ use crate::{
     models::survey::StatusType,
 };
 
+use super::Language;
+
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
     survey: Signal<Survey>,
@@ -16,7 +18,20 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn init(id: String) -> Self {
+    #[allow(unused_variables)]
+    pub fn init(lang: Language, id: String) -> Self {
+        #[cfg(feature = "web")]
+        {
+            use super::Route;
+            use crate::service::login_service::use_login_service;
+
+            let navigator = use_navigator();
+            let token = use_login_service().get_cookie_value();
+            if token.is_none() {
+                navigator.push(Route::LoginPage { lang });
+            }
+        }
+
         let mut ctrl = Self {
             survey: use_signal(|| Survey::default()),
             survey_title: use_signal(|| "".to_string()),

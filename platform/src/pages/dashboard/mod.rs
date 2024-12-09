@@ -47,7 +47,7 @@ pub struct DashboardListTypeProps {
 
 #[component]
 pub fn DashboardPage(props: DashboardPageProps) -> Element {
-    let mut ctrl = controller::Controller::init();
+    let mut ctrl = controller::Controller::init(props.lang);
     let translates = i18n::translate(props.lang.clone());
 
     #[cfg(feature = "web")]

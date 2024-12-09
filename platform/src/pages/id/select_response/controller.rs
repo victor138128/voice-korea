@@ -6,6 +6,8 @@ use crate::api::v2::survey::{get_survey, upsert_survey_draft};
 use dioxus::prelude::*;
 use models::prelude::{SurveyDraftStatus, UpsertSurveyDraftRequest};
 
+use super::Language;
+
 #[derive(Clone, PartialEq, Copy)]
 pub struct Controller {
     survey_response: Resource<models::prelude::Survey>,
@@ -23,7 +25,20 @@ pub struct AttributeInfo {
 }
 
 impl Controller {
-    pub fn init(id: String) -> Self {
+    #[allow(unused_variables)]
+    pub fn init(lang: Language, id: String) -> Self {
+        #[cfg(feature = "web")]
+        {
+            use super::Route;
+            use crate::service::login_service::use_login_service;
+
+            let navigator = use_navigator();
+            let token = use_login_service().get_cookie_value();
+            if token.is_none() {
+                navigator.push(Route::LoginPage { lang });
+            }
+        }
+
         let id_copy = id.clone();
         let survey_response: Resource<models::prelude::Survey> = use_resource(move || {
             let id_value = id.clone();

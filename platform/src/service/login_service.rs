@@ -46,7 +46,7 @@ impl LoginService {
     }
 
     #[cfg(feature = "web")]
-    fn get_cookie_value(&self) -> Option<String> {
+    pub fn get_cookie_value(&self) -> Option<String> {
         use wasm_bindgen::JsCast;
         use web_sys::window;
         // Get the browser's `document` object

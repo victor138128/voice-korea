@@ -35,7 +35,7 @@ pub struct TabelTranslates {
 
 #[component]
 pub fn AttributePage(props: AttributeProps) -> Element {
-    let mut ctrl = controller::Controller::init();
+    let mut ctrl = controller::Controller::init(props.lang);
     let translates = i18n::translate(props.lang.clone());
     rsx! {
         div {

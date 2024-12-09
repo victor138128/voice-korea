@@ -74,7 +74,20 @@ pub enum Step {
 }
 
 impl Controller {
-    pub fn init(id: String) -> Self {
+    #[allow(unused_variables)]
+    pub fn init(lang: Language, id: String) -> Self {
+        #[cfg(feature = "web")]
+        {
+            use super::Route;
+            use crate::service::login_service::use_login_service;
+
+            let navigator = use_navigator();
+            let token = use_login_service().get_cookie_value();
+            if token.is_none() {
+                navigator.push(Route::LoginPage { lang });
+            }
+        }
+
         let survey_response: Resource<models::prelude::Survey> = use_resource(move || {
             let id_value = id.clone();
             async move {

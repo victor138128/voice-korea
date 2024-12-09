@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 
-use crate::models::pi::PiChart;
+use crate::{models::pi::PiChart, prelude::Language};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
@@ -57,7 +57,20 @@ pub struct Response {
 }
 
 impl Controller {
-    pub fn init() -> Self {
+    #[allow(unused_variables)]
+    pub fn init(lang: Language) -> Self {
+        #[cfg(feature = "web")]
+        {
+            use crate::routes::Route;
+            use crate::service::login_service::use_login_service;
+
+            let navigator = use_navigator();
+            let token = use_login_service().get_cookie_value();
+            if token.is_none() {
+                navigator.push(Route::LoginPage { lang });
+            }
+        }
+
         let mut ctrl = Self {
             select_page: use_signal(|| SelectPage::Summary),
             clicked_index: use_signal(|| 0),

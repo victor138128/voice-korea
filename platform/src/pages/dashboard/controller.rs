@@ -35,7 +35,19 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn init() -> Self {
+    #[allow(unused_variables)]
+    pub fn init(lang: Language) -> Self {
+        #[cfg(feature = "web")]
+        {
+            use crate::service::login_service::use_login_service;
+
+            let navigator = use_navigator();
+            let token = use_login_service().get_cookie_value();
+            if token.is_none() {
+                navigator.push(Route::LoginPage { lang });
+            }
+        }
+
         let mut ctrl = Self {
             current_bookmark: use_signal(|| None),
             surveys: use_signal(|| vec![]),
