@@ -12,7 +12,7 @@ pub fn AlertModal(
         div {
             class: "absolute flex flex-row w-screen h-screen backdrop-blur-sm justify-center items-center z-50",
             div {
-                class: format!("relative flex flex-col h-min max-h-[750px] bg-white rounded-lg border-[1px] border-[#9f9f9f] justify-start items-center overflow-y-auto"),
+                class: "relative flex flex-col h-min max-h-[750px] bg-white rounded-lg border-[1px] border-[#9f9f9f] justify-start items-center overflow-y-auto",
                 style: if let Some(max_width) = max_width {
                     format!("top: -120px; left: -250px; padding-left: 30px; padding-right: 30px; padding-top: 20px; padding-bottom: 20px; min-width: {}px; max-width: {}px", width, max_width)
                 } else {
