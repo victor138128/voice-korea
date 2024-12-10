@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use models::prelude::{
-    Age, Gender, Panel, Quota, RegionCode, SalaryTier, SurveyQuestion, SurveyQuestionType,
-    SurveyStatus,
+    Age, Attribute, Gender, Panel, Quota, RegionCode, SalaryTier, SurveyQuestion,
+    SurveyQuestionType, SurveyStatus,
 };
 use serde::{Deserialize, Serialize};
 
@@ -87,7 +87,7 @@ impl From<SurveyQuestion> for NonceLabSurveyQuestion {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct NonceLabQuota {
     pub id: Option<u32>,
     pub attribute: Option<NonceLabAttribute>,
@@ -144,7 +144,59 @@ impl From<Quota> for NonceLabQuota {
         }
     }
 }
-#[derive(Serialize, Deserialize)]
+
+impl Into<Quota> for NonceLabQuota {
+    fn into(self) -> Quota {
+        let attribute = if let Some(attribute) = self.attribute {
+            let region_code = if let Some(code) = attribute.region_code {
+                convert_region_code_to_area_code(code)
+            } else {
+                None
+            };
+
+            let gender = if let Some(gender) = attribute.gender_code {
+                Some(match gender {
+                    1_u8 => Gender::Male,
+                    2_u8 => Gender::Female,
+                    _ => Gender::Others,
+                })
+            } else {
+                None
+            };
+
+            let age = if let Some(age) = attribute.age {
+                Some(match age {
+                    NonceLabAge::Range {
+                        inclusive_min,
+                        inclusive_max,
+                    } => Age::Range {
+                        inclusive_min: Some(inclusive_min),
+                        inclusive_max: Some(inclusive_max),
+                    },
+                    NonceLabAge::Specific(v) => Age::Specific(v),
+                })
+            } else {
+                None
+            };
+
+            Some(Attribute {
+                salary_tier: attribute.salary_tier,
+                region_code,
+                gender,
+                age,
+            })
+        } else {
+            None
+        };
+
+        Quota {
+            attribute,
+            panel: self.panel,
+            quota: self.quota,
+        }
+    }
+}
+#[derive(Serialize, Deserialize, Debug)]
 pub struct NonceLabAttribute {
     // e.g. 1, 2, 3, 4, 5
     pub salary_tier: Option<SalaryTier>,
@@ -154,7 +206,7 @@ pub struct NonceLabAttribute {
     pub age: Option<NonceLabAge>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum NonceLabAge {
     Specific(u8),
     Range {
@@ -164,26 +216,49 @@ pub enum NonceLabAge {
 }
 
 fn convert_area_code_to_region_code(area_code: u16) -> Option<u16> {
-    let mut area_to_region_map = HashMap::new();
-    area_to_region_map.insert(2, 11); // 서울
-    area_to_region_map.insert(51, 21); // 부산
-    area_to_region_map.insert(53, 22); // 대구
-    area_to_region_map.insert(32, 23); // 인천
-    area_to_region_map.insert(62, 24); // 광주
-    area_to_region_map.insert(42, 25); // 대전
-    area_to_region_map.insert(52, 26); // 울산
-    area_to_region_map.insert(44, 29); // 세종
-    area_to_region_map.insert(31, 31); // 경기
-    area_to_region_map.insert(33, 32); // 강원
-    area_to_region_map.insert(43, 33); // 충북
-    area_to_region_map.insert(41, 34); // 충남
-    area_to_region_map.insert(63, 35); // 전북
-    area_to_region_map.insert(61, 36); // 전남
-    area_to_region_map.insert(54, 37); // 경북
-    area_to_region_map.insert(55, 38); // 경남
-    area_to_region_map.insert(64, 39); // 제주
+    match area_code {
+        2 => Some(11),  // 서울
+        51 => Some(21), // 부산
+        53 => Some(22), // 대구
+        32 => Some(23), // 인천
+        62 => Some(24), // 광주
+        42 => Some(25), // 대전
+        52 => Some(26), // 울산
+        44 => Some(29), // 세종
+        31 => Some(31), // 경기
+        33 => Some(32), // 강원
+        43 => Some(33), // 충북
+        41 => Some(34), // 충남
+        63 => Some(35), // 전북
+        61 => Some(36), // 전남
+        54 => Some(37), // 경북
+        55 => Some(38), // 경남
+        64 => Some(39), // 제주
+        _ => None,
+    }
+}
 
-    area_to_region_map.get(&area_code).copied()
+fn convert_region_code_to_area_code(region_code: u16) -> Option<u16> {
+    match region_code {
+        11 => Some(2),  // 서울
+        21 => Some(51), // 부산
+        22 => Some(53), // 대구
+        23 => Some(32), // 인천
+        24 => Some(62), // 광주
+        25 => Some(42), // 대전
+        26 => Some(52), // 울산
+        29 => Some(44), // 세종
+        31 => Some(31), // 경기
+        32 => Some(33), // 강원
+        33 => Some(43), // 충북
+        34 => Some(41), // 충남
+        35 => Some(63), // 전북
+        36 => Some(61), // 전남
+        37 => Some(54), // 경북
+        38 => Some(55), // 경남
+        39 => Some(64), // 제주
+        _ => None,
+    }
 }
 
 #[derive(Deserialize)]
@@ -206,28 +281,28 @@ pub struct NonceLabCreateSurveyResponse {
     // pub responders: Vec<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct NonceLabSurveyResultResponseDto {
-    quotas: Vec<NonceLabQuota>,
-    reseponse_array: Vec<NonceLabSurveyResponse>,
+pub struct NonceLabSurveyResultResponse {
+    pub quotas: Vec<NonceLabQuota>,
+    pub response_array: Vec<NonceLabSurveyResponse>,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NonceLabSurveyResponse {
-    id: u32,
-    quotaId: u32,
-    responsed_at: String,
-    answers: Vec<NonceLabSurveyResultAnswer>,
+    // pub id: u32,
+    pub quota_id: u32,
+    pub responded_at: String,
+    pub answers: Vec<NonceLabSurveyResultAnswer>,
 }
 
 // Nonce Lab Responses
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NonceLabSurveyResultAnswer {
-    id: u32,
-    text_answer: Option<String>,
-    choice_answer: Option<Vec<String>>,
+    // pub id: u32,
+    pub text_answer: Option<String>,
+    pub choice_answer: Option<Vec<String>>,
 }

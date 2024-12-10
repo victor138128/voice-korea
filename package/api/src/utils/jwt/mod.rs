@@ -1,6 +1,5 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use by_axum::log::root;
 use jsonwebtoken::{
     decode, encode,
     errors::{Error as JwtError, ErrorKind},
