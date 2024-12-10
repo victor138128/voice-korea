@@ -6,6 +6,29 @@ use models::prelude::{
 };
 use serde::{Deserialize, Serialize};
 
+#[derive(Deserialize)]
+pub struct NonceLabGetSurveyDto {
+    // pub id: u32,
+    // pub title: String,
+    // pub description: Option<String>,
+    // pub status: SurveyStatus,
+    // #[serde(rename = "startedAt")]
+    // pub created_at: String,
+    // #[serde(rename = "endedAt")]
+    // pub ended_at: String,
+    // #[serde(rename = "rewardPoints")]
+    // pub reward_points: u32,
+    // #[serde(rename = "questionCount")]
+    // pub question_count: u32,
+    // participated: bool,
+    // #[serde(rename = "estimatedMinutes")]
+    // pub estimated_minutes: u32,
+    // pub quotas: Vec<Quota>,
+    // pub questions: Vec<SurveyQuestion>,
+    #[serde(rename = "responseCountMap")]
+    pub response_count_map: Option<HashMap<u32, u64>>,
+}
+
 #[derive(Serialize)]
 pub struct NonceLabCreateSurveyRequest {
     pub custom_id: String,
@@ -64,8 +87,9 @@ impl From<SurveyQuestion> for NonceLabSurveyQuestion {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct NonceLabQuota {
+    pub id: Option<u32>,
     pub attribute: Option<NonceLabAttribute>,
     pub panel: Option<Panel>,
     pub quota: u64,
@@ -113,13 +137,14 @@ impl From<Quota> for NonceLabQuota {
         };
 
         NonceLabQuota {
+            id: None,
             panel: quota.panel,
             quota: quota.quota,
             attribute,
         }
     }
 }
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct NonceLabAttribute {
     // e.g. 1, 2, 3, 4, 5
     pub salary_tier: Option<SalaryTier>,
@@ -129,7 +154,7 @@ pub struct NonceLabAttribute {
     pub age: Option<NonceLabAge>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub enum NonceLabAge {
     Specific(u8),
     Range {
@@ -179,4 +204,30 @@ pub struct NonceLabCreateSurveyResponse {
     // pub created_at: String,
     // pub updated_at: String,
     // pub responders: Vec<String>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NonceLabSurveyResultResponseDto {
+    quotas: Vec<NonceLabQuota>,
+    reseponse_array: Vec<NonceLabSurveyResponse>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NonceLabSurveyResponse {
+    id: u32,
+    quotaId: u32,
+    responsed_at: String,
+    answers: Vec<NonceLabSurveyResultAnswer>,
+}
+
+// Nonce Lab Responses
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NonceLabSurveyResultAnswer {
+    id: u32,
+    text_answer: Option<String>,
+    choice_answer: Option<Vec<String>>,
 }

@@ -12,7 +12,7 @@ mod local_models;
 
 use easy_dynamodb::Client;
 use local_models::{
-    NonceLabCreateSurveyRequest, NonceLabCreateSurveyResponse, NonceLabQuota,
+    NonceLabCreateSurveyRequest, NonceLabCreateSurveyResponse, NonceLabGetSurveyDto, NonceLabQuota,
     NonceLabSurveyQuestion,
 };
 
@@ -31,12 +31,36 @@ pub fn router(db: Arc<Client>) -> Router {
         .layer(middleware::from_fn(authorization_middleware))
 }
 
+const UPDATE_DELAY_MS: i64 = 300_000; // 300 seconds (5 minutes)
+
 #[derive(Deserialize)]
 pub struct GetParams {
     pub size: Option<i32>,
     pub bookmark: Option<String>,
 }
-
+async fn get_current_responses(nonce_lab_id: u32) -> Option<u64> {
+    let nonce_lab_client = if let Ok(v) = nonce_lab::NonceLabClient::new() {
+        v
+    } else {
+        return None;
+    };
+    let nonce_lab_survey: NonceLabGetSurveyDto = match nonce_lab_client
+        .get(&format!("/v1/vendor/survey/{}", nonce_lab_id))
+        .send()
+        .await
+    {
+        Ok(v) => match v.json().await {
+            Ok(v) => v,
+            _ => return None,
+        },
+        _ => return None,
+    };
+    if let Some(v) = nonce_lab_survey.response_count_map {
+        Some(v.values().sum())
+    } else {
+        None
+    }
+}
 async fn list_survey(
     Extension(claims): Extension<Claims>,
     State(db): State<Arc<Client>>,
@@ -53,11 +77,35 @@ async fn list_survey(
             vec![("gsi1", Survey::get_gsi1(&claims.id))],
         )
         .await;
-    let (survey, bookmark) = match result {
+    let (mut surveys, bookmark) = match result {
         Ok((Some(docs), bookmark)) => (docs, bookmark),
         _ => return Err(ApiError::NotFound),
     };
-    Ok(Json(ListSurveyResponse { bookmark, survey }))
+    let now = chrono::Utc::now().timestamp_millis();
+    for survey in surveys.iter_mut() {
+        if let Some(nonce_lab_id) = survey.nonce_lab_id {
+            if survey.status == SurveyStatus::InProgress
+                && survey.updated_at + UPDATE_DELAY_MS <= now
+            {
+                let current_responses = get_current_responses(nonce_lab_id).await;
+                let _ = db
+                    .update(
+                        &survey.id,
+                        vec![
+                            ("updated_at", UpdateField::I64(now)),
+                            ("response_count", UpdateField::N(current_responses)),
+                        ],
+                    )
+                    .await;
+                survey.response_count = current_responses;
+            }
+        }
+    }
+
+    Ok(Json(ListSurveyResponse {
+        bookmark,
+        survey: surveys,
+    }))
 }
 
 async fn get_survey(
@@ -66,17 +114,37 @@ async fn get_survey(
     Path(id): Path<String>,
 ) -> Result<Json<Survey>, ApiError> {
     let result: Result<Option<Survey>, easy_dynamodb::error::DynamoException> = db.get(&id).await;
-    match result {
+    let now = chrono::Utc::now().timestamp_millis();
+
+    let mut survey = match result {
         Ok(Some(v)) => {
             if v.creator != claims.id {
-                Err(ApiError::InvalidCredentials("Not Creator".to_string()))
+                return Err(ApiError::InvalidCredentials("Not Creator".to_string()));
             } else {
-                Ok(Json(v))
+                v
             }
         }
-        Ok(None) => Err(ApiError::SurveyNotFound(id)),
-        Err(e) => Err(ApiError::DynamoQueryException(e.to_string())),
+        Ok(None) => return Err(ApiError::SurveyNotFound(id)),
+        Err(e) => return Err(ApiError::DynamoQueryException(e.to_string())),
+    };
+    if survey.status == SurveyStatus::InProgress
+        && survey.nonce_lab_id.is_some()
+        && survey.updated_at + UPDATE_DELAY_MS <= now
+    {
+        let current_responses = get_current_responses(survey.nonce_lab_id.unwrap()).await;
+        let _ = db
+            .update(
+                &survey.id,
+                vec![
+                    ("updated_at", UpdateField::I64(now)),
+                    ("response_count", UpdateField::N(current_responses)),
+                ],
+            )
+            .await;
+        survey.response_count = current_responses;
     }
+
+    Ok(Json(survey))
 }
 
 async fn upsert_survey_draft(
@@ -91,6 +159,9 @@ async fn upsert_survey_draft(
             Ok(Some(v)) => {
                 if v.status != SurveyStatus::Draft {
                     return Err(ApiError::SurveyInProgress);
+                }
+                if v.creator != claims.id {
+                    return Err(ApiError::InvalidCredentials("Not Creator".to_string()));
                 }
                 v
             }
@@ -134,6 +205,10 @@ enum UpdateField {
     S(SurveyStatus),
     #[serde(untagged)]
     Null(Option<bool>),
+    #[serde(untagged)]
+    N(Option<u64>),
+    #[serde(untagged)]
+    I64(i64),
 }
 
 //Update Survey Status from Draft to in_progress
@@ -206,6 +281,11 @@ async fn progress_survey(
                 ("nonce_lab_id", UpdateField::Id(nonce_lab_id)),
                 ("status", UpdateField::S(SurveyStatus::InProgress)),
                 ("draft_status", UpdateField::Null(None)),
+                ("response_count", UpdateField::N(Some(0))),
+                (
+                    "total_response_count",
+                    UpdateField::N(Some(expected_responses)),
+                ),
             ],
         )
         .await

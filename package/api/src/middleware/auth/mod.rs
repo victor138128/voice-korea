@@ -29,13 +29,13 @@ pub async fn authorization_middleware(
     let (_bearer, token) = (header.next(), header.next());
     let token_data = match validate_jwt(token.unwrap()) {
         Ok(data) => data,
-        Err(_) => {
+        Err(e) => {
+            slog::debug!(root(), "ERR: {:?}", e);
             return Err(ApiError::InvalidCredentials(
                 "Unable to decode token".to_string(),
             ));
         }
     };
-    slog::debug!(root(), "EXP: {}", token_data.exp);
 
     req.extensions_mut().insert(token_data);
     Ok(next.run(req).await)

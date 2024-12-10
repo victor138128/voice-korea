@@ -2,27 +2,6 @@ use core::fmt;
 use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
-pub struct NonceLabSurveyDto {
-    pub id: u32,
-    pub title: String,
-    pub description: Option<String>,
-    pub status: SurveyStatus,
-    #[serde(rename = "startedAt")]
-    pub created_at: String,
-    #[serde(rename = "endedAt")]
-    pub ended_at: String,
-    #[serde(rename = "rewardPoints")]
-    pub reward_points: u32,
-    #[serde(rename = "questionCount")]
-    pub question_count: u32,
-    participated: bool,
-    #[serde(rename = "estimatedMinutes")]
-    pub estimated_minutes: u32,
-    pub quotas: Vec<Quota>,
-    pub questions: Option<Vec<SurveyQuestion>>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct Survey {
     pub id: String,
     pub r#type: String,
@@ -39,7 +18,6 @@ pub struct Survey {
     pub started_at: Option<i64>,
     pub ended_at: Option<i64>,
     pub nonce_lab_id: Option<u32>,
-    //TODO:
     pub response_count: Option<u64>,
     pub total_response_count: Option<u64>,
 }
