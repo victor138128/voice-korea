@@ -2,7 +2,6 @@
 use crate::{
     components::{
         alert::AlertModal,
-        button::Button,
         icons::{Add, Close, Search},
     },
     prelude::*,
@@ -72,17 +71,6 @@ pub fn AttributePage(props: AttributeProps) -> Element {
             }
             div {
                 class: "flex flex-col w-full h-full justify-start items-center",
-                div {
-                    class: "flex flex-col max-w-[1230px] min-w-[600px] w-full justify-start items-start mt-[40px] px-[30px]",
-                    div {
-                        class: "flex flex-row w-full justify-end items-end mb-[30px]",
-                        Button {
-                            button_text: translates.temporary_save,
-                            onclick: move |_| {},
-                            class: "flex flex-row w-[250px] h-[50px] bg-[#1e5eaf]",
-                        }
-                    }
-                }
                 div {
                     class: "flex flex-col max-w-[1230px] min-w-[600px] w-full h-full justify-start items-start mt-[25px] px-[30px]",
                     div {

@@ -15,6 +15,10 @@ pub async fn list_surveys(
     let headers: axum::http::HeaderMap = extract().await?;
     let cookie = headers.get(axum::http::header::COOKIE);
 
+    if cookie.is_none() {
+        return Err(ServerFnError::new("cookie is not exists".to_string()));
+    }
+
     let format_cookie = format!("{:?}", cookie.unwrap());
     let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
 
@@ -47,6 +51,10 @@ pub async fn get_survey(id: String) -> Result<models::prelude::Survey, ServerFnE
     let headers: axum::http::HeaderMap = extract().await?;
     let cookie = headers.get(axum::http::header::COOKIE);
 
+    if cookie.is_none() {
+        return Err(ServerFnError::new("cookie is not exists".to_string()));
+    }
+
     let format_cookie = format!("{:?}", cookie.unwrap());
     let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
 
@@ -67,19 +75,31 @@ pub async fn create_survey(
     id: String,
 ) -> Result<models::prelude::ProgressSurveyResponse, ServerFnError> {
     use crate::utils::api::ReqwestClient;
+    use dioxus_logger::tracing;
 
     let headers: axum::http::HeaderMap = extract().await?;
     let cookie = headers.get(axum::http::header::COOKIE);
+
+    if cookie.is_none() {
+        return Err(ServerFnError::new("cookie is not exists".to_string()));
+    }
 
     let format_cookie = format!("{:?}", cookie.unwrap());
     let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
 
     let client = ReqwestClient::new()?;
-    let res = client
+    let res = match client
         .post(&format!("/v1/survey/{}", id))
         .header("Authorization", token)
         .send()
-        .await?;
+        .await
+    {
+        Ok(d) => d,
+        Err(e) => {
+            tracing::debug!("create survey error: {}", e);
+            return Err(ServerFnError::new("create survey failed".to_string()));
+        }
+    };
     let res = res.error_for_status()?;
     Ok(res.json().await?)
 }
@@ -92,6 +112,10 @@ pub async fn upsert_survey_draft(
 
     let headers: axum::http::HeaderMap = extract().await?;
     let cookie = headers.get(axum::http::header::COOKIE);
+
+    if cookie.is_none() {
+        return Err(ServerFnError::new("cookie is not exists".to_string()));
+    }
 
     let format_cookie = format!("{:?}", cookie.unwrap());
     let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");

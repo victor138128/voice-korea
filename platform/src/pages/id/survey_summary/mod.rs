@@ -81,7 +81,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
             }
             if let models::prelude::SurveyStatus::Draft = survey.status {
                 div {
-                    class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px] mb-[50px]",
+                    class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px]",
                     div {
                         class: "flex flex-col w-full justify-center items-start max-w-[1200px] h-[140px] rounded-[10px] bg-white px-[30px]",
                         div {
@@ -208,7 +208,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                 models::prelude::SurveyStatus::Draft => {
                     rsx! {
                         div {
-                            class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-end items-end mt-[15px] px-[50px]",
+                            class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-end items-end mt-[15px] px-[50px] mb-[50px]",
                             div {
                                 class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#434343] text-white font-medium text-[20px]",
                                 onclick: move |_| {
@@ -255,9 +255,9 @@ pub fn Summary(
                 div {
                     class: "flex flex-col w-full justify-start items-center max-w-[1200px] rounded-[10px] bg-white px-[30px] py-[40px]",
                     div {
-                        class: "flex flex-row w-full justify-between items-center mb-[30px]",
+                        class: "flex flex-row w-full justify-between items-center",
                         div {
-                            class: "text-black font-semibold text-[24px] mb-[20px]",
+                            class: "text-black font-semibold text-[24px]",
                             {survey_summary}
                         },
                         img {
@@ -270,7 +270,7 @@ pub fn Summary(
                         }
                     }
                     div {
-                        class: "flex flex-col w-full justify-start items-start mb-[40px]",
+                        class: "flex flex-col w-full justify-start items-start mb-[40px] mt-[30px]",
                         div {
                             class: "flex flex-col w-full justify-start items-start",
                             div {
@@ -425,7 +425,7 @@ pub fn Summary(
                     div {
                         class: "flex flex-row w-full justify-between items-center mb-[20px]",
                         div {
-                            class: "text-black font-semibold text-[24px] mb-[20px]",
+                            class: "text-black font-semibold text-[24px]",
                             {survey_summary}
                         },
                         img {
