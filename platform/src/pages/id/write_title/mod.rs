@@ -13,7 +13,7 @@ pub struct WriteTitleProps {
 
 #[component]
 pub fn WriteTitlePage(props: WriteTitleProps) -> Element {
-    let mut ctrl = controller::Controller::init(props.survey_id);
+    let mut ctrl = controller::Controller::init(props.lang, props.survey_id);
     let translates = i18n::translate(props.lang.clone());
     let navigator = use_navigator();
 

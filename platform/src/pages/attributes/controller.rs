@@ -2,6 +2,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
+use super::Language;
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct SelectAttribute {
     pub id: usize,
@@ -22,7 +24,20 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn init() -> Self {
+    #[allow(unused_variables)]
+    pub fn init(lang: Language) -> Self {
+        #[cfg(feature = "web")]
+        {
+            use super::Route;
+            use crate::service::login_service::use_login_service;
+
+            let navigator = use_navigator();
+            let token = use_login_service().get_cookie_value();
+            if token.is_none() {
+                navigator.push(Route::LoginPage { lang });
+            }
+        }
+
         let ctrl = Self {
             attributes: use_signal(|| {
                 vec![
@@ -54,11 +69,11 @@ impl Controller {
                         id: 2,
                         name: "연봉".to_string(),
                         value: vec![
-                            "2000만원 이하".to_string(),
-                            "2000만원~4000만원".to_string(),
-                            "4000만원~6000만원".to_string(),
-                            "6000만원~8000만원".to_string(),
-                            "8000만원 이상".to_string(),
+                            "2400만원 이하".to_string(),
+                            "2400만원~5000만원".to_string(),
+                            "5000만원~8000만원".to_string(),
+                            "8000만원~10000만원".to_string(),
+                            "10000만원 이상".to_string(),
                         ],
                         is_stored: false,
                         is_search: false,

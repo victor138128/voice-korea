@@ -6,7 +6,10 @@ use models::prelude::{Survey, SurveyDraftStatus, UpsertSurveyDraftRequest};
 use crate::{
     api::v2::survey::{get_survey, upsert_survey_draft},
     models::survey::StatusType,
+    routes::Route,
 };
+
+use super::Language;
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
@@ -16,7 +19,19 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn init(id: String) -> Self {
+    #[allow(unused_variables)]
+    pub fn init(lang: Language, id: String) -> Self {
+        let navigator = use_navigator();
+        #[cfg(feature = "web")]
+        {
+            use crate::service::login_service::use_login_service;
+
+            let token = use_login_service().get_cookie_value();
+            if token.is_none() {
+                navigator.push(Route::LoginPage { lang });
+            }
+        }
+
         let mut ctrl = Self {
             survey: use_signal(|| Survey::default()),
             survey_title: use_signal(|| "".to_string()),
@@ -45,6 +60,15 @@ impl Controller {
             });
         });
 
+        let draft_status = ctrl.get_survey().draft_status;
+        let title = ctrl.get_survey().title;
+
+        if (!draft_status.is_none() && draft_status != Some(SurveyDraftStatus::Title))
+            || (draft_status.is_none() && title != "")
+        {
+            navigator.push(Route::DashboardPage { lang });
+        };
+
         use_context_provider(|| ctrl);
 
         ctrl
@@ -60,6 +84,10 @@ impl Controller {
 
     pub fn get_survey_id(&self) -> String {
         (self.survey_id)()
+    }
+
+    pub fn get_survey(&self) -> Survey {
+        (self.survey)()
     }
 
     pub async fn write_survey_title(&mut self, status: StatusType, title: String) {

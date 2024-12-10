@@ -3,6 +3,7 @@ use crate::api::v2::survey::{get_survey, upsert_survey_draft};
 use std::collections::HashMap;
 
 use dioxus::prelude::*;
+use models::prelude::SurveyDraftStatus;
 
 use super::{Language, Route};
 
@@ -74,7 +75,19 @@ pub enum Step {
 }
 
 impl Controller {
-    pub fn init(id: String) -> Self {
+    #[allow(unused_variables)]
+    pub fn init(lang: Language, id: String) -> Self {
+        let navigator = use_navigator();
+        #[cfg(feature = "web")]
+        {
+            use crate::service::login_service::use_login_service;
+
+            let token = use_login_service().get_cookie_value();
+            if token.is_none() {
+                navigator.push(Route::LoginPage { lang });
+            }
+        }
+
         let survey_response: Resource<models::prelude::Survey> = use_resource(move || {
             let id_value = id.clone();
             async move {
@@ -92,35 +105,35 @@ impl Controller {
                         region: "서울".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
-                        payload: "2000만원 이하".to_string(),
+                        payload: "2400만원 이하".to_string(),
                         value: 50,
                     },
                     PanelGroup {
                         region: "부산".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
-                        payload: "2000만원 이하".to_string(),
+                        payload: "2400만원 이하".to_string(),
                         value: 50,
                     },
                     PanelGroup {
                         region: "서울".to_string(),
                         gender: "여성".to_string(),
                         age: "30대".to_string(),
-                        payload: "2000만원 이하".to_string(),
+                        payload: "2400만원 이하".to_string(),
                         value: 50,
                     },
                     PanelGroup {
                         region: "서울".to_string(),
                         gender: "여성".to_string(),
                         age: "40대".to_string(),
-                        payload: "2000만원 이하".to_string(),
+                        payload: "2400만원 이하".to_string(),
                         value: 50,
                     },
                     PanelGroup {
                         region: "서울".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
-                        payload: "2000만원 이하".to_string(),
+                        payload: "2400만원 이하".to_string(),
                         value: 50,
                     },
                 ]
@@ -131,31 +144,31 @@ impl Controller {
                         region: "서울".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
-                        payload: "2000만원 이하".to_string(),
+                        payload: "2400만원 이하".to_string(),
                     },
                     Panel {
                         region: "부산".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
-                        payload: "2000만원 이하".to_string(),
+                        payload: "2400만원 이하".to_string(),
                     },
                     Panel {
                         region: "서울".to_string(),
                         gender: "여성".to_string(),
                         age: "30대".to_string(),
-                        payload: "2000만원 이하".to_string(),
+                        payload: "2400만원 이하".to_string(),
                     },
                     Panel {
                         region: "서울".to_string(),
                         gender: "여성".to_string(),
                         age: "40대".to_string(),
-                        payload: "2000만원 이하".to_string(),
+                        payload: "2400만원 이하".to_string(),
                     },
                     Panel {
                         region: "부산".to_string(),
                         gender: "남성".to_string(),
                         age: "30대".to_string(),
-                        payload: "2000만원 이하".to_string(),
+                        payload: "2400만원 이하".to_string(),
                     },
                 ]
             }), //FIXME: fix to get api
@@ -191,13 +204,13 @@ impl Controller {
                         id: 2,
                         name: "연봉".to_string(),
                         value: vec![
-                            "2000만원 이하".to_string(),
-                            "2000만원~4000만원".to_string(),
-                            "4000만원~6000만원".to_string(),
-                            "6000만원~8000만원".to_string(),
-                            "8000만원 이상".to_string(),
+                            "2400만원 이하".to_string(),
+                            "2400만원~5000만원".to_string(),
+                            "5000만원~8000만원".to_string(),
+                            "8000만원~10000만원".to_string(),
+                            "10000만원 이상".to_string(),
                         ],
-                        initial_value: "2000만원 이하".to_string(),
+                        initial_value: "2400만원 이하".to_string(),
                         is_stored: false,
                         is_search: false,
                         is_selected: false,
@@ -245,6 +258,15 @@ impl Controller {
             clicked_attribute_index: use_signal(|| None),
             total_attribute: use_signal(|| vec![]),
             attribute_modal_label: use_signal(|| "".to_string()),
+        };
+
+        let draft_status = ctrl.get_survey().draft_status;
+        let title = ctrl.get_survey().title;
+
+        if (!draft_status.is_none() && draft_status != Some(SurveyDraftStatus::Quotas))
+            || (draft_status.is_none() && title != "")
+        {
+            navigator.push(Route::DashboardPage { lang });
         };
 
         use_context_provider(|| ctrl);
@@ -361,13 +383,13 @@ impl Controller {
             for (ind, _key) in keys.iter().enumerate() {
                 // let (payload, region, gender, age) = (*key).clone();
 
-                // let salary_tier: Option<u16> = if payload == "2000만원 이하" {
+                // let salary_tier: Option<u16> = if payload == "2400만원 이하" {
                 //     Some(1)
-                // } else if payload == "2000만원~4000만원" {
+                // } else if payload == "2400만원~5000만원" {
                 //     Some(2)
-                // } else if payload == "4000만원~6000만원" {
+                // } else if payload == "5000만원~8000만원" {
                 //     Some(3)
-                // } else if payload == "6000만원~8000만원" {
+                // } else if payload == "8000만원~10000만원" {
                 //     Some(4)
                 // } else {
                 //     Some(5)
@@ -532,13 +554,13 @@ impl Controller {
                     Some(064)
                 };
             } else if attribute.name == "연봉" {
-                payload = if attribute.initial_value == "2000만원 이하" {
+                payload = if attribute.initial_value == "2400만원 이하" {
                     Some(1)
-                } else if attribute.initial_value == "2000만원~4000만원" {
+                } else if attribute.initial_value == "2400만원~5000만원" {
                     Some(2)
-                } else if attribute.initial_value == "4000만원~6000만원" {
+                } else if attribute.initial_value == "5000만원~8000만원" {
                     Some(3)
-                } else if attribute.initial_value == "6000만원~8000만원" {
+                } else if attribute.initial_value == "8000만원~10000만원" {
                     Some(4)
                 } else {
                     Some(5)

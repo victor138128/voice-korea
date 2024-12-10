@@ -6,6 +6,8 @@ use crate::api::v2::survey::{get_survey, upsert_survey_draft};
 use dioxus::prelude::*;
 use models::prelude::{SurveyDraftStatus, UpsertSurveyDraftRequest};
 
+use super::{Language, Route};
+
 #[derive(Clone, PartialEq, Copy)]
 pub struct Controller {
     survey_response: Resource<models::prelude::Survey>,
@@ -23,7 +25,19 @@ pub struct AttributeInfo {
 }
 
 impl Controller {
-    pub fn init(id: String) -> Self {
+    #[allow(unused_variables)]
+    pub fn init(lang: Language, id: String) -> Self {
+        let navigator = use_navigator();
+        #[cfg(feature = "web")]
+        {
+            use crate::service::login_service::use_login_service;
+
+            let token = use_login_service().get_cookie_value();
+            if token.is_none() {
+                navigator.push(Route::LoginPage { lang });
+            }
+        }
+
         let id_copy = id.clone();
         let survey_response: Resource<models::prelude::Survey> = use_resource(move || {
             let id_value = id.clone();
@@ -38,6 +52,16 @@ impl Controller {
             id: use_signal(|| id_copy.clone()),
             attributes: use_signal(|| vec![]),
         };
+
+        let draft_status = ctrl.get_survey().draft_status;
+        let title = ctrl.get_survey().title;
+
+        if (!draft_status.is_none() && draft_status != Some(SurveyDraftStatus::Quotas))
+            || (draft_status.is_none() && title != "")
+        {
+            navigator.push(Route::DashboardPage { lang });
+        };
+
         ctrl
     }
 
@@ -56,15 +80,15 @@ impl Controller {
                     match attr.salary_tier {
                         Some(salary) => {
                             if salary == 1 {
-                                sal = "2000만원 이하".to_string();
+                                sal = "2400만원 이하".to_string();
                             } else if salary == 2 {
-                                sal = "2000만원~4000만원".to_string();
+                                sal = "2400만원~5000만원".to_string();
                             } else if salary == 3 {
-                                sal = "4000만원~6000만원".to_string();
+                                sal = "5000만원~8000만원".to_string();
                             } else if salary == 4 {
-                                sal = "6000만원~8000만원".to_string();
+                                sal = "8000만원~10000만원".to_string();
                             } else {
-                                sal = "8000만원 이상".to_string();
+                                sal = "10000만원 이상".to_string();
                             }
                         }
                         None => {}

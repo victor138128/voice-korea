@@ -81,7 +81,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
             }
             if let models::prelude::SurveyStatus::Draft = survey.status {
                 div {
-                    class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px]",
+                    class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px] mb-[50px]",
                     div {
                         class: "flex flex-col w-full justify-center items-start max-w-[1200px] h-[140px] rounded-[10px] bg-white px-[30px]",
                         div {
@@ -140,7 +140,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
             }
             if let models::prelude::SurveyStatus::InProgress = survey.status {
                 div {
-                    class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px]",
+                    class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px] mb-[50px]",
                     div {
                         class: "flex flex-row w-full justify-start items-center max-w-[1200px] min-h-[150px] h-min rounded-[10px] bg-white px-[30px]",
                         div {
@@ -158,7 +158,7 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                 }
             } else if let models::prelude::SurveyStatus::Finished = survey.status {
                 div {
-                    class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px]",
+                    class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-start items-start mt-[15px] px-[50px] mb-[50px]",
                     div {
                         class: "flex flex-row w-full justify-start items-center max-w-[1200px] min-h-[300px] h-min rounded-[10px] bg-white px-[30px]",
                         div {
@@ -204,23 +204,33 @@ pub fn SurveySummaryPage(props: SurveySummaryProps) -> Element {
                     }
                 }
             }
-            div {
-                class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-end items-end mt-[15px] px-[50px]",
-                div {
-                    class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#434343] text-white font-medium text-[20px]",
-                    onclick: move |_| {
-                        let survey_id = props.survey_id.clone();
-                        async move {
-                            ctrl.back_button_clicked().await;
-                            navigator.push(Route::SelectResponsePage {
-                                lang: props.lang.clone(),
-                                survey_id : survey_id.clone(),
-                            });
+            match survey.status {
+                models::prelude::SurveyStatus::Draft => {
+                    rsx! {
+                        div {
+                            class: "flex flex-col max-w-[1200px] min-w-[600px] w-full justify-end items-end mt-[15px] px-[50px]",
+                            div {
+                                class: "flex flex-row justify-center items-center w-[115px] h-[50px] rounded-[10px] bg-[#434343] text-white font-medium text-[20px]",
+                                onclick: move |_| {
+                                    let survey_id = props.survey_id.clone();
+                                    async move {
+                                        ctrl.back_button_clicked().await;
+                                        navigator.push(Route::SelectResponsePage {
+                                            lang: props.lang.clone(),
+                                            survey_id : survey_id.clone(),
+                                        });
+                                    }
+                                },
+                                {translates.back}
+                            }
                         }
-                    },
-                    {translates.back}
+                    }
+                },
+                _ => {
+                    rsx! {}
                 }
             }
+
         }
     }
 }
@@ -585,15 +595,15 @@ pub fn SelectPanel(select_panel_and_attribute: String, unknown: String) -> Eleme
                                                         class: "w-[200px]",
                                                         if let Some(tier) = attribute.salary_tier {
                                                             if tier == 1 {
-                                                                "2000만원 이하"
+                                                                "2400만원 이하"
                                                             } else if tier == 2 {
-                                                                "2000만원~4000만원"
+                                                                "2400만원~5000만원"
                                                             } else if tier == 3 {
-                                                                "4000만원~6000만원"
+                                                                "5000만원~8000만원"
                                                             } else if tier == 4 {
-                                                                "6000만원~8000만원"
+                                                                "8000만원~10000만원"
                                                             } else {
-                                                                "8000만원 이상"
+                                                                "10000만원 이상"
                                                             }
                                                         }
                                                     }

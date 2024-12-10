@@ -16,7 +16,7 @@ pub mod response_type;
 pub fn SelectResponsePage(props: SelectResponseProps) -> Element {
     let survey_id_copy = props.survey_id.clone();
     let id_copy = props.survey_id.clone();
-    let mut ctrl = controller::Controller::init(props.survey_id.clone());
+    let mut ctrl = controller::Controller::init(props.lang, props.survey_id.clone());
     let survey_response = ctrl.get_survey();
     let question_list = survey_response.questions.len() as u64;
     let translates = i18n::translate(props.lang.clone());
