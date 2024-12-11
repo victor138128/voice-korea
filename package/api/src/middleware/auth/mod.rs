@@ -2,7 +2,10 @@ use by_axum::{
     axum::{
         body::Body,
         extract::Request,
-        http::{header::AUTHORIZATION, Response},
+        http::{
+            header::{AUTHORIZATION, COOKIE},
+            Response,
+        },
         middleware::Next,
     },
     log::root,
@@ -14,20 +17,27 @@ pub async fn authorization_middleware(
     mut req: Request,
     next: Next,
 ) -> Result<Response<Body>, ApiError> {
-    let auth_header = req.headers_mut().get(AUTHORIZATION);
-    let auth_header = match auth_header {
-        Some(header) => header.to_str().map_err(|_| {
-            ApiError::InvalidCredentials("Please add the JWT token to the header".to_string())
-        })?,
-        None => {
-            return Err(ApiError::InvalidCredentials(
-                "Please add the JWT token to the header".to_string(),
-            ));
+    let mut token: &str = "";
+    if let Some(cookie_header) = req.headers().get(COOKIE) {
+        if let Ok(cookie_str) = cookie_header.to_str() {
+            slog::debug!(root(), "cookie_str: {}", cookie_str);
+            for cookie in cookie_str.split(';') {
+                let parts: Vec<&str> = cookie.trim().split('=').collect();
+                if parts.len() == 2 && parts[0] == "token" {
+                    token = parts[1];
+                    break;
+                }
+            }
         }
-    };
-    let mut header = auth_header.split_whitespace();
-    let (_bearer, token) = (header.next(), header.next());
-    let token_data = match validate_jwt(token.unwrap()) {
+    } else if let Some(auth_header) = req.headers().get(AUTHORIZATION) {
+        if let Ok(auth_str) = auth_header.to_str() {
+            let mut header = auth_str.split_whitespace();
+            let (_bearer, token_str) = (header.next(), header.next());
+            token = token_str.unwrap_or_default();
+        }
+    }
+
+    let token_data = match validate_jwt(token) {
         Ok(data) => data,
         Err(e) => {
             slog::debug!(root(), "ERR: {:?}", e);
