@@ -252,7 +252,7 @@ pub struct SurveyResultDocument {
     pub survey_id: String,
 
     pub expected_responses: u64,
-    pub acutal_responses: u64,
+    pub actual_responses: u64,
 
     pub answers: Vec<SurveyResultAnswer>,
 
@@ -288,7 +288,7 @@ pub struct SurveyResultQuestion {
 pub enum SurveyResultAnswerType {
     Select(Vec<String>),
     Text(String),
-    NotResponsed,
+    NotResponded,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -1,6 +1,6 @@
 use crate::{
     middleware::auth::authorization_middleware,
-    utils::{error::ApiError, jwt::Claims, time::convert_rfc3339_to_timestamp_milllis},
+    utils::{error::ApiError, jwt::Claims, time::convert_rfc3339_to_timestamp_millis},
 };
 
 mod nonce_lab;
@@ -224,7 +224,7 @@ async fn progress_survey(
     let survey = match result {
         Ok(Some(v)) => {
             if v.creator != claims.id {
-                return Err(ApiError::InvalidCredentials("Not Ownder".to_string()));
+                return Err(ApiError::InvalidCredentials("Not Owner".to_string()));
             }
             if v.status != SurveyStatus::Draft {
                 return Err(ApiError::NotDraftSurvey);
@@ -298,7 +298,7 @@ async fn complete_survey(
     let survey = match result {
         Ok(Some(v)) => {
             if v.creator != claims.id {
-                return Err(ApiError::InvalidCredentials("Not Ownder".to_string()));
+                return Err(ApiError::InvalidCredentials("Not Owner".to_string()));
             }
             if v.status != SurveyStatus::InProgress {
                 return Err(ApiError::NotInProgressSurvey);
@@ -337,14 +337,14 @@ async fn complete_survey(
     for item in survey_answers.response_array.into_iter() {
         let quota_id = item.quota_id;
         let responded_at =
-            convert_rfc3339_to_timestamp_milllis(&item.responded_at).unwrap_or_default();
+            convert_rfc3339_to_timestamp_millis(&item.responded_at).unwrap_or_default();
         for (question_id, answer) in item.answers.into_iter().enumerate() {
             let answer_type = if let Some(v) = answer.text_answer {
                 SurveyResultAnswerType::Text(v)
             } else if let Some(v) = answer.choice_answer {
                 SurveyResultAnswerType::Select(v)
             } else {
-                SurveyResultAnswerType::NotResponsed
+                SurveyResultAnswerType::NotResponded
             };
             let text_list = match answer_type.clone() {
                 SurveyResultAnswerType::Text(v) => vec![v],
@@ -380,7 +380,7 @@ async fn complete_survey(
             r#type: SurveyResultDocument::get_type(),
             created_at: chrono::Utc::now().timestamp_millis(),
             expected_responses: survey.total_response_count.unwrap_or_default(),
-            acutal_responses: survey.response_count.unwrap_or_default(),
+            actual_responses: survey.response_count.unwrap_or_default(),
             answers,
             quotas,
             questions,
