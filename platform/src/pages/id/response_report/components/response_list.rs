@@ -5,6 +5,7 @@ use crate::pages::id::response_report::controller::{use_controller, ResponseStat
 
 #[derive(Props, Clone, PartialEq)]
 pub struct ResponseListProps {
+    attribute_response: String,
     response_report: String,
     response_download: String,
     total_respondents: String,
@@ -53,12 +54,12 @@ pub fn ResponseList(props: ResponseListProps) -> Element {
                     {props.respondent_type}
                 }
                 div {
-                    class: "flex flex-row justify-center items-center w-[85px]",
-                    {props.status}
-                }
-                div {
                     class: "flex flex-row justify-center items-center w-[150px]",
                     {props.final_update_date}
+                }
+                div {
+                    class: "flex flex-row justify-center items-center w-[85px]",
+                    {props.status}
                 }
                 div {
                     class: "flex flex-row justify-center items-center w-[100px]",
@@ -97,33 +98,46 @@ pub fn ResponseList(props: ResponseListProps) -> Element {
                         if let ResponseType::AttributeResponse = panel.response_type {
                             div {
                                 class: "flex flex-row justify-center items-center w-[90px]",
-                                "속성 응답"
+                                {props.attribute_response.clone()}
                             }
                         }
-                        if let ResponseStatus::NotProgress = panel.response_status {
-                            div {
-                                class: "flex flex-row justify-center items-center w-[85px] text-[#2168c3] font-semibold",
-                                {props.draft.clone()}
-                            }
-                        } else if let ResponseStatus::InProgress = panel.response_status {
-                            div {
-                                class: "flex flex-row justify-center items-center w-[85px] text-[#2168c3] font-semibold",
-                                {props.in_progress.clone()}
-                            }
-                        } else {
-                            div {
-                                class: "flex flex-row justify-center items-center w-[85px] text-[#2168c3] font-semibold",
-                                {props.complete.clone()}
-                            }
-                        }
-
                         div {
                             class: "flex flex-row justify-center items-center w-[150px]",
                             {panel.final_update_date.clone()}
                         }
+                        match panel.response_status {
+                            Some(status) => {
+                                rsx! {
+                                    if let ResponseStatus::NotProgress = status {
+                                        div {
+                                            class: "flex flex-row justify-center items-center w-[85px] text-[#2168c3] font-semibold",
+                                            {props.draft.clone()}
+                                        }
+                                    } else if let ResponseStatus::InProgress = status {
+                                        div {
+                                            class: "flex flex-row justify-center items-center w-[85px] text-[#2168c3] font-semibold",
+                                            {props.in_progress.clone()}
+                                        }
+                                    } else {
+                                        div {
+                                            class: "flex flex-row justify-center items-center w-[85px] text-[#2168c3] font-semibold",
+                                            {props.complete.clone()}
+                                        }
+                                    }
+                                }
+                            },
+                            None => {
+                                rsx! {
+                                    div {
+                                        class: "flex flex-row justify-center items-center w-[85px] text-black font-semibold",
+                                        "-"
+                                    }
+                                }
+                            }
+                        }
                         div {
-                            class: "flex flex-row justify-center items-center w-[100px]",
-                            {panel.inprogress_time.clone()}
+                            class: "flex flex-row justify-center items-center w-[100px] text-black font-semibold",
+                            "-"
                         }
                         div {
                             class: "flex flex-row justify-center items-center w-[130px]",

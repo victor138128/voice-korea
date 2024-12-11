@@ -128,41 +128,62 @@ pub fn ResponseSummary(props: ResponseSummaryProps) -> Element {
                                     {format!("{}", survey.skipped_answer)}
                                 }
                             }
-                            div {
-                                class: "flex flex-row w-full justify-start items-start mb-[20px]",
-                                BarGraph {
-                                    labels: survey.labels.clone(),
-                                    values: survey.value_percents.clone(),
-                                    colors: survey.colors.clone(),
+                            if survey.colors.len() != 0 {
+                                div {
+                                    class: "flex flex-row w-full justify-start items-start mb-[20px]",
+                                    BarGraph {
+                                        labels: survey.labels.clone(),
+                                        values: survey.value_percents.clone(),
+                                        colors: survey.colors.clone(),
+                                    }
                                 }
                             }
                             div {
                                 class: "flex flex-col w-[700px] justify-start items-start mb-[30px]",
-                                div {
-                                    class: "flex flex-row w-full h-[40px] justify-start items-center bg-[#edeeee]",
+                                if survey.colors.len() != 0 {
                                     div {
-                                        class: "flex flex-row w-[350px] h-full justify-start items-center border border-white px-[10px]",
-                                        {props.item.clone()}
-                                    }
-                                    div {
-                                        class: "flex flex-row w-[350px] h-full justify-start items-center border border-white px-[10px]",
-                                        {props.reply.clone()}
-                                    }
-                                }
-                                for (i, label) in survey.labels.iter().enumerate() {
-                                    div {
-                                        class: "flex flex-row w-full h-[40px] justify-start items-center bg-white border border-b-[#e2e3e4] border-t-transparent border-r-transparent border-l-transparent",
+                                        class: "flex flex-row w-full h-[40px] justify-start items-center bg-[#edeeee]",
                                         div {
-                                            class: "flex flex-row w-[350px] h-full justify-start items-center px-[10px]",
-                                            {label.clone()}
+                                            class: "flex flex-row w-[350px] h-full justify-start items-center border border-white px-[10px]",
+                                            {props.item.clone()}
                                         }
                                         div {
-                                            class: "flex flex-row w-[350px] h-full justify-between items-center px-[10px]",
+                                            class: "flex flex-row w-[350px] h-full justify-start items-center border border-white px-[10px]",
+                                            {props.reply.clone()}
+                                        }
+                                    }
+                                    for (i, label) in survey.labels.iter().enumerate() {
+                                        div {
+                                            class: "flex flex-row w-full h-[40px] justify-start items-center bg-white border border-b-[#e2e3e4] border-t-transparent border-r-transparent border-l-transparent",
                                             div {
-                                                {format!("{}%", survey.value_percents[i])}
+                                                class: "flex flex-row w-[350px] h-full justify-start items-center px-[10px]",
+                                                {label.clone()}
                                             }
                                             div {
-                                                {format!("{}", survey.value_counts[i])}
+                                                class: "flex flex-row w-[350px] h-full justify-between items-center px-[10px]",
+                                                div {
+                                                    {format!("{}%", survey.value_percents[i])}
+                                                }
+                                                div {
+                                                    {format!("{}", survey.value_counts[i])}
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    div {
+                                        class: "flex flex-row w-full h-[40px] justify-start items-center bg-[#edeeee] px-[10px]",
+                                        div {
+                                            class: "flex flex-row w-[700px] h-full justify-start items-center",
+                                            {props.reply.clone()}
+                                        }
+                                    }
+                                    for label in survey.labels.clone() {
+                                        div {
+                                            class: "flex flex-row w-full h-[40px] justify-start items-center bg-white border border-b-[#e2e3e4] border-t-transparent border-r-transparent border-l-transparent",
+                                            div {
+                                                class: "flex flex-row w-[700px] h-full justify-start items-center px-[10px] overflow-hidden truncate",
+                                                {label.clone()}
                                             }
                                         }
                                     }

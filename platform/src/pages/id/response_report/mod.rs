@@ -88,6 +88,7 @@ pub fn ResponseReportPage(props: ResponseReportProps) -> Element {
                         }
                     } else {
                         ResponseList {
+                            attribute_response: translates.attribute_response.clone(),
                             response_report: translates.response_report.clone(),
                             response_download: translates.response_download.clone(),
                             total_respondents: translates.total_respondents,
