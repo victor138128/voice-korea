@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
 use by_axum::axum::extract::State;
+use by_axum::axum::http::header::SET_COOKIE;
+use by_axum::axum::response::Response;
 use by_axum::axum::Json;
 use easy_dynamodb::Client;
 use serde::Deserialize;
@@ -18,7 +20,7 @@ pub struct LoginParams {
 pub async fn handler(
     State(db): State<Arc<Client>>,
     Json(body): Json<LoginParams>,
-) -> Result<String, ApiError> {
+) -> Result<Response<String>, ApiError> {
     let email = body.email.clone();
     let result: Result<
         (Option<Vec<models::User>>, Option<String>),
@@ -45,5 +47,15 @@ pub async fn handler(
         return Err(ApiError::InvalidCredentials(email));
     }
 
-    generate_jwt(&user.id, &user.email).map_err(|e| ApiError::JWTGenerationFail(e.to_string()))
+    let jwt = generate_jwt(&user.id, &user.email)
+        .map_err(|e| ApiError::JWTGenerationFail(e.to_string()))?;
+
+    Ok(Response::builder()
+        .status(200)
+        .header(
+            SET_COOKIE,
+            format!("token={}; HttpOnly; Secure; SameSite=None; Path=/", jwt),
+        )
+        .body(jwt)
+        .map_err(|e| ApiError::ValidationError(e.to_string()))?)
 }

@@ -38,9 +38,8 @@ pub enum ApiError {
     #[error("Email already used")]
     DuplicateUser,
 
-    #[error("Reqwest Client Create Failed")]
-    ReqwestClientFailed(String),
-
+    // #[error("Reqwest Client Create Failed")]
+    // ReqwestClientFailed(String),
     #[error("Reqwest Failed")]
     ReqwestFailed(String),
 
@@ -51,10 +50,13 @@ pub enum ApiError {
     SurveyNotFound(String),
 
     #[error("Only draft survey can modified")]
-    SurveyInProgress,
+    NotDraftSurvey,
 
     #[error("survey draft is not completed")]
     InCompleteDraft,
+
+    #[error("Only InProgress survey can Finished")]
+    NotInProgressSurvey,
 }
 
 impl IntoResponse for ApiError {
@@ -70,12 +72,13 @@ impl IntoResponse for ApiError {
             ApiError::SESServiceError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::AuthKeyNotMatch(_) => StatusCode::NOT_ACCEPTABLE,
             ApiError::DuplicateUser => StatusCode::CONFLICT,
-            ApiError::ReqwestClientFailed(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            // ApiError::ReqwestClientFailed(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::ReqwestFailed(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::JSONSerdeError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::SurveyNotFound(_) => StatusCode::NOT_FOUND,
-            ApiError::SurveyInProgress => StatusCode::UNPROCESSABLE_ENTITY,
+            ApiError::NotDraftSurvey => StatusCode::UNPROCESSABLE_ENTITY,
             ApiError::InCompleteDraft => StatusCode::UNPROCESSABLE_ENTITY,
+            ApiError::NotInProgressSurvey => StatusCode::UNPROCESSABLE_ENTITY,
         };
 
         let error_id = uuid::Uuid::new_v4();

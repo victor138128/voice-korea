@@ -26,7 +26,7 @@ where
 }
 
 use reqwest::{Client, RequestBuilder};
-
+//FIXME: Rename
 pub struct ReqwestClient {
     base_url: String,
     pub client: Client,

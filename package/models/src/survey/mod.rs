@@ -1,26 +1,6 @@
 use core::fmt;
 use serde::{Deserialize, Deserializer, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
-pub struct NonceLabSurveyDto {
-    pub id: u32,
-    pub title: String,
-    pub description: Option<String>,
-    pub status: SurveyStatus,
-    #[serde(rename = "startedAt")]
-    pub created_at: String,
-    #[serde(rename = "endedAt")]
-    pub ended_at: String,
-    #[serde(rename = "rewardPoints")]
-    pub reward_points: u32,
-    #[serde(rename = "questionCount")]
-    pub question_count: u32,
-    participated: bool,
-    #[serde(rename = "estimatedMinutes")]
-    pub estimated_minutes: u32,
-    pub quotas: Vec<Quota>,
-    pub questions: Option<Vec<SurveyQuestion>>,
-}
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct Survey {
@@ -39,7 +19,7 @@ pub struct Survey {
     pub started_at: Option<i64>,
     pub ended_at: Option<i64>,
     pub nonce_lab_id: Option<u32>,
-    //TODO:
+    pub result_id: Option<String>,
     pub response_count: Option<u64>,
     pub total_response_count: Option<u64>,
 }
@@ -47,7 +27,7 @@ impl Survey {
     pub fn new(id: String, user_id: String) -> Self {
         let mut survey = Survey::default();
         let now = chrono::Utc::now().timestamp_millis();
-        survey.gsi1 = Survey::get_gsi1(&&user_id);
+        survey.gsi1 = Survey::get_gsi1(&user_id);
         survey.id = id;
         survey.creator = user_id;
         survey.r#type = Survey::get_type();
@@ -220,6 +200,11 @@ pub struct ProgressSurveyResponse {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CompleteSurveyResponse {
+    pub id: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ListSurveyRequest {
     pub size: Option<i32>,
     pub bookmark: Option<String>,
@@ -252,4 +237,64 @@ pub struct UpsertSurveyDraftRequest {
     pub questions: Option<Vec<SurveyQuestion>>,
     pub started_at: Option<i64>,
     pub ended_at: Option<i64>,
+}
+
+pub type QuotaId = u32;
+pub type QuestionId = u32;
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
+pub struct SurveyResultDocument {
+    pub id: String,
+    pub user_id: String,
+    pub r#type: String,
+    pub gsi1: String,
+    pub created_at: i64,
+    pub survey_id: String,
+
+    pub expected_responses: u64,
+    pub actual_responses: u64,
+
+    pub answers: Vec<SurveyResultAnswer>,
+
+    pub quotas: HashMap<QuotaId, Quota>,
+    pub questions: HashMap<QuestionId, SurveyQuestion>,
+
+    pub survey_responses_by_quota: HashMap<QuotaId, u64>,
+    pub survey_responses_by_question: HashMap<QuestionId, HashMap<String, u64>>,
+}
+
+impl SurveyResultDocument {
+    pub fn get_type() -> String {
+        "survey_result".to_string()
+    }
+    pub fn get_gsi1(user_id: &str, survey_id: &str) -> String {
+        format!("survey#result#{}#{}", user_id, survey_id)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct SurveyResultQuota {
+    pub quota_id: String,
+    pub total_num: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct SurveyResultQuestion {
+    pub quesiton_id: String,
+    pub total_num: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum SurveyResultAnswerType {
+    Select(Vec<String>),
+    Text(String),
+    NotResponded,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct SurveyResultAnswer {
+    pub responded_at: i64,
+    pub quota_id: QuotaId,       // 특성
+    pub question_id: QuestionId, // 질문
+    pub answer_type: SurveyResultAnswerType,
 }
