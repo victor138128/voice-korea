@@ -164,99 +164,10 @@ impl Controller {
 
             match attribute {
                 Some(attr) => {
-                    match attr.salary_tier {
-                        Some(tier) => {
-                            if tier == 1 {
-                                salary = "2400만원 이하".to_string();
-                            } else if tier == 2 {
-                                salary = "2400만원~5000만원".to_string();
-                            } else if tier == 3 {
-                                salary = "5000만원~8000만원".to_string();
-                            } else if tier == 4 {
-                                salary = "8000만원~10000만원".to_string();
-                            } else {
-                                salary = "10000만원 이상".to_string();
-                            }
-                        }
-                        None => {}
-                    };
-
-                    match attr.region_code {
-                        Some(r) => {
-                            if r == 02 {
-                                region = "서울".to_string();
-                            } else if r == 051 {
-                                region = "부산".to_string();
-                            } else if r == 053 {
-                                region = "대구".to_string();
-                            } else if r == 032 {
-                                region = "인천".to_string();
-                            } else if r == 062 {
-                                region = "광주".to_string();
-                            } else if r == 042 {
-                                region = "대전".to_string();
-                            } else if r == 052 {
-                                region = "울산".to_string();
-                            } else if r == 044 {
-                                region = "세종".to_string();
-                            } else if r == 031 {
-                                region = "경기".to_string();
-                            } else if r == 033 {
-                                region = "강원".to_string();
-                            } else if r == 043 {
-                                region = "충북".to_string();
-                            } else if r == 041 {
-                                region = "충남".to_string();
-                            } else if r == 063 {
-                                region = "전북".to_string();
-                            } else if r == 061 {
-                                region = "전남".to_string();
-                            } else if r == 054 {
-                                region = "경북".to_string();
-                            } else if r == 055 {
-                                region = "경남".to_string();
-                            } else if r == 064 {
-                                region = "제주".to_string();
-                            }
-                        }
-                        None => {}
-                    }
-                    match attr.gender {
-                        Some(g) => {
-                            if g == models::prelude::Gender::Male {
-                                gender = "남성".to_string();
-                            } else {
-                                gender = "여성".to_string();
-                            }
-                        }
-                        None => {}
-                    };
-                    match attr.age {
-                        Some(a) => {
-                            age = match a {
-                                models::prelude::Age::Specific(a) => format!("{}세", a),
-                                models::prelude::Age::Range {
-                                    inclusive_min,
-                                    inclusive_max,
-                                } => {
-                                    if inclusive_max.is_none() && inclusive_min.is_none() {
-                                        "미정".to_string()
-                                    } else if inclusive_max.is_none() {
-                                        format!("{}세 이하", inclusive_min.unwrap())
-                                    } else if inclusive_min.is_none() {
-                                        format!("{}세 이상", inclusive_max.unwrap())
-                                    } else {
-                                        format!(
-                                            "{}~{}세",
-                                            inclusive_min.unwrap(),
-                                            inclusive_max.unwrap()
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        None => {}
-                    };
+                    salary = self.get_salary(attr.salary_tier);
+                    region = self.get_region(attr.region_code);
+                    gender = self.get_gender(attr.gender);
+                    age = self.get_age(attr.age);
                 }
                 None => {}
             };
@@ -492,6 +403,104 @@ impl Controller {
 
     pub fn get_select_page(&self) -> SelectPage {
         (self.select_page)()
+    }
+
+    pub fn get_age(&self, age: Option<models::prelude::Age>) -> String {
+        match age {
+            Some(a) => match a {
+                models::prelude::Age::Specific(a) => format!("{}세", a),
+                models::prelude::Age::Range {
+                    inclusive_min,
+                    inclusive_max,
+                } => {
+                    if inclusive_max.is_none() && inclusive_min.is_none() {
+                        "미정".to_string()
+                    } else if inclusive_max.is_none() {
+                        format!("{}세 이하", inclusive_min.unwrap())
+                    } else if inclusive_min.is_none() {
+                        format!("{}세 이상", inclusive_max.unwrap())
+                    } else {
+                        format!("{}~{}세", inclusive_min.unwrap(), inclusive_max.unwrap())
+                    }
+                }
+            },
+            None => "-".to_string(),
+        }
+    }
+
+    pub fn get_gender(&self, gender: Option<models::prelude::Gender>) -> String {
+        match gender {
+            Some(g) => {
+                if g == models::prelude::Gender::Male {
+                    "남성".to_string()
+                } else {
+                    "여성".to_string()
+                }
+            }
+            None => "-".to_string(),
+        }
+    }
+
+    pub fn get_region(&self, region_code: Option<u16>) -> String {
+        match region_code {
+            Some(r) => {
+                if r == 02 {
+                    "서울".to_string()
+                } else if r == 051 {
+                    "부산".to_string()
+                } else if r == 053 {
+                    "대구".to_string()
+                } else if r == 032 {
+                    "인천".to_string()
+                } else if r == 062 {
+                    "광주".to_string()
+                } else if r == 042 {
+                    "대전".to_string()
+                } else if r == 052 {
+                    "울산".to_string()
+                } else if r == 044 {
+                    "세종".to_string()
+                } else if r == 031 {
+                    "경기".to_string()
+                } else if r == 033 {
+                    "강원".to_string()
+                } else if r == 043 {
+                    "충북".to_string()
+                } else if r == 041 {
+                    "충남".to_string()
+                } else if r == 063 {
+                    "전북".to_string()
+                } else if r == 061 {
+                    "전남".to_string()
+                } else if r == 054 {
+                    "경북".to_string()
+                } else if r == 055 {
+                    "경남".to_string()
+                } else {
+                    "제주".to_string()
+                }
+            }
+            None => "-".to_string(),
+        }
+    }
+
+    pub fn get_salary(&self, salary_tier: Option<u16>) -> String {
+        match salary_tier {
+            Some(tier) => {
+                if tier == 1 {
+                    "2400만원 이하".to_string()
+                } else if tier == 2 {
+                    "2400만원~5000만원".to_string()
+                } else if tier == 3 {
+                    "5000만원~8000만원".to_string()
+                } else if tier == 4 {
+                    "8000만원~10000만원".to_string()
+                } else {
+                    "10000만원 이상".to_string()
+                }
+            }
+            None => "-".to_string(),
+        }
     }
 }
 
