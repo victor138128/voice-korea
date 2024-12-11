@@ -45,7 +45,6 @@ pub fn generate_jwt(user_id: &str, email: &str) -> Result<String, JwtError> {
         .unwrap()
         .as_secs()
         + 60 * 60) as usize;
-
     let claims = Claims {
         id: user_id.to_string(),
         email: email.to_string(),

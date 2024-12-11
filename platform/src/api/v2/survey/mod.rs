@@ -2,6 +2,7 @@ use dioxus::prelude::{
     server_fn::codec::{GetUrl, Json},
     ServerFnError, *,
 };
+use models::prelude::SurveyResultDocument;
 
 #[allow(unused_variables)]
 #[server(endpoint = "/v2/surveys", input = GetUrl, output = Json)]
@@ -125,6 +126,38 @@ pub async fn upsert_survey_draft(
         .patch(&format!("/v1/survey"))
         .header("Authorization", token)
         .json(&req)
+        .send()
+        .await?;
+    let res = res.error_for_status()?;
+    Ok(res.json().await?)
+}
+//TODO: Remove server macro
+/*
+   Currently Reqwest does not send Cookies.
+
+   In Reqwest crate, the "blocking" feature cannot be declared like the "cookies" feature.
+   So if the client stores Cookies and uses them as an authentication method,
+   the cookies will not be included in the Http Request.
+*/
+#[server(endpoint = "/v2/survey/result", input = GetUrl, output = Json)]
+pub async fn get_survey_result(id: String) -> Result<SurveyResultDocument, ServerFnError> {
+    use crate::utils::api::ReqwestClient;
+    use dioxus_logger::tracing;
+
+    let headers: axum::http::HeaderMap = extract().await?;
+    let cookie = headers.get(axum::http::header::COOKIE);
+
+    if cookie.is_none() {
+        return Err(ServerFnError::new("cookie is not exists".to_string()));
+    }
+
+    let format_cookie = format!("{:?}", cookie.unwrap());
+    let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
+
+    let client = ReqwestClient::new()?;
+    let res = client
+        .get(&format!("/v1/survey/{}/result", id))
+        .header("Authorization", token)
         .send()
         .await?;
     let res = res.error_for_status()?;
