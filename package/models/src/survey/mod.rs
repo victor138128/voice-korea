@@ -242,7 +242,7 @@ pub struct UpsertSurveyDraftRequest {
 pub type QuotaId = u32;
 pub type QuestionId = u32;
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct SurveyResultDocument {
     pub id: String,
     pub user_id: String,
@@ -272,13 +272,13 @@ impl SurveyResultDocument {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SurveyResultQuota {
     pub quota_id: String,
     pub total_num: u64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SurveyResultQuestion {
     pub quesiton_id: String,
     pub total_num: u64,
@@ -291,7 +291,7 @@ pub enum SurveyResultAnswerType {
     NotResponded,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SurveyResultAnswer {
     pub responded_at: i64,
     pub quota_id: QuotaId,       // 특성
