@@ -2,6 +2,7 @@
 #[allow(unused_imports)]
 use std::collections::HashMap;
 
+use chrono::{TimeZone, Utc};
 use dioxus::prelude::*;
 #[allow(unused_imports)]
 use dioxus_logger::tracing;
@@ -123,128 +124,153 @@ impl Controller {
     }
 
     pub fn get_panels_chart(&self) -> Vec<Response> {
-        vec![
-            Response {
+        let survey = self.get_survey_response().clone();
+
+        if survey.is_none() {
+            return vec![];
+        }
+
+        let answers = survey.clone().unwrap().answers;
+        let quotas = survey.unwrap().quotas;
+        let mut responses: Vec<Response> = vec![];
+
+        for answer in answers {
+            let responded_at = answer.responded_at;
+            let timestamp_secs = responded_at / 1000;
+            let timestamp_nanos = (responded_at % 1000) * 1_000_000;
+
+            let datetime = Utc
+                .timestamp_opt(timestamp_secs, timestamp_nanos as u32)
+                .single()
+                .expect("Invalid timestamp");
+
+            let formatted_date = datetime.format("%Y-%m-%d").to_string();
+
+            let quote_id = answer.quota_id;
+            let quota: models::prelude::Quota = quotas
+                .get(&quote_id)
+                .unwrap_or(&models::prelude::Quota {
+                    attribute: None,
+                    panel: None,
+                    quota: 0,
+                })
+                .clone();
+            let attribute = quota.attribute;
+
+            let mut salary = "-".to_string();
+            let mut region = "-".to_string();
+            let mut gender = "-".to_string();
+            let mut age = "-".to_string();
+
+            match attribute {
+                Some(attr) => {
+                    match attr.salary_tier {
+                        Some(tier) => {
+                            if tier == 1 {
+                                salary = "2400만원 이하".to_string();
+                            } else if tier == 2 {
+                                salary = "2400만원~5000만원".to_string();
+                            } else if tier == 3 {
+                                salary = "5000만원~8000만원".to_string();
+                            } else if tier == 4 {
+                                salary = "8000만원~10000만원".to_string();
+                            } else {
+                                salary = "10000만원 이상".to_string();
+                            }
+                        }
+                        None => {}
+                    };
+
+                    match attr.region_code {
+                        Some(r) => {
+                            if r == 02 {
+                                region = "서울".to_string();
+                            } else if r == 051 {
+                                region = "부산".to_string();
+                            } else if r == 053 {
+                                region = "대구".to_string();
+                            } else if r == 032 {
+                                region = "인천".to_string();
+                            } else if r == 062 {
+                                region = "광주".to_string();
+                            } else if r == 042 {
+                                region = "대전".to_string();
+                            } else if r == 052 {
+                                region = "울산".to_string();
+                            } else if r == 044 {
+                                region = "세종".to_string();
+                            } else if r == 031 {
+                                region = "경기".to_string();
+                            } else if r == 033 {
+                                region = "강원".to_string();
+                            } else if r == 043 {
+                                region = "충북".to_string();
+                            } else if r == 041 {
+                                region = "충남".to_string();
+                            } else if r == 063 {
+                                region = "전북".to_string();
+                            } else if r == 061 {
+                                region = "전남".to_string();
+                            } else if r == 054 {
+                                region = "경북".to_string();
+                            } else if r == 055 {
+                                region = "경남".to_string();
+                            } else if r == 064 {
+                                region = "제주".to_string();
+                            }
+                        }
+                        None => {}
+                    }
+                    match attr.gender {
+                        Some(g) => {
+                            if g == models::prelude::Gender::Male {
+                                gender = "남성".to_string();
+                            } else {
+                                gender = "여성".to_string();
+                            }
+                        }
+                        None => {}
+                    };
+                    match attr.age {
+                        Some(a) => {
+                            age = match a {
+                                models::prelude::Age::Specific(a) => format!("{}세", a),
+                                models::prelude::Age::Range {
+                                    inclusive_min,
+                                    inclusive_max,
+                                } => {
+                                    if inclusive_max.is_none() && inclusive_min.is_none() {
+                                        "미정".to_string()
+                                    } else if inclusive_max.is_none() {
+                                        format!("{}세 이하", inclusive_min.unwrap())
+                                    } else if inclusive_min.is_none() {
+                                        format!("{}세 이상", inclusive_max.unwrap())
+                                    } else {
+                                        format!(
+                                            "{}~{}세",
+                                            inclusive_min.unwrap(),
+                                            inclusive_max.unwrap()
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        None => {}
+                    };
+                }
+                None => {}
+            };
+
+            responses.push(Response {
                 response_type: ResponseType::AttributeResponse,
                 response_status: None,
-                final_update_date: "2024-09-09".to_string(),
-                inprogress_time: "10m30s".to_string(),
-                attribute: vec![
-                    "2400만원 이하".to_string(),
-                    "서울".to_string(),
-                    "남성".to_string(),
-                    "18~29세".to_string(),
-                ],
-            },
-            Response {
-                response_type: ResponseType::AttributeResponse,
-                response_status: None,
-                final_update_date: "2024-09-09".to_string(),
-                inprogress_time: "10m30s".to_string(),
-                attribute: vec![
-                    "2400만원 이하".to_string(),
-                    "부산".to_string(),
-                    "여성".to_string(),
-                    "30대".to_string(),
-                ],
-            },
-            Response {
-                response_type: ResponseType::AttributeResponse,
-                response_status: None,
-                final_update_date: "2024-09-09".to_string(),
-                inprogress_time: "10m30s".to_string(),
-                attribute: vec![
-                    "2400만원~5000만원".to_string(),
-                    "부산".to_string(),
-                    "남성".to_string(),
-                    "40대".to_string(),
-                ],
-            },
-            Response {
-                response_type: ResponseType::AttributeResponse,
-                response_status: None,
-                final_update_date: "2024-09-09".to_string(),
-                inprogress_time: "10m30s".to_string(),
-                attribute: vec![
-                    "2400만원~5000만원".to_string(),
-                    "서울".to_string(),
-                    "남성".to_string(),
-                    "18~29세".to_string(),
-                ],
-            },
-            Response {
-                response_type: ResponseType::AttributeResponse,
-                response_status: None,
-                final_update_date: "2024-09-09".to_string(),
-                inprogress_time: "10m30s".to_string(),
-                attribute: vec![
-                    "10000만원 이상".to_string(),
-                    "대구".to_string(),
-                    "여성".to_string(),
-                    "40대".to_string(),
-                ],
-            },
-            Response {
-                response_type: ResponseType::AttributeResponse,
-                response_status: None,
-                final_update_date: "2024-09-09".to_string(),
-                inprogress_time: "10m30s".to_string(),
-                attribute: vec![
-                    "5000만원~8000만원".to_string(),
-                    "대구".to_string(),
-                    "남성".to_string(),
-                    "18~29세".to_string(),
-                ],
-            },
-            Response {
-                response_type: ResponseType::AttributeResponse,
-                response_status: None,
-                final_update_date: "2024-09-09".to_string(),
-                inprogress_time: "10m30s".to_string(),
-                attribute: vec![
-                    "5000만원~8000만원".to_string(),
-                    "서울".to_string(),
-                    "남성".to_string(),
-                    "40대".to_string(),
-                ],
-            },
-            Response {
-                response_type: ResponseType::AttributeResponse,
-                response_status: None,
-                final_update_date: "2024-09-09".to_string(),
-                inprogress_time: "10m30s".to_string(),
-                attribute: vec![
-                    "10000만원 이상".to_string(),
-                    "서울".to_string(),
-                    "남성".to_string(),
-                    "18~29세".to_string(),
-                ],
-            },
-            Response {
-                response_type: ResponseType::AttributeResponse,
-                response_status: None,
-                final_update_date: "2024-09-09".to_string(),
-                inprogress_time: "10m30s".to_string(),
-                attribute: vec![
-                    "2400만원 이하".to_string(),
-                    "서울".to_string(),
-                    "남성".to_string(),
-                    "18~29세".to_string(),
-                ],
-            },
-            Response {
-                response_type: ResponseType::AttributeResponse,
-                response_status: None,
-                final_update_date: "2024-09-09".to_string(),
-                inprogress_time: "10m30s".to_string(),
-                attribute: vec![
-                    "2400만원 이하".to_string(),
-                    "서울".to_string(),
-                    "남성".to_string(),
-                    "18~29세".to_string(),
-                ],
-            },
-        ]
+                final_update_date: formatted_date,
+                inprogress_time: "-".to_string(),
+                attribute: vec![salary, region, gender, age],
+            });
+        }
+
+        responses
     }
 
     pub fn get_surveys_chart(&self) -> Vec<Surveys> {
