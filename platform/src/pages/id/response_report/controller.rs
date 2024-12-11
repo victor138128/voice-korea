@@ -1,7 +1,13 @@
 #![allow(non_snake_case)]
-use dioxus::prelude::*;
+#[allow(unused_imports)]
+use std::collections::HashMap;
 
-use crate::{models::pi::PiChart, prelude::Language};
+use dioxus::prelude::*;
+#[allow(unused_imports)]
+use dioxus_logger::tracing;
+use models::prelude::SurveyResultDocument;
+
+use crate::{api::v2::survey::get_survey_result, models::pi::PiChart, prelude::Language};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
@@ -10,6 +16,8 @@ pub struct Controller {
     pub clicked_index: Signal<usize>,
     pub attributes: Signal<Vec<Attributes>>,
     pub surveys: Signal<Vec<Surveys>>,
+
+    pub survey_response: Signal<Resource<models::prelude::SurveyResultDocument>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -58,7 +66,7 @@ pub struct Response {
 
 impl Controller {
     #[allow(unused_variables)]
-    pub fn init(lang: Language) -> Self {
+    pub fn init(lang: Language, survey_id: String) -> Self {
         #[cfg(feature = "web")]
         {
             use crate::routes::Route;
@@ -71,13 +79,32 @@ impl Controller {
             }
         }
 
+        let res = use_resource(move || {
+            let value = survey_id.clone();
+            async move {
+                match get_survey_result(value).await {
+                    Ok(res) => {
+                        tracing::debug!("this line come: {:?}", res);
+                        res
+                    }
+                    Err(e) => {
+                        tracing::error!("get survey failed: {:?}", e);
+                        SurveyResultDocument::default()
+                    }
+                }
+            }
+        });
+
         let mut ctrl = Self {
             select_page: use_signal(|| SelectPage::Summary),
             clicked_index: use_signal(|| 0),
             attributes: use_signal(|| vec![]),
             surveys: use_signal(|| vec![]),
             panels: use_signal(|| vec![]),
+            survey_response: use_signal(|| res),
         };
+
+        ctrl.survey_response.set(res);
 
         let attributes = ctrl.get_attributes_chart();
         let surveys = ctrl.get_surveys_chart();
@@ -89,6 +116,10 @@ impl Controller {
 
         use_context_provider(|| ctrl);
         ctrl
+    }
+
+    pub fn get_survey_response(&self) -> Option<SurveyResultDocument> {
+        ((self.survey_response)().value())()
     }
 
     pub fn get_panels_chart(&self) -> Vec<Response> {
@@ -217,84 +248,106 @@ impl Controller {
     }
 
     pub fn get_surveys_chart(&self) -> Vec<Surveys> {
-        vec![
-            Surveys {
-                title: "해당 서비스를 얼마나 자주 이용하시나요?".to_string(),
-                answer: 5,
-                skipped_answer: 0,
-                labels: vec![
-                    "매우 만족".to_string(),
-                    "만족".to_string(),
-                    "보통".to_string(),
-                    "나쁨".to_string(),
-                    "매우 나쁨".to_string(),
-                ],
-                value_percents: vec![20.0, 80.0, 0.0, 0.0, 0.0],
-                colors: vec![
-                    "#34D399".to_string(),
-                    "#3B82F6".to_string(),
-                    "#FBBF24".to_string(),
-                    "#F87171".to_string(),
-                    "#EF4444".to_string(),
-                ],
-                value_counts: vec![1, 4, 0, 0, 0],
-            },
-            Surveys {
-                title: "서비스의 접근성은 만족스러웠나요?".to_string(),
-                answer: 5,
-                skipped_answer: 0,
-                labels: vec![
-                    "매우 만족".to_string(),
-                    "만족".to_string(),
-                    "보통".to_string(),
-                    "나쁨".to_string(),
-                    "매우 나쁨".to_string(),
-                ],
-                value_percents: vec![0.0, 60.0, 40.0, 0.0, 0.0],
-                colors: vec![
-                    "#34D399".to_string(),
-                    "#3B82F6".to_string(),
-                    "#FBBF24".to_string(),
-                    "#F87171".to_string(),
-                    "#EF4444".to_string(),
-                ],
-                value_counts: vec![0, 3, 2, 0, 0],
-            },
-            Surveys {
-                title: "서비스를 이용하는 과정에서 불편함을 겪으셨나요?".to_string(),
-                answer: 5,
-                skipped_answer: 0,
-                labels: vec![
-                    "매우 만족".to_string(),
-                    "만족".to_string(),
-                    "보통".to_string(),
-                    "나쁨".to_string(),
-                    "매우 나쁨".to_string(),
-                ],
-                value_percents: vec![20.0, 40.0, 40.0, 0.0, 0.0],
-                colors: vec![
-                    "#34D399".to_string(),
-                    "#3B82F6".to_string(),
-                    "#FBBF24".to_string(),
-                    "#F87171".to_string(),
-                    "#EF4444".to_string(),
-                ],
-                value_counts: vec![1, 2, 2, 0, 0],
-            },
-            Surveys {
-                title: "주관식 설문 예제".to_string(),
-                answer: 3,
-                skipped_answer: 0,
-                labels: vec![
-                    "예제 1".to_string(),
-                    "예제 2".to_string(),
-                    "예제 3".to_string(),
-                ],
-                value_percents: vec![],
-                colors: vec![],
-                value_counts: vec![],
-            },
-        ]
+        let default_colors = vec![
+            "#34D399".to_string(),
+            "#3B82F6".to_string(),
+            "#FBBF24".to_string(),
+            "#F87171".to_string(),
+            "#EF4444".to_string(),
+        ];
+        let mut surveys: Vec<Surveys> = vec![];
+        let survey = self.get_survey_response();
+
+        if survey.is_none() {
+            return vec![];
+        }
+
+        let questions = survey.clone().unwrap().questions;
+
+        for (key, value) in questions {
+            let s = survey.clone().unwrap().clone();
+            let survey_response_by_question = s.survey_responses_by_question.get(&key);
+            let mut values = vec![];
+            let mut value_percent: Vec<f32> = vec![];
+            let mut colors: Vec<String> = vec![];
+
+            for _i in 0..value.options.clone().unwrap_or(vec![]).len() {
+                values.push(0);
+                value_percent.push(0.0);
+            }
+
+            let mut total_response = 0;
+
+            if let Some(survey_response) = survey_response_by_question {
+                for (i, option) in value.options.clone().unwrap_or(vec![]).iter().enumerate() {
+                    if !survey_response_by_question.clone().is_none() {
+                        let option_count = survey_response.get(option).copied().unwrap_or_default();
+
+                        if let Some(count) = (option_count).try_into().ok() {
+                            values[i] = count;
+                            total_response += count;
+                        }
+                    }
+                }
+
+                if total_response == 0 {
+                    values.clear();
+                    value_percent.clear();
+                }
+
+                for (i, value) in values.iter().enumerate() {
+                    if total_response == 0 {
+                        value_percent[i] = 0.0;
+                    } else {
+                        value_percent[i] = (*value as f32) / (total_response as f32) * 100.0;
+                    }
+
+                    let ind = i % 5;
+                    let color = default_colors[ind].clone();
+                    colors.push(color);
+                }
+
+                surveys.push(Surveys {
+                    title: value.title,
+                    answer: if survey_response_by_question.is_some() {
+                        if total_response == 0 {
+                            survey_response_by_question.unwrap().keys().len() as u64
+                        } else {
+                            total_response
+                        }
+                    } else {
+                        0
+                    },
+                    skipped_answer: 0,
+                    labels: if !value.options.clone().is_none() {
+                        value.options.unwrap()
+                    } else {
+                        survey_response_by_question
+                            .map(|map| map.keys().cloned().collect::<Vec<_>>()) // Some인 경우 키를 벡터로 수집
+                            .unwrap_or_else(Vec::new)
+                    },
+                    value_percents: value_percent,
+                    colors,
+                    value_counts: values,
+                });
+            } else {
+                surveys.push(Surveys {
+                    title: value.title,
+                    answer: 0,
+                    skipped_answer: 0,
+                    labels: if !value.options.clone().is_none() {
+                        value.options.unwrap()
+                    } else {
+                        vec![]
+                    },
+                    value_percents: value_percent,
+                    colors,
+                    value_counts: values,
+                });
+            }
+        }
+
+        surveys
     }
 
     pub fn get_attributes_chart(&self) -> Vec<Attributes> {

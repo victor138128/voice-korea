@@ -20,7 +20,7 @@ pub mod components {
 
 #[component]
 pub fn ResponseReportPage(props: ResponseReportProps) -> Element {
-    let mut ctrl = controller::Controller::init(props.lang);
+    let mut ctrl = controller::Controller::init(props.lang, props.survey_id);
     let translates = i18n::translate(props.lang.clone());
     rsx! {
         div {
