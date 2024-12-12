@@ -1,8 +1,8 @@
 use chrono::{DateTime, FixedOffset, Utc};
 use lambda_http::{
-    lambda_runtime::streaming::Body, run, service_fn, Error, Request, RequestPayloadExt, Response,
+    http::method, run, service_fn, Body, Error, Request, RequestExt, RequestPayloadExt, Response,
 };
-use reqwest::StatusCode;
+use reqwest::{Method, StatusCode};
 use serde::Deserialize;
 use serde_json::Value;
 use watcher::*;
@@ -17,7 +17,7 @@ struct EventBridgeEvent {
     source: Option<String>,
 }
 
-async fn handler(event: Request) -> Result<Response<Body>, Error> {
+async fn handler(event: lambda_http::Request) -> Result<Response<Body>, Error> {
     let payload = event.payload::<Value>().unwrap_or_default();
 
     // Cron Event
@@ -49,9 +49,28 @@ async fn handler(event: Request) -> Result<Response<Body>, Error> {
         }
     }
 
-    //Version
-    let method = event.method().to_string();
+    let method = event.method();
     let path = event.uri().path().to_string();
+    let path = if let lambda_http::request::RequestContext::ApiGatewayV1(context) =
+        event.request_context()
+    {
+        // let path = context.path.unwrap_or("/".to_string());
+        // let method = context.http_method == Method::GET;
+
+        println!("PATH: {}", path);
+        let stage = context.stage;
+        match stage {
+            Some(v) => {
+                let stage = format!("/{}", v);
+                path.replacen(&stage, "", 1)
+            }
+            _ => path,
+        }
+    } else {
+        path
+    };
+    //Version
+
     if path == "/version" && method == "GET" {
         let version = match option_env!("VERSION") {
             Some(version) => match option_env!("COMMIT") {

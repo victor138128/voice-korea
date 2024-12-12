@@ -21,7 +21,6 @@ run:
 
 build:
 	$(BUILD_ENV) cargo build --release -p watcher
-
 get-version:
 	curl -X GET "http://localhost:9000/lambda-url/watcher/version"
 
