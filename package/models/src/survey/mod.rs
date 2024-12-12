@@ -298,3 +298,17 @@ pub struct SurveyResultAnswer {
     pub question_id: QuestionId, // 질문
     pub answer_type: SurveyResultAnswerType,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AdminSurveyCompleteRequest {
+    pub id: String,
+    pub ended_at: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AdminSurveyCompleteResponse {
+    pub id: String,
+    pub total: u32,
+    pub succeed: u32,
+    pub failed: u32,
+}
