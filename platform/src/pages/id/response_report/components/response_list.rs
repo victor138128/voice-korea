@@ -28,13 +28,13 @@ pub fn ResponseList(props: ResponseListProps) -> Element {
             class: "flex flex-col w-full justify-start items-start",
             div {
                 class: "text-[#2168c3] font-semibold text-[30px]",
-                {props.response_report}
+                "{props.response_report}"
             }
             div {
                 class: "flex flex-row w-full justify-end items-end mb-[20px]",
                 div {
                     class: "flex flex-row w-[135px] h-[45px] justify-center items-center mt-[30px] rounded-lg bg-[#1e5eaf] text-white font-bold text-[16px]",
-                    {props.response_download}
+                    "{props.response_download}"
                 }
             }
             div {
@@ -51,19 +51,19 @@ pub fn ResponseList(props: ResponseListProps) -> Element {
                 }
                 div {
                     class: "flex flex-row justify-center items-center w-[90px]",
-                    {props.respondent_type}
+                    "{props.respondent_type}"
                 }
                 div {
                     class: "flex flex-row justify-center items-center w-[150px]",
-                    {props.final_update_date}
+                    "{props.final_update_date}"
                 }
                 div {
                     class: "flex flex-row justify-center items-center w-[85px]",
-                    {props.status}
+                    "{props.status}"
                 }
                 div {
                     class: "flex flex-row justify-center items-center w-[100px]",
-                    {props.time_taken}
+                    "{props.time_taken}"
                 }
                 div {
                     class: "flex flex-row justify-center items-center w-[130px]",
@@ -98,12 +98,12 @@ pub fn ResponseList(props: ResponseListProps) -> Element {
                         if let ResponseType::AttributeResponse = panel.response_type {
                             div {
                                 class: "flex flex-row justify-center items-center w-[90px]",
-                                {props.attribute_response.clone()}
+                                "{props.attribute_response}"
                             }
                         }
                         div {
                             class: "flex flex-row justify-center items-center w-[150px]",
-                            {panel.final_update_date.clone()}
+                            "{panel.final_update_date}"
                         }
                         match panel.response_status {
                             Some(status) => {
@@ -111,17 +111,17 @@ pub fn ResponseList(props: ResponseListProps) -> Element {
                                     if let ResponseStatus::NotProgress = status {
                                         div {
                                             class: "flex flex-row justify-center items-center w-[85px] text-[#2168c3] font-semibold",
-                                            {props.draft.clone()}
+                                            "{props.draft}"
                                         }
                                     } else if let ResponseStatus::InProgress = status {
                                         div {
                                             class: "flex flex-row justify-center items-center w-[85px] text-[#2168c3] font-semibold",
-                                            {props.in_progress.clone()}
+                                            "{props.in_progress}"
                                         }
                                     } else {
                                         div {
                                             class: "flex flex-row justify-center items-center w-[85px] text-[#2168c3] font-semibold",
-                                            {props.complete.clone()}
+                                            "{props.complete}"
                                         }
                                     }
                                 }
@@ -168,7 +168,7 @@ pub fn ResponseList(props: ResponseListProps) -> Element {
                             },
                             div {
                                 class: "font-medium text-[#1e5eaf] text-[14px]",
-                                {props.response_history.clone()}
+                                "{props.response_history}"
                             }
                         }
                     } else {
@@ -179,7 +179,7 @@ pub fn ResponseList(props: ResponseListProps) -> Element {
                             },
                             div {
                                 class: "font-medium text-white text-[14px]",
-                                {props.response_history.clone()}
+                                "{props.response_history}"
                             }
                         }
                     }
