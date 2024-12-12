@@ -287,6 +287,10 @@ impl Controller {
                 }
 
                 for (i, v) in values.iter().enumerate() {
+                    if total_response == 0 {
+                        continue;
+                    }
+
                     value_percent[i] = (*v as f32) / (total_response as f32) * 100.0;
 
                     if !value.options.clone().is_none() {
@@ -505,11 +509,9 @@ impl Controller {
         let mut gender_pi_chart = vec![];
 
         if total_payload != 0 {
-            let payload_data = Box::leak(Box::new(payload_data));
-
             for (i, payload) in payload_data.iter().enumerate() {
                 payload_pi_chart.push(PiChart {
-                    label: payload.label.as_str(),
+                    label: payload.label.clone(),
                     percentage: ((payload.value as f64) / (total_payload as f64)),
                     color: colors.get(i).unwrap(),
                 });
@@ -517,11 +519,9 @@ impl Controller {
         }
 
         if total_age != 0 {
-            let age_data = Box::leak(Box::new(age_data));
-
             for (i, age) in age_data.iter().enumerate() {
                 age_pi_chart.push(PiChart {
-                    label: age.label.as_str(),
+                    label: age.label.clone(),
                     percentage: ((age.value as f64) / (total_age as f64)),
                     color: colors.get(i).unwrap(),
                 });
@@ -529,11 +529,9 @@ impl Controller {
         }
 
         if total_region != 0 {
-            let region_data = Box::leak(Box::new(region_data));
-
             for (i, region) in region_data.iter().enumerate() {
                 region_pi_chart.push(PiChart {
-                    label: region.label.as_str(),
+                    label: region.label.clone(),
                     percentage: ((region.value as f64) / (total_region as f64)),
                     color: colors.get(i).unwrap(),
                 });
@@ -541,11 +539,9 @@ impl Controller {
         }
 
         if total_gender != 0 {
-            let gender_data = Box::leak(Box::new(gender_data));
-
             for (i, gender) in gender_data.iter().enumerate() {
                 gender_pi_chart.push(PiChart {
-                    label: gender.label.as_str(),
+                    label: gender.label.clone(),
                     percentage: ((gender.value as f64) / (total_gender as f64)),
                     color: colors.get(i).unwrap(),
                 });
