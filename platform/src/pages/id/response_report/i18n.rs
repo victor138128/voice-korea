@@ -24,6 +24,7 @@ pub struct ResponseReportTranslate {
     pub most_skipped_questions: String,
     pub response_attribute: String,
 
+    pub attribute_response: String,
     pub number_of_replies: String,
     pub number_of_skipped: String,
     pub item: String,
@@ -41,7 +42,7 @@ pub fn translate(lang: Language) -> ResponseReportTranslate {
             total_respondents: "Total Respondents".to_string(),
             respondent_type: "Respondent Type".to_string(),
             status: "Status".to_string(),
-            final_update_date: "Final Update Date".to_string(),
+            final_update_date: "Response Date".to_string(),
             time_taken: "Time Taken".to_string(),
             attribute: "Attribute".to_string(),
             panel: "Panel".to_string(),
@@ -57,6 +58,7 @@ pub fn translate(lang: Language) -> ResponseReportTranslate {
             most_skipped_questions: "Most Skipped Questions".to_string(),
             response_attribute: "Response Attribute".to_string(),
 
+            attribute_response: "Attribute Response".to_string(),
             number_of_replies: "Number of Replies".to_string(),
             number_of_skipped: "Number of Skipped".to_string(),
             item: "Item".to_string(),
@@ -71,7 +73,7 @@ pub fn translate(lang: Language) -> ResponseReportTranslate {
             total_respondents: "총 응답자".to_string(),
             respondent_type: "응답자 유형".to_string(),
             status: "상태".to_string(),
-            final_update_date: "마지막 수정 날짜".to_string(),
+            final_update_date: "응답 날짜".to_string(),
             time_taken: "소요 시간".to_string(),
             attribute: "속성".to_string(),
             panel: "패널".to_string(),
@@ -87,6 +89,7 @@ pub fn translate(lang: Language) -> ResponseReportTranslate {
             most_skipped_questions: "가장 많이 건너뛴 질문".to_string(),
             response_attribute: "응답 속성".to_string(),
 
+            attribute_response: "속성 응답".to_string(),
             number_of_replies: "답변한 수".to_string(),
             number_of_skipped: "건너뛴 수".to_string(),
             item: "보기".to_string(),

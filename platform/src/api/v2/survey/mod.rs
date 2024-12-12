@@ -142,7 +142,6 @@ pub async fn upsert_survey_draft(
 #[server(endpoint = "/v2/survey/result", input = GetUrl, output = Json)]
 pub async fn get_survey_result(id: String) -> Result<SurveyResultDocument, ServerFnError> {
     use crate::utils::api::ReqwestClient;
-    use dioxus_logger::tracing;
 
     let headers: axum::http::HeaderMap = extract().await?;
     let cookie = headers.get(axum::http::header::COOKIE);
