@@ -55,9 +55,6 @@ pub enum ApiError {
     #[error("survey draft is not completed")]
     InCompleteDraft,
 
-    #[error("Only InProgress survey can Finished")]
-    NotInProgressSurvey,
-
     #[error("Permission denied")]
     ForbiddenAccessError,
 }
@@ -80,7 +77,6 @@ impl IntoResponse for ApiError {
             ApiError::SurveyNotFound(_) => StatusCode::NOT_FOUND,
             ApiError::NotDraftSurvey => StatusCode::UNPROCESSABLE_ENTITY,
             ApiError::InCompleteDraft => StatusCode::UNPROCESSABLE_ENTITY,
-            ApiError::NotInProgressSurvey => StatusCode::UNPROCESSABLE_ENTITY,
             ApiError::ForbiddenAccessError => StatusCode::FORBIDDEN,
         };
 

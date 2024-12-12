@@ -7,23 +7,15 @@ edition.workspace = true
 
 [dependencies]
 tokio = { version = "1.41.1", features = ["full"] }
-
 listenfd = { version = "1.0.1", optional = true }
-
-
 serde_json = "1.0.133"
-
-
 thiserror = "2.0.3"
-
-
 jsonwebtoken = "9.3.0"
 sha3 = "0.10.8"
 uuid = { version = "1.11.0", features = ["v4"] }
 aws-sdk-sesv2 = "1.54.0"
 aws-config = "1.5.10"
 rand = "0.8.5"
-
 lazy_static = "1.5.0"
 
 serde = { workspace = true, features = ["derive"] }
@@ -34,6 +26,7 @@ easy-dynamodb.workspace = true
 slog.workspace = true
 models.workspace = true
 by-axum.workspace = true
+futures = "0.3.31"
 
 [features]
 default = []

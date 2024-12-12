@@ -7,6 +7,7 @@ pub struct Survey {
     pub id: String,
     pub r#type: String,
     pub gsi1: String,
+    pub gsi2: String,
     pub creator: String,
     pub created_at: i64,
     pub updated_at: i64,
@@ -28,6 +29,7 @@ impl Survey {
         let mut survey = Survey::default();
         let now = chrono::Utc::now().timestamp_millis();
         survey.gsi1 = Survey::get_gsi1(&user_id);
+        survey.gsi2 = Survey::get_gsi2("".to_string());
         survey.id = id;
         survey.creator = user_id;
         survey.r#type = Survey::get_type();
@@ -38,6 +40,10 @@ impl Survey {
     }
     pub fn get_gsi1(user_id: &str) -> String {
         format!("{}#{}", Self::get_type(), user_id)
+    }
+    pub fn get_gsi2(ended_at: String) -> String {
+        // e.g. 2024-12-31
+        format!("{}#endedAt#{}", Self::get_type(), ended_at)
     }
     pub fn get_type() -> String {
         "survey".to_string()
@@ -301,8 +307,7 @@ pub struct SurveyResultAnswer {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AdminSurveyCompleteRequest {
-    pub id: String,
-    pub ended_at: i64,
+    pub ended_at: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
