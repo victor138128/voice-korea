@@ -300,9 +300,8 @@ pub enum SurveyResultAnswerType {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SurveyResultAnswer {
     pub responded_at: i64,
-    pub quota_id: QuotaId,       // 특성
-    pub question_id: QuestionId, // 질문
-    pub answer_type: SurveyResultAnswerType,
+    pub quota_id: QuotaId, // 속성 ID
+    pub responses: Vec<SurveyResultAnswerType>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

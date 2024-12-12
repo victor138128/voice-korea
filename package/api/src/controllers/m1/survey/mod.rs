@@ -70,6 +70,8 @@ async fn create_survey_result(
         let quota_id = item.quota_id;
         let responded_at =
             convert_rfc3339_to_timestamp_millis(&item.responded_at).unwrap_or_default();
+        let mut responses: Vec<SurveyResultAnswerType> = vec![];
+
         for (question_id, answer) in item.answers.into_iter().enumerate() {
             let answer_type = if let Some(v) = answer.text_answer {
                 SurveyResultAnswerType::Text(v)
@@ -91,16 +93,17 @@ async fn create_survey_result(
                     .and_modify(|count| *count += 1)
                     .or_insert(1);
             }
-            let result_answer = SurveyResultAnswer {
-                responded_at,
-                quota_id,
-                question_id: question_id as QuestionId,
-                answer_type,
-            };
-
-            answers.push(result_answer);
+            responses.push(answer_type);
         }
+        let result_answer: SurveyResultAnswer = SurveyResultAnswer {
+            responded_at,
+            quota_id,
+            responses,
+        };
+
+        answers.push(result_answer);
     }
+
     let doc_id = uuid::Uuid::new_v4().to_string();
     let _ = db
         .create(SurveyResultDocument {
