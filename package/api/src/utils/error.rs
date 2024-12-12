@@ -57,6 +57,9 @@ pub enum ApiError {
 
     #[error("Only InProgress survey can Finished")]
     NotInProgressSurvey,
+
+    #[error("Permission denied")]
+    ForbiddenAccessError,
 }
 
 impl IntoResponse for ApiError {
@@ -72,13 +75,13 @@ impl IntoResponse for ApiError {
             ApiError::SESServiceError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::AuthKeyNotMatch(_) => StatusCode::NOT_ACCEPTABLE,
             ApiError::DuplicateUser => StatusCode::CONFLICT,
-            // ApiError::ReqwestClientFailed(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::ReqwestFailed(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::JSONSerdeError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiError::SurveyNotFound(_) => StatusCode::NOT_FOUND,
             ApiError::NotDraftSurvey => StatusCode::UNPROCESSABLE_ENTITY,
             ApiError::InCompleteDraft => StatusCode::UNPROCESSABLE_ENTITY,
             ApiError::NotInProgressSurvey => StatusCode::UNPROCESSABLE_ENTITY,
+            ApiError::ForbiddenAccessError => StatusCode::FORBIDDEN,
         };
 
         let error_id = uuid::Uuid::new_v4();
