@@ -147,6 +147,16 @@ impl Controller {
         ctrl
     }
 
+    pub fn get_total_response(&self) -> u64 {
+        let survey = self.get_survey_response().clone();
+
+        if survey.is_none() {
+            return 0;
+        }
+
+        survey.unwrap().actual_responses
+    }
+
     pub fn get_survey_response(&self) -> Option<SurveyResultDocument> {
         ((self.survey_response)().value())()
     }
@@ -228,8 +238,10 @@ impl Controller {
         }
 
         let questions = survey.clone().unwrap().questions;
+        let mut sorted_questions: Vec<_> = questions.iter().collect();
+        sorted_questions.sort_by(|a, b| a.0.cmp(b.0));
 
-        for (key, value) in questions {
+        for (key, value) in sorted_questions {
             let s = survey.clone().unwrap().clone();
             let survey_response_by_question = s.survey_responses_by_question.get(&key);
             let mut values = vec![];
@@ -255,25 +267,37 @@ impl Controller {
                     }
                 }
 
+                let question_keys = survey_response_by_question
+                    .map(|map| map.keys().cloned().collect::<Vec<_>>())
+                    .unwrap_or_else(Vec::new);
+
                 if total_response == 0 {
-                    values.clear();
-                    value_percent.clear();
+                    let survey_response = survey_response_by_question.unwrap();
+                    for (i, key) in question_keys.clone().iter().enumerate() {
+                        let v = survey_response.get(key).unwrap().clone();
+                        total_response += v;
+
+                        if values.len() > i {
+                            values[i] = v;
+                        } else {
+                            values.push(v);
+                            value_percent.push(0.0);
+                        }
+                    }
                 }
 
-                for (i, value) in values.iter().enumerate() {
-                    if total_response == 0 {
-                        value_percent[i] = 0.0;
-                    } else {
-                        value_percent[i] = (*value as f32) / (total_response as f32) * 100.0;
-                    }
+                for (i, v) in values.iter().enumerate() {
+                    value_percent[i] = (*v as f32) / (total_response as f32) * 100.0;
 
-                    let ind = i % 5;
-                    let color = default_colors[ind].clone();
-                    colors.push(color);
+                    if !value.options.clone().is_none() {
+                        let ind = i % 5;
+                        let color = default_colors[ind].clone();
+                        colors.push(color);
+                    }
                 }
 
                 surveys.push(Surveys {
-                    title: value.title,
+                    title: value.title.clone(),
                     answer: if survey_response_by_question.is_some() {
                         if total_response == 0 {
                             survey_response_by_question.unwrap().keys().len() as u64
@@ -285,11 +309,9 @@ impl Controller {
                     },
                     skipped_answer: 0,
                     labels: if !value.options.clone().is_none() {
-                        value.options.unwrap()
+                        value.options.clone().unwrap()
                     } else {
-                        survey_response_by_question
-                            .map(|map| map.keys().cloned().collect::<Vec<_>>()) // Some인 경우 키를 벡터로 수집
-                            .unwrap_or_else(Vec::new)
+                        question_keys
                     },
                     value_percents: value_percent,
                     colors,
@@ -297,11 +319,11 @@ impl Controller {
                 });
             } else {
                 surveys.push(Surveys {
-                    title: value.title,
+                    title: value.title.clone(),
                     answer: 0,
                     skipped_answer: 0,
                     labels: if !value.options.clone().is_none() {
-                        value.options.unwrap()
+                        value.options.clone().unwrap()
                     } else {
                         vec![]
                     },
