@@ -13,8 +13,17 @@ ifeq ("$(ENV)","local")
 endif
 
 BUILD_ENV ?= SERVICE=${SERVICE} ENV=$(ENV) VERSION=${VERSION} COMMIT=${COMMIT} API_DOMAIN=${API_DOMAIN}
+
+setup.tool:
+	cargo install cargo-lambda
 run:
-	$(BUILD_ENV) cargo run
+	$(BUILD_ENV) cargo lambda watch
 
 build:
-	$(BUILD_ENV) cargo build --release -p watcher --features lambda
+	$(BUILD_ENV) cargo build --release -p watcher
+
+get-version:
+	curl -X GET "http://localhost:9000/lambda-url/watcher/version"
+
+execute-cron-job:
+	curl -X POST "http://localhost:9000/lambda-url/watcher" -H "Content-Type: application/json" -d '{"source": "aws.events"}'

@@ -2,11 +2,11 @@ use models::prelude::{AdminSurveyCompleteRequest, AdminSurveyCompleteResponse};
 use reqwest::{header::HeaderMap, Client};
 use std::error::Error;
 
-pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
+type Result<T> = std::result::Result<T, Box<dyn Error + Send + Sync>>;
 
 pub struct Watcher {
-    pub endpoint: String,
-    pub req_client: Client,
+    endpoint: String,
+    req_client: Client,
 }
 
 impl Watcher {

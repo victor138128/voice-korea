@@ -82,8 +82,8 @@ build-api: clean
 
 build-watcher: clean
 	cd package/watcher && $(BUILD_ENV) make build
-	mkdir -p .build/watch
-	cp target/release/watcher .build/api/bootstrap
+	mkdir -p .build/watcher
+	cp target/release/watcher .build/watcher/bootstrap
 
 fixtures/cdk/node_modules:
 	cd fixtures/cdk && npm install
