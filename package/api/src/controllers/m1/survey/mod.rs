@@ -142,7 +142,10 @@ async fn finalize_survey(
             .await;
         let next_bookmark = match result {
             Ok((Some(v), bookmark)) => {
-                surveys.extend(v);
+                surveys.extend(
+                    v.into_iter()
+                        .filter(|v| v.status == SurveyStatus::InProgress),
+                );
                 bookmark
             }
             Ok((None, bookmark)) => bookmark,
@@ -201,7 +204,6 @@ async fn finalize_survey(
     }
 
     Ok(Json(AdminSurveyCompleteResponse {
-        id: uuid::Uuid::new_v4().to_string(),
         total: total_num,
         succeed,
         failed,

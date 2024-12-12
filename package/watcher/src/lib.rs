@@ -1,3 +1,4 @@
+use models::prelude::{AdminSurveyCompleteRequest, AdminSurveyCompleteResponse};
 use reqwest::{header::HeaderMap, Client};
 use std::error::Error;
 
@@ -10,12 +11,12 @@ pub struct Watcher {
 
 impl Watcher {
     pub fn new() -> Result<Self> {
-        let endpoint = option_env!("VOICE_KOREA_API_ENDPOINT")
+        let endpoint = option_env!("API_DOMAIN")
             .unwrap_or("http://localhost:3000")
             .to_string();
         let mut headers = HeaderMap::new();
         headers.insert(
-            "DAGIT-SERVER-KEY",
+            "SERVER-KEY",
             option_env!("INTERNAL_SERVER_KEY")
                 .unwrap_or("server-key")
                 .parse()?,
@@ -30,8 +31,18 @@ impl Watcher {
         })
     }
 
-    pub async fn finalize_survey(&self) -> Result<u16> {
-        self.req_client
-            .request(reqwest::Method::PUT, format!("{}/m1/"))
+    pub async fn finalize_survey(&self, date: String) -> Result<AdminSurveyCompleteResponse> {
+        let data = AdminSurveyCompleteRequest { ended_at: date };
+        let res = self
+            .req_client
+            .request(
+                reqwest::Method::PATCH,
+                format!("{}/m1/survey", self.endpoint),
+            )
+            .json(&data)
+            .send()
+            .await?;
+        let res = res.error_for_status()?.json().await?;
+        Ok(res)
     }
 }

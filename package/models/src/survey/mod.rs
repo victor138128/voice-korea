@@ -312,7 +312,6 @@ pub struct AdminSurveyCompleteRequest {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AdminSurveyCompleteResponse {
-    pub id: String,
     pub total: u32,
     pub succeed: u32,
     pub failed: u32,
