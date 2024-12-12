@@ -1,5 +1,4 @@
 ENV ?= local
-SERVICE ?= VOICE-KOREA-WATCHER
 VERSION ?= $(shell toml get Cargo.toml package.version | tr -d \")
 COMMIT ?= $(shell git rev-parse --short HEAD)
 

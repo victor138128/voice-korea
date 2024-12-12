@@ -7,7 +7,6 @@ edition.workspace = true
 
 [dependencies]
 by-axum.workspace = true
-easy-dynamodb.workspace = true
 slog.workspace = true
 models.workspace = true
 chrono.workspace = true
