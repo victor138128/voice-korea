@@ -66,32 +66,16 @@ pub struct Response {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Region {
+pub struct ChartData {
     pub label: String,
     pub value: i32,
     pub percent: f64,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Payload {
-    pub label: String,
-    pub value: i32,
-    pub percent: f64,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct Age {
-    pub label: String,
-    pub value: i32,
-    pub percent: f64,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct Gender {
-    pub label: String,
-    pub value: i32,
-    pub percent: f64,
-}
+pub type Region = ChartData;
+pub type Payload = ChartData;
+pub type Age = ChartData;
+pub type Gender = ChartData;
 
 impl Controller {
     #[allow(unused_variables)]
@@ -343,30 +327,25 @@ impl Controller {
 
     pub fn get_attributes_chart(&self) -> Vec<Attributes> {
         let mut salary_to_index_map = HashMap::new();
-        let mut salary_index = 0;
         let mut total_payload = 0;
         let mut payload_data = vec![];
 
         let mut age_to_index_map = HashMap::new();
-        let mut age_index = 0;
         let mut total_age = 0;
         let mut age_data = vec![];
 
         let mut region_to_index_map = HashMap::new();
-        let mut region_index = 0;
         let mut total_region = 0;
         let mut region_data = vec![];
 
         let mut gender_to_index_map = HashMap::new();
-        let mut gender_index = 0;
         let mut total_gender = 0;
         let mut gender_data = vec![];
 
-        let colors = vec![
-            "#4285f4", "#db4437", "#f4b400", "#0F9D58", "#AB47BC", "#E67E22", "#27AE60", "#3498DB",
-            "#8E44AD", "#F39C12", "#2ECC71", "#1ABC9C", "#C0392B", "#2980B9", "#D35400", "#16A085",
-            "#34495E",
-        ];
+        let mut payload_pi_chart = vec![];
+        let mut age_pi_chart = vec![];
+        let mut region_pi_chart = vec![];
+        let mut gender_pi_chart = vec![];
 
         let survey = self.get_survey_response().clone();
 
@@ -392,193 +371,174 @@ impl Controller {
             match attribute {
                 Some(attr) => {
                     let sal = self.get_salary(attr.salary_tier);
-
-                    if sal != "-" {
-                        if salary_to_index_map.get(&sal).is_none() {
-                            salary_to_index_map.insert(sal.clone(), salary_index);
-                            salary_index += 1;
-                        }
-
-                        let ind = salary_to_index_map.get(&sal).unwrap();
-
-                        if *ind >= payload_data.len() {
-                            payload_data.push(Payload {
-                                label: sal.clone(),
-                                value: 0,
-                                percent: 0.0,
-                            });
-                        }
-
-                        let payload = payload_data.get(*ind as usize).unwrap();
-                        let payload_value = payload.value + 1;
-                        payload_data[*ind as usize] = Payload {
-                            value: payload_value,
-                            ..payload.clone()
-                        };
-                        total_payload += 1;
-                    }
-
                     let age = self.get_age(attr.age);
-
-                    if age != "-" {
-                        if age_to_index_map.get(&age).is_none() {
-                            age_to_index_map.insert(age.clone(), age_index);
-                            age_index += 1;
-                        }
-
-                        let ind = age_to_index_map.get(&age).unwrap();
-
-                        if *ind >= age_data.len() {
-                            age_data.push(Age {
-                                label: age.clone(),
-                                value: 0,
-                                percent: 0.0,
-                            });
-                        }
-
-                        let age = age_data.get(*ind as usize).unwrap();
-                        let age_value = age.value + 1;
-                        age_data[*ind as usize] = Age {
-                            value: age_value,
-                            ..age.clone()
-                        };
-                        total_age += 1;
-                    }
-
                     let region = self.get_region(attr.region_code);
-
-                    if region != "-" {
-                        if region_to_index_map.get(&region).is_none() {
-                            region_to_index_map.insert(region.clone(), region_index);
-                            region_index += 1;
-                        }
-
-                        let ind = region_to_index_map.get(&region).unwrap();
-
-                        if *ind >= region_data.len() {
-                            region_data.push(Region {
-                                label: region.clone(),
-                                value: 0,
-                                percent: 0.0,
-                            });
-                        }
-
-                        let region = region_data.get(*ind as usize).unwrap();
-                        let region_value = region.value + 1;
-                        region_data[*ind as usize] = Region {
-                            value: region_value,
-                            ..region.clone()
-                        };
-                        total_region += 1;
-                    }
-
                     let gender = self.get_gender(attr.gender);
 
-                    if gender != "-" {
-                        if gender_to_index_map.get(&gender).is_none() {
-                            gender_to_index_map.insert(gender.clone(), gender_index);
-                            gender_index += 1;
-                        }
+                    self.process_attribute(
+                        sal.clone(),
+                        &mut payload_data,
+                        &mut salary_to_index_map,
+                        &mut total_payload,
+                        |value| Payload {
+                            label: value,
+                            value: 0,
+                            percent: 0.0,
+                        },
+                        |item| Payload {
+                            value: item.value + 1,
+                            ..item.clone()
+                        },
+                    );
 
-                        let ind = gender_to_index_map.get(&gender).unwrap();
+                    self.process_attribute(
+                        age.clone(),
+                        &mut age_data,
+                        &mut age_to_index_map,
+                        &mut total_age,
+                        |value| Age {
+                            label: value.clone(),
+                            value: 0,
+                            percent: 0.0,
+                        },
+                        |item| Age {
+                            value: item.value + 1,
+                            ..item.clone()
+                        },
+                    );
 
-                        if *ind >= gender_data.len() {
-                            gender_data.push(Gender {
-                                label: gender.clone(),
-                                value: 0,
-                                percent: 0.0,
-                            });
-                        }
+                    self.process_attribute(
+                        region.clone(),
+                        &mut region_data,
+                        &mut region_to_index_map,
+                        &mut total_region,
+                        |value| Region {
+                            label: value.clone(),
+                            value: 0,
+                            percent: 0.0,
+                        },
+                        |item| Region {
+                            value: item.value + 1,
+                            ..item.clone()
+                        },
+                    );
 
-                        let gender = gender_data.get(*ind as usize).unwrap();
-                        let gender_value = gender.value + 1;
-                        gender_data[*ind as usize] = Gender {
-                            value: gender_value,
-                            ..gender.clone()
-                        };
-                        total_gender += 1;
-                    }
+                    self.process_attribute(
+                        gender.clone(),
+                        &mut gender_data,
+                        &mut gender_to_index_map,
+                        &mut total_gender,
+                        |value| Gender {
+                            label: value.clone(),
+                            value: 0,
+                            percent: 0.0,
+                        },
+                        |item| Gender {
+                            value: item.value + 1,
+                            ..item.clone()
+                        },
+                    );
                 }
                 None => {}
             }
         }
 
-        let mut payload_pi_chart = vec![];
-        let mut age_pi_chart = vec![];
-        let mut region_pi_chart = vec![];
-        let mut gender_pi_chart = vec![];
-
-        if total_payload != 0 {
-            for (i, payload) in payload_data.iter().enumerate() {
-                payload_pi_chart.push(PiChart {
-                    label: payload.label.clone(),
-                    percentage: ((payload.value as f64) / (total_payload as f64)),
-                    color: colors.get(i).unwrap(),
-                });
-            }
-        }
-
-        if total_age != 0 {
-            for (i, age) in age_data.iter().enumerate() {
-                age_pi_chart.push(PiChart {
-                    label: age.label.clone(),
-                    percentage: ((age.value as f64) / (total_age as f64)),
-                    color: colors.get(i).unwrap(),
-                });
-            }
-        }
-
-        if total_region != 0 {
-            for (i, region) in region_data.iter().enumerate() {
-                region_pi_chart.push(PiChart {
-                    label: region.label.clone(),
-                    percentage: ((region.value as f64) / (total_region as f64)),
-                    color: colors.get(i).unwrap(),
-                });
-            }
-        }
-
-        if total_gender != 0 {
-            for (i, gender) in gender_data.iter().enumerate() {
-                gender_pi_chart.push(PiChart {
-                    label: gender.label.clone(),
-                    percentage: ((gender.value as f64) / (total_gender as f64)),
-                    color: colors.get(i).unwrap(),
-                });
-            }
-        }
+        self.add_pi_chart(total_payload, payload_data, &mut payload_pi_chart);
+        self.add_pi_chart(total_age, age_data, &mut age_pi_chart);
+        self.add_pi_chart(total_region, region_data, &mut region_pi_chart);
+        self.add_pi_chart(total_gender, gender_data, &mut gender_pi_chart);
 
         let mut attributes = vec![];
 
-        if total_payload != 0 {
-            attributes.push(Attributes {
-                label: "연봉".to_string(),
-                chart_datas: payload_pi_chart,
-            });
-        }
+        self.add_attributes(
+            &mut attributes,
+            total_payload,
+            "연봉".to_string(),
+            payload_pi_chart,
+        );
 
-        if total_gender != 0 {
-            attributes.push(Attributes {
-                label: "성별".to_string(),
-                chart_datas: gender_pi_chart,
-            });
-        }
+        self.add_attributes(
+            &mut attributes,
+            total_gender,
+            "성별".to_string(),
+            gender_pi_chart,
+        );
 
-        if total_region != 0 {
-            attributes.push(Attributes {
-                label: "지역".to_string(),
-                chart_datas: region_pi_chart,
-            });
-        }
+        self.add_attributes(
+            &mut attributes,
+            total_region,
+            "지역".to_string(),
+            region_pi_chart,
+        );
 
-        if total_age != 0 {
-            attributes.push(Attributes {
-                label: "연령".to_string(),
-                chart_datas: age_pi_chart,
-            })
-        }
+        self.add_attributes(&mut attributes, total_age, "연령".to_string(), age_pi_chart);
 
         attributes
+    }
+
+    fn add_pi_chart(
+        self,
+        total_value: i32,
+        chart_data: Vec<ChartData>,
+        pi_chart: &mut Vec<PiChart>,
+    ) {
+        let colors = vec![
+            "#4285f4", "#db4437", "#f4b400", "#0F9D58", "#AB47BC", "#E67E22", "#27AE60", "#3498DB",
+            "#8E44AD", "#F39C12", "#2ECC71", "#1ABC9C", "#C0392B", "#2980B9", "#D35400", "#16A085",
+            "#34495E",
+        ];
+        if total_value != 0 {
+            for (i, data) in chart_data.iter().enumerate() {
+                pi_chart.push(PiChart {
+                    label: data.label.clone(),
+                    percentage: ((data.value as f64) / (total_value as f64)),
+                    color: colors.get(i).unwrap(),
+                });
+            }
+        }
+    }
+
+    fn add_attributes(
+        self,
+        attributes: &mut Vec<Attributes>,
+        total_value: i32,
+        label: String,
+        pi_chart: Vec<PiChart>,
+    ) {
+        if total_value != 0 {
+            attributes.push(Attributes {
+                label,
+                chart_datas: pi_chart,
+            });
+        }
+    }
+
+    fn process_attribute<T: Clone>(
+        self,
+        value: String,
+        data: &mut Vec<T>,
+        index_map: &mut HashMap<String, usize>,
+        total: &mut i32,
+        create_new: impl Fn(String) -> T,
+        update_value: impl Fn(&T) -> T,
+    ) {
+        if value != "-" {
+            let index = if let Some(&idx) = index_map.get(&value) {
+                idx
+            } else {
+                let new_index = index_map.len();
+                index_map.insert(value.clone(), new_index);
+                new_index
+            };
+
+            if index >= data.len() {
+                data.push(create_new(value));
+            }
+
+            let item = data.get(index).unwrap();
+            data[index] = update_value(item);
+            *total += 1;
+        }
     }
 
     pub fn get_attributes(&self) -> Vec<Attributes> {
