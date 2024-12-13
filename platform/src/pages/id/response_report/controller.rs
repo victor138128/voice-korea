@@ -148,7 +148,7 @@ impl Controller {
     }
 
     pub fn get_total_response(&self) -> u64 {
-        let survey = self.get_survey_response().clone();
+        let survey = self.get_survey_response();
 
         if survey.is_none() {
             return 0;
