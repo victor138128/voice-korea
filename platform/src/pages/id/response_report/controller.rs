@@ -477,7 +477,7 @@ impl Controller {
     }
 
     fn add_pi_chart(
-        self,
+        &self,
         total_value: i32,
         chart_data: Vec<ChartData>,
         pi_chart: &mut Vec<PiChart>,
@@ -492,14 +492,14 @@ impl Controller {
                 pi_chart.push(PiChart {
                     label: data.label.clone(),
                     percentage: ((data.value as f64) / (total_value as f64)),
-                    color: colors.get(i).unwrap(),
+                    color: colors.get(i % colors.len()).unwrap(),
                 });
             }
         }
     }
 
     fn add_attributes(
-        self,
+        &self,
         attributes: &mut Vec<Attributes>,
         total_value: i32,
         label: String,
@@ -514,7 +514,7 @@ impl Controller {
     }
 
     fn process_attribute<T: Clone>(
-        self,
+        &self,
         value: String,
         data: &mut Vec<T>,
         index_map: &mut HashMap<String, usize>,
