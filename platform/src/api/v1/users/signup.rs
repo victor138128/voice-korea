@@ -1,8 +1,5 @@
 #![allow(unused_imports)]
-use dioxus::prelude::{
-    server_fn::codec::{GetUrl, Json, PostUrl},
-    *,
-};
+use dioxus::prelude::*;
 use dioxus_logger::tracing;
 
 use serde::{Deserialize, Serialize};
@@ -17,7 +14,6 @@ pub struct SignupRequest {
     pub password: String,
 }
 
-#[server(endpoint = "/v1/users/signup", input = Json, output = Json)]
 pub async fn signup_user(req: SignupRequest) -> Result<(), ServerFnError> {
     use dioxus_logger::tracing;
     use reqwest::Client;

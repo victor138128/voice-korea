@@ -4,6 +4,7 @@ use dioxus::prelude::*;
 use crate::{
     api::v1::users::login::{login_user, LoginRequest},
     service::login_service::use_login_service,
+    utils::hash::get_hash_string,
 };
 
 use super::{Language, Route};
@@ -65,7 +66,7 @@ impl Controller {
         let navigator = use_navigator();
         let res = login_user(LoginRequest {
             email: self.get_email(),
-            password: self.get_password(),
+            password: get_hash_string(self.get_password().as_bytes()),
         })
         .await;
 

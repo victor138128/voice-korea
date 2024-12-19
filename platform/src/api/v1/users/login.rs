@@ -14,7 +14,6 @@ pub struct LoginRequest {
     pub password: String,
 }
 
-#[server(endpoint = "/v1/users/login", input = Json, output = Json)]
 pub async fn login_user(req: LoginRequest) -> Result<String, ServerFnError> {
     use dioxus_logger::tracing;
     use reqwest::Client;
