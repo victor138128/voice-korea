@@ -48,7 +48,7 @@ jobs:
           REGION: ap-northeast-2
           ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
+          API_URL: https://voice-korea-api.dev.biyard.co
         run: |
           npm i -g aws-cdk tailwindcss
           ENV=dev make deploy-web-if-needed
