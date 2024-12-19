@@ -5,7 +5,6 @@ ENV ?= local
 HOST ?= 0.0.0.0:8080
 PROFILE ?= default
 RUST_LOG ?= info
-API_URL ?= "http://localhost:3000"
 
 ifneq ("$(PROFILE)","default")
 	AWS_FLAG += --profile $(PROFILE)
@@ -15,13 +14,13 @@ ifeq ("$(ENV)","prod")
 	LOG_LEVEL ?= info
 	VOICE_KOREA_TABLE_NAME = voice-korea-prod
 	BASE_URL = https://voice-korea.biyard.co
-	API_URL = https://voice-korea-api.dev.biyard.co
+	API_URL ?= https://voice-korea-api.dev.biyard.co
 endif
 
 ifeq ("$(ENV)","dev")
 	VOICE_KOREA_TABLE_NAME = voice-korea-dev
 	BASE_URL = https://voice-korea.dev.biyard.co
-	API_URL = https://voice-korea-api.dev.biyard.co
+	API_URL ?= https://voice-korea-api.dev.biyard.co
 endif
 
 ifeq ("$(ENV)","local")
@@ -29,6 +28,7 @@ ifeq ("$(ENV)","local")
 	BASE_URL = http://localhost:8080
 endif
 
+API_URL ?= https://voice-korea-api.dev.biyard.co
 ACCESS_KEY_ID ?= $(shell aws configure get aws_access_key_id $(AWS_FLAG))
 SECRET_ACCESS_KEY ?= $(shell aws configure get aws_secret_access_key $(AWS_FLAG))
 REGION ?= $(shell aws configure get region)

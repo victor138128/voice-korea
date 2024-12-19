@@ -3,9 +3,12 @@ use dioxus::prelude::*;
 use dioxus_logger::tracing;
 use regex::Regex;
 
-use crate::api::v1::{
-    auth::{send_notification, SendNotificationParams},
-    users::signup::{signup_user, SignupRequest},
+use crate::{
+    api::v1::{
+        auth::{send_notification, SendNotificationParams},
+        users::signup::{signup_user, SignupRequest},
+    },
+    utils::hash::get_hash_string,
 };
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -337,7 +340,7 @@ impl Controller {
             auth_id: self.get_auth_key(),
             auth_value: self.get_authentication_number(),
             email: self.get_email_address(),
-            password: self.get_password(),
+            password: get_hash_string(self.get_password().as_bytes()),
         })
         .await;
 
