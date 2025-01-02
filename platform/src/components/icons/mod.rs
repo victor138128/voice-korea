@@ -58,7 +58,11 @@ pub fn Remove(width: String, height: String) -> Element {
 }
 
 #[component]
-pub fn Plus(width: String, height: String) -> Element {
+pub fn Plus(
+    width: String,
+    height: String,
+    #[props(default = "#35343F".to_string())] color: String,
+) -> Element {
     rsx! {
         svg {
             view_box: "0 0 11 10",
@@ -71,7 +75,7 @@ pub fn Plus(width: String, height: String) -> Element {
                 d: "M1.5 5L5.5 5M5.5 5L9.5 5M5.5 5V1M5.5 5L5.5 9",
                 "stroke-linejoin": "round",
                 "stroke-width": "1.5",
-                stroke: "#35343F",
+                stroke: color,
             }
         }
     }
@@ -87,12 +91,32 @@ pub fn ArrowLeft(
         svg {
             xmlns: "http://www.w3.org/2000/svg",
             view_box: "0 0 24 24",
-            width: "24",
-            height: "24",
+            width,
+            height,
             fill: "none",
             path {
                 fill: color,
                 d: "M10.1744 2.72439L2.71043 10.5964C2.50643 10.8124 2.39844 11.0884 2.39844 11.3884C2.39844 11.6884 2.50643 11.9764 2.71043 12.1804L10.1744 20.0524C10.3784 20.2684 10.6424 20.3764 10.9304 20.3764C11.2184 20.3764 11.4824 20.2564 11.6864 20.0524C11.8904 19.8364 11.9984 19.5604 11.9984 19.2604C11.9984 18.9604 11.8904 18.6724 11.6864 18.4684L4.97843 11.3884L11.6864 4.30839C11.8904 4.09239 11.9984 3.81639 11.9984 3.51639C11.9984 3.21639 11.8904 2.92839 11.6864 2.72439C11.4824 2.50839 11.2184 2.40039 10.9304 2.40039C10.6424 2.40039 10.3784 2.52039 10.1744 2.72439Z",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn AddUser(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            fill: "none",
+            width: "24",
+            xmlns: "http://www.w3.org/2000/svg",
+            height: "24",
+            "viewBox": "0 0 24 24",
+            path {
+                d: "M4 20V19C4 16.2386 6.23858 14 9 14H12.75M17.5355 13.9645V17.5M17.5355 17.5V21.0355M17.5355 17.5H21.0711M17.5355 17.5H14M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z",
+                "stroke-linecap": "round",
+                stroke: "#AFC9FF",
+                "stroke-width": "1.5",
+                "stroke-linejoin": "round",
             }
         }
     }
