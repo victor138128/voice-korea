@@ -3,7 +3,10 @@ use controller::{ProjectHistory, ProjectStatus, ProjectType};
 use dioxus::prelude::*;
 
 use crate::{
-    components::icons::{ArrowLeft, ArrowRight, Expand, RowOption, Switch},
+    components::{
+        icons::{ArrowLeft, ArrowRight, Expand, RowOption, Switch},
+        label::Label,
+    },
     prelude::Language,
     routes::Route,
 };
@@ -178,6 +181,7 @@ pub fn ProfileHistory(histories: Vec<ProjectHistory>, i18n: ProfileHistoryTransl
                                         Label {
                                             label_name: history.panel[0].clone(),
                                             label_color: "bg-[#35343f]",
+                                            is_delete: false,
                                         }
                                     }
                                     Expand { width: "18", height: "18" }
@@ -220,19 +224,6 @@ pub fn ProfileHistory(histories: Vec<ProjectHistory>, i18n: ProfileHistoryTransl
                     }
                 }
             }
-        }
-    }
-}
-
-#[component]
-pub fn Label(label_name: String, label_color: String) -> Element {
-    rsx! {
-        div {
-            class: format!(
-                "flex flex-row w-[50px] h-[25px] justify-center items-center {} rounded-[20px]",
-                label_color,
-            ),
-            div { class: "text-white font-semibold text-[14px]", {label_name} }
         }
     }
 }

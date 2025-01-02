@@ -2,8 +2,11 @@
 use dioxus::prelude::*;
 
 use crate::{
-    components::icons::{
-        ArrowLeft, ArrowRight, ColOption, Expand, Folder, Plus, Remove, RowOption, Search, Switch,
+    components::{
+        icons::{
+            ArrowLeft, ArrowRight, ColOption, Expand, Folder, Plus, RowOption, Search, Switch,
+        },
+        label::Label,
     },
     prelude::Language,
     routes::Route,
@@ -147,20 +150,6 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                     }
                 }
             }
-        }
-    }
-}
-
-#[component]
-pub fn Label(label_name: String, label_color: String) -> Element {
-    rsx! {
-        div {
-            class: format!(
-                "flex flex-row w-[100px] h-[25px] justify-between items-center {} rounded-[20px] px-[5px] py-[3px]",
-                label_color,
-            ),
-            div { class: "text-white font-semibold text-[14px]", {label_name} }
-            Remove { width: "18", height: "18" }
         }
     }
 }
