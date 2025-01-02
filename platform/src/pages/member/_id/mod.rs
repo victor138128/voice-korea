@@ -9,6 +9,7 @@ use crate::{
 };
 
 mod controller;
+mod i18n;
 
 #[derive(Props, Clone, PartialEq)]
 pub struct MemberDetailPageProps {
@@ -16,9 +17,33 @@ pub struct MemberDetailPageProps {
     member_id: String,
 }
 
+#[derive(Props, Clone, PartialEq)]
+pub struct ProfileInfoTranslate {
+    privacy: String,
+    name: String,
+    group: String,
+    role: String,
+    email: String,
+    save: String,
+    remove_team_member: String,
+}
+
+#[derive(Props, Clone, PartialEq)]
+pub struct ProfileHistoryTranslate {
+    participation_record: String,
+    item: String,
+    project: String,
+    role: String,
+    panel: String,
+    period: String,
+    status: String,
+}
+
 #[component]
 pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
     let ctrl = controller::Controller::init(props.lang, props.member_id);
+    let translates = i18n::translate(props.lang.clone());
+
     let member = ctrl.get_member();
     let groups = ctrl.get_groups();
     let roles = ctrl.get_roles();
@@ -27,7 +52,7 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "text-[#9b9b9b] font-medium text-[14px] mb-[10px]",
-                "조직관리 / 팀원 관리 / 자세히 보기"
+                "{translates.organization_management} / {translates.team_member_management} / {translates.see_detail}"
             }
             div { class: "flex flex-row w-full justify-start items-center mb-[25px]",
                 Link {
@@ -40,7 +65,7 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
                 div { class: "text-[#3a3a3a] font-semibold text-[28px]", "{profile_name}" }
             }
             div { class: "text-[#3a3a3a] font-normal text-[14px] mb-[35px]",
-                "등록된 날짜 {member.register_date}"
+                "{translates.register_date} {member.register_date}"
             }
             div { class: "flex flex-row w-full h-full justify-start items-start",
                 div { class: "mr-[15px]",
@@ -53,19 +78,42 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
 
                         total_groups: groups,
                         total_roles: roles,
+
+                        i18n: ProfileInfoTranslate {
+                            privacy: translates.privacy,
+                            name: translates.name,
+                            group: translates.group,
+                            role: translates.role.clone(),
+                            email: translates.email,
+                            save: translates.save,
+                            remove_team_member: translates.remove_team_member,
+                        },
                     }
                 }
-                ProfileHistory { histories: member.project_history }
+                ProfileHistory {
+                    histories: member.project_history,
+                    i18n: ProfileHistoryTranslate {
+                        participation_record: translates.participation_record,
+                        item: translates.item,
+                        project: translates.project,
+                        role: translates.role.clone(),
+                        panel: translates.panel,
+                        period: translates.period,
+                        status: translates.status,
+                    },
+                }
             }
         }
     }
 }
 
 #[component]
-pub fn ProfileHistory(histories: Vec<ProjectHistory>) -> Element {
+pub fn ProfileHistory(histories: Vec<ProjectHistory>, i18n: ProfileHistoryTranslate) -> Element {
     rsx! {
         div { class: "flex flex-col w-[1166px] justify-start items-start",
-            div { class: "font-bold text-[#3a3a3a] text-[16px] mb-[10px]", "참여 기록" }
+            div { class: "font-bold text-[#3a3a3a] text-[16px] mb-[10px]",
+                "{i18n.participation_record}"
+            }
             div {
                 class: "flex flex-col w-full justify-start items-start bg-white rounded-lg shadow-lg p-[20px]",
                 style: "box-shadow: 0 4px 6px rgba(53, 70, 177, 0.05);",
@@ -73,37 +121,37 @@ pub fn ProfileHistory(histories: Vec<ProjectHistory>) -> Element {
                     div { class: "flex flex-row w-full h-[55px] justify-start items-center",
                         div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "항목"
+                                "{i18n.item}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[200px] min-w-[200px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "프로젝트"
+                                "{i18n.project}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[200px] min-w-[200px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "역할"
+                                "{i18n.role}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[200px] min-w-[200px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "패널"
+                                "{i18n.panel}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[200px] min-w-[200px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "기간"
+                                "{i18n.period}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "상태"
+                                "{i18n.status}"
                             }
                             Switch { width: "19", height: "19" }
                         }
@@ -199,6 +247,8 @@ pub fn ProfileInfo(
 
     total_groups: Vec<String>,
     total_roles: Vec<String>,
+
+    i18n: ProfileInfoTranslate,
 ) -> Element {
     let mut name = use_signal(|| profile_name.unwrap_or_default());
     let mut email = use_signal(|| email.clone());
@@ -207,7 +257,7 @@ pub fn ProfileInfo(
 
     rsx! {
         div { class: "flex flex-col w-[370px] justify-start items-start",
-            div { class: "font-bold text-[#3a3a3a] text-[16px] mb-[10px]", "개인정보" }
+            div { class: "font-bold text-[#3a3a3a] text-[16px] mb-[10px]", "{i18n.privacy}" }
             div {
                 class: "flex flex-col w-full justify-start items-start bg-white rounded-lg shadow-lg px-[20px] py-[32px]",
                 style: "box-shadow: 0 4px 6px rgba(53, 70, 177, 0.05);",
@@ -216,7 +266,7 @@ pub fn ProfileInfo(
                 }
                 div { class: "flex flex-col w-full justify-start items-start font-normal text-[#7c8292] text-[14px]",
                     div { class: "flex flex-col w-full justify-start items-start mb-[20px]",
-                        div { class: "mb-[8px]", "이름" }
+                        div { class: "mb-[8px]", "{i18n.name}" }
                         input {
                             class: "flex flex-row w-[214px] h-[40px] bg-[#f7f7f7] rounded-lg focus:outline-none px-[16px] py-[8px]",
                             r#type: "text",
@@ -228,7 +278,7 @@ pub fn ProfileInfo(
                         }
                     }
                     div { class: "flex flex-col w-full justify-start items-start mb-[20px]",
-                        div { class: "mb-[8px]", "그룹" }
+                        div { class: "mb-[8px]", "{i18n.group}" }
                         select {
                             class: "flex flex-row w-[214px] h-[40px] bg-[#f7f7f7] rounded-lg focus:outline-none px-[16px] py-[8px]",
                             value: select_group,
@@ -241,7 +291,7 @@ pub fn ProfileInfo(
                         }
                     }
                     div { class: "flex flex-col w-full justify-start items-start mb-[20px]",
-                        div { class: "mb-[8px]", "역할" }
+                        div { class: "mb-[8px]", "{i18n.role}" }
                         select {
                             class: "flex flex-row w-[214px] h-[40px] bg-[#f7f7f7] rounded-lg focus:outline-none px-[16px] py-[8px] mr-[8px]",
                             value: select_role,
@@ -254,7 +304,7 @@ pub fn ProfileInfo(
                         }
                     }
                     div { class: "flex flex-col w-full justify-start items-start mb-[20px]",
-                        div { class: "mb-[8px]", "이메일" }
+                        div { class: "mb-[8px]", "{i18n.email}" }
                         input {
                             class: "flex flex-row w-[214px] h-[40px] bg-[#f7f7f7] rounded-lg focus:outline-none px-[16px] py-[8px]",
                             r#type: "text",
@@ -267,10 +317,10 @@ pub fn ProfileInfo(
                     }
                     div { class: "flex flex-row w-full justify-between items-end mt-[10px]",
                         div { class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] font-bold text-[16px] text-white rounded-md",
-                            "저장하기"
+                            "{i18n.save}"
                         }
                         div { class: "font-bold text-[16px] text-[#3a3a3a] underline",
-                            "팀원 삭제하기"
+                            "{i18n.remove_team_member}"
                         }
                     }
                 }

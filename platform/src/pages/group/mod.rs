@@ -22,15 +22,18 @@ pub struct GroupPageProps {
 pub fn GroupPage(props: GroupPageProps) -> Element {
     let ctrl = controller::Controller::init(props.lang);
     let mut name = use_signal(|| "".to_string());
+    let translates = i18n::translate(props.lang.clone());
 
     let groups = ctrl.get_groups();
 
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "text-[#9b9b9b] font-medium text-[14px] mb-[10px]",
-                "조직관리 / 그룹관리"
+                "{translates.organization_management} / {translates.group_management}"
             }
-            div { class: "text-[#3a3a3a] font-semibold text-[28px] mb-[25px]", "그룹관리" }
+            div { class: "text-[#3a3a3a] font-semibold text-[28px] mb-[25px]",
+                "{translates.group_management}"
+            }
             div { class: "text-[#35343f] font-normal text-[14px] mb-[40px]",
                 "Lörem ipsum plar ses tire. Krosm psykototal nesöng. Rosk ans. Nyr dystopi, antinde är speskapet. Mal neling medan rebel. "
             }
@@ -54,7 +57,9 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                     div { class: "flex flex-row gap-[10px]",
                         div { class: "flex flex-row w-[140px] h-[40px] bg-[#2a60d3] rounded-md px-[14px] py-[8px] gap-[5px]",
                             Folder { width: "24", height: "24" }
-                            div { class: "text-white font-bold text-[16px]", "그룹 만들기" }
+                            div { class: "text-white font-bold text-[16px]",
+                                "{translates.create_group}"
+                            }
                         }
                         ColOption { width: "40", height: "40" }
                     }
@@ -64,19 +69,19 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                     div { class: "flex flex-row w-full h-[55px] justify-start items-center",
                         div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "그룹"
+                                "{translates.group}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "인원"
+                                "{translates.personnel}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-full h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "팀원"
+                                "{translates.team_member}"
                             }
                             Switch { width: "19", height: "19" }
                         }

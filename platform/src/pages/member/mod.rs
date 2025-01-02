@@ -22,6 +22,7 @@ pub struct MemberPageProps {
 pub fn MemberPage(props: MemberPageProps) -> Element {
     let ctrl = controller::Controller::init(props.lang);
     let mut name = use_signal(|| "".to_string());
+    let translates = i18n::translate(props.lang.clone());
 
     let member_summary = ctrl.get_members();
     let groups = ctrl.get_groups();
@@ -29,35 +30,37 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "text-[#9b9b9b] font-medium text-[14px] mb-[10px]",
-                "조직관리 / 팀원 관리"
+                "{translates.organization_management} / {translates.team_member_management}"
             }
-            div { class: "text-[#3a3a3a] font-semibold text-[28px] mb-[25px]", "팀원 관리" }
+            div { class: "text-[#3a3a3a] font-semibold text-[28px] mb-[25px]",
+                "{translates.team_member_management}"
+            }
             div { class: "text-[#35343f] font-normal text-[14px] mb-[40px]",
                 "Lörem ipsum plar ses tire. Krosm psykototal nesöng. Rosk ans. Nyr dystopi, antinde är speskapet. Mal neling medan rebel. "
             }
             div { class: "flex flex-row w-full justify-start items-start mb-[10px]",
                 MemberCountCard {
-                    label_name: "전체".to_string(),
+                    label_name: translates.total,
                     label_count: member_summary.role_counts.get(0).unwrap_or(&0).clone(),
                 }
                 MemberCountCard {
-                    label_name: "관리자".to_string(),
+                    label_name: translates.manager,
                     label_count: member_summary.role_counts.get(1).unwrap_or(&0).clone(),
                 }
                 MemberCountCard {
-                    label_name: "공론 관리자".to_string(),
+                    label_name: translates.public_opinion_manager,
                     label_count: member_summary.role_counts.get(2).unwrap_or(&0).clone(),
                 }
                 MemberCountCard {
-                    label_name: "분석가".to_string(),
+                    label_name: translates.analyst,
                     label_count: member_summary.role_counts.get(3).unwrap_or(&0).clone(),
                 }
                 MemberCountCard {
-                    label_name: "중계자".to_string(),
+                    label_name: translates.repeater,
                     label_count: member_summary.role_counts.get(4).unwrap_or(&0).clone(),
                 }
                 MemberCountCard {
-                    label_name: "강연자".to_string(),
+                    label_name: translates.lecturer,
                     label_count: member_summary.role_counts.get(5).unwrap_or(&0).clone(),
                 }
             }
@@ -80,7 +83,9 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                     div { class: "flex flex-row gap-[10px]",
                         div { class: "flex flex-row w-[150px] h-[40px] bg-[#2a60d3] rounded-md px-[14px] py-[8px] gap-[5px]",
                             Folder { width: "24", height: "24" }
-                            div { class: "text-white font-bold text-[16px]", "팀원 추가하기" }
+                            div { class: "text-white font-bold text-[16px]",
+                                "{translates.add_team_member}"
+                            }
                         }
                     }
                 }
@@ -88,25 +93,25 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                     div { class: "flex flex-row w-full h-[55px] justify-start items-center",
                         div { class: "flex flex-row w-[355px] min-w-[355px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "이름"
+                                "{translates.name}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "그룹"
+                                "{translates.group}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "역할"
+                                "{translates.role}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-full h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "프로젝트"
+                                "{translates.project}"
                             }
                             Switch { width: "19", height: "19" }
                         }

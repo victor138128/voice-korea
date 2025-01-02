@@ -10,11 +10,34 @@ use crate::{
     routes::Route,
 };
 pub mod controller;
+pub mod i18n;
 
 #[derive(Props, Clone, PartialEq)]
 pub struct GroupDetailPageProps {
     lang: Language,
     group_id: String,
+}
+
+#[derive(Props, Clone, PartialEq)]
+pub struct GroupParticipantTranslate {
+    group_team_member: String,
+    add_member: String,
+    name: String,
+    group: String,
+    role: String,
+    project: String,
+}
+
+#[derive(Props, Clone, PartialEq)]
+pub struct CommonProjectTranslate {
+    common_project: String,
+    add_project: String,
+
+    item: String,
+    project: String,
+    panel: String,
+    period: String,
+    status: String,
 }
 
 #[component]
@@ -25,10 +48,13 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
     let total_roles = ctrl.get_roles();
 
     let group_name = group.group.clone();
+
+    let translates = i18n::translate(props.lang.clone());
+
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "text-[#9b9b9b] font-medium text-[14px] mb-[10px]",
-                "조직관리 / 그룹 관리 / 자세히 보기"
+                "{translates.organization_management} / {translates.group_management} / {translates.see_detail}"
             }
             div { class: "flex flex-row w-full justify-start items-center mb-[25px]",
                 Link {
@@ -41,26 +67,45 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
                 div { class: "text-[#3a3a3a] font-semibold text-[28px]", "{group_name}" }
             }
             div { class: "text-[#3a3a3a] font-normal text-[14px] mb-[35px]",
-                "등록된 날짜 {group.register_date}"
+                "{translates.register_date} {group.register_date}"
             }
             div { class: "flex flex-col w-full gap-[40px] mb-[30px]",
                 GroupParticipant {
                     members: ctrl.get_group().group_members,
                     total_groups,
                     total_roles,
+                    i18n: GroupParticipantTranslate {
+                        group_team_member: translates.group_team_member,
+                        add_member: translates.add_member,
+                        name: translates.name,
+                        group: translates.group,
+                        role: translates.role,
+                        project: translates.project.clone(),
+                    },
                 }
-                GroupCommonProject { projects: ctrl.get_group().group_projects }
+                GroupCommonProject {
+                    projects: ctrl.get_group().group_projects,
+                    i18n: CommonProjectTranslate {
+                        common_project: translates.common_project,
+                        add_project: translates.add_project,
+                        item: translates.item,
+                        project: translates.project,
+                        panel: translates.panel,
+                        period: translates.period,
+                        status: translates.status,
+                    },
+                }
             }
         }
     }
 }
 
 #[component]
-pub fn GroupCommonProject(projects: Vec<GroupProject>) -> Element {
+pub fn GroupCommonProject(projects: Vec<GroupProject>, i18n: CommonProjectTranslate) -> Element {
     let mut name = use_signal(|| "".to_string());
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
-            div { class: "font-bold text-[#3a3a3a] text-[16px] mb-[10px]", "공통 프로젝트" }
+            div { class: "font-bold text-[#3a3a3a] text-[16px] mb-[10px]", {i18n.common_project} }
             div {
                 class: "flex flex-col w-full justify-start items-start bg-white rounded-lg shadow-lg p-[20px]",
                 style: "box-shadow: 0 4px 6px rgba(53, 70, 177, 0.05);",
@@ -80,9 +125,7 @@ pub fn GroupCommonProject(projects: Vec<GroupProject>) -> Element {
                     div { class: "flex flex-row gap-[40px] items-center",
                         div { class: "flex flex-row items-center w-[185px] h-[40px] bg-[#2a60d3] rounded-md px-[14px] py-[8px] gap-[5px]",
                             Plus { width: "18", height: "18", color: "#afc9ff" }
-                            div { class: "text-white font-bold text-[16px]",
-                                "프로젝트 추가하기"
-                            }
+                            div { class: "text-white font-bold text-[16px]", {i18n.add_project} }
                         }
                         div { class: "flex flex-row gap-[10px]",
                             ArrowLeft { width: "25", height: "25", color: "#555462" }
@@ -95,31 +138,31 @@ pub fn GroupCommonProject(projects: Vec<GroupProject>) -> Element {
                     div { class: "flex flex-row w-full h-[55px] justify-start items-center",
                         div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "항목"
+                                {i18n.item}
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row flex-1 h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "프로젝트"
+                                {i18n.project}
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row flex-1 h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "패널"
+                                {i18n.panel}
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row flex-1 h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "기간"
+                                {i18n.period}
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "상태"
+                                {i18n.status}
                             }
                             Switch { width: "19", height: "19" }
                         }
@@ -175,11 +218,13 @@ pub fn GroupParticipant(
     members: Vec<GroupMember>,
     total_groups: Vec<String>,
     total_roles: Vec<String>,
+
+    i18n: GroupParticipantTranslate,
 ) -> Element {
     let mut name = use_signal(|| "".to_string());
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
-            div { class: "font-bold text-[#3a3a3a] text-[16px] mb-[10px]", "그룹 팀원" }
+            div { class: "font-bold text-[#3a3a3a] text-[16px] mb-[10px]", {i18n.group_team_member} }
             div {
                 class: "flex flex-col w-full justify-start items-start bg-white rounded-lg shadow-lg p-[20px]",
                 style: "box-shadow: 0 4px 6px rgba(53, 70, 177, 0.05);",
@@ -199,7 +244,7 @@ pub fn GroupParticipant(
                     div { class: "flex flex-row gap-[40px] items-center",
                         div { class: "flex flex-row w-[150px] h-[40px] bg-[#2a60d3] rounded-md px-[14px] py-[8px] gap-[5px]",
                             AddUser { width: "24", height: "24" }
-                            div { class: "text-white font-bold text-[16px]", "팀원 추가하기" }
+                            div { class: "text-white font-bold text-[16px]", {i18n.add_member} }
                         }
                         div { class: "flex flex-row gap-[10px]",
                             ArrowLeft { width: "25", height: "25", color: "#555462" }
@@ -212,25 +257,25 @@ pub fn GroupParticipant(
                     div { class: "flex flex-row w-full h-[55px] justify-start items-center",
                         div { class: "flex flex-row w-[355px] min-w-[355px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "이름"
+                                {i18n.name}
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "그룹"
+                                {i18n.group}
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "역할"
+                                {i18n.role}
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-full h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "프로젝트"
+                                {i18n.project}
                             }
                             Switch { width: "19", height: "19" }
                         }
