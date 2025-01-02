@@ -1,65 +1,138 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 
-use crate::routes::Route;
+use crate::{
+    components::icons::{BottomArrow, Logo},
+    routes::Route,
+};
 
 use super::Language;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct SidebarProps {
     onselected: EventHandler<SelectedMenu>,
+    selected_menu: String,
     lang: Language,
-    overview: String,
-    search_project: String,
-    import_project: String,
-    survey_management: String,
-    questionnaire_management: String,
-    question_bank: String,
-    property_management: String,
-    property_status: String,
-    user_settings: String,
 }
 
 #[component]
 pub fn SideBar(props: SidebarProps) -> Element {
     rsx! {
-        div {
-            class: "flex-col min-w-[250px] grow bg-[#2168c3] justify-between items-between",
-            div {
-                class: "flex flex-col w-full h-full justify-between items-between",
-                div {
-                    class: "flex flex-col grow items-center",
-                    SectionMenus {
-                        onselected: props.onselected,
-                        title: props.overview,
-                        menus: vec![
-                            MenuItem {title: props.search_project, link: Route::DashboardPage { lang: props.lang }},
-                            MenuItem {title: props.import_project, link: Route::DashboardPage { lang: props.lang }},
-                        ]
+        div { class: "flex-col min-w-[250px] grow bg-[#435393] justify-between items-between rounded-tr-lg rounded-br-lg",
+            div { class: "flex flex-col w-full h-full justify-between items-between",
+                div { class: "flex flex-col w-full justify-start items-start",
+                    div { class: "flex flex-row w-full justify-start items-center mt-[33px] ml-[18px] mb-[40px]",
+                        Logo { width: "31", height: "31" }
+                        div { class: "font-bold text-[#b8d5fa] text-[18px] pl-[5px]",
+                            "VOICE KOREA"
+                        }
                     }
-                    SectionMenus {
-                        onselected: props.onselected,
-                        title: props.survey_management,
-                        menus: vec![
-                            MenuItem {title: {props.questionnaire_management}, link: Route::DashboardPage { lang: props.lang }},
-                            MenuItem {title: {props.question_bank}, link: Route::DashboardPage { lang: props.lang }},
-                        ]
-                    }
-                    SectionMenus {
-                        onselected: props.onselected,
-                        title: props.property_management,
-                        menus: vec![
-                            MenuItem {title: {props.property_status}, link: Route::AttributePage { lang: props.lang }},
-                        ]
+                    div { class: "flex flex-col grow items-center w-full",
+                        SectionMenus {
+                            onselected: props.onselected,
+                            title: "Overview".to_string(),
+                            menus: vec![
+                                MenuItem {
+                                    title: "프로젝트 검색".to_string(),
+                                    is_selected: props.selected_menu == "프로젝트 검색",
+                                    link: Route::DashboardPage {
+                                        lang: props.lang,
+                                    },
+                                },
+                                MenuItem {
+                                    title: "기본 프로젝트 가져오기".to_string(),
+                                    is_selected: props.selected_menu == "기본 프로젝트 가져오기",
+                                    link: Route::DashboardPage {
+                                        lang: props.lang,
+                                    },
+                                },
+                            ],
+                        }
+                        SectionMenus {
+                            onselected: props.onselected,
+                            title: "조직 관리".to_string(),
+                            menus: vec![
+                                MenuItem {
+                                    title: "팀원 관리".to_string(),
+                                    is_selected: props.selected_menu == "팀원 관리",
+                                    link: Route::DashboardPage {
+                                        lang: props.lang,
+                                    },
+                                },
+                                MenuItem {
+                                    title: "그룹 관리".to_string(),
+                                    is_selected: props.selected_menu == "그룹 관리",
+                                    link: Route::DashboardPage {
+                                        lang: props.lang,
+                                    },
+                                },
+                            ],
+                        }
+                        SectionMenus {
+                            onselected: props.onselected,
+                            title: "조사 관리".to_string(),
+                            menus: vec![
+                                MenuItem {
+                                    title: "조사 관리".to_string(),
+                                    is_selected: props.selected_menu == "조사 관리",
+                                    link: Route::DashboardPage {
+                                        lang: props.lang,
+                                    },
+                                },
+                                MenuItem {
+                                    title: "질문 뱅크".to_string(),
+                                    is_selected: props.selected_menu == "질문 뱅크",
+                                    link: Route::DashboardPage {
+                                        lang: props.lang,
+                                    },
+                                },
+                            ],
+                        }
+                        SectionMenus {
+                            onselected: props.onselected,
+                            title: "공론 관리".to_string(),
+                            menus: vec![
+                                MenuItem {
+                                    title: "공론 관리".to_string(),
+                                    is_selected: props.selected_menu == "공론 관리",
+                                    link: Route::DashboardPage {
+                                        lang: props.lang,
+                                    },
+                                },
+                            ],
+                        }
+                        SectionMenus {
+                            onselected: props.onselected,
+                            title: "속성 & 패널 관리".to_string(),
+                            menus: vec![
+                                MenuItem {
+                                    title: "속성 & 패널 관리".to_string(),
+                                    is_selected: props.selected_menu == "속성 & 패널 관리",
+                                    link: Route::DashboardPage {
+                                        lang: props.lang,
+                                    },
+                                },
+                            ],
+                        }
+                        SectionMenus {
+                            onselected: props.onselected,
+                            title: "자료 관리".to_string(),
+                            menus: vec![
+                                MenuItem {
+                                    title: "자료 관리".to_string(),
+                                    is_selected: props.selected_menu == "자료 관리",
+                                    link: Route::DashboardPage {
+                                        lang: props.lang,
+                                    },
+                                },
+                            ],
+                        }
                     }
                 }
-                div {
-                    class: "flex flex-row w-full h-full justify-end items-end p-[10px]",
-                    div {
-                        class: "flex flex-row w-[110px]",
-                        div {
-                            class: "text-white text-[14px] font-normal pr-[10px]",
-                            {props.user_settings}
+                div { class: "flex flex-row w-full h-full justify-end items-end p-[10px]",
+                    div { class: "flex flex-row w-[110px]",
+                        div { class: "text-white text-[14px] font-normal pr-[10px]",
+                            {"사용자 설정"}
                         }
                         img {
                             src: asset!("/public/images/config.png"),
@@ -81,6 +154,7 @@ pub struct SelectedMenu {
 #[derive(Clone, PartialEq, Props)]
 pub struct MenuItem {
     title: String,
+    is_selected: bool,
     link: Route,
 }
 
@@ -93,25 +167,18 @@ pub fn SectionMenus(
     let mut expanded = use_signal(|| true);
 
     rsx! {
-        div {
-            class: "flex flex-col w-full",
+        div { class: "flex flex-col w-full px-[18px] mb-[40px]",
             div {
-                class: "flex flex-row h-[45px] w-full px-[10px] items-center justify-between",
-                style: "background-color: rgb(0,0,0,0.2);",
+                class: "flex flex-row h-[45px] w-full items-center justify-between cursor-pointer",
                 onclick: move |_| {
                     expanded.set(!expanded());
                 },
-                div { class: "font-bold text-[16px] text-white", "{title}"}
+                div { class: "font-semibold text-[14px] text-white", "{title}" }
                 if expanded() {
-                    img {
-                        src: asset!("/public/images/arrow-down.png"),
-                        class: "w-[18px] h-[9px]",
-                    }
+                    BottomArrow { width: "18".to_string(), height: "14".to_string() }
                 } else {
-                    img {
-                        src: asset!("/public/images/arrow-down.png"),
-                        class: "w-[18px] h-[9px]",
-                        style: "transform: scaleY(-1);"
+                    div { style: "transform: scaleY(-1);",
+                        BottomArrow { width: "18".to_string(), height: "14".to_string() }
                     }
                 }
             }
@@ -120,16 +187,21 @@ pub fn SectionMenus(
                     {
                         let title = title.clone();
                         let cm = menu.clone();
-
-                        rsx!{
+                        rsx! {
                             Link {
-                                onclick: move |_evt|{
-                                    onselected.call(SelectedMenu { category: title.clone(), menu: cm.title.clone() });
+                                onclick: move |_evt| {
+                                    onselected
+                                        .call(SelectedMenu {
+                                            category: title.clone(),
+                                            menu: cm.title.clone(),
+                                        });
                                 },
                                 to: menu.link,
-                                class: "flex flex-row h-[45px] w-full gap-[5px] px-[10px] items-center justify-start",
-                                style: "background-color: rgb(0,0,0,0.1);",
-                                div { class: "flex font-normal text-[14px] text-white", "{menu.title}"}
+                                class: format!(
+                                    "flex flex-row h-[45px] w-full px-[16px] items-center justify-start {}",
+                                    if menu.is_selected { "rounded-lg bg-[#182248]" } else { "" },
+                                ),
+                                div { class: "flex font-medium text-[14px] text-[#daeaff]", "{menu.title}" }
                             }
                         }
                     }
