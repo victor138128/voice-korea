@@ -19,7 +19,9 @@ pub mod pages {
         pub mod write_question;
         pub mod write_title;
     }
+    pub mod group;
     pub mod login;
+    pub mod member;
     pub mod not_found;
     pub mod reset_password;
 }

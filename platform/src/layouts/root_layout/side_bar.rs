@@ -55,14 +55,14 @@ pub fn SideBar(props: SidebarProps) -> Element {
                                 MenuItem {
                                     title: "팀원 관리".to_string(),
                                     is_selected: props.selected_menu == "팀원 관리",
-                                    link: Route::DashboardPage {
+                                    link: Route::MemberPage {
                                         lang: props.lang,
                                     },
                                 },
                                 MenuItem {
                                     title: "그룹 관리".to_string(),
                                     is_selected: props.selected_menu == "그룹 관리",
-                                    link: Route::DashboardPage {
+                                    link: Route::GroupPage {
                                         lang: props.lang,
                                     },
                                 },

@@ -114,6 +114,26 @@ pub fn Close(
 }
 
 #[component]
+pub fn Logout(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            height,
+            "viewBox": "0 0 20 20",
+            xmlns: "http://www.w3.org/2000/svg",
+            width,
+            fill: "none",
+            path {
+                stroke: "#9B9B9B",
+                d: "M12.4987 13.75V15.8333C12.4987 16.7538 11.7525 17.5 10.832 17.5H4.9987C4.07822 17.5 3.33203 16.7538 3.33203 15.8333V4.16667C3.33203 3.24619 4.07822 2.5 4.9987 2.5H10.832C11.7525 2.5 12.4987 3.24619 12.4987 4.16667V6.71875M9.16536 10H17.4987M17.4987 10L15.4154 7.91667M17.4987 10L15.4154 12.0833",
+                "stroke-linecap": "round",
+                "stroke-linejoin": "round",
+                "stroke-width": "1.5",
+            }
+        }
+    }
+}
+
+#[component]
 pub fn BottomArrow(width: String, height: String) -> Element {
     rsx! {
         svg {

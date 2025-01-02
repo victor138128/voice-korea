@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::prelude::*;
+use crate::{components::icons::Logout, prelude::*};
 use dioxus::prelude::*;
 use side_bar::{SelectedMenu, SideBar};
 
@@ -27,7 +27,15 @@ pub fn RootLayout(lang: Language) -> Element {
                     selected_menu: (selected_menu)(),
                     lang,
                 }
-                div { class: "flex flex-col grow w-full bg-[#f0f2fc]", Outlet::<Route> {} }
+                div { class: "flex flex-col grow w-full bg-[#f0f2fc] px-[60px] pt-[25px]",
+                    Link { to: Route::LoginPage { lang },
+                        div { class: "flex flex-row w-full justify-end items-end gap-[5px]",
+                            Logout { width: "20", height: "20" }
+                            div { class: "font-bold text-[#555462] text-[15px]", "logout" }
+                        }
+                    }
+                    Outlet::<Route> {}
+                }
             }
         }
     }
