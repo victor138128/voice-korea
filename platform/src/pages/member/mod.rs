@@ -8,6 +8,7 @@ use crate::{
     },
     prelude::Language,
     routes::Route,
+    // service::popup_service::PopupService,
 };
 
 pub mod _id;
@@ -28,6 +29,9 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
     let member_summary = ctrl.get_members();
     let groups = ctrl.get_groups();
     let roles = ctrl.get_roles();
+
+    // let mut popup: PopupService = use_context();
+    // popup.open("팀원 추가하기".to_string(), rsx! { "Hello" });
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "text-[#9b9b9b] font-medium text-[14px] mb-[10px]",

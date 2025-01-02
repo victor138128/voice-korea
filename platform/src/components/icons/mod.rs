@@ -345,6 +345,33 @@ pub fn Add(width: String, height: String, inner_color: String, color: String) ->
 }
 
 #[component]
+pub fn ModalCancel(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            width,
+            fill: "none",
+            xmlns: "http://www.w3.org/2000/svg",
+            height,
+            "viewBox": "0 0 24 25",
+            path {
+                "stroke-linecap": "round",
+                stroke: "#555462",
+                d: "M8 8.5L16 16.5",
+                "stroke-linejoin": "round",
+                "stroke-width": "2",
+            }
+            path {
+                "stroke-linejoin": "round",
+                "stroke-width": "2",
+                d: "M16 8.5L8 16.5",
+                "stroke-linecap": "round",
+                stroke: "#555462",
+            }
+        }
+    }
+}
+
+#[component]
 pub fn Close(
     width: String,
     height: String,

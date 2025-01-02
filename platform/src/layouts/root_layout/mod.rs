@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::{components::icons::Logout, prelude::*};
+use crate::{components::icons::Logout, prelude::*, service::popup_service::PopupZone};
 use dioxus::prelude::*;
 use side_bar::{SelectedMenu, SideBar};
 
@@ -31,6 +31,7 @@ pub fn RootLayout(lang: Language) -> Element {
             //     logout: translates.logout,
             //     lang,
             // }
+            PopupZone {}
             div { class: "flex flex-row min-w-full max-w-full grow",
                 SideBar {
                     onselected: move |selected: SelectedMenu| {

@@ -5,7 +5,9 @@ use dioxus_logger::tracing::{self, Level};
 use dioxus::prelude::*;
 
 use platform::{
-    routes::Route, service::login_service::LoginService, utils::context::use_iitp_context_provider,
+    routes::Route,
+    service::{login_service::LoginService, popup_service::PopupService},
+    utils::context::use_iitp_context_provider,
 };
 
 fn main() {
@@ -48,6 +50,7 @@ fn main() {
 fn App() -> Element {
     use_iitp_context_provider();
     LoginService::init();
+    PopupService::init();
 
     rsx! {
         head {
@@ -56,14 +59,8 @@ fn App() -> Element {
                 r#type: "image/x-icon",
                 href: asset!("/public/favicon.ico"),
             }
-            link {
-                rel: "stylesheet",
-                href: asset!("/public/main.css"),
-            }
-            link {
-                rel: "stylesheet",
-                href: asset!("/public/tailwind.css"),
-            }
+            link { rel: "stylesheet", href: asset!("/public/main.css") }
+            link { rel: "stylesheet", href: asset!("/public/tailwind.css") }
             load_tailwindcss {}
         }
         Router::<Route> {}
@@ -74,9 +71,7 @@ fn App() -> Element {
 #[allow(dead_code)]
 fn load_tailwindcss() -> Element {
     rsx! {
-        script {
-            src: "https://cdn.tailwindcss.com/3.4.5",
-        }
+        script { src: "https://cdn.tailwindcss.com/3.4.5" }
     }
 }
 

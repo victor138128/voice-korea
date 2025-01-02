@@ -28,6 +28,7 @@ pub mod pages {
 
 pub mod service {
     pub mod login_service;
+    pub mod popup_service;
 }
 
 pub mod models {
