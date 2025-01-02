@@ -17,7 +17,7 @@ pub struct IconProps {
 pub fn Cancel(props: IconProps) -> Element {
     rsx! {
         svg {
-            "viewBox": "0 0 24 23",
+            view_box: "0 0 24 23",
             fill: "{props.fill}",
             xmlns: "http://www.w3.org/2000/svg",
             width: "{props.width}",
@@ -33,6 +33,237 @@ pub fn Cancel(props: IconProps) -> Element {
                 d: "M8 15.8645L11.9323 11.9323L15.8645 15.8645M15.8645 8L11.9315 11.9323L8 8",
                 "stroke-width": "1.5",
                 stroke: "{props.stroke}",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn Remove(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            view_box: "0 0 18 18",
+            xmlns: "http://www.w3.org/2000/svg",
+            height,
+            fill: "none",
+            width,
+            path {
+                "clip-rule": "evenodd",
+                "fill-rule": "evenodd",
+                fill: "white",
+                d: "M18 9C18 13.9706 13.9706 18 9 18C4.02944 18 0 13.9706 0 9C0 4.02944 4.02944 0 9 0C13.9706 0 18 4.02944 18 9ZM5.46967 5.46967C5.76256 5.17678 6.23744 5.17678 6.53033 5.46967L9 7.93934L11.4697 5.46967C11.7626 5.17678 12.2374 5.17678 12.5303 5.46967C12.8232 5.76256 12.8232 6.23744 12.5303 6.53033L10.0607 9L12.5303 11.4697C12.8232 11.7626 12.8232 12.2374 12.5303 12.5303C12.2374 12.8232 11.7626 12.8232 11.4697 12.5303L9 10.0607L6.53033 12.5303C6.23744 12.8232 5.76256 12.8232 5.46967 12.5303C5.17678 12.2374 5.17678 11.7626 5.46967 11.4697L7.93934 9L5.46967 6.53033C5.17678 6.23744 5.17678 5.76256 5.46967 5.46967Z",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn Plus(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            view_box: "0 0 11 10",
+            width,
+            height,
+            fill: "none",
+            xmlns: "http://www.w3.org/2000/svg",
+            path {
+                "stroke-linecap": "round",
+                d: "M1.5 5L5.5 5M5.5 5L9.5 5M5.5 5V1M5.5 5L5.5 9",
+                "stroke-linejoin": "round",
+                "stroke-width": "1.5",
+                stroke: "#35343F",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn ArrowLeft(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            xmlns: "http://www.w3.org/2000/svg",
+            view_box: "0 0 24 24",
+            width: "24",
+            height: "24",
+            fill: "none",
+            path {
+                fill: "#9B9B9B",
+                d: "M10.1744 2.72439L2.71043 10.5964C2.50643 10.8124 2.39844 11.0884 2.39844 11.3884C2.39844 11.6884 2.50643 11.9764 2.71043 12.1804L10.1744 20.0524C10.3784 20.2684 10.6424 20.3764 10.9304 20.3764C11.2184 20.3764 11.4824 20.2564 11.6864 20.0524C11.8904 19.8364 11.9984 19.5604 11.9984 19.2604C11.9984 18.9604 11.8904 18.6724 11.6864 18.4684L4.97843 11.3884L11.6864 4.30839C11.8904 4.09239 11.9984 3.81639 11.9984 3.51639C11.9984 3.21639 11.8904 2.92839 11.6864 2.72439C11.4824 2.50839 11.2184 2.40039 10.9304 2.40039C10.6424 2.40039 10.3784 2.52039 10.1744 2.72439Z",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn ArrowRight(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            fill: "none",
+            width,
+            view_box: "0 0 24 24",
+            height,
+            xmlns: "http://www.w3.org/2000/svg",
+            path {
+                fill: "#9B9B9B",
+                d: "M13.824 20.0758L21.288 12.2038C21.492 11.9878 21.6 11.7118 21.6 11.4118C21.6 11.1118 21.492 10.8238 21.288 10.6198L13.824 2.74783C13.62 2.53183 13.356 2.42383 13.068 2.42383C12.78 2.42383 12.516 2.54383 12.312 2.74783C12.108 2.96383 12 3.23983 12 3.53983C12 3.83983 12.108 4.12783 12.312 4.33183L19.02 11.4118L12.312 18.4918C12.108 18.7078 12 18.9838 12 19.2838C12 19.5838 12.108 19.8718 12.312 20.0758C12.516 20.2918 12.78 20.3998 13.068 20.3998C13.356 20.3998 13.62 20.2798 13.824 20.0758Z",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn Expand(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            height,
+            width,
+            view_box: "0 0 19 18",
+            fill: "none",
+            xmlns: "http://www.w3.org/2000/svg",
+            path {
+                "stroke-linecap": "round",
+                "stroke-linejoin": "round",
+                "stroke-width": "1.5",
+                stroke: "#2A60D3",
+                d: "M11 7.5L14.75 3.75M14.75 3.75L14.75 7.5M14.75 3.75L11 3.75",
+            }
+            path {
+                stroke: "#2A60D3",
+                d: "M8 10.5L4.25 14.25M4.25 14.25V10.5M4.25 14.25H8",
+                "stroke-width": "1.5",
+                "stroke-linecap": "round",
+                "stroke-linejoin": "round",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn Switch(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            width,
+            view_box: "0 0 19 18",
+            height,
+            xmlns: "http://www.w3.org/2000/svg",
+            fill: "none",
+            path {
+                "stroke-linejoin": "round",
+                "stroke-linecap": "round",
+                stroke: "#9B9B9B",
+                "stroke-width": "1.5",
+                d: "M11 4.5L11 13.5L14 10.5",
+            }
+            path {
+                "stroke-width": "1.5",
+                "stroke-linejoin": "round",
+                d: "M8 13.5L8 4.5L5 7.5",
+                "stroke-linecap": "round",
+                stroke: "#9B9B9B",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn RowOption(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            width,
+            height,
+            view_box: "0 0 24 24",
+            fill: "none",
+            xmlns: "http://www.w3.org/2000/svg",
+            rect {
+                width: "24",
+                height: "24",
+                rx: "1.88235",
+                fill: "white",
+            }
+            circle {
+                fill: "#555462",
+                cy: "12",
+                cx: "5.80078",
+                r: "1.5",
+            }
+            circle {
+                cy: "12",
+                r: "1.5",
+                fill: "#555462",
+                cx: "12",
+            }
+            circle {
+                cy: "12",
+                r: "1.5",
+                cx: "18.2031",
+                fill: "#555462",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn ColOption(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            height,
+            xmlns: "http://www.w3.org/2000/svg",
+            view_box: "0 0 40 40",
+            fill: "none",
+            width,
+            rect {
+                fill: "white",
+                width: "40",
+                rx: "4",
+                height: "40",
+            }
+            circle {
+                cx: "20",
+                fill: "#555462",
+                cy: "12",
+                transform: "rotate(90 20 12)",
+                r: "2",
+            }
+            circle {
+                cy: "20",
+                transform: "rotate(90 20 20)",
+                r: "2",
+                fill: "#555462",
+                cx: "20",
+            }
+            circle {
+                r: "2",
+                fill: "#555462",
+                cy: "28",
+                cx: "20",
+                transform: "rotate(90 20 28)",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn Folder(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            height,
+            xmlns: "http://www.w3.org/2000/svg",
+            fill: "none",
+            view_box: "0 0 24 24",
+            width,
+            path {
+                "stroke-linejoin": "round",
+                "stroke-width": "1.5",
+                stroke: "#AFC9FF",
+                d: "M12 19H5C3.89543 19 3 18.1046 3 17V7C3 5.89543 3.89543 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C20.1046 7 21 7.89543 21 9V11",
+                "stroke-linecap": "round",
+            }
+            path {
+                stroke: "#AFC9FF",
+                d: "M18 14V17M18 20V17M18 17H15M18 17H21",
+                "stroke-width": "1.5",
+                "stroke-linecap": "round",
+                "stroke-linejoin": "round",
             }
         }
     }
@@ -77,7 +308,6 @@ pub fn Add(width: String, height: String, inner_color: String, color: String) ->
                 d: "M10.0625 0C7.40378 0.0322598 4.86304 1.10277 2.98291 2.98291C1.10277 4.86304 0.0322598 7.40378 0 10.0625C0.0322598 12.7212 1.10277 15.262 2.98291 17.1421C4.86304 19.0222 7.40378 20.0927 10.0625 20.125C12.7212 20.0927 15.262 19.0222 17.1421 17.1421C19.0222 15.262 20.0927 12.7212 20.125 10.0625C20.0927 7.40378 19.0222 4.86304 17.1421 2.98291C15.262 1.10277 12.7212 0.0322598 10.0625 0ZM15.8125 10.7812H10.7812V15.8125H9.34375V10.7812H4.3125V9.34375H9.34375V4.3125H10.7812V9.34375H15.8125V10.7812Z",
                 fill: color,
             }
-
         }
     }
 }
@@ -118,7 +348,7 @@ pub fn Logout(width: String, height: String) -> Element {
     rsx! {
         svg {
             height,
-            "viewBox": "0 0 20 20",
+            view_box: "0 0 20 20",
             xmlns: "http://www.w3.org/2000/svg",
             width,
             fill: "none",
@@ -140,7 +370,7 @@ pub fn BottomArrow(width: String, height: String) -> Element {
             fill: "none",
             width,
             xmlns: "http://www.w3.org/2000/svg",
-            "viewBox": "0 0 14 15",
+            view_box: "0 0 14 15",
             height,
             path {
                 stroke: "#9BAAE4",

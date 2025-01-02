@@ -9,8 +9,21 @@ pub mod side_bar;
 
 #[component]
 pub fn RootLayout(lang: Language) -> Element {
-    let mut selected_menu = use_signal(|| "프로젝트 검색".to_string());
+    let mut selected_menu = use_signal(|| "".to_string());
     use dioxus_logger::tracing;
+
+    let route: Route = use_route();
+    let current_path = format!("{route}");
+
+    if selected_menu() == "" {
+        if current_path.contains("/group") {
+            selected_menu.set("그룹 관리".to_string());
+        } else if current_path.contains("/member") {
+            selected_menu.set("팀원 관리".to_string());
+        } else {
+            selected_menu.set("프로젝트 검색".to_string());
+        }
+    }
     // let translates = i18n::translate(lang.clone());
     rsx! {
         div { class: "flex flex-col w-screen min-h-screen bg-white text-black",
