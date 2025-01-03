@@ -270,26 +270,26 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                         }
                     }
                 }
-            }
-            //페이지네이션
-            div { class: "flex flex-row w-full justify-center items-center",
-                div { class: "mr-[20px] w-[24px] h-[24px]",
-                    ArrowLeft { width: "24", height: "24" }
-                }
-                //FIXME: add pagination by variable(page, index)
-                for i in 0..10 {
-                    if i == 0 {
-                        div { class: "flex flex-row w-[40px] h-[40px] justify-center items-center bg-[#7c8292] rounded-lg text-white font-bold text-[15px] mr-[8px]",
-                            "{i + 1}"
-                        }
-                    } else {
-                        div { class: "flex flex-row w-[40px] h-[40px] justify-center items-center bg-white border border-[#dfdfdf] rounded-lg text-[#0d1732] font-bold text-[15px] mr-[8px]",
-                            "{i + 1}"
+                //페이지네이션
+                div { class: "flex flex-row w-full justify-center items-center",
+                    div { class: "mr-[20px] w-[24px] h-[24px]",
+                        ArrowLeft { width: "24", height: "24" }
+                    }
+                    //FIXME: add pagination by variable(page, index)
+                    for i in 0..10 {
+                        if i == 0 {
+                            div { class: "flex flex-row w-[40px] h-[40px] justify-center items-center bg-[#7c8292] rounded-lg text-white font-bold text-[15px] mr-[8px]",
+                                "{i + 1}"
+                            }
+                        } else {
+                            div { class: "flex flex-row w-[40px] h-[40px] justify-center items-center bg-white border border-[#dfdfdf] rounded-lg text-[#0d1732] font-bold text-[15px] mr-[8px]",
+                                "{i + 1}"
+                            }
                         }
                     }
-                }
-                div { class: "ml-[12px] w-[24px] h-[24px]",
-                    ArrowRight { width: "24", height: "24" }
+                    div { class: "ml-[12px] w-[24px] h-[24px]",
+                        ArrowRight { width: "24", height: "24" }
+                    }
                 }
             }
         }
