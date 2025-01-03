@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
-use crate::prelude::*;
+use crate::{components::icons::Logout, prelude::*, service::popup_service::PopupZone};
 use dioxus::prelude::*;
-use header::Header;
 use side_bar::{SelectedMenu, SideBar};
 
 pub mod header;
@@ -10,34 +9,50 @@ pub mod side_bar;
 
 #[component]
 pub fn RootLayout(lang: Language) -> Element {
+    let mut selected_menu = use_signal(|| "".to_string());
     use dioxus_logger::tracing;
-    let translates = i18n::translate(lang.clone());
+
+    let route: Route = use_route();
+    let current_path = format!("{route}");
+
+    let current_selected = selected_menu();
+
+    if current_selected == "" {
+        let new_menu = if current_path.contains("/group") {
+            "그룹 관리".to_string()
+        } else if current_path.contains("/member") {
+            "팀원 관리".to_string()
+        } else {
+            "프로젝트 검색".to_string()
+        };
+
+        if current_selected != new_menu {
+            selected_menu.set(new_menu);
+        }
+    }
     rsx! {
-        div {
-            class: "flex flex-col w-screen min-h-screen bg-white text-black",
-            Header {
-                logout: translates.logout,
-                lang,
-            }
-            div {
-                class: "flex flex-row min-w-full max-w-full grow",
+        div { class: "flex flex-col w-screen min-h-screen bg-white text-black",
+            // Header {
+            //     logout: translates.logout,
+            //     lang,
+            // }
+            PopupZone {}
+            div { class: "flex flex-row min-w-full max-w-full grow",
                 SideBar {
-                    onselected: |selected_menu: SelectedMenu| {
-                        tracing::info!("selected menu {selected_menu:?}");
+                    onselected: move |selected: SelectedMenu| {
+                        tracing::info!("selected menu {selected:?}");
+                        selected_menu.set(selected.menu);
                     },
+                    selected_menu: (selected_menu)(),
                     lang,
-                    overview: translates.overview,
-                    search_project: translates.search_project,
-                    import_project: translates.import_project,
-                    survey_management: translates.survey_management,
-                    questionnaire_management: translates.questionnaire_management,
-                    question_bank: translates.question_bank,
-                    property_management: translates.property_management,
-                    property_status: translates.property_status,
-                    user_settings: translates.user_settings,
                 }
-                div {
-                    class: "flex flex-col grow w-full bg-[#f0f2fc]",
+                div { class: "flex flex-col grow w-full bg-[#f0f2fc] px-[60px] pt-[25px]",
+                    Link { to: Route::LoginPage { lang },
+                        div { class: "flex flex-row w-full justify-end items-end gap-[5px]",
+                            Logout { width: "20", height: "20" }
+                            div { class: "font-bold text-[#555462] text-[15px]", "logout" }
+                        }
+                    }
                     Outlet::<Route> {}
                 }
             }

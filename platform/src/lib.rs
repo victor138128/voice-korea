@@ -19,13 +19,16 @@ pub mod pages {
         pub mod write_question;
         pub mod write_title;
     }
+    pub mod group;
     pub mod login;
+    pub mod member;
     pub mod not_found;
     pub mod reset_password;
 }
 
 pub mod service {
     pub mod login_service;
+    pub mod popup_service;
 }
 
 pub mod models {
@@ -58,6 +61,7 @@ pub mod components {
     pub mod checkbox;
     pub mod icons;
     pub mod input;
+    pub mod label;
     pub mod pi_graph;
     pub mod popup;
     pub mod select;
