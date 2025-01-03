@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 
 use crate::{
     components::{
-        icons::{ArrowLeft, ArrowRight, Expand, Folder, Plus, RowOption, Search, Switch},
+        icons::{ArrowLeft, ArrowRight, Expand, Folder, RowOption, Search, Switch},
         label::Label,
     },
     prelude::Language,
@@ -37,7 +37,12 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
 
     let mut clicked_group_id = use_signal(|| "".to_string());
 
-    let groups = ctrl.get_groups();
+    let group = ctrl.get_groups();
+    let groups = group.clone();
+    let group_len = groups.len();
+
+    let mut member_clicked = use_signal(|| vec![false; group_len]);
+    let mut member_extended = use_signal(|| vec![false; group_len]);
 
     let mut popup: PopupService = use_context();
     if let ModalType::UpdateGroupName(_group_id) = modal_type() {
@@ -145,7 +150,7 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                         }
                         div { class: "w-[90px] h-full justify-center items-center gap-[10px]" }
                     }
-                    for group in groups {
+                    for index in 0..groups.len() {
                         div { class: "flex flex-col w-full justify-start items-start",
                             div { class: "flex flex-row w-full h-[1px] bg-[#bfc8d9]" }
                             div { class: "flex flex-row w-full",
@@ -153,34 +158,84 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                     Link {
                                         to: Route::GroupDetailPage {
                                             lang: props.lang.clone(),
-                                            group_id: group.group_id.clone(),
+                                            group_id: groups[index].group_id.clone(),
                                         },
                                         div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center",
-                                            "{group.group_name}"
+                                            "{groups[index].group_name}"
                                         }
                                     }
                                     div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center",
-                                        "{group.member_count}"
+                                        "{groups[index].member_count}"
                                     }
-                                    div { class: "flex flex-row w-full h-full justify-center items-center",
-                                        if group.member_list.len() > 0 {
+                                    div {
+                                        class: "flex flex-row w-full h-full justify-center items-center cursor-pointer relative",
+                                        onclick: move |_| {
+                                            let mut clicked = member_clicked.clone()();
+                                            clicked[index] = !clicked[index];
+                                            member_clicked.set(clicked);
+                                        },
+                                        if !member_clicked()[index] && groups[index].member_list.len() > 0 {
                                             Label {
-                                                label_name: group.member_list[0].clone(),
+                                                label_name: groups[index].member_list[0].clone(),
                                                 label_color: "bg-[#35343f]",
                                             }
+                                        } else {
+                                            div { class: "flex flex-row w-full h-full",
+                                                div { class: "flex flex-row w-full justify-center items-center",
+                                                    div { class: "inline-flex flex-wrap justify-center items-center gap-[10px] mr-[20px]",
+                                                        for member in groups[index].member_list.clone() {
+                                                            Label {
+                                                                label_name: member,
+                                                                label_color: "bg-[#35343f]",
+                                                            }
+                                                        }
+                                                    }
+                                                    div {
+                                                        onclick: move |e: MouseEvent| {
+                                                            e.stop_propagation();
+                                                            e.prevent_default();
+                                                            let mut extended = member_extended.clone()();
+                                                            extended[index] = !extended[index];
+                                                            member_extended.set(extended);
+                                                        },
+                                                        Expand {
+                                                            width: "24",
+                                                            height: "24",
+                                                        }
+                                                    }
+                                                }
+                                                if member_extended()[index] {
+                                                    div { class: "absolute top-full bg-white border border-[#bfc8d9] shadow-lg rounded-lg w-full z-50 py-[20px] pl-[15px] pr-[100px]",
+                                                        div { class: "font-semibold text-[#7c8292] text-[14px] mb-[20px]",
+                                                            "팀원"
+                                                        }
+                                                        div { class: "inline-flex flex-wrap justify-start items-start gap-[10px] mr-[20px]",
+                                                            for member in groups[index].member_list.clone() {
+                                                                Label {
+                                                                    label_name: member,
+                                                                    label_color: "bg-[#35343f]",
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
-                                        div { class: "flex flex-row w-[24px] h-[24px] justify-center items-center bg-[#d1d1d1] ml-[5px] opacity-50 rounded-lg",
-                                            Plus { width: "10", height: "10" }
-                                        }
-                                        div { class: "pl-[20px]",
-                                            Expand { width: "18", height: "18" }
-                                        }
+                                                                        // div { class: "flex flex-row w-[24px] h-[24px] justify-center items-center bg-[#d1d1d1] ml-[5px] opacity-50 rounded-lg",
+                                    //     Plus { width: "10", height: "10" }
+                                    // }
+                                    // div { class: "pl-[20px]",
+                                    //     Expand { width: "18", height: "18" }
+                                    // }
                                     }
                                     div { class: "p-4",
                                         div { class: "group relative",
                                             button {
-                                                onclick: move |_| {
-                                                    clicked_group_id.set(group.group_id.clone());
+                                                onclick: {
+                                                    let group_id = groups[index].group_id.clone();
+                                                    move |_| {
+                                                        clicked_group_id.set(group_id.clone());
+                                                    }
                                                 },
                                                 RowOption { width: 24, height: 24 }
                                             }
