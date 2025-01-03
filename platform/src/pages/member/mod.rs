@@ -20,6 +20,33 @@ pub struct MemberPageProps {
     lang: Language,
 }
 
+#[derive(Props, Clone, PartialEq)]
+pub struct RemoveMemberModalTranslate {
+    remove_info: String,
+    remove_warning: String,
+    remove: String,
+    cancel: String,
+}
+
+#[derive(Props, Clone, PartialEq)]
+pub struct AddMemberModalTranslate {
+    necessary: String,
+    enter_email_address: String,
+    enter_email_address_hint: String,
+    email_format_info: String,
+    privacy: String,
+    name: String,
+    role: String,
+    group: String,
+    necessary_input: String,
+    select_role: String,
+    select_group: String,
+    public_opinion: String,
+    investigation: String,
+    invite: String,
+    cancel: String,
+}
+
 #[derive(Clone, PartialEq)]
 pub enum ModalType {
     None,
@@ -51,25 +78,48 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
 
     if let ModalType::RemoveMember(_member_id) = modal_type() {
         popup.open(
-            "팀원 삭제".to_string(),
+            translates.remove_team_member,
             rsx! {
                 RemoveMemberModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
                         clicked_member_id.set("".to_string());
                     },
+                    i18n: RemoveMemberModalTranslate {
+                        remove_info: translates.remove_info,
+                        remove_warning: translates.remove_warning,
+                        remove: translates.remove,
+                        cancel: translates.cancel,
+                    },
                 }
             },
         );
     } else if modal_type() == ModalType::AddMember {
         popup.open(
-            "팀원 추가하기".to_string(),
+            translates.add_team_member.clone(),
             rsx! {
                 AddMemberModal {
                     groups: groups.clone(),
                     roles: roles.clone(),
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
+                    },
+                    i18n: AddMemberModalTranslate {
+                        necessary: translates.necessary,
+                        enter_email_address: translates.enter_email_address,
+                        enter_email_address_hint: translates.enter_email_address_hint,
+                        email_format_info: translates.email_format_info,
+                        privacy: translates.privacy,
+                        name: translates.name.clone(),
+                        role: translates.role.clone(),
+                        group: translates.group.clone(),
+                        necessary_input: translates.necessary_input,
+                        select_role: translates.select_role,
+                        select_group: translates.select_group,
+                        public_opinion: translates.public_opinion,
+                        investigation: translates.investigation,
+                        invite: translates.invite,
+                        cancel: translates.cancel,
                     },
                 }
             },
@@ -281,7 +331,7 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                                                 if projects_extended()[index] {
                                                     div { class: "absolute top-full bg-white border border-[#bfc8d9] shadow-lg rounded-lg w-full z-50 py-[20px] pl-[15px] pr-[100px]",
                                                         div { class: "font-semibold text-[#7c8292] text-[14px] mb-[20px]",
-                                                            "프로젝트"
+                                                            {translates.project.clone()}
                                                         }
                                                         div { class: "inline-flex flex-wrap justify-start items-start gap-[10px] mr-[20px]",
                                                             for project in members[index].projects.clone() {
@@ -316,7 +366,7 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                                                         onclick: move |_| {
                                                             modal_type.set(ModalType::RemoveMember(clicked_member_id()));
                                                         },
-                                                        "팀원 삭제하기"
+                                                        {translates.remove_team_member_li.clone()}
                                                     }
                                                 }
                                             }
@@ -354,27 +404,28 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
 }
 
 #[component]
-pub fn RemoveMemberModal(onclose: EventHandler<MouseEvent>) -> Element {
+pub fn RemoveMemberModal(
+    onclose: EventHandler<MouseEvent>,
+    i18n: RemoveMemberModalTranslate,
+) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start mt-[60px]",
             div { class: "flex flex-col text-[#3a3a3a] font-normal text-[14px] gap-[5px]",
-                div { "정말 삭제하시겠습니까?" }
-                div {
-                    "삭제된 팀원은 복원할 수 없습니다. 삭제 전에 다시 한번 확인해주세요."
-                }
+                div { {i18n.remove_info} }
+                div { {i18n.remove_warning} }
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
                     onclick: move |_| {},
-                    div { class: "text-white font-bold text-[16px]", "삭제하기" }
+                    div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
-                    "취소하기"
+                    {i18n.cancel}
                 }
             }
         }
@@ -386,6 +437,7 @@ pub fn AddMemberModal(
     groups: Vec<String>,
     roles: Vec<String>,
     onclose: EventHandler<MouseEvent>,
+    i18n: AddMemberModalTranslate,
 ) -> Element {
     let mut email = use_signal(|| "".to_string());
     let mut email_focused = use_signal(|| false);
@@ -399,10 +451,8 @@ pub fn AddMemberModal(
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start mt-[60px]",
             div { class: "flex flex-row w-full mb-[16px]",
-                div { class: "text-[#eb5757] font-semibold text-[14px] mr-[5px]", "*[필수]" }
-                div { class: "text-[#3a3a3a] font-semibold text-[14px]",
-                    "이메일 주소 입력하기"
-                }
+                div { class: "text-[#eb5757] font-semibold text-[14px] mr-[5px]", {i18n.necessary} }
+                div { class: "text-[#3a3a3a] font-semibold text-[14px]", {i18n.enter_email_address} }
             }
             div {
                 class: format!(
@@ -416,7 +466,7 @@ pub fn AddMemberModal(
                 input {
                     class: "flex flex-row w-full h-full bg-transparent focus:outline-none",
                     r#type: "text",
-                    placeholder: "이메일 주소 입력",
+                    placeholder: i18n.enter_email_address_hint,
                     value: (email)(),
                     onfocus: move |_| {
                         email_focused.set(true);
@@ -430,7 +480,7 @@ pub fn AddMemberModal(
                 }
             }
             div { class: "font-normal text-[#6f6f6f] text-[13px] mt-[5px] mb-[40px]",
-                "이메일 형식은 e.g voicekorea@company.com 으로 입력해주세요."
+                {i18n.email_format_info}
             }
             div { class: "flex flex-col w-full justify-start itmes-start",
                 div { class: "font-medium text-[15px] text-[#3a3a3a] mb-[16px]", "개인정보" }
@@ -441,7 +491,7 @@ pub fn AddMemberModal(
                                 "*"
                             }
                             div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[40px]",
-                                "이름"
+                                {i18n.name}
                             }
                         }
                         div {
@@ -456,7 +506,7 @@ pub fn AddMemberModal(
                             input {
                                 class: "flex flex-row w-full h-full bg-transparent focus:outline-none",
                                 r#type: "text",
-                                placeholder: "필수 입력",
+                                placeholder: i18n.necessary_input,
                                 value: (name)(),
                                 onfocus: move |_| {
                                     name_focused.set(true);
@@ -472,7 +522,7 @@ pub fn AddMemberModal(
                     }
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[60px]",
-                            "역할"
+                            {i18n.role}
                         }
                         select {
                             class: "focus:outline-none w-full h-[45px] bg-[#f7f7f7] rounded-lg px-[5px] text-[#9b9b9b]",
@@ -485,7 +535,7 @@ pub fn AddMemberModal(
                                 disabled: true,
                                 selected: select_role() == "",
                                 hidden: select_role() != "",
-                                "역할 선택"
+                                {i18n.select_role}
                             }
                             for role in roles.clone() {
                                 option {
@@ -498,7 +548,7 @@ pub fn AddMemberModal(
                     }
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[60px]",
-                            "그룹"
+                            {i18n.group}
                         }
                         select {
                             class: "focus:outline-none w-full h-[45px] bg-[#f7f7f7] rounded-lg px-[5px] text-[#9b9b9b]",
@@ -512,7 +562,7 @@ pub fn AddMemberModal(
                                 disabled: true,
                                 selected: select_group() == "",
                                 hidden: select_group() != "",
-                                "그룹 선택"
+                                {i18n.select_group}
                             }
                             for group in groups.clone() {
                                 option {
@@ -531,7 +581,7 @@ pub fn AddMemberModal(
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
                             div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[40px]",
-                                "공론"
+                                {i18n.public_opinion}
                             }
                         }
                         div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#f7f7f7] rounded-lg " }
@@ -539,7 +589,7 @@ pub fn AddMemberModal(
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
                             div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[40px]",
-                                "조사"
+                                {i18n.investigation}
                             }
                         }
                         div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#f7f7f7] rounded-lg " }
@@ -551,14 +601,14 @@ pub fn AddMemberModal(
                     class: "flex flex-row w-[120px] h-[40px] bg-[#2a60d3] rounded-md px-[14px] py-[8px] gap-[5px] cursor-pointer",
                     onclick: move |_| {},
                     AddUser { width: "24", height: "24" }
-                    div { class: "text-white font-bold text-[16px]", "초대하기" }
+                    div { class: "text-white font-bold text-[16px]", {i18n.invite} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
-                    "취소하기"
+                    {i18n.cancel}
                 }
             }
         }

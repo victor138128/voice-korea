@@ -20,6 +20,23 @@ pub struct GroupPageProps {
     lang: Language,
 }
 
+#[derive(Props, Clone, PartialEq)]
+pub struct UpdateGroupNameModalTranslates {
+    update_group_name_info: String,
+    update_group_name_hint: String,
+    update_group_name_warning: String,
+    update: String,
+    cancel: String,
+}
+
+#[derive(Props, Clone, PartialEq)]
+pub struct RemoveGroupModalTranslates {
+    remove_warning: String,
+    remove_info: String,
+    remove: String,
+    cancel: String,
+}
+
 #[derive(Clone, PartialEq)]
 pub enum ModalType {
     None,
@@ -47,24 +64,37 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
     let mut popup: PopupService = use_context();
     if let ModalType::UpdateGroupName(_group_id) = modal_type() {
         popup.open(
-            "그룹명 수정하기".to_string(),
+            translates.update_group_name,
             rsx! {
                 UpdateGroupNameModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
                         clicked_group_id.set("".to_string());
                     },
+                    i18n: UpdateGroupNameModalTranslates {
+                        update_group_name_info: translates.update_group_name_info,
+                        update_group_name_hint: translates.update_group_name_hint,
+                        update_group_name_warning: translates.update_group_name_warning,
+                        update: translates.update,
+                        cancel: translates.cancel,
+                    },
                 }
             },
         );
     } else if let ModalType::RemoveGroup(_group_id) = modal_type() {
         popup.open(
-            "그룹 삭제".to_string(),
+            translates.remove_group,
             rsx! {
                 RemoveGroupModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
                         clicked_group_id.set("".to_string());
+                    },
+                    i18n: RemoveGroupModalTranslates {
+                        remove_warning: translates.remove_warning,
+                        remove_info: translates.remove_info,
+                        remove: translates.remove,
+                        cancel: translates.cancel,
                     },
                 }
             },
@@ -207,7 +237,7 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                                 if member_extended()[index] {
                                                     div { class: "absolute top-full bg-white border border-[#bfc8d9] shadow-lg rounded-lg w-full z-50 py-[20px] pl-[15px] pr-[100px]",
                                                         div { class: "font-semibold text-[#7c8292] text-[14px] mb-[20px]",
-                                                            "팀원"
+                                                            "{translates.team_member}"
                                                         }
                                                         div { class: "inline-flex flex-wrap justify-start items-start gap-[10px] mr-[20px]",
                                                             for member in groups[index].member_list.clone() {
@@ -248,14 +278,14 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                                         onclick: move |_| {
                                                             modal_type.set(ModalType::RemoveGroup(clicked_group_id()));
                                                         },
-                                                        "그룹 삭제하기"
+                                                        "{translates.remove_group_li}"
                                                     }
                                                     li {
                                                         class: "p-3 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer",
                                                         onclick: move |_| {
                                                             modal_type.set(ModalType::UpdateGroupName(clicked_group_id()));
                                                         },
-                                                        "그룹명 수정하기"
+                                                        "{translates.update_group_name_li}"
                                                     }
                                                 }
                                             }
@@ -293,40 +323,43 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
 }
 
 #[component]
-pub fn UpdateGroupNameModal(onclose: EventHandler<MouseEvent>) -> Element {
+pub fn UpdateGroupNameModal(
+    onclose: EventHandler<MouseEvent>,
+    i18n: UpdateGroupNameModalTranslates,
+) -> Element {
     let mut group_name = use_signal(|| "".to_string());
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start mt-[40px]",
             div { class: "flex flex-col text-[#3a3a3a] font-normal text-[14px] gap-[5px] mb-[40px]",
-                "그룹명은 한 번 수정하면 되돌릴 수 없습니다."
+                {i18n.update_group_name_info}
             }
             div { class: "flex flex-col w-full justify-start items-start",
                 div { class: "font-semibold text-[14px] text-[#3a3a3a] mb-[16px]", "그룹명" }
                 input {
                     class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none px-[15px] items-center mb-[5px]",
                     r#type: "text",
-                    placeholder: "그룹명을 입력해주세요.".to_string(),
+                    placeholder: i18n.update_group_name_hint,
                     value: (group_name)(),
                     oninput: move |event| {
                         group_name.set(event.value());
                     },
                 }
                 div { class: "font-normal text-[13px] text-[#3a3a3a]",
-                    "중복 입력은 허용되지 않으며, 최소 2글자 이상 입력해야 합니다."
+                    {i18n.update_group_name_warning}
                 }
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
                     onclick: move |_| {},
-                    div { class: "text-white font-bold text-[16px]", "삭제하기" }
+                    div { class: "text-white font-bold text-[16px]", {i18n.update} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
-                    "취소하기"
+                    {i18n.cancel}
                 }
             }
         }
@@ -334,27 +367,28 @@ pub fn UpdateGroupNameModal(onclose: EventHandler<MouseEvent>) -> Element {
 }
 
 #[component]
-pub fn RemoveGroupModal(onclose: EventHandler<MouseEvent>) -> Element {
+pub fn RemoveGroupModal(
+    onclose: EventHandler<MouseEvent>,
+    i18n: RemoveGroupModalTranslates,
+) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start mt-[40px]",
             div { class: "flex flex-col text-[#3a3a3a] font-normal text-[14px] gap-[5px]",
-                div { "정말 삭제하시겠습니까?" }
-                div {
-                    "그룹을 삭제해도 팀원들은 유지되지만, 팀원들의 그룹 설정을 다시 해야합니다."
-                }
+                div { {i18n.remove_warning} }
+                div { {i18n.remove_info} }
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
                     onclick: move |_| {},
-                    div { class: "text-white font-bold text-[16px]", "삭제하기" }
+                    div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
-                    "취소하기"
+                    {i18n.cancel}
                 }
             }
         }

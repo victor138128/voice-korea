@@ -17,6 +17,26 @@ pub struct MemberTranslate {
     pub group: String,
     pub role: String,
     pub project: String,
+
+    pub remove_team_member: String,
+    pub remove_team_member_li: String,
+
+    pub remove_info: String,
+    pub remove_warning: String,
+    pub remove: String,
+    pub cancel: String,
+
+    pub necessary: String,
+    pub enter_email_address: String,
+    pub enter_email_address_hint: String,
+    pub email_format_info: String,
+    pub privacy: String,
+    pub necessary_input: String,
+    pub select_role: String,
+    pub select_group: String,
+    pub public_opinion: String,
+    pub investigation: String,
+    pub invite: String,
 }
 
 pub fn translate(lang: Language) -> MemberTranslate {
@@ -38,6 +58,26 @@ pub fn translate(lang: Language) -> MemberTranslate {
             group: "Group".to_string(),
             role: "Role".to_string(),
             project: "Project".to_string(),
+
+            remove_team_member: "Remove Team Member".to_string(),
+            remove_team_member_li: "Remove Team Member".to_string(),
+
+            remove_info: "Are you sure you want to delete it?".to_string(),
+            remove_warning: "Deleted team members cannot be restored. Please check again before deleting.".to_string(),
+            remove: "Remove".to_string(),
+            cancel: "Cancel".to_string(),
+
+            necessary: "*[Essential]".to_string(),
+            enter_email_address: "Enter your email address".to_string(),
+            enter_email_address_hint: "Enter your email address".to_string(),
+            email_format_info: "Please enter the email format e.g voicekorea@company.com.".to_string(),
+            privacy: "Privacy".to_string(),
+            necessary_input: "Required input".to_string(),
+            select_group: "Group selection".to_string(),
+            select_role: "Role selection".to_string(),
+            public_opinion: "Public Opinion".to_string(),
+            investigation: "Investigation".to_string(),
+            invite: "Invite".to_string(),
         },
         Language::Ko => MemberTranslate {
             organization_management: "조직관리".to_string(),
@@ -56,6 +96,26 @@ pub fn translate(lang: Language) -> MemberTranslate {
             group: "그룹".to_string(),
             role: "역할".to_string(),
             project: "프로젝트".to_string(),
+
+            remove_team_member: "팀원 삭제".to_string(),
+            remove_team_member_li: "팀원 삭제하기".to_string(),
+
+            remove_info: "정말 삭제하시겠습니까?".to_string(),
+            remove_warning: "삭제된 팀원은 복원할 수 없습니다. 삭제 전에 다시 한번 확인해주세요.".to_string(),
+            remove: "삭제하기".to_string(),
+            cancel: "취소하기".to_string(),
+
+            necessary: "*[필수]".to_string(),
+            enter_email_address: "이메일 주소 입력하기".to_string(),
+            enter_email_address_hint: "이메일 주소 입력".to_string(),
+            email_format_info: "이메일 형식은 e.g voicekorea@company.com 으로 입력해주세요.".to_string(),
+            privacy: "개인정보".to_string(),
+            necessary_input: "필수 입력".to_string(),
+            select_group: "그룹 선택".to_string(),
+            select_role: "역할 선택".to_string(),
+            public_opinion: "공론".to_string(),
+            investigation: "조사".to_string(),
+            invite: "초대하기".to_string(),
         },
     }
 }

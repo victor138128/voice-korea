@@ -12,6 +12,8 @@ use crate::{
     service::popup_service::PopupService,
 };
 
+use super::RemoveMemberModalTranslate;
+
 mod controller;
 mod i18n;
 
@@ -44,6 +46,22 @@ pub struct ProfileHistoryTranslate {
     search_info: String,
 }
 
+#[derive(Props, Clone, PartialEq)]
+pub struct RemoveProjectModalTitle {
+    remove_project_info: String,
+    remove_project_warning: String,
+    cancel: String,
+    remove: String,
+}
+
+#[derive(Props, Clone, PartialEq)]
+pub struct RemoveMemberModalTitle {
+    remove_member_info: String,
+    remove_member_warning: String,
+    cancel: String,
+    remove: String,
+}
+
 #[derive(Clone, PartialEq)]
 pub enum ModalType {
     None,
@@ -66,22 +84,34 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
 
     if ModalType::RemoveMember == modal_type() {
         popup.open(
-            "팀원 삭제".to_string(),
+            translates.remove_team_member_title,
             rsx! {
                 RemoveMemberModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
+                    },
+                    i18n: RemoveMemberModalTranslate {
+                        remove_info: translates.remove_member_info,
+                        remove_warning: translates.remove_member_warning,
+                        remove: translates.remove,
+                        cancel: translates.cancel,
                     },
                 }
             },
         );
     } else if let ModalType::RemoveProject(_history_id) = modal_type() {
         popup.open(
-            "프로젝트 삭제".to_string(),
+            translates.remove_project_title,
             rsx! {
                 RemoveProjectModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
+                    },
+                    i18n: RemoveProjectModalTitle {
+                        remove_project_info: translates.remove_project_info,
+                        remove_project_warning: translates.remove_project_warning,
+                        cancel: translates.cancel,
+                        remove: translates.remove,
                     },
                 }
             },
@@ -119,7 +149,7 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
                                 onclick: move |_| {
                                     modal_type.set(ModalType::RemoveMember);
                                 },
-                                "팀원 삭제하기"
+                                "{translates.remove_team_member}"
                             }
                         }
                     }
@@ -431,27 +461,28 @@ pub fn ProfileInfo(
 }
 
 #[component]
-pub fn RemoveProjectModal(onclose: EventHandler<MouseEvent>) -> Element {
+pub fn RemoveProjectModal(
+    onclose: EventHandler<MouseEvent>,
+    i18n: RemoveProjectModalTitle,
+) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start mt-[60px]",
             div { class: "flex flex-col text-[#3a3a3a] font-normal text-[14px] gap-[5px]",
-                div { "정말 삭제하시겠습니까?" }
-                div {
-                    "삭제된 프로젝트는 복원할 수 없습니다. 삭제 전에 다시 한번 확인해주세요."
-                }
+                div { {i18n.remove_project_info} }
+                div { {i18n.remove_project_warning} }
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
                     onclick: move |_| {},
-                    div { class: "text-white font-bold text-[16px]", "삭제하기" }
+                    div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
-                    "취소하기"
+                    {i18n.cancel}
                 }
             }
         }
@@ -459,27 +490,28 @@ pub fn RemoveProjectModal(onclose: EventHandler<MouseEvent>) -> Element {
 }
 
 #[component]
-pub fn RemoveMemberModal(onclose: EventHandler<MouseEvent>) -> Element {
+pub fn RemoveMemberModal(
+    onclose: EventHandler<MouseEvent>,
+    i18n: RemoveMemberModalTranslate,
+) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start mt-[60px]",
             div { class: "flex flex-col text-[#3a3a3a] font-normal text-[14px] gap-[5px]",
-                div { "정말 삭제하시겠습니까?" }
-                div {
-                    "삭제된 팀원은 복원할 수 없습니다. 삭제 전에 다시 한번 확인해주세요."
-                }
+                div { {i18n.remove_info} }
+                div { {i18n.remove_warning} }
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
                     onclick: move |_| {},
-                    div { class: "text-white font-bold text-[16px]", "삭제하기" }
+                    div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
-                    "취소하기"
+                    {i18n.cancel}
                 }
             }
         }
