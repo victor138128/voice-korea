@@ -15,6 +15,7 @@ pub struct MemberDetailTranslate {
     pub remove_team_member: String,
 
     pub participation_record: String,
+    pub search_info: String,
     pub item: String,
     pub project: String,
     pub panel: String,
@@ -39,6 +40,7 @@ pub fn translate(lang: Language) -> MemberDetailTranslate {
             remove_team_member: "Remove Team Member".to_string(),
 
             participation_record: "Participation Record".to_string(),
+            search_info: "Please search the project name.".to_string(),
             item: "Item".to_string(),
             project: "Project".to_string(),
             panel: "Panel".to_string(),
@@ -60,6 +62,7 @@ pub fn translate(lang: Language) -> MemberDetailTranslate {
             remove_team_member: "팀원 삭제하기".to_string(),
 
             participation_record: "참여 기록".to_string(),
+            search_info: "프로젝트명을 검색해주세요.".to_string(),
             item: "항목".to_string(),
             project: "프로젝트".to_string(),
             panel: "패널".to_string(),

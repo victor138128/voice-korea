@@ -3,6 +3,7 @@ use crate::utils::context::Language;
 pub struct MemberTranslate {
     pub organization_management: String,
     pub team_member_management: String,
+    pub team_member_description: String,
 
     pub total: String,
     pub manager: String,
@@ -23,6 +24,7 @@ pub fn translate(lang: Language) -> MemberTranslate {
         Language::En => MemberTranslate {
             organization_management: "Organization Management".to_string(),
             team_member_management: "Team Member Management".to_string(),
+            team_member_description: "The team member management page helps you manage team member information efficiently and understand roles and tasks at a glance.".to_string(),
 
             total: "Total".to_string(),
             manager: "Manager".to_string(),
@@ -40,6 +42,7 @@ pub fn translate(lang: Language) -> MemberTranslate {
         Language::Ko => MemberTranslate {
             organization_management: "조직관리".to_string(),
             team_member_management: "팀원 관리".to_string(),
+            team_member_description: "팀원 관리 페이지는 팀원 정보를 효율적으로 관리하고 역할과 업무를 한눈에 파악할 수 있도록 도와줍니다.".to_string(),
 
             total: "전체".to_string(),
             manager: "관리자".to_string(),
