@@ -27,6 +27,8 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
     let mut name = use_signal(|| "".to_string());
     let translates = i18n::translate(props.lang.clone());
 
+    let mut clicked_group_id = use_signal(|| "".to_string());
+
     let groups = ctrl.get_groups();
 
     rsx! {
@@ -97,7 +99,7 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                 class: "flex flex-row w-full",
                                 to: Route::GroupDetailPage {
                                     lang: props.lang,
-                                    group_id: group.group_id,
+                                    group_id: group.group_id.clone(),
                                 },
                                 div { class: "flex flex-row w-full h-[55px] justify-start items-center text-[#3a3a3a] font-medium text-[14px]",
                                     div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center",
@@ -120,8 +122,38 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                             Expand { width: "18", height: "18" }
                                         }
                                     }
-                                    div { class: "flex flex-row w-[90px] h-full justify-center items-center",
-                                        RowOption { width: 24, height: 24 }
+                                    div { class: "flex flex-row w-[90px] h-full justify-center items-center relative",
+                                        div {
+                                            onclick: move |e: MouseEvent| {
+                                                e.stop_propagation();
+                                                e.prevent_default();
+                                                clicked_group_id.set(group.group_id.clone());
+                                            },
+                                            class: "cursor-pointer p-2 hover:bg-gray-200 rounded-full",
+                                            RowOption { width: 24, height: 24 }
+                                        }
+                                        if group.group_id.clone() == (clicked_group_id)() {
+                                            div { class: "absolute left-0 top-full bg-white shadow-lg rounded-lg w-[150px] z-50",
+                                                div {
+                                                    class: "p-3 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer",
+                                                    onclick: |e: MouseEvent| {
+                                                        e.stop_propagation();
+                                                        e.prevent_default();
+                                                        println!("그룹 삭제하기 클릭");
+                                                    },
+                                                    "그룹 삭제하기"
+                                                }
+                                                div {
+                                                    class: "p-3 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer",
+                                                    onclick: |e: MouseEvent| {
+                                                        e.stop_propagation();
+                                                        e.prevent_default();
+                                                        println!("그룹명 수정하기 클릭");
+                                                    },
+                                                    "그룹명 수정하기"
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
