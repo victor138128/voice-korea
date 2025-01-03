@@ -7,6 +7,7 @@ use crate::{
         label::Label,
     },
     prelude::Language,
+    routes::Route,
     service::popup_service::PopupService,
 };
 
@@ -186,14 +187,20 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                             div { class: "flex flex-row w-full h-[1px] bg-[#bfc8d9]" }
                             div { class: "flex flex-row w-full",
                                 div { class: "flex flex-row w-full h-[55px] justify-start items-center text-[#3a3a3a] font-medium text-[14px]",
-                                    div { class: "flex flex-row w-[355px] min-w-[355px] h-full justify-center items-center gap-[10px]",
-                                        div { class: "w-[36px] h-[36px] rounded-[40px] bg-[#9baae4] mr-[10px]" }
-                                        div { class: "flex flex-col justify-start items-start",
-                                            div { class: "text-[14px] font-medium text-[#3a3a3a] mb-[5px]",
-                                                {member.profile_name}
-                                            }
-                                            div { class: "text-[14px] font-normal text-[#7c8292]",
-                                                {member.email}
+                                    Link {
+                                        to: Route::MemberDetailPage {
+                                            lang: props.lang.clone(),
+                                            member_id: member.member_id.clone(),
+                                        },
+                                        div { class: "flex flex-row w-[355px] min-w-[355px] h-full justify-center items-center gap-[10px]",
+                                            div { class: "w-[36px] h-[36px] rounded-[40px] bg-[#9baae4] mr-[10px]" }
+                                            div { class: "flex flex-col justify-start items-start",
+                                                div { class: "text-[14px] font-medium text-[#3a3a3a] mb-[5px]",
+                                                    {member.profile_name}
+                                                }
+                                                div { class: "text-[14px] font-normal text-[#7c8292]",
+                                                    {member.email}
+                                                }
                                             }
                                         }
                                     }
@@ -263,26 +270,26 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                         }
                     }
                 }
-                //페이지네이션
-                div { class: "flex flex-row w-full justify-center items-center",
-                    div { class: "mr-[20px] w-[24px] h-[24px]",
-                        ArrowLeft { width: "24", height: "24" }
-                    }
-                    //FIXME: add pagination by variable(page, index)
-                    for i in 0..10 {
-                        if i == 0 {
-                            div { class: "flex flex-row w-[40px] h-[40px] justify-center items-center bg-[#7c8292] rounded-lg text-white font-bold text-[15px] mr-[8px]",
-                                "{i + 1}"
-                            }
-                        } else {
-                            div { class: "flex flex-row w-[40px] h-[40px] justify-center items-center bg-white border border-[#dfdfdf] rounded-lg text-[#0d1732] font-bold text-[15px] mr-[8px]",
-                                "{i + 1}"
-                            }
+            }
+            //페이지네이션
+            div { class: "flex flex-row w-full justify-center items-center",
+                div { class: "mr-[20px] w-[24px] h-[24px]",
+                    ArrowLeft { width: "24", height: "24" }
+                }
+                //FIXME: add pagination by variable(page, index)
+                for i in 0..10 {
+                    if i == 0 {
+                        div { class: "flex flex-row w-[40px] h-[40px] justify-center items-center bg-[#7c8292] rounded-lg text-white font-bold text-[15px] mr-[8px]",
+                            "{i + 1}"
+                        }
+                    } else {
+                        div { class: "flex flex-row w-[40px] h-[40px] justify-center items-center bg-white border border-[#dfdfdf] rounded-lg text-[#0d1732] font-bold text-[15px] mr-[8px]",
+                            "{i + 1}"
                         }
                     }
-                    div { class: "ml-[12px] w-[24px] h-[24px]",
-                        ArrowRight { width: "24", height: "24" }
-                    }
+                }
+                div { class: "ml-[12px] w-[24px] h-[24px]",
+                    ArrowRight { width: "24", height: "24" }
                 }
             }
         }

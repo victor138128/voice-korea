@@ -7,6 +7,7 @@ use crate::{
         label::Label,
     },
     prelude::Language,
+    routes::Route,
     service::popup_service::PopupService,
 };
 
@@ -76,7 +77,7 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                 "{translates.group_management}"
             }
             div { class: "text-[#35343f] font-normal text-[14px] mb-[40px]",
-                "Lörem ipsum plar ses tire. Krosm psykototal nesöng. Rosk ans. Nyr dystopi, antinde är speskapet. Mal neling medan rebel. "
+                "{translates.group_description}"
             }
 
             div {
@@ -148,13 +149,15 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                         div { class: "flex flex-col w-full justify-start items-start",
                             div { class: "flex flex-row w-full h-[1px] bg-[#bfc8d9]" }
                             div { class: "flex flex-row w-full",
-                                // to: Route::GroupDetailPage {
-                                //     lang: props.lang,
-                                //     group_id: group.group_id.clone(),
-                                // },
                                 div { class: "flex flex-row w-full h-[55px] justify-start items-center text-[#3a3a3a] font-medium text-[14px]",
-                                    div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center",
-                                        "{group.group_name}"
+                                    Link {
+                                        to: Route::GroupDetailPage {
+                                            lang: props.lang.clone(),
+                                            group_id: group.group_id.clone(),
+                                        },
+                                        div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center",
+                                            "{group.group_name}"
+                                        }
                                     }
                                     div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center",
                                         "{group.member_count}"
@@ -208,26 +211,26 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                         }
                     }
                 }
-                //페이지네이션
-                div { class: "flex flex-row w-full justify-center items-center",
-                    div { class: "mr-[20px] w-[24px] h-[24px]",
-                        ArrowLeft { width: "24", height: "24" }
-                    }
-                    //FIXME: add pagination by variable(page, index)
-                    for i in 0..10 {
-                        if i == 0 {
-                            div { class: "flex flex-row w-[40px] h-[40px] justify-center items-center bg-[#7c8292] rounded-lg text-white font-bold text-[15px] mr-[8px]",
-                                "{i + 1}"
-                            }
-                        } else {
-                            div { class: "flex flex-row w-[40px] h-[40px] justify-center items-center bg-white border border-[#dfdfdf] rounded-lg text-[#0d1732] font-bold text-[15px] mr-[8px]",
-                                "{i + 1}"
-                            }
+            }
+            //페이지네이션
+            div { class: "flex flex-row w-full justify-center items-center",
+                div { class: "mr-[20px] w-[24px] h-[24px]",
+                    ArrowLeft { width: "24", height: "24" }
+                }
+                //FIXME: add pagination by variable(page, index)
+                for i in 0..10 {
+                    if i == 0 {
+                        div { class: "flex flex-row w-[40px] h-[40px] justify-center items-center bg-[#7c8292] rounded-lg text-white font-bold text-[15px] mr-[8px]",
+                            "{i + 1}"
+                        }
+                    } else {
+                        div { class: "flex flex-row w-[40px] h-[40px] justify-center items-center bg-white border border-[#dfdfdf] rounded-lg text-[#0d1732] font-bold text-[15px] mr-[8px]",
+                            "{i + 1}"
                         }
                     }
-                    div { class: "ml-[12px] w-[24px] h-[24px]",
-                        ArrowRight { width: "24", height: "24" }
-                    }
+                }
+                div { class: "ml-[12px] w-[24px] h-[24px]",
+                    ArrowRight { width: "24", height: "24" }
                 }
             }
         }
