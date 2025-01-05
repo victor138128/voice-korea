@@ -4,8 +4,8 @@ use crate::pages::attributes::AttributePage;
 use crate::pages::create::CreatePage;
 use crate::pages::dashboard::DashboardPage;
 use crate::pages::find_email::FindEmailPage;
-use crate::pages::group::GroupPage;
-use crate::pages::group::_id::GroupDetailPage;
+use crate::pages::groups::GroupPage;
+use crate::pages::groups::_id::GroupDetailPage;
 use crate::pages::id::response_report::ResponseReportPage;
 use crate::pages::id::select_response::response_type::SelectResponseDetailPage;
 use crate::pages::id::select_response::SelectResponsePage;
@@ -13,8 +13,8 @@ use crate::pages::id::survey_summary::SurveySummaryPage;
 use crate::pages::id::write_question::WriteQuestionPage;
 use crate::pages::id::write_title::WriteTitlePage;
 use crate::pages::login::LoginPage;
-use crate::pages::member::MemberPage;
-use crate::pages::member::_id::MemberDetailPage;
+use crate::pages::members::MemberPage;
+use crate::pages::members::_id::MemberDetailPage;
 use crate::pages::reset_password::ResetPasswordPage;
 use crate::prelude::*;
 use crate::utils::context::{default_lang, Language};
@@ -26,13 +26,13 @@ pub enum Route {
         #[layout(RootLayout)]
             #[route("/dashboard")]
             DashboardPage { lang: Language },
-            #[route("/group")]
+            #[route("/groups")]
             GroupPage { lang: Language },
-            #[route("/group/:group_id")]
+            #[route("/groups/:group_id")]
             GroupDetailPage { lang: Language, group_id: String },
-            #[route("/member")]
+            #[route("/members")]
             MemberPage { lang: Language },
-            #[route("/member/:member_id")]
+            #[route("/members/:member_id")]
             MemberDetailPage { lang: Language, member_id: String },
             #[route("/id/:survey_id/write-title")]
             WriteTitlePage { lang: Language, survey_id: String },
