@@ -4,10 +4,9 @@ use dioxus_logger::tracing::{self, Level};
 
 use dioxus::prelude::*;
 
+use dioxus_popup::PopupService;
 use platform::{
-    routes::Route,
-    service::{login_service::LoginService, popup_service::PopupService},
-    utils::context::use_iitp_context_provider,
+    routes::Route, service::login_service::LoginService, utils::context::use_iitp_context_provider,
 };
 
 fn main() {
