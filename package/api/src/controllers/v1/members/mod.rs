@@ -43,8 +43,65 @@ impl MemberControllerV1 {
         Router::new()
             .route("/", post(Self::create_member).get(Self::list_members))
             .route("/:member_id", post(Self::act_member).get(Self::get_member))
-            .layer(middleware::from_fn(authorization_middleware)) //FIXME: fix management authorization
+            .route("/invite", post(Self::invite_member))
+            .layer(middleware::from_fn(authorization_middleware)) //FIXME: fix management authorization (오직 관리자만 해당 함수들 호출할 수 있도록 수정)
             .with_state(ctrl.clone())
+    }
+
+    pub async fn invite_member(
+        State(ctrl): State<MemberControllerV1>,
+        Json(body): Json<InviteMemberRequest>,
+    ) -> Result<(), ApiError> {
+        let log = ctrl.log.new(o!("api" => "invite_member"));
+        let cli = easy_dynamodb::get_client(log.clone());
+        slog::debug!(log, "invite_member: {:?}", body);
+
+        //Error: already exists member
+        let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
+            &log,
+            "gsi1-index",
+            None,
+            Some(1),
+            vec![("gsi1", Member::get_gsi1(body.email.clone()))],
+        )
+        .await?;
+
+        if res.items.len() != 0 {
+            let item = res.items.first().unwrap();
+
+            if item.deleted_at.is_none() {
+                return Err(ApiError::AlreadyExists);
+            }
+        }
+
+        //Error: already invited
+        let res: CommonQueryResponse<InviteMember> = CommonQueryResponse::query(
+            &log,
+            "gsi1-index",
+            None,
+            Some(1),
+            vec![("gsi1", InviteMember::get_gsi1(body.email.clone()))],
+        )
+        .await?;
+
+        if res.items.len() != 0 {
+            let item = res.items.first().unwrap();
+
+            if item.deleted_at.is_none() {
+                return Err(ApiError::AlreadyExists);
+            }
+        }
+
+        let id = uuid::Uuid::new_v4().to_string();
+        let member: InviteMember = (body, id).into();
+
+        match cli.upsert(member.clone()).await {
+            Ok(()) => Ok(()),
+            Err(e) => {
+                slog::error!(log, "Invite Member Failed {e:?}");
+                Err(ApiError::DynamoCreateException(e.to_string()))
+            }
+        }
     }
 
     pub async fn act_member(
@@ -76,10 +133,10 @@ impl MemberControllerV1 {
 
         let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
             &log,
-            "type-index",
+            "gsi1-index",
             None,
             Some(100),
-            vec![("type", "member")],
+            vec![("gsi1", Member::get_gsi1(body.email.clone()))],
         )
         .await?;
 

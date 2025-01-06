@@ -6,7 +6,7 @@ use by_axum::axum::response::Response;
 use by_axum::axum::Json;
 use by_axum::log::root;
 use easy_dynamodb::Client;
-use models::prelude::{CreateMemberRequest, Member};
+use models::prelude::{CreateMemberRequest, InviteMember, Member, UpdateField};
 use serde::Deserialize;
 
 use crate::common::CommonQueryResponse;
@@ -21,7 +21,7 @@ pub struct LoginParams {
 }
 
 pub async fn handler(
-    State(_db): State<Arc<Client>>,
+    State(db): State<Arc<Client>>,
     Json(body): Json<LoginParams>,
 ) -> Result<Response<String>, ApiError> {
     let log = root();
@@ -59,25 +59,15 @@ pub async fn handler(
     // If the member list has not been added, add the member list
     let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
         &log,
-        "type-index",
+        "gsi1-index",
         None,
         Some(100),
-        vec![("type", "member")],
+        vec![("gsi1", Member::get_gsi1(body.email.clone()))],
     )
     .await?;
 
     if res.items.len() == 0 {
-        let id = uuid::Uuid::new_v4().to_string();
-        let member: Member = (
-            CreateMemberRequest {
-                email,
-                name: None,
-                group: None,
-                role: None,
-            },
-            id,
-        )
-            .into();
+        let member: Member = get_member_data(db.clone(), body).await;
 
         cli.upsert(member.clone())
             .await
@@ -111,4 +101,74 @@ pub async fn handler(
         )
         .body(jwt)
         .map_err(|e| ApiError::ValidationError(e.to_string()))?)
+}
+
+async fn get_member_data(db: Arc<Client>, body: LoginParams) -> Member {
+    let now = chrono::Utc::now().timestamp_millis();
+    let id = uuid::Uuid::new_v4().to_string();
+    let log = root();
+    let res: CommonQueryResponse<InviteMember> = CommonQueryResponse::query(
+        &log,
+        "gsi1-index",
+        None,
+        Some(1),
+        vec![("gsi1", InviteMember::get_gsi1(body.email.clone()))],
+    )
+    .await
+    .unwrap();
+
+    if res.items.len() != 0 {
+        let item = res.items.first().unwrap();
+        let _ = db
+            .update(
+                &item.id,
+                vec![
+                    ("deleted_at", UpdateField::I64(now)),
+                    (
+                        "type",
+                        UpdateField::String(InviteMember::get_deleted_type()),
+                    ),
+                    (
+                        "gsi1",
+                        UpdateField::String(InviteMember::get_gsi_deleted(&body.email)),
+                    ),
+                ],
+            )
+            .await;
+
+        if item.deleted_at.is_none() {
+            (
+                CreateMemberRequest {
+                    email: body.email.clone(),
+                    name: Some(item.name.clone()),
+                    group: item.group.clone(),
+                    role: item.role.clone(),
+                },
+                id,
+            )
+                .into()
+        } else {
+            (
+                CreateMemberRequest {
+                    email: body.email.clone(),
+                    name: None,
+                    group: None,
+                    role: None,
+                },
+                id,
+            )
+                .into()
+        }
+    } else {
+        (
+            CreateMemberRequest {
+                email: body.email.clone(),
+                name: None,
+                group: None,
+                role: None,
+            },
+            id,
+        )
+            .into()
+    }
 }
