@@ -28,13 +28,6 @@ pub struct Pagination {
     pub bookmark: Option<String>,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum ActionRequest {
-    UpdateName(String),
-    Delete,
-}
-
 impl GroupControllerV1 {
     pub fn router(_db: std::sync::Arc<easy_dynamodb::Client>) -> Router {
         let log = root().new(o!("api-controller" => "GroupControllerV1"));
@@ -51,17 +44,17 @@ impl GroupControllerV1 {
         Extension(claims): Extension<Claims>,
         State(ctrl): State<GroupControllerV1>,
         Path(group_id): Path<String>,
-        Json(body): Json<ActionRequest>,
+        Json(body): Json<GroupActionRequest>,
     ) -> Result<(), ApiError> {
         let log = ctrl.log.new(o!("api" => "act_group"));
         slog::debug!(log, "act_group: {:?}", group_id);
 
         match body {
-            ActionRequest::UpdateName(group_name) => {
+            GroupActionRequest::UpdateName(group_name) => {
                 ctrl.update_group_name(ctrl.clone(), &group_id, group_name)
                     .await?;
             }
-            ActionRequest::Delete => {
+            GroupActionRequest::Delete => {
                 ctrl.remove_group(ctrl.clone(), &claims.id, &group_id)
                     .await?;
             }

@@ -88,3 +88,10 @@ impl Into<Group> for (CreateGroupRequest, String, String) {
         }
     }
 }
+
+#[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum GroupActionRequest {
+    UpdateName(String),
+    Delete,
+}

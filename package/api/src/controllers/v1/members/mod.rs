@@ -27,13 +27,6 @@ pub struct MemberControllerV1 {
     log: slog::Logger,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum ActionRequest {
-    Update(UpdateMemberRequest),
-    Delete,
-}
-
 impl MemberControllerV1 {
     pub fn router(_db: std::sync::Arc<easy_dynamodb::Client>) -> Router {
         let log = root().new(o!("api-controller" => "MemberControllerV1"));
@@ -107,16 +100,16 @@ impl MemberControllerV1 {
     pub async fn act_member(
         State(ctrl): State<MemberControllerV1>,
         Path(member_id): Path<String>,
-        Json(body): Json<ActionRequest>,
+        Json(body): Json<MemberActionRequest>,
     ) -> Result<(), ApiError> {
         let log = ctrl.log.new(o!("api" => "act_member"));
         slog::debug!(log, "act_member: {:?}", member_id);
 
         match body {
-            ActionRequest::Update(req) => {
+            MemberActionRequest::Update(req) => {
                 ctrl.update_member(ctrl.clone(), &member_id, req).await?;
             }
-            ActionRequest::Delete => {
+            MemberActionRequest::Delete => {
                 ctrl.remove_member(ctrl.clone(), &member_id).await?;
             }
         }

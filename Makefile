@@ -9,6 +9,7 @@ REGION ?= $(shell aws configure get region)
 BASE_DOMAIN ?= biyard.co
 
 DOMAIN ?= voice-korea.$(ENV).$(BASE_DOMAIN)
+SUBDOMAIN ?= $(ENV).$(BASE_DOMAIN)
 API_DOMAIN ?= voice-korea-api.$(ENV).$(BASE_DOMAIN)
 WATCHER_DOMAIN ?= voice-korea-watcher-api.$(ENV).$(BASE_DOMAIN)
 CDN_ID ?= $(shell aws cloudfront list-distributions --query "DistributionList.Items[*].{id:Id,test:AliasICPRecordals[?CNAME=='$(DOMAIN)']}" --output json |jq '. | map(select(.test | length > 0))[0] | .id' | tr -d \")
@@ -20,6 +21,7 @@ WORKSPACE_ROOT ?= $(PWD)
 
 ifeq ("$(ENV)","prod")
 	TABLE_NAME = voice-korea-prod
+	SUBDOMAIN = biyard.co
 endif
 
 TABLE_NAME = voice-korea-api-dev

@@ -39,7 +39,7 @@ wasm-bindgen-futures = { version = "0.4.49", optional = true }
 web-sys = { version = "0.3.74", optional = true }
 
 [features]
-default = []
+default = ["web"]
 server = [
   "dioxus-aws/server",
   "easy-dynamodb",
