@@ -3,7 +3,10 @@ use std::sync::Arc;
 use by_axum::axum::extract::State;
 use by_axum::axum::Json;
 use easy_dynamodb::Client;
-use models::User;
+use models::{
+    prelude::{CreateMemberRequest, Member},
+    User,
+};
 use serde::Deserialize;
 
 use super::super::verification::email::{verify_handler, EmailVerifyParams};
@@ -30,7 +33,11 @@ pub async fn handler(
     )
     .await?;
     let hashed_pw = get_hash_string(body.password.as_bytes());
-    let user = User::new(uuid::Uuid::new_v4().to_string(), body.email, hashed_pw);
+    let user = User::new(
+        uuid::Uuid::new_v4().to_string(),
+        body.email.clone(),
+        hashed_pw,
+    );
 
     let result: Result<
         (Option<Vec<models::User>>, Option<String>),
@@ -53,6 +60,22 @@ pub async fn handler(
     };
     let _ = db.delete(&auth_doc_id);
     let _ = db.create(user).await;
+
+    let id = uuid::Uuid::new_v4().to_string();
+    let member: Member = (
+        CreateMemberRequest {
+            email: body.email,
+            name: None,
+            group: None,
+            role: None,
+        },
+        id,
+    )
+        .into();
+
+    db.upsert(member.clone())
+        .await
+        .map_err(|e| ApiError::DynamoCreateException(e.to_string()))?;
 
     Ok(())
 }

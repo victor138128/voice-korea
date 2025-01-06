@@ -88,31 +88,3 @@ impl Into<Group> for (CreateGroupRequest, String, String) {
         }
     }
 }
-
-impl CreateGroupRequest {
-    pub fn into_group(self, id: String, user_id: String) -> Group {
-        let now = chrono::Utc::now().timestamp_millis();
-
-        Group {
-            id,
-            r#type: Group::get_type(),
-            gsi1: Group::get_gsi1(&user_id),
-            creator: user_id,
-            created_at: now,
-            updated_at: now,
-            deleted_at: None,
-            name: self.name,
-            members: self.members,
-            public_opinion_projects: self.public_opinion_projects,
-            investigation_projects: self.investigation_projects,
-        }
-    }
-
-    pub fn get_gsi1(user_id: &str) -> String {
-        format!("{}#{}", Self::get_type(), user_id)
-    }
-
-    pub fn get_type() -> String {
-        "group".to_string()
-    }
-}
