@@ -119,7 +119,7 @@ impl GroupApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(format!("/v1/members/{group_id}").as_str())
+            .get(format!("/v1/groups/{group_id}").as_str())
             .header("Authorization", token)
             .send()
             .await?;
