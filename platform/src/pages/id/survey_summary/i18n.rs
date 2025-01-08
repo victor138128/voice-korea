@@ -1,89 +1,106 @@
-use crate::utils::context::Language;
+use dioxus_translate::translate;
 
-pub struct SurveySummaryTranslate {
-    pub start_survey: String,
-    pub inprogress_survey: String,
-    pub finish_survey: String,
-    pub set_response_date: String,
-    pub survey_summary: String,
-    pub survey_progress_period: String,
-    pub select_panel_and_attribute: String,
-    pub written_question: String,
-    pub response_list: String,
-    pub panel: String,
-    pub attribute: String,
-    pub objective: String,
-    pub subjective: String,
-    pub total_question: String,
-    pub total: String,
-    pub num_of_detail: String,
-    pub back: String,
-    pub num_of: String,
-    pub unknown: String,
+translate! {
+    SurveySummaryTranslate;
 
-    pub analysis_result: String,
-    pub analysis_result_info: String,
-    pub analysis_inprogress_info: String,
-    pub complete: String,
-    pub survey_complete_date: String,
-    pub check_response_report: String,
-}
-
-pub fn translate(lang: Language) -> SurveySummaryTranslate {
-    match lang {
-        Language::En => SurveySummaryTranslate {
-            start_survey: "Start Survey".to_string(),
-            inprogress_survey: "Inprogress Survey".to_string(),
-            finish_survey: "Finish Survey".to_string(),
-            set_response_date: "Response time settings".to_string(),
-            survey_summary: "Questionnaire Summary".to_string(),
-            survey_progress_period: "Survey Progress Period".to_string(),
-            select_panel_and_attribute: "Selection panel and properties".to_string(),
-            written_question: "Written Question".to_string(),
-            response_list: "Survey list".to_string(),
-            panel: "Panel".to_string(),
-            attribute: "Attribute".to_string(),
-            total: "Total".to_string(),
-            num_of_detail: "have two questions.".to_string(),
-            back: "Back".to_string(),
-            num_of: "".to_string(),
-            unknown: "Unknown".to_string(),
-            objective: "Objective".to_string(),
-            subjective: "Subjective".to_string(),
-            total_question: "Total Question".to_string(),
-            analysis_result: "Analysis Result".to_string(),
-            analysis_result_info: "Analysis of response collection results has been completed. Please check the response report.".to_string(),
-            analysis_inprogress_info: "We are analyzing the response collection results.".to_string(),
-            complete: "Complete".to_string(),
-            survey_complete_date: "Survey Complete Date".to_string(),
-            check_response_report: "Check Response Report".to_string(),
-        },
-        Language::Ko => SurveySummaryTranslate {
-            start_survey: "설문 시작".to_string(),
-            inprogress_survey: "설문 진행 중".to_string(),
-            finish_survey: "설문 진행 완료".to_string(),
-            set_response_date: "응답 기간 설정".to_string(),
-            survey_summary: "설문지 요약".to_string(),
-            survey_progress_period: "설문조사 진행 기간".to_string(),
-            select_panel_and_attribute: "선택 패널 및 속성".to_string(),
-            written_question: "작성된 질문".to_string(),
-            response_list: "설문 목록".to_string(),
-            panel: "패널".to_string(),
-            attribute: "속성".to_string(),
-            total: "총".to_string(),
-            num_of_detail: "개의 질문이 있습니다.".to_string(),
-            back: "돌아가기".to_string(),
-            num_of: "개".to_string(),
-            unknown: "Unknown".to_string(),
-            objective: "객관식".to_string(),
-            subjective: "주관식".to_string(),
-            total_question: "총 질문".to_string(),
-            analysis_result: "결과 분석".to_string(),
-            analysis_inprogress_info: "응답 수집 결과를 분석중 입니다.".to_string(),
-            analysis_result_info: "응답 수집 결과 분석이 완료되었습니다. 응답 보고서를 확인해 주세요.".to_string(),
-            complete: "완료".to_string(),
-            survey_complete_date: "설문 완료 날짜".to_string(),
-            check_response_report: "응답 보고서 확인".to_string(),
-        },
+    start_survey: {
+        ko: "설문 시작",
+        en: "Start Survey"
+    },
+    inprogress_survey: {
+        ko: "설문 진행 중",
+        en: "Inprogress Survey"
+    },
+    finish_survey: {
+        ko: "설문 진행 완료",
+        en: "Finish Survey"
+    },
+    set_response_date: {
+        ko: "응답 기간 설정",
+        en: "Response time settings"
+    },
+    survey_summary: {
+        ko: "설문지 요약",
+        en: "Questionnaire Summary"
+    },
+    survey_progress_period: {
+        ko: "설문조사 진행 기간",
+        en: "Survey Progress Period"
+    },
+    select_panel_and_attribute: {
+        ko: "선택 패널 및 속성",
+        en: "Selection panel and properties"
+    },
+    written_question: {
+        ko: "작성된 질문",
+        en: "Written Question"
+    },
+    response_list: {
+        ko: "설문 목록",
+        en: "Survey list"
     }
+    panel: {
+        ko: "패널",
+        en: "Panel"
+    },
+    attribute: {
+        ko: "속성",
+        en: "Attribute"
+    },
+    total: {
+        ko: "총",
+        en: "Total"
+    },
+    num_of_detail: {
+        ko: "개의 질문이 있습니다.",
+        en: "have two questions."
+    },
+    back: {
+        ko: "돌아가기",
+        en: "Back"
+    },
+    num_of: {
+        ko: "개",
+        en: "Add Question"
+    },
+    unknown: {
+        ko: "Unknown",
+        en: "Unknown"
+    },
+    objective: {
+        ko: "객관식",
+        en: "Objective"
+    },
+    subjective: {
+        ko: "주관식",
+        en: "Subjective"
+    },
+    total_question: {
+        ko: "총 질문",
+        en: "Total Question"
+    },
+    analysis_result: {
+        ko: "결과 분석",
+        en: "Analysis Result"
+    },
+    analysis_result_info: {
+        ko: "응답 수집 결과 분석이 완료되었습니다. 응답 보고서를 확인해 주세요.",
+        en: "Analysis of response collection results has been completed. Please check the response report."
+    },
+    analysis_inprogress_info: {
+        ko: "응답 수집 결과를 분석중 입니다.",
+        en: "We are analyzing the response collection results."
+    },
+    complete: {
+        ko: "완료",
+        en: "Complete"
+    },
+    survey_complete_date: {
+        ko: "설문 완료 날짜",
+        en: "Survey Complete Date"
+    },
+    check_response_report: {
+        ko: "응답 보고서 확인",
+        en: "Check Response Report"
+    },
 }

@@ -1,67 +1,72 @@
-use crate::utils::context::Language;
+use dioxus_translate::translate;
 
-pub struct GroupDetailTranslate {
-    pub organization_management: String,
-    pub group_management: String,
-    pub see_detail: String,
-    pub register_date: String,
+translate! {
+    GroupDetailTranslate;
 
-    pub group_team_member: String,
-    pub add_member: String,
-    pub name: String,
-    pub group: String,
-    pub role: String,
-    pub project: String,
+    organization_management: {
+        ko: "조직관리",
+        en: "Organization Management",
+    },
+    group_management: {
+        ko: "그룹 관리",
+        en: "Group Management",
+    },
+    see_detail: {
+        ko: "자세히 보기",
+        en: "See Detail",
+    },
+    register_date: {
+        ko: "등록된 날짜",
+        en: "Register Date",
+    },
 
-    pub common_project: String,
-    pub add_project: String,
-    pub item: String,
-    pub panel: String,
-    pub period: String,
-    pub status: String,
-}
+    group_team_member: {
+        ko: "그룹 팀원",
+        en: "Group Team Member",
+    },
+    add_member: {
+        ko: "팀원 추가하기",
+        en: "Add Member",
+    },
+    name: {
+        ko: "이름",
+        en: "Name",
+    },
+    group: {
+        ko: "그룹",
+        en: "Group",
+    },
+    role: {
+        ko: "역할",
+        en: "Role",
+    },
+    project: {
+        ko: "프로젝트",
+        en: "Project",
+    },
 
-pub fn translate(lang: Language) -> GroupDetailTranslate {
-    match lang {
-        Language::En => GroupDetailTranslate {
-            organization_management: "Organization Management".to_string(),
-            group_management: "Group Management".to_string(),
-            see_detail: "See Detail".to_string(),
-            register_date: "Register Date".to_string(),
-
-            group_team_member: "Group Team Member".to_string(),
-            add_member: "Add Member".to_string(),
-            name: "Name".to_string(),
-            group: "Group".to_string(),
-            role: "Role".to_string(),
-            project: "Project".to_string(),
-
-            common_project: "Common Project".to_string(),
-            add_project: "Create Project".to_string(),
-            item: "Item".to_string(),
-            panel: "Panel".to_string(),
-            period: "Period".to_string(),
-            status: "Status".to_string(),
-        },
-        Language::Ko => GroupDetailTranslate {
-            organization_management: "조직관리".to_string(),
-            group_management: "그룹 관리".to_string(),
-            see_detail: "자세히 보기".to_string(),
-            register_date: "등록된 날짜".to_string(),
-
-            group_team_member: "그룹 팀원".to_string(),
-            add_member: "팀원 추가하기".to_string(),
-            name: "이름".to_string(),
-            group: "그룹".to_string(),
-            role: "역할".to_string(),
-            project: "프로젝트".to_string(),
-
-            common_project: "공통 프로젝트".to_string(),
-            add_project: "프로젝트 추가하기".to_string(),
-            item: "항목".to_string(),
-            panel: "패널".to_string(),
-            period: "기간".to_string(),
-            status: "상태".to_string(),
-        },
-    }
+    common_project: {
+        ko: "공통 프로젝트",
+        en: "Common Project",
+    },
+    add_project: {
+        ko: "프로젝트 추가하기",
+        en: "Create Project",
+    },
+    item: {
+        ko: "항목",
+        en: "Item",
+    },
+    panel: {
+        ko: "패널",
+        en: "Panel",
+    },
+    period: {
+        ko: "기간",
+        en: "Period",
+    },
+    status: {
+        ko: "상태",
+        en: "Status",
+    },
 }

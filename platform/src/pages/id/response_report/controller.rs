@@ -6,9 +6,10 @@ use chrono::{TimeZone, Utc};
 use dioxus::prelude::*;
 #[allow(unused_imports)]
 use dioxus_logger::tracing;
+use dioxus_translate::Language;
 use models::prelude::SurveyResultDocument;
 
-use crate::{api::v2::survey::get_survey_result, models::pi::PiChart, prelude::Language};
+use crate::{api::v2::survey::get_survey_result, models::pi::PiChart};
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {

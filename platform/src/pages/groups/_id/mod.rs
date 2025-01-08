@@ -1,6 +1,9 @@
 #![allow(non_snake_case)]
 use controller::{GroupMember, GroupProject, ProjectStatus, ProjectType};
 use dioxus::prelude::*;
+use dioxus_translate::translate;
+use dioxus_translate::Language;
+use i18n::GroupDetailTranslate;
 
 use crate::{
     components::{
@@ -9,7 +12,6 @@ use crate::{
         },
         label::Label,
     },
-    prelude::Language,
     routes::Route,
     service::popup_service::PopupService,
 };
@@ -64,7 +66,7 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
 
     let group_name = group.group.clone();
 
-    let translates = i18n::translate(props.lang.clone());
+    let translates: GroupDetailTranslate = translate(&props.lang);
     let mut modal_type = use_signal(|| ModalType::None);
     let mut popup: PopupService = use_context();
     if ModalType::UpdateGroupName == modal_type() {
@@ -178,12 +180,12 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
                     total_groups,
                     total_roles,
                     i18n: GroupParticipantTranslate {
-                        group_team_member: translates.group_team_member,
-                        add_member: translates.add_member,
-                        name: translates.name,
-                        group: translates.group,
-                        role: translates.role,
-                        project: translates.project.clone(),
+                        group_team_member: translates.group_team_member.to_string(),
+                        add_member: translates.add_member.to_string(),
+                        name: translates.name.to_string(),
+                        group: translates.group.to_string(),
+                        role: translates.role.to_string(),
+                        project: translates.project.to_string(),
                     },
                     change_popup_state: move |modal: String| {
                         if modal == "add_member" {
@@ -196,13 +198,13 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
                 GroupCommonProject {
                     projects: ctrl.get_group().group_projects,
                     i18n: CommonProjectTranslate {
-                        common_project: translates.common_project,
-                        add_project: translates.add_project,
-                        item: translates.item,
-                        project: translates.project,
-                        panel: translates.panel,
-                        period: translates.period,
-                        status: translates.status,
+                        common_project: translates.common_project.to_string(),
+                        add_project: translates.add_project.to_string(),
+                        item: translates.item.to_string(),
+                        project: translates.project.to_string(),
+                        panel: translates.panel.to_string(),
+                        period: translates.period.to_string(),
+                        status: translates.status.to_string(),
                     },
                     change_popup_state: move |_e: MouseEvent| {
                         modal_type.set(ModalType::RemoveProject);

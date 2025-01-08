@@ -17,7 +17,7 @@ use crate::pages::members::MemberPage;
 use crate::pages::members::_id::MemberDetailPage;
 use crate::pages::reset_password::ResetPasswordPage;
 use crate::prelude::*;
-use crate::utils::context::{default_lang, Language};
+use dioxus_translate::Language;
 
 #[derive(Clone, Routable, Debug, PartialEq)]
 #[rustfmt::skip]
@@ -60,7 +60,7 @@ pub enum Route {
         ResetPasswordPage { lang: Language },
     #[end_nest]
 
-    #[redirect("/", || Route::LoginPage { lang: default_lang() })]
+    #[redirect("/", || Route::LoginPage { lang: Language::default() })]
     #[route("/:..route")]
     NotFoundPage { route: Vec<String> },
 }

@@ -7,6 +7,8 @@ pub mod header;
 pub mod i18n;
 pub mod side_bar;
 
+use dioxus_translate::Language;
+
 #[component]
 pub fn RootLayout(lang: Language) -> Element {
     let mut selected_menu = use_signal(|| "".to_string());

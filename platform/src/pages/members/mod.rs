@@ -1,12 +1,14 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
+use dioxus_translate::translate;
+use dioxus_translate::Language;
+use i18n::MemberTranslate;
 
 use crate::{
     components::{
         icons::{AddUser, ArrowLeft, ArrowRight, Expand, RowOption, Search, Switch},
         label::Label,
     },
-    prelude::Language,
     routes::Route,
     service::popup_service::PopupService,
 };
@@ -60,7 +62,7 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
     let mut name = use_signal(|| "".to_string());
     let mut is_focused = use_signal(|| false);
     let mut modal_type = use_signal(|| ModalType::None);
-    let translates = i18n::translate(props.lang.clone());
+    let translates: MemberTranslate = translate(&props.lang.clone());
 
     let member_summary = ctrl.get_members();
     let groups = ctrl.get_groups();
@@ -85,15 +87,15 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                         clicked_member_id.set("".to_string());
                     },
                     i18n: RemoveMemberModalTranslate {
-                        remove_info: translates.remove_info,
-                        remove_warning: translates.remove_warning,
-                        remove: translates.remove,
-                        cancel: translates.cancel,
+                        remove_info: translates.remove_info.to_string(),
+                        remove_warning: translates.remove_warning.to_string(),
+                        remove: translates.remove.to_string(),
+                        cancel: translates.cancel.to_string(),
                     },
                 }
             })
             .with_id("remove_team_member")
-            .with_title(translates.remove_team_member.as_str());
+            .with_title(translates.remove_team_member);
     } else if modal_type() == ModalType::AddMember {
         popup
             .open(rsx! {
@@ -104,26 +106,26 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                         modal_type.set(ModalType::None);
                     },
                     i18n: AddMemberModalTranslate {
-                        necessary: translates.necessary,
-                        enter_email_address: translates.enter_email_address,
-                        enter_email_address_hint: translates.enter_email_address_hint,
-                        email_format_info: translates.email_format_info,
-                        privacy: translates.privacy,
-                        name: translates.name.clone(),
-                        role: translates.role.clone(),
-                        group: translates.group.clone(),
-                        necessary_input: translates.necessary_input,
-                        select_role: translates.select_role,
-                        select_group: translates.select_group,
-                        public_opinion: translates.public_opinion,
-                        investigation: translates.investigation,
-                        invite: translates.invite,
-                        cancel: translates.cancel,
+                        necessary: translates.necessary.to_string(),
+                        enter_email_address: translates.enter_email_address.to_string(),
+                        enter_email_address_hint: translates.enter_email_address_hint.to_string(),
+                        email_format_info: translates.email_format_info.to_string(),
+                        privacy: translates.privacy.to_string(),
+                        name: translates.name.to_string(),
+                        role: translates.role.to_string(),
+                        group: translates.group.to_string(),
+                        necessary_input: translates.necessary_input.to_string(),
+                        select_role: translates.select_role.to_string(),
+                        select_group: translates.select_group.to_string(),
+                        public_opinion: translates.public_opinion.to_string(),
+                        investigation: translates.investigation.to_string(),
+                        invite: translates.invite.to_string(),
+                        cancel: translates.cancel.to_string(),
                     },
                 }
             })
             .with_id("add_team_member")
-            .with_title(translates.add_team_member.as_str());
+            .with_title(translates.add_team_member);
     } else {
         popup.close();
     }
@@ -331,7 +333,7 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                                                 if projects_extended()[index] {
                                                     div { class: "absolute top-full bg-white border border-[#bfc8d9] shadow-lg rounded-lg w-full z-50 py-[20px] pl-[15px] pr-[100px]",
                                                         div { class: "font-semibold text-[#7c8292] text-[14px] mb-[20px]",
-                                                            {translates.project.clone()}
+                                                            {translates.project}
                                                         }
                                                         div { class: "inline-flex flex-wrap justify-start items-start gap-[10px] mr-[20px]",
                                                             for project in members[index].projects.clone() {
@@ -366,7 +368,7 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                                                         onclick: move |_| {
                                                             modal_type.set(ModalType::RemoveMember(clicked_member_id()));
                                                         },
-                                                        {translates.remove_team_member_li.clone()}
+                                                        {translates.remove_team_member_li}
                                                     }
                                                 }
                                             }

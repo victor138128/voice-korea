@@ -1,100 +1,116 @@
-use crate::utils::context::Language;
+use dioxus_translate::translate;
 
-pub struct ResponseReportTranslate {
-    pub survey_summary: String,
-    pub individual_response: String,
-    pub response_report: String,
-    pub response_download: String,
-    pub total_respondents: String,
-    pub respondent_type: String,
-    pub status: String,
-    pub final_update_date: String,
-    pub time_taken: String,
-    pub attribute: String,
-    pub panel: String,
-    pub response_history: String,
-    pub draft: String,
-    pub in_progress: String,
-    pub complete: String,
+translate! {
+    ResponseReportTranslate;
 
-    pub response_summary: String,
-    pub total_number_of_responses: String,
-    pub completion_rate: String,
-    pub normal_time_required: String,
-    pub most_skipped_questions: String,
-    pub response_attribute: String,
+    survey_summary: {
+        ko: "설문 요약",
+        en: "Survey Summary"
+    },
+    individual_response: {
+        ko: "개별 응답",
+        en: "Individual Response"
+    },
+    response_report: {
+        ko: "응답 보고서",
+        en: "Response Report"
+    },
+    response_download: {
+        ko: "응답 다운로드",
+        en: "Response Download"
+    },
+    total_respondents: {
+        ko: "총 응답자",
+        en: "Total Respondents"
+    },
+    respondent_type: {
+        ko: "응답자 유형",
+        en: "Respondent Type"
+    },
+    status: {
+        ko: "상태",
+        en: "Status"
+    },
+    final_update_date: {
+        ko: "응답 날짜",
+        en: "Response Date"
+    },
+    time_taken: {
+        ko: "소요 시간",
+        en: "Time Taken"
+    },
+    attribute: {
+        ko: "속성",
+        en: "Attribute"
+    },
+    panel: {
+        ko: "패널",
+        en: "Panel"
+    },
+    response_history: {
+        ko: "응답 내역",
+        en: "Response History"
+    },
+    draft: {
+        ko: "초안",
+        en: "Draft"
+    },
+    in_progress: {
+        ko: "진행중",
+        en: "In Progress"
+    },
+    complete: {
+        ko: "완성",
+        en: "Complete"
+    },
 
-    pub attribute_response: String,
-    pub number_of_replies: String,
-    pub number_of_skipped: String,
-    pub item: String,
-    pub reply: String,
-    pub total: String,
-}
+    response_summary: {
+        ko: "응답 요약",
+        en: "Response Summary"
+    },
+    total_number_of_responses: {
+        ko: "총 응답 수",
+        en: "Total Number of Responses"
+    },
+    completion_rate: {
+        ko: "완성률",
+        en: "Completion Rate"
+    },
+    normal_time_required: {
+        ko: "통상 소요 시간",
+        en: "Normal Time Required"
+    },
+    most_skipped_questions: {
+        ko: "가장 많이 건너뛴 질문",
+        en: "Most Skipped Questions"
+    },
+    response_attribute: {
+        ko: "응답 속성",
+        en: "Response Attribute"
+    },
 
-pub fn translate(lang: Language) -> ResponseReportTranslate {
-    match lang {
-        Language::En => ResponseReportTranslate {
-            survey_summary: "Survey Summary".to_string(),
-            individual_response: "Individual Response".to_string(),
-            response_report: "Response Report".to_string(),
-            response_download: "Response Download".to_string(),
-            total_respondents: "Total Respondents".to_string(),
-            respondent_type: "Respondent Type".to_string(),
-            status: "Status".to_string(),
-            final_update_date: "Response Date".to_string(),
-            time_taken: "Time Taken".to_string(),
-            attribute: "Attribute".to_string(),
-            panel: "Panel".to_string(),
-            response_history: "Response History".to_string(),
-            draft: "Draft".to_string(),
-            in_progress: "In Progress".to_string(),
-            complete: "Complete".to_string(),
-
-            response_summary: "Response Summary".to_string(),
-            total_number_of_responses: "Total Number of Responses".to_string(),
-            completion_rate: "Completion Rate".to_string(),
-            normal_time_required: "Normal Time Required".to_string(),
-            most_skipped_questions: "Most Skipped Questions".to_string(),
-            response_attribute: "Response Attribute".to_string(),
-
-            attribute_response: "Attribute Response".to_string(),
-            number_of_replies: "Number of Replies".to_string(),
-            number_of_skipped: "Number of Skipped".to_string(),
-            item: "Item".to_string(),
-            reply: "Reply".to_string(),
-            total: "Total".to_string(),
-        },
-        Language::Ko => ResponseReportTranslate {
-            survey_summary: "설문 요약".to_string(),
-            individual_response: "개별 응답".to_string(),
-            response_report: "응답 보고서".to_string(),
-            response_download: "응답 다운로드".to_string(),
-            total_respondents: "총 응답자".to_string(),
-            respondent_type: "응답자 유형".to_string(),
-            status: "상태".to_string(),
-            final_update_date: "응답 날짜".to_string(),
-            time_taken: "소요 시간".to_string(),
-            attribute: "속성".to_string(),
-            panel: "패널".to_string(),
-            response_history: "응답 내역".to_string(),
-            draft: "초안".to_string(),
-            in_progress: "진행중".to_string(),
-            complete: "완성".to_string(),
-
-            response_summary: "응답 요약".to_string(),
-            total_number_of_responses: "총 응답 수".to_string(),
-            completion_rate: "완성률".to_string(),
-            normal_time_required: "통상 소요 시간".to_string(),
-            most_skipped_questions: "가장 많이 건너뛴 질문".to_string(),
-            response_attribute: "응답 속성".to_string(),
-
-            attribute_response: "속성 응답".to_string(),
-            number_of_replies: "답변한 수".to_string(),
-            number_of_skipped: "건너뛴 수".to_string(),
-            item: "보기".to_string(),
-            reply: "응답".to_string(),
-            total: "총계".to_string(),
-        },
-    }
+    attribute_response: {
+        ko: "속성 응답",
+        en: "Attribute Response"
+    },
+    number_of_replies: {
+        ko: "답변한 수",
+        en: "Number of Replies"
+    },
+    number_of_skipped: {
+        ko: "건너뛴 수",
+        en: "Number of Skipped"
+    },
+    item: {
+        ko: "보기",
+        en: "Item"
+    },
+    reply: {
+        ko: "응답",
+        en: "Reply"
+    },
+    total: {
+        ko: "총계",
+        en: "Total"
+    },
 }

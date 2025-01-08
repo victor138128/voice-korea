@@ -1,12 +1,14 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
+use dioxus_translate::translate;
+use dioxus_translate::Language;
+use i18n::GroupTranslate;
 
 use crate::{
     components::{
         icons::{ArrowLeft, ArrowRight, Expand, Folder, RowOption, Search, Switch},
         label::Label,
     },
-    prelude::Language,
     routes::Route,
     service::popup_service::PopupService,
 };
@@ -50,7 +52,7 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
     let mut name = use_signal(|| "".to_string());
     let mut is_focused = use_signal(|| false);
     let mut modal_type = use_signal(|| ModalType::None);
-    let translates = i18n::translate(props.lang.clone());
+    let translates: GroupTranslate = translate(&props.lang);
 
     let mut clicked_group_id = use_signal(|| "".to_string());
 
@@ -71,16 +73,16 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                         clicked_group_id.set("".to_string());
                     },
                     i18n: UpdateGroupNameModalTranslates {
-                        update_group_name_info: translates.update_group_name_info,
-                        update_group_name_hint: translates.update_group_name_hint,
-                        update_group_name_warning: translates.update_group_name_warning,
-                        update: translates.update,
-                        cancel: translates.cancel,
+                        update_group_name_info: translates.update_group_name_info.to_string(),
+                        update_group_name_hint: translates.update_group_name_hint.to_string(),
+                        update_group_name_warning: translates.update_group_name_warning.to_string(),
+                        update: translates.update.to_string(),
+                        cancel: translates.cancel.to_string(),
                     },
                 }
             })
             .with_id("update_group")
-            .with_title(translates.update_group_name.as_str());
+            .with_title(translates.update_group_name);
     } else if let ModalType::RemoveGroup(_group_id) = modal_type() {
         popup
             .open(rsx! {
@@ -90,15 +92,15 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                         clicked_group_id.set("".to_string());
                     },
                     i18n: RemoveGroupModalTranslates {
-                        remove_warning: translates.remove_warning,
-                        remove_info: translates.remove_info,
-                        remove: translates.remove,
-                        cancel: translates.cancel,
+                        remove_warning: translates.remove_warning.to_string(),
+                        remove_info: translates.remove_info.to_string(),
+                        remove: translates.remove.to_string(),
+                        cancel: translates.cancel.to_string(),
                     },
                 }
             })
             .with_id("remove_group")
-            .with_title(translates.remove_group.as_str());
+            .with_title(translates.remove_group);
     } else {
         popup.close();
     }

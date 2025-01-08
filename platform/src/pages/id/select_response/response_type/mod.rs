@@ -4,6 +4,10 @@ use component::{select_attribute::SelectAttributePage, select_panel::SelectPanel
 use controller::Step;
 use dioxus::prelude::*;
 
+use dioxus_translate::translate;
+use dioxus_translate::Language;
+use i18n::SelectResponseDetailTranslate;
+
 #[derive(PartialEq, Props, Clone)]
 pub struct SelectResponseDetailProps {
     lang: Language,
@@ -21,7 +25,7 @@ pub mod component {
 #[component]
 pub fn SelectResponseDetailPage(props: SelectResponseDetailProps) -> Element {
     let ctrl = controller::Controller::init(props.lang, props.survey_id.clone());
-    let translates = i18n::translate(props.lang.clone());
+    let translates: SelectResponseDetailTranslate = translate(&props.lang.clone());
 
     rsx! {
         if let Step::Attribute = ctrl.get_step() {

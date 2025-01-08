@@ -1,12 +1,12 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
+use dioxus_translate::Language;
 
 use crate::{
     components::{button::Button, select::Select},
     models::survey::StatusType,
     pages::id::write_question::controller::{Controller, ObjectiveQuestionOption, QuestionStep},
-    prelude::Language,
 };
 
 #[derive(Props, Clone, PartialEq)]
@@ -52,17 +52,13 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
     let objective_questions = ctrl.get_objective_questions();
     rsx! {
         Fragment {
-            div {
-                class: "flex flex-row w-full h-[110px] rounded-[10px] bg-white mb-[10px]",
-                div {
-                    class: "flex flex-row w-full h-[110px] items-center justify-start text-[#2168c3] font-semibold text-[30px] pl-[30px]",
+            div { class: "flex flex-row w-full h-[110px] rounded-[10px] bg-white mb-[10px]",
+                div { class: "flex flex-row w-full h-[110px] items-center justify-start text-[#2168c3] font-semibold text-[30px] pl-[30px]",
                     "{survey.title}"
                 }
             }
-            div {
-                class: "flex flex-col w-full rounded-[10px] bg-white mb-[10px] p-[30px]",
-                div {
-                    class: "flex flex-row w-full",
+            div { class: "flex flex-col w-full rounded-[10px] bg-white mb-[10px] p-[30px]",
+                div { class: "flex flex-row w-full",
                     input {
                         class: "flex flex-1 text-[21px] text-[#8a8a8a] font-normal",
                         "type": "text",
@@ -82,12 +78,21 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                             ctrl.change_selected_question(data.parse::<u64>().unwrap_or(0));
                         },
                         component: rsx! {
-                            {questions.iter().map(|opt| {
-                                rsx! {
-                                    option { label: opt.label.clone(), value: opt.value.clone(), color: "#000000", selected: if opt.value.clone() == selected_question as i64 {true} else {false} }
-                                }
-                            })}
-                        }
+                            {
+                                questions
+                                    .iter()
+                                    .map(|opt| {
+                                        rsx! {
+                                            option {
+                                                label: opt.label.clone(),
+                                                value: opt.value.clone(),
+                                                color: "#000000",
+                                                selected: if opt.value.clone() == selected_question as i64 { true } else { false },
+                                            }
+                                        }
+                                    })
+                            }
+                        },
                     }
                 }
                 if selected_question == 0 {
@@ -102,8 +107,7 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                         enter_subject_enter_text: props.enter_subject_enter_text,
                     }
                 }
-                div {
-                    class: "flex flex-row w-full justify-between items-center mt-[30px]",
+                div { class: "flex flex-row w-full justify-between items-center mt-[30px]",
                     Button {
                         button_text: props.next_question,
                         onclick: move |_| async move {
@@ -113,8 +117,7 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
                         },
                         class: "flex flex-row w-[120px] h-[50px] bg-[#3a94ff]",
                     }
-                    div {
-                        class: "flex flex-row justify-center items-center",
+                    div { class: "flex flex-row justify-center items-center",
                         Button {
                             button_text: props.cancel_label,
                             onclick: move |_| {
@@ -143,12 +146,10 @@ pub fn QuestionInput(props: QuestionInputProps) -> Element {
 #[component]
 pub fn SubjectiveQuestion(props: SubjectiveQuestionProps) -> Element {
     rsx! {
-        div {
-            class: "flex flex-col w-full justify-center items-start mt-[30px]",
-            div {
-                class: "flex flex-row w-full justify-start items-center mb-[20px]",
+        div { class: "flex flex-col w-full justify-center items-start mt-[30px]",
+            div { class: "flex flex-row w-full justify-start items-center mb-[20px]",
                 input {
-                    type: "radio",
+                    r#type: "radio",
                     style: "height:18px; width:18px; vertical-align: middle",
                     name: "subjective",
                 }
@@ -166,16 +167,14 @@ pub fn SubjectiveQuestion(props: SubjectiveQuestionProps) -> Element {
 pub fn ObjectiveQuestion(props: ObjectiveQuestionProps) -> Element {
     let mut ctrl = props.ctrl;
     rsx! {
-        div {
-            class: "flex flex-col w-full justify-center items-start mt-[30px]",
-            div {
-                class: "flex flex-col w-full",
+        div { class: "flex flex-col w-full justify-center items-start mt-[30px]",
+            div { class: "flex flex-col w-full",
                 for i in 0..props.objective_questions.len() {
                     div {
                         key: format!("list-{:?}", i),
                         class: "flex flex-row w-full justify-start items-center mb-[20px]",
                         input {
-                            type: "radio",
+                            r#type: "radio",
                             style: "height:18px; width:18px; vertical-align: middle",
                             name: "objective",
                         }
@@ -199,10 +198,9 @@ pub fn ObjectiveQuestion(props: ObjectiveQuestionProps) -> Element {
                     }
                 }
             }
-            div {
-                class: "flex flex-row w-full justify-start items-center mb-[20px] mt-[10px]",
+            div { class: "flex flex-row w-full justify-start items-center mb-[20px] mt-[10px]",
                 input {
-                    type: "radio",
+                    r#type: "radio",
                     style: "height:18px; width:18px; vertical-align: middle",
                     name: "objective",
                 }
@@ -212,9 +210,7 @@ pub fn ObjectiveQuestion(props: ObjectiveQuestionProps) -> Element {
                         tracing::info!("this button clicked");
                         ctrl.add_objective_question();
                     },
-                    div {
-                        {props.add_option}
-                    }
+                    div { {props.add_option} }
                 }
             }
         }

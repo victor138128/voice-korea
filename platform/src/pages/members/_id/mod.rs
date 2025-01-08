@@ -1,13 +1,15 @@
 #![allow(non_snake_case)]
 use controller::{ProjectHistory, ProjectStatus, ProjectType};
 use dioxus::prelude::*;
+use dioxus_translate::translate;
+use dioxus_translate::Language;
+use i18n::MemberDetailTranslate;
 
 use crate::{
     components::{
         icons::{ArrowLeft, ArrowRight, ColOption, Expand, RowOption, Search, Switch},
         label::Label,
     },
-    prelude::Language,
     routes::Route,
     service::popup_service::PopupService,
 };
@@ -72,7 +74,7 @@ pub enum ModalType {
 #[component]
 pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
     let ctrl = controller::Controller::init(props.lang, props.member_id);
-    let translates = i18n::translate(props.lang.clone());
+    let translates: MemberDetailTranslate = translate(&props.lang.clone());
 
     let member = ctrl.get_member();
     let groups = ctrl.get_groups();
@@ -90,15 +92,15 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
                         modal_type.set(ModalType::None);
                     },
                     i18n: RemoveMemberModalTranslate {
-                        remove_info: translates.remove_member_info,
-                        remove_warning: translates.remove_member_warning,
-                        remove: translates.remove,
-                        cancel: translates.cancel,
+                        remove_info: translates.remove_member_info.to_string(),
+                        remove_warning: translates.remove_member_warning.to_string(),
+                        remove: translates.remove.to_string(),
+                        cancel: translates.cancel.to_string(),
                     },
                 }
             })
             .with_id("remove_team_member_title")
-            .with_title(translates.remove_team_member_title.as_str());
+            .with_title(translates.remove_team_member_title);
     } else if let ModalType::RemoveProject(_history_id) = modal_type() {
         popup
             .open(rsx! {
@@ -107,15 +109,15 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
                         modal_type.set(ModalType::None);
                     },
                     i18n: RemoveProjectModalTitle {
-                        remove_project_info: translates.remove_project_info,
-                        remove_project_warning: translates.remove_project_warning,
-                        cancel: translates.cancel,
-                        remove: translates.remove,
+                        remove_project_info: translates.remove_project_info.to_string(),
+                        remove_project_warning: translates.remove_project_warning.to_string(),
+                        cancel: translates.cancel.to_string(),
+                        remove: translates.remove.to_string(),
                     },
                 }
             })
             .with_id("remove_project_title")
-            .with_title(translates.remove_project_title.as_str());
+            .with_title(translates.remove_project_title);
     } else {
         popup.close();
     }
@@ -171,27 +173,27 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
                         total_roles: roles,
 
                         i18n: ProfileInfoTranslate {
-                            privacy: translates.privacy,
-                            name: translates.name,
-                            group: translates.group,
-                            role: translates.role.clone(),
-                            email: translates.email,
-                            save: translates.save,
-                            remove_team_member: translates.remove_team_member,
+                            privacy: translates.privacy.to_string(),
+                            name: translates.name.to_string(),
+                            group: translates.group.to_string(),
+                            role: translates.role.to_string(),
+                            email: translates.email.to_string(),
+                            save: translates.save.to_string(),
+                            remove_team_member: translates.remove_team_member.to_string(),
                         },
                     }
                 }
                 ProfileHistory {
                     histories: member.project_history,
                     i18n: ProfileHistoryTranslate {
-                        participation_record: translates.participation_record,
-                        item: translates.item,
-                        project: translates.project,
-                        role: translates.role.clone(),
-                        panel: translates.panel,
-                        period: translates.period,
-                        status: translates.status,
-                        search_info: translates.search_info,
+                        participation_record: translates.participation_record.to_string(),
+                        item: translates.item.to_string(),
+                        project: translates.project.to_string(),
+                        role: translates.role.to_string(),
+                        panel: translates.panel.to_string(),
+                        period: translates.period.to_string(),
+                        status: translates.status.to_string(),
+                        search_info: translates.search_info.to_string(),
                     },
                     change_popup_state: move |history_id: String| {
                         modal_type.set(ModalType::RemoveProject(history_id));

@@ -1,7 +1,5 @@
 use dioxus::prelude::*;
 
-use crate::prelude::Language;
-
 #[derive(Debug, Clone, PartialEq, Default)]
 pub enum ProjectType {
     #[default]
@@ -53,7 +51,7 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn init(_lang: Language, _group_id: String) -> Self {
+    pub fn init(_lang: dioxus_translate::Language, _group_id: String) -> Self {
         let mut ctrl = Self {
             group: use_signal(|| GroupDetail::default()),
             groups: use_signal(|| vec![]),

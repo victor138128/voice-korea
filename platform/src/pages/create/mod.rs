@@ -4,6 +4,10 @@ use dioxus::prelude::*;
 use step_four::StepFourPage;
 use step_three::StepThreePage;
 
+use dioxus_translate::translate;
+use dioxus_translate::Language;
+use i18n::CreateTranslate;
+
 #[derive(PartialEq, Props, Clone)]
 pub struct CreatePageProps {
     lang: Language,
@@ -24,26 +28,24 @@ pub mod step_two;
 #[component]
 pub fn CreatePage(props: CreatePageProps) -> Element {
     let mut ctrl = controller::Controller::init();
-    let translates = i18n::translate(props.lang.clone());
+    let translates: CreateTranslate = translate(&props.lang.clone());
     let num_step = 2;
 
     rsx! {
         div {
             class: "flex flex-col w-full h-full px-[120px] pt-[55px]",
             style: "background-color: white",
-            div {
-                class: "flex flex-row w-full px-[10px] pb-[40px]",
+            div { class: "flex flex-row w-full px-[10px] pb-[40px]",
                 Link {
                     to: Route::LoginPage {
                         lang: props.lang.clone(),
                     },
                     img {
                         src: asset!("/public/images/close.png"),
-                        alt: "Close Button"
+                        alt: "Close Button",
                     }
                 }
-                div {
-                    class: "flex flex-row items-center justify-center w-min pl-[40px]",
+                div { class: "flex flex-row items-center justify-center w-min pl-[40px]",
                     for i in 0..num_step {
                         if i == ctrl.get_step() {
                             div {
@@ -52,7 +54,7 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
                                 },
                                 img {
                                     src: asset!("/public/images/current-step.png"),
-                                    alt: "Current Step"
+                                    alt: "Current Step",
                                 }
                             }
                         } else if i < ctrl.get_step() {
@@ -62,27 +64,23 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
                                 },
                                 img {
                                     src: asset!("/public/images/prev-step.png"),
-                                    alt: "Prev Step"
+                                    alt: "Prev Step",
                                 }
                             }
                         } else {
                             div {
                                 img {
                                     src: asset!("/public/images/not-current-step.png"),
-                                    alt: "Next Step"
+                                    alt: "Next Step",
                                 }
                             }
                         }
 
                         if i != num_step - 1 {
                             if i < ctrl.get_step() {
-                                div {
-                                    class: "flex items-center justify-center w-[80px] h-[1px] bg-[#2168c3]"
-                                }
+                                div { class: "flex items-center justify-center w-[80px] h-[1px] bg-[#2168c3]" }
                             } else {
-                                div {
-                                    class: "flex items-center justify-center w-[80px] h-[1px] bg-[#e0e0e0]"
-                                }
+                                div { class: "flex items-center justify-center w-[80px] h-[1px] bg-[#e0e0e0]" }
                             }
                         }
                     }
@@ -119,13 +117,16 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
             // }
             if ctrl.get_step() == 0 {
                 StepThreePage {
-                    ctrl: ctrl,
+                    ctrl,
                     lang: props.lang,
                     join_the_membership: translates.join_the_membership,
                     email_address: translates.email_address,
                     send_authentication: translates.send_authentication,
                     authentication_number: translates.authentication_number,
-                    authentication_descriptions: vec![translates.authentication_description_1, translates.authentication_description_2],
+                    authentication_descriptions: vec![
+                        translates.authentication_description_1.to_string(),
+                        translates.authentication_description_2.to_string(),
+                    ],
                     company_info: translates.company_info,
                     company_example: translates.company_example,
                     name_info: translates.name_info,
@@ -137,7 +138,11 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
                     address_info: translates.address_info,
                     search_address: translates.search_address,
                     check_title: translates.check_title,
-                    check_membership_descriptions: vec![translates.check_membership_description_1, translates.check_membership_description_2, translates.check_membership_description_3],
+                    check_membership_descriptions: vec![
+                        translates.check_membership_description_1.to_string(),
+                        translates.check_membership_description_2.to_string(),
+                        translates.check_membership_description_3.to_string(),
+                    ],
                     complete_join_membership: translates.complete_join_membership,
 
                     invalid_password_pattern: translates.invalid_password_pattern,
@@ -150,7 +155,7 @@ pub fn CreatePage(props: CreatePageProps) -> Element {
                 }
             } else {
                 StepFourPage {
-                    ctrl: ctrl,
+                    ctrl,
                     lang: props.lang,
                     complete_join_membership_info: translates.complete_join_membership_info,
                     email_address: translates.email_address,
