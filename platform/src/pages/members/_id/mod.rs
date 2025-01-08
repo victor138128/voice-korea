@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 use controller::{ProjectHistory, ProjectStatus, ProjectType};
 use dioxus::prelude::*;
-use dioxus_popup::PopupService;
 
 use crate::{
     components::{
@@ -10,6 +9,7 @@ use crate::{
     },
     prelude::Language,
     routes::Route,
+    service::popup_service::PopupService,
 };
 
 use super::RemoveMemberModalTranslate;
@@ -467,7 +467,7 @@ pub fn RemoveProjectModal(
 ) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
-            div { class: "flex flex-col text-white font-normal text-[14px] gap-[5px]",
+            div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px]",
                 div { {i18n.remove_project_info} }
                 div { {i18n.remove_project_warning} }
             }
@@ -478,7 +478,7 @@ pub fn RemoveProjectModal(
                     div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
@@ -496,7 +496,7 @@ pub fn RemoveMemberModal(
 ) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
-            div { class: "flex flex-col text-white font-normal text-[14px] gap-[5px]",
+            div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px]",
                 div { {i18n.remove_info} }
                 div { {i18n.remove_warning} }
             }
@@ -507,7 +507,7 @@ pub fn RemoveMemberModal(
                     div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },

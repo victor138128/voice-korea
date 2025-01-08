@@ -1,6 +1,5 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
-use dioxus_popup::PopupService;
 
 use crate::{
     components::{
@@ -9,6 +8,7 @@ use crate::{
     },
     prelude::Language,
     routes::Route,
+    service::popup_service::PopupService,
 };
 
 pub mod _id;
@@ -359,7 +359,7 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                                             }
                                             nav {
                                                 tabindex: "0",
-                                                class: "border-2 bg-white invisible border-none shadow-lg rounded w-60 absolute left-0 top-full transition-all opacity-0 group-focus-within:visible group-focus-within:opacity-100 group-focus-within:translate-y-1 group-focus-within:z-20",
+                                                class: "border-2 bg-white invisible border-none shadow-lg rounded w-60 absolute right-0 top-full transition-all opacity-0 group-focus-within:visible group-focus-within:opacity-100 group-focus-within:translate-y-1 group-focus-within:z-20",
                                                 ul { class: "py-1",
                                                     li {
                                                         class: "p-3 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer",
@@ -410,7 +410,7 @@ pub fn RemoveMemberModal(
 ) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
-            div { class: "flex flex-col text-white font-normal text-[14px] gap-[5px]",
+            div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px]",
                 div { {i18n.remove_info} }
                 div { {i18n.remove_warning} }
             }
@@ -421,7 +421,7 @@ pub fn RemoveMemberModal(
                     div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
@@ -440,10 +440,8 @@ pub fn AddMemberModal(
     i18n: AddMemberModalTranslate,
 ) -> Element {
     let mut email = use_signal(|| "".to_string());
-    let mut email_focused = use_signal(|| false);
 
     let mut name = use_signal(|| "".to_string());
-    let mut name_focused = use_signal(|| false);
 
     let mut select_role = use_signal(|| "".to_string());
     let mut select_group = use_signal(|| "".to_string());
@@ -452,80 +450,48 @@ pub fn AddMemberModal(
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "flex flex-row w-full mb-[16px]",
                 div { class: "text-[#eb5757] font-semibold text-[14px] mr-[5px]", {i18n.necessary} }
-                div { class: "text-white font-semibold text-[14px]", {i18n.enter_email_address} }
+                div { class: "text-[#222222] font-semibold text-[14px]", {i18n.enter_email_address} }
             }
-            div {
-                class: format!(
-                    "flex flex-row w-full h-[45px] justify-between items-center rounded-lg  {} px-[11px] py-[13px]",
-                    if (email_focused)() {
-                        "bg-[#2c2e42] border border-[#2a60d3]"
-                    } else {
-                        "bg-[#2c2e42]"
-                    },
-                ),
-                input {
-                    class: "flex flex-row w-full h-full bg-transparent focus:outline-none",
-                    r#type: "text",
-                    placeholder: i18n.enter_email_address_hint,
-                    value: (email)(),
-                    onfocus: move |_| {
-                        email_focused.set(true);
-                    },
-                    onblur: move |_| {
-                        email_focused.set(false);
-                    },
-                    oninput: move |event| {
-                        email.set(event.value());
-                    },
-                }
+            input {
+                class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
+                r#type: "text",
+                placeholder: i18n.enter_email_address_hint,
+                value: (email)(),
+                oninput: move |event| {
+                    email.set(event.value());
+                },
             }
             div { class: "font-normal text-[#6f6f6f] text-[13px] mt-[5px] mb-[40px]",
                 {i18n.email_format_info}
             }
             div { class: "flex flex-col w-full justify-start itmes-start",
-                div { class: "font-medium text-[15px] text-white mb-[16px]", "개인정보" }
+                div { class: "font-medium text-[15px] text-[#222222] mb-[16px]", "개인정보" }
                 div { class: "flex flex-col w-full justify-start items-start border border-[#bfc8d9] rounded-lg p-[24px]",
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
                             div { class: "text-[#eb5757] font-medium text-[15px] mr-[3px]",
                                 "*"
                             }
-                            div { class: "text-white font-medium text-[15px] mr-[3px] w-[40px]",
+                            div { class: "text-[#222222] font-medium text-[15px] mr-[3px] w-[40px]",
                                 {i18n.name}
                             }
                         }
-                        div {
-                            class: format!(
-                                "flex flex-row w-full h-[45px] justify-between items-center rounded-lg  {} px-[11px] py-[13px]",
-                                if (name_focused)() {
-                                    "bg-[#2c2e42] border border-[#2a60d3]"
-                                } else {
-                                    "bg-[#2c2e42]"
-                                },
-                            ),
-                            input {
-                                class: "flex flex-row w-full h-full bg-transparent focus:outline-none",
-                                r#type: "text",
-                                placeholder: i18n.necessary_input,
-                                value: (name)(),
-                                onfocus: move |_| {
-                                    name_focused.set(true);
-                                },
-                                onblur: move |_| {
-                                    name_focused.set(false);
-                                },
-                                oninput: move |event| {
-                                    name.set(event.value());
-                                },
-                            }
+                        input {
+                            class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
+                            r#type: "text",
+                            placeholder: i18n.necessary_input,
+                            value: (name)(),
+                            oninput: move |event| {
+                                name.set(event.value());
+                            },
                         }
                     }
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
-                        div { class: "text-white font-medium text-[15px] mr-[3px] w-[60px]",
+                        div { class: "text-[#222222] font-medium text-[15px] mr-[3px] w-[60px]",
                             {i18n.role}
                         }
                         select {
-                            class: "focus:outline-none w-full h-[45px] bg-[#2c2e42] rounded-lg px-[5px] text-[#9b9b9b]",
+                            class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
                             value: select_role(),
                             onchange: move |evt| {
                                 select_role.set(evt.value());
@@ -547,11 +513,11 @@ pub fn AddMemberModal(
                         }
                     }
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
-                        div { class: "text-white font-medium text-[15px] mr-[3px] w-[60px]",
+                        div { class: "text-[#222222] font-medium text-[15px] mr-[3px] w-[60px]",
                             {i18n.group}
                         }
                         select {
-                            class: "focus:outline-none w-full h-[45px] bg-[#2c2e42] rounded-lg px-[5px] text-[#9b9b9b]",
+                            class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
                             value: select_group(),
                             //TODO: update member group
                             onchange: move |evt| {
@@ -576,23 +542,23 @@ pub fn AddMemberModal(
                 }
             }
             div { class: "flex flex-col w-full justify-start items-start mt-[40px]",
-                div { class: "font-medium text-[15px] text-white mb-[16px]", "프로젝트 초대" }
+                div { class: "font-medium text-[15px] text-[#222222] mb-[16px]", "프로젝트 초대" }
                 div { class: "flex flex-col w-full justify-start items-start border border-[#bfc8d9] rounded-lg p-[24px]",
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
-                            div { class: "text-white font-medium text-[15px] mr-[3px] w-[40px]",
+                            div { class: "text-[#222222] font-medium text-[15px] mr-[3px] w-[40px]",
                                 {i18n.public_opinion}
                             }
                         }
-                        div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#2c2e42] rounded-lg " }
+                        div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#f7f7f7] rounded-lg " }
                     }
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
-                            div { class: "text-white font-medium text-[15px] mr-[3px] w-[40px]",
+                            div { class: "text-[#222222] font-medium text-[15px] mr-[3px] w-[40px]",
                                 {i18n.investigation}
                             }
                         }
-                        div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#2c2e42] rounded-lg " }
+                        div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#f7f7f7] rounded-lg " }
                     }
                 }
             }
@@ -604,7 +570,7 @@ pub fn AddMemberModal(
                     div { class: "text-white font-bold text-[16px]", {i18n.invite} }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },

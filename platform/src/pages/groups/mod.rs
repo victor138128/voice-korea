@@ -8,9 +8,8 @@ use crate::{
     },
     prelude::Language,
     routes::Route,
+    service::popup_service::PopupService,
 };
-
-use dioxus_popup::PopupService;
 
 pub mod _id;
 mod controller;
@@ -331,13 +330,13 @@ pub fn UpdateGroupNameModal(
     let mut group_name = use_signal(|| "".to_string());
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
-            div { class: "flex flex-col text-[white] font-normal text-[14px] gap-[5px] mb-[40px]",
+            div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px] mb-[40px]",
                 {i18n.update_group_name_info}
             }
             div { class: "flex flex-col w-full justify-start items-start",
-                div { class: "font-semibold text-[14px] text-[white] mb-[16px]", "그룹명" }
+                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]", "그룹명" }
                 input {
-                    class: "flex flex-row w-full h-[45px] bg-[#2c2e42] rounded-sm focus:outline-none px-[15px] items-center mb-[5px] text-[#404761]",
+                    class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
                     r#type: "text",
                     placeholder: i18n.update_group_name_hint,
                     value: (group_name)(),
@@ -345,7 +344,9 @@ pub fn UpdateGroupNameModal(
                         group_name.set(event.value());
                     },
                 }
-                div { class: "font-normal text-[13px] text-[white]", {i18n.update_group_name_warning} }
+                div { class: "font-normal text-[13px] text-[#222222]",
+                    {i18n.update_group_name_warning}
+                }
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
@@ -354,7 +355,7 @@ pub fn UpdateGroupNameModal(
                     div { class: "text-white font-bold text-[16px]", {i18n.update} }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[white] justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
@@ -372,7 +373,7 @@ pub fn RemoveGroupModal(
 ) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start ",
-            div { class: "flex flex-col text-white font-normal text-[14px] gap-[5px]",
+            div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px]",
                 div { {i18n.remove_warning} }
                 div { {i18n.remove_info} }
             }
@@ -383,7 +384,7 @@ pub fn RemoveGroupModal(
                     div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[white] justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
