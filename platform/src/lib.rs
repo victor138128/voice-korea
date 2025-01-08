@@ -27,8 +27,9 @@ pub mod pages {
 }
 
 pub mod service {
+    pub mod group_api;
     pub mod login_service;
-    pub mod popup_service;
+    pub mod member_api;
 }
 
 pub mod models {

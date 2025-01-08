@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use controller::{ProjectHistory, ProjectStatus, ProjectType};
 use dioxus::prelude::*;
+use dioxus_popup::PopupService;
 
 use crate::{
     components::{
@@ -9,7 +10,6 @@ use crate::{
     },
     prelude::Language,
     routes::Route,
-    service::popup_service::PopupService,
 };
 
 use super::RemoveMemberModalTranslate;
@@ -83,9 +83,8 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
     let mut popup: PopupService = use_context();
 
     if ModalType::RemoveMember == modal_type() {
-        popup.open(
-            translates.remove_team_member_title,
-            rsx! {
+        popup
+            .open(rsx! {
                 RemoveMemberModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
@@ -97,12 +96,12 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
                         cancel: translates.cancel,
                     },
                 }
-            },
-        );
+            })
+            .with_id("remove_team_member_title")
+            .with_title(translates.remove_team_member_title.as_str());
     } else if let ModalType::RemoveProject(_history_id) = modal_type() {
-        popup.open(
-            translates.remove_project_title,
-            rsx! {
+        popup
+            .open(rsx! {
                 RemoveProjectModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
@@ -114,8 +113,9 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
                         remove: translates.remove,
                     },
                 }
-            },
-        );
+            })
+            .with_id("remove_project_title")
+            .with_title(translates.remove_project_title.as_str());
     } else {
         popup.close();
     }
@@ -466,8 +466,8 @@ pub fn RemoveProjectModal(
     i18n: RemoveProjectModalTitle,
 ) -> Element {
     rsx! {
-        div { class: "flex flex-col w-full justify-start items-start mt-[60px]",
-            div { class: "flex flex-col text-[#3a3a3a] font-normal text-[14px] gap-[5px]",
+        div { class: "flex flex-col w-full justify-start items-start",
+            div { class: "flex flex-col text-white font-normal text-[14px] gap-[5px]",
                 div { {i18n.remove_project_info} }
                 div { {i18n.remove_project_warning} }
             }
@@ -478,7 +478,7 @@ pub fn RemoveProjectModal(
                     div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
@@ -495,8 +495,8 @@ pub fn RemoveMemberModal(
     i18n: RemoveMemberModalTranslate,
 ) -> Element {
     rsx! {
-        div { class: "flex flex-col w-full justify-start items-start mt-[60px]",
-            div { class: "flex flex-col text-[#3a3a3a] font-normal text-[14px] gap-[5px]",
+        div { class: "flex flex-col w-full justify-start items-start",
+            div { class: "flex flex-col text-white font-normal text-[14px] gap-[5px]",
                 div { {i18n.remove_info} }
                 div { {i18n.remove_warning} }
             }
@@ -507,7 +507,7 @@ pub fn RemoveMemberModal(
                     div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },

@@ -11,8 +11,9 @@ use crate::{
     },
     prelude::Language,
     routes::Route,
-    service::popup_service::PopupService,
 };
+
+use dioxus_popup::PopupService;
 pub mod controller;
 pub mod i18n;
 
@@ -67,61 +68,61 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
     let mut modal_type = use_signal(|| ModalType::None);
     let mut popup: PopupService = use_context();
     if ModalType::UpdateGroupName == modal_type() {
-        popup.open(
-            "그룹명 수정하기".to_string(),
-            rsx! {
+        popup
+            .open(rsx! {
                 UpdateGroupNameModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
                     },
                 }
-            },
-        );
+            })
+            .with_id("update_group_name")
+            .with_title("그룹명 수정하기");
     } else if ModalType::RemoveGroup == modal_type() {
-        popup.open(
-            "그룹 삭제".to_string(),
-            rsx! {
+        popup
+            .open(rsx! {
                 RemoveGroupModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
                     },
                 }
-            },
-        );
+            })
+            .with_id("remove_group")
+            .with_title("그룹 삭제");
     } else if ModalType::RemoveMember == modal_type() {
-        popup.open(
-            "팀원 삭제".to_string(),
-            rsx! {
+        popup
+            .open(rsx! {
                 RemoveMemberModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
                     },
                 }
-            },
-        );
+            })
+            .with_id("remove_team_member")
+            .with_title("팀원 삭제");
     } else if ModalType::AddMember == modal_type() {
-        popup.open(
-            "팀원 추가하기".to_string(),
-            rsx! {
+        popup
+            .open(rsx! {
                 AddMemberModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
                     },
                     roles: total_roles.clone(),
                 }
-            },
-        );
+            })
+            .with_id("add_team_member")
+            .with_title("팀원 추가하기");
     } else if ModalType::RemoveProject == modal_type() {
-        popup.open(
-            "프로젝트 삭제".to_string(),
-            rsx! {
+        popup
+            .open(rsx! {
                 RemoveProjectModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
                     },
                 }
-            },
-        );
+            })
+            .with_id("remove_project")
+            .with_title("프로젝트 삭제");
     } else {
         popup.close();
     }
@@ -531,8 +532,8 @@ pub fn GroupParticipant(
 #[component]
 pub fn RemoveProjectModal(onclose: EventHandler<MouseEvent>) -> Element {
     rsx! {
-        div { class: "flex flex-col w-full justify-start items-start mt-[60px]",
-            div { class: "flex flex-col text-[#3a3a3a] font-normal text-[14px] gap-[5px]",
+        div { class: "flex flex-col w-full justify-start items-start",
+            div { class: "flex flex-col text-white font-normal text-[14px] gap-[5px]",
                 div { "정말 삭제하시겠습니까?" }
                 div {
                     "삭제된 프로젝트는 복원할 수 없습니다. 삭제 전에 다시 한번 확인해주세요."
@@ -545,7 +546,7 @@ pub fn RemoveProjectModal(onclose: EventHandler<MouseEvent>) -> Element {
                     div { class: "text-white font-bold text-[16px]", "삭제하기" }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
@@ -559,8 +560,8 @@ pub fn RemoveProjectModal(onclose: EventHandler<MouseEvent>) -> Element {
 #[component]
 pub fn RemoveMemberModal(onclose: EventHandler<MouseEvent>) -> Element {
     rsx! {
-        div { class: "flex flex-col w-full justify-start items-start mt-[60px]",
-            div { class: "flex flex-col text-[#3a3a3a] font-normal text-[14px] gap-[5px]",
+        div { class: "flex flex-col w-full justify-start items-start",
+            div { class: "flex flex-col text-white font-normal text-[14px] gap-[5px]",
                 div { "정말 삭제하시겠습니까?" }
                 div {
                     "삭제된 팀원은 복원할 수 없습니다. 삭제 전에 다시 한번 확인해주세요."
@@ -573,7 +574,7 @@ pub fn RemoveMemberModal(onclose: EventHandler<MouseEvent>) -> Element {
                     div { class: "text-white font-bold text-[16px]", "삭제하기" }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
@@ -588,14 +589,14 @@ pub fn RemoveMemberModal(onclose: EventHandler<MouseEvent>) -> Element {
 pub fn UpdateGroupNameModal(onclose: EventHandler<MouseEvent>) -> Element {
     let mut group_name = use_signal(|| "".to_string());
     rsx! {
-        div { class: "flex flex-col w-full justify-start items-start mt-[40px]",
-            div { class: "flex flex-col text-[#3a3a3a] font-normal text-[14px] gap-[5px] mb-[40px]",
+        div { class: "flex flex-col w-full justify-start items-start",
+            div { class: "flex flex-col text-white font-normal text-[14px] gap-[5px] mb-[40px]",
                 "그룹명은 한 번 수정하면 되돌릴 수 없습니다."
             }
             div { class: "flex flex-col w-full justify-start items-start",
-                div { class: "font-semibold text-[14px] text-[#3a3a3a] mb-[16px]", "그룹명" }
+                div { class: "font-semibold text-[14px] text-white mb-[16px]", "그룹명" }
                 input {
-                    class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none px-[15px] items-center mb-[5px]",
+                    class: "flex flex-row w-full h-[45px] bg-[#2c2e42] rounded-sm focus:outline-none px-[15px] items-center mb-[5px] text-[#404761]",
                     r#type: "text",
                     placeholder: "그룹명을 입력해주세요.".to_string(),
                     value: (group_name)(),
@@ -603,7 +604,7 @@ pub fn UpdateGroupNameModal(onclose: EventHandler<MouseEvent>) -> Element {
                         group_name.set(event.value());
                     },
                 }
-                div { class: "font-normal text-[13px] text-[#3a3a3a]",
+                div { class: "font-normal text-[13px] text-white",
                     "중복 입력은 허용되지 않으며, 최소 2글자 이상 입력해야 합니다."
                 }
             }
@@ -614,7 +615,7 @@ pub fn UpdateGroupNameModal(onclose: EventHandler<MouseEvent>) -> Element {
                     div { class: "text-white font-bold text-[16px]", "삭제하기" }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
@@ -628,8 +629,8 @@ pub fn UpdateGroupNameModal(onclose: EventHandler<MouseEvent>) -> Element {
 #[component]
 pub fn RemoveGroupModal(onclose: EventHandler<MouseEvent>) -> Element {
     rsx! {
-        div { class: "flex flex-col w-full justify-start items-start mt-[40px]",
-            div { class: "flex flex-col text-[#3a3a3a] font-normal text-[14px] gap-[5px]",
+        div { class: "flex flex-col w-full justify-start items-start",
+            div { class: "flex flex-col text-white font-normal text-[14px] gap-[5px]",
                 div { "정말 삭제하시겠습니까?" }
                 div {
                     "그룹을 삭제해도 팀원들은 유지되지만, 팀원들의 그룹 설정을 다시 해야합니다."
@@ -642,7 +643,7 @@ pub fn RemoveGroupModal(onclose: EventHandler<MouseEvent>) -> Element {
                     div { class: "text-white font-bold text-[16px]", "삭제하기" }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
@@ -664,20 +665,18 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
     let mut select_role = use_signal(|| "".to_string());
 
     rsx! {
-        div { class: "flex flex-col w-full justify-start items-start mt-[60px]",
+        div { class: "flex flex-col w-full justify-start items-start",
             div { class: "flex flex-row w-full mb-[16px]",
                 div { class: "text-[#eb5757] font-semibold text-[14px] mr-[5px]", "*[필수]" }
-                div { class: "text-[#3a3a3a] font-semibold text-[14px]",
-                    "이메일 주소 입력하기"
-                }
+                div { class: "text-white font-semibold text-[14px]", "이메일 주소 입력하기" }
             }
             div {
                 class: format!(
                     "flex flex-row w-full h-[45px] justify-between items-center rounded-lg  {} px-[11px] py-[13px]",
                     if (email_focused)() {
-                        "bg-[#ffffff] border border-[#2a60d3]"
+                        "bg-[#2c2e42] border border-[#2a60d3]"
                     } else {
-                        "bg-[#f7f7f7]"
+                        "bg-[#2c2e42]"
                     },
                 ),
                 input {
@@ -700,14 +699,14 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
                 "이메일 형식은 e.g voicekorea@company.com 으로 입력해주세요."
             }
             div { class: "flex flex-col w-full justify-start itmes-start",
-                div { class: "font-medium text-[15px] text-[#3a3a3a] mb-[16px]", "개인정보" }
+                div { class: "font-medium text-[15px] text-white mb-[16px]", "개인정보" }
                 div { class: "flex flex-col w-full justify-start items-start border border-[#bfc8d9] rounded-lg p-[24px]",
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
                             div { class: "text-[#eb5757] font-medium text-[15px] mr-[3px]",
                                 "*"
                             }
-                            div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[40px]",
+                            div { class: "text-white font-medium text-[15px] mr-[3px] w-[40px]",
                                 "이름"
                             }
                         }
@@ -715,9 +714,9 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
                             class: format!(
                                 "flex flex-row w-full h-[45px] justify-between items-center rounded-lg  {} px-[11px] py-[13px]",
                                 if (name_focused)() {
-                                    "bg-[#ffffff] border border-[#2a60d3]"
+                                    "bg-[#2c2e42] border border-[#2a60d3]"
                                 } else {
-                                    "bg-[#f7f7f7]"
+                                    "bg-[#2c2e42]"
                                 },
                             ),
                             input {
@@ -738,11 +737,11 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
                         }
                     }
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
-                        div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[60px]",
+                        div { class: "text-white font-medium text-[15px] mr-[3px] w-[60px]",
                             "역할"
                         }
                         select {
-                            class: "focus:outline-none w-full h-[45px] bg-[#f7f7f7] rounded-lg px-[5px] text-[#9b9b9b]",
+                            class: "focus:outline-none w-full h-[45px] bg-[#2c2e42] rounded-lg px-[5px] text-[#9b9b9b]",
                             value: select_role(),
                             onchange: move |evt| {
                                 select_role.set(evt.value());
@@ -766,23 +765,23 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
                 }
             }
             div { class: "flex flex-col w-full justify-start items-start mt-[40px]",
-                div { class: "font-medium text-[15px] text-[#3a3a3a] mb-[16px]", "프로젝트 초대" }
+                div { class: "font-medium text-[15px] text-white mb-[16px]", "프로젝트 초대" }
                 div { class: "flex flex-col w-full justify-start items-start border border-[#bfc8d9] rounded-lg p-[24px]",
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
-                            div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[40px]",
+                            div { class: "text-white font-medium text-[15px] mr-[3px] w-[40px]",
                                 "공론"
                             }
                         }
-                        div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#f7f7f7] rounded-lg " }
+                        div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#2c2e42] rounded-lg " }
                     }
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
-                            div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[40px]",
+                            div { class: "text-white font-medium text-[15px] mr-[3px] w-[40px]",
                                 "조사"
                             }
                         }
-                        div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#f7f7f7] rounded-lg " }
+                        div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#2c2e42] rounded-lg " }
                     }
                 }
             }
@@ -794,7 +793,7 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
                     div { class: "text-white font-bold text-[16px]", "초대하기" }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },

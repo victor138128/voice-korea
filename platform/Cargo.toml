@@ -1,6 +1,6 @@
 [package]
 name = "platform"
-version = "0.1.16"
+version = "0.1.17"
 authors = ["victor138128 <yepp0517@naver.com>"]
 edition = "2021"
 
@@ -15,6 +15,7 @@ dioxus = { version = "0.6.0", features = [
 ] }
 chrono = "0.4"
 dioxus-aws = { version = "0.6.13" }
+dioxus-popup = { version = "0.1.0" }
 reqwest = { version = "0.12.5", features = ["blocking", "json"] }
 dioxus-logger = "0.5.1"
 easy-dynamodb = { version = "0.1.6", optional = true }

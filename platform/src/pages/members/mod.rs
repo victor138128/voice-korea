@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
+use dioxus_popup::PopupService;
 
 use crate::{
     components::{
@@ -8,7 +9,6 @@ use crate::{
     },
     prelude::Language,
     routes::Route,
-    service::popup_service::PopupService,
 };
 
 pub mod _id;
@@ -77,9 +77,8 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
     let mut projects_extended = use_signal(|| vec![false; member_len]);
 
     if let ModalType::RemoveMember(_member_id) = modal_type() {
-        popup.open(
-            translates.remove_team_member,
-            rsx! {
+        popup
+            .open(rsx! {
                 RemoveMemberModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
@@ -92,12 +91,12 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                         cancel: translates.cancel,
                     },
                 }
-            },
-        );
+            })
+            .with_id("remove_team_member")
+            .with_title(translates.remove_team_member.as_str());
     } else if modal_type() == ModalType::AddMember {
-        popup.open(
-            translates.add_team_member.clone(),
-            rsx! {
+        popup
+            .open(rsx! {
                 AddMemberModal {
                     groups: groups.clone(),
                     roles: roles.clone(),
@@ -122,8 +121,9 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                         cancel: translates.cancel,
                     },
                 }
-            },
-        );
+            })
+            .with_id("add_team_member")
+            .with_title(translates.add_team_member.as_str());
     } else {
         popup.close();
     }
@@ -409,8 +409,8 @@ pub fn RemoveMemberModal(
     i18n: RemoveMemberModalTranslate,
 ) -> Element {
     rsx! {
-        div { class: "flex flex-col w-full justify-start items-start mt-[60px]",
-            div { class: "flex flex-col text-[#3a3a3a] font-normal text-[14px] gap-[5px]",
+        div { class: "flex flex-col w-full justify-start items-start",
+            div { class: "flex flex-col text-white font-normal text-[14px] gap-[5px]",
                 div { {i18n.remove_info} }
                 div { {i18n.remove_warning} }
             }
@@ -421,7 +421,7 @@ pub fn RemoveMemberModal(
                     div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
@@ -449,18 +449,18 @@ pub fn AddMemberModal(
     let mut select_group = use_signal(|| "".to_string());
 
     rsx! {
-        div { class: "flex flex-col w-full justify-start items-start mt-[60px]",
+        div { class: "flex flex-col w-full justify-start items-start",
             div { class: "flex flex-row w-full mb-[16px]",
                 div { class: "text-[#eb5757] font-semibold text-[14px] mr-[5px]", {i18n.necessary} }
-                div { class: "text-[#3a3a3a] font-semibold text-[14px]", {i18n.enter_email_address} }
+                div { class: "text-white font-semibold text-[14px]", {i18n.enter_email_address} }
             }
             div {
                 class: format!(
                     "flex flex-row w-full h-[45px] justify-between items-center rounded-lg  {} px-[11px] py-[13px]",
                     if (email_focused)() {
-                        "bg-[#ffffff] border border-[#2a60d3]"
+                        "bg-[#2c2e42] border border-[#2a60d3]"
                     } else {
-                        "bg-[#f7f7f7]"
+                        "bg-[#2c2e42]"
                     },
                 ),
                 input {
@@ -483,14 +483,14 @@ pub fn AddMemberModal(
                 {i18n.email_format_info}
             }
             div { class: "flex flex-col w-full justify-start itmes-start",
-                div { class: "font-medium text-[15px] text-[#3a3a3a] mb-[16px]", "개인정보" }
+                div { class: "font-medium text-[15px] text-white mb-[16px]", "개인정보" }
                 div { class: "flex flex-col w-full justify-start items-start border border-[#bfc8d9] rounded-lg p-[24px]",
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
                             div { class: "text-[#eb5757] font-medium text-[15px] mr-[3px]",
                                 "*"
                             }
-                            div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[40px]",
+                            div { class: "text-white font-medium text-[15px] mr-[3px] w-[40px]",
                                 {i18n.name}
                             }
                         }
@@ -498,9 +498,9 @@ pub fn AddMemberModal(
                             class: format!(
                                 "flex flex-row w-full h-[45px] justify-between items-center rounded-lg  {} px-[11px] py-[13px]",
                                 if (name_focused)() {
-                                    "bg-[#ffffff] border border-[#2a60d3]"
+                                    "bg-[#2c2e42] border border-[#2a60d3]"
                                 } else {
-                                    "bg-[#f7f7f7]"
+                                    "bg-[#2c2e42]"
                                 },
                             ),
                             input {
@@ -521,11 +521,11 @@ pub fn AddMemberModal(
                         }
                     }
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
-                        div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[60px]",
+                        div { class: "text-white font-medium text-[15px] mr-[3px] w-[60px]",
                             {i18n.role}
                         }
                         select {
-                            class: "focus:outline-none w-full h-[45px] bg-[#f7f7f7] rounded-lg px-[5px] text-[#9b9b9b]",
+                            class: "focus:outline-none w-full h-[45px] bg-[#2c2e42] rounded-lg px-[5px] text-[#9b9b9b]",
                             value: select_role(),
                             onchange: move |evt| {
                                 select_role.set(evt.value());
@@ -547,11 +547,11 @@ pub fn AddMemberModal(
                         }
                     }
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
-                        div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[60px]",
+                        div { class: "text-white font-medium text-[15px] mr-[3px] w-[60px]",
                             {i18n.group}
                         }
                         select {
-                            class: "focus:outline-none w-full h-[45px] bg-[#f7f7f7] rounded-lg px-[5px] text-[#9b9b9b]",
+                            class: "focus:outline-none w-full h-[45px] bg-[#2c2e42] rounded-lg px-[5px] text-[#9b9b9b]",
                             value: select_group(),
                             //TODO: update member group
                             onchange: move |evt| {
@@ -576,23 +576,23 @@ pub fn AddMemberModal(
                 }
             }
             div { class: "flex flex-col w-full justify-start items-start mt-[40px]",
-                div { class: "font-medium text-[15px] text-[#3a3a3a] mb-[16px]", "프로젝트 초대" }
+                div { class: "font-medium text-[15px] text-white mb-[16px]", "프로젝트 초대" }
                 div { class: "flex flex-col w-full justify-start items-start border border-[#bfc8d9] rounded-lg p-[24px]",
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
-                            div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[40px]",
+                            div { class: "text-white font-medium text-[15px] mr-[3px] w-[40px]",
                                 {i18n.public_opinion}
                             }
                         }
-                        div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#f7f7f7] rounded-lg " }
+                        div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#2c2e42] rounded-lg " }
                     }
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
-                            div { class: "text-[#3a3a3a] font-medium text-[15px] mr-[3px] w-[40px]",
+                            div { class: "text-white font-medium text-[15px] mr-[3px] w-[40px]",
                                 {i18n.investigation}
                             }
                         }
-                        div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#f7f7f7] rounded-lg " }
+                        div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#2c2e42] rounded-lg " }
                     }
                 }
             }
@@ -604,7 +604,7 @@ pub fn AddMemberModal(
                     div { class: "text-white font-bold text-[16px]", {i18n.invite} }
                 }
                 div {
-                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#3a3a3a] justify-center items-center cursor-pointer",
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-white justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },

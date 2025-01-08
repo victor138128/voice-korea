@@ -49,7 +49,7 @@ dependencies = [
 
 [[package]]
 name = "api"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "aws-config",
  "aws-sdk-sesv2",
@@ -1235,6 +1235,15 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "tracing-wasm",
+]
+
+[[package]]
+name = "dioxus-popup"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7dccd58ae70e63ea8be1f85f7839cea6211a12466110ce2b805e45503d85f6ac"
+dependencies = [
+ "dioxus",
 ]
 
 [[package]]
@@ -2749,7 +2758,7 @@ checksum = "953ec861398dccce10c670dfeaf3ec4911ca479e9c02154b3a215178c5f566f2"
 
 [[package]]
 name = "platform"
-version = "0.1.16"
+version = "0.1.17"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -2759,6 +2768,7 @@ dependencies = [
  "dioxus",
  "dioxus-aws",
  "dioxus-logger 0.5.1",
+ "dioxus-popup",
  "easy-dynamodb",
  "models",
  "rand",

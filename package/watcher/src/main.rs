@@ -1,8 +1,6 @@
 use chrono::{DateTime, FixedOffset, Utc};
-use lambda_http::{
-    http::method, run, service_fn, Body, Error, Request, RequestExt, RequestPayloadExt, Response,
-};
-use reqwest::{Method, StatusCode};
+use lambda_http::{run, service_fn, Body, Error, RequestExt, RequestPayloadExt, Response};
+use reqwest::StatusCode;
 use serde::Deserialize;
 use serde_json::Value;
 use watcher::*;
