@@ -34,9 +34,7 @@ pub struct ReqwestClient {
 
 impl ReqwestClient {
     pub fn new() -> Result<Self, reqwest::Error> {
-        let base_url = option_env!("API_URL")
-            .expect("\"API URL\" Not found")
-            .to_string();
+        let base_url = "http://localhost:3000".to_string();
 
         let client = Client::builder().build()?;
 

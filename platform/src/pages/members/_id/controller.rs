@@ -1,4 +1,9 @@
+use chrono::{Local, TimeZone};
 use dioxus::prelude::*;
+use dioxus_logger::tracing;
+use models::prelude::UpdateMemberRequest;
+
+use crate::service::member_api::MemberApi;
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub enum ProjectType {
@@ -37,15 +42,23 @@ pub struct ProjectHistory {
     pub project_status: ProjectStatus,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
     pub member: Signal<MemberDetail>,
     pub groups: Signal<Vec<String>>,
     pub roles: Signal<Vec<String>>,
+    pub member_resource: Resource<Result<models::prelude::Member, ServerFnError>>,
 }
 
 impl Controller {
-    pub fn init(_lang: dioxus_translate::Language, _member_id: String) -> Self {
+    pub fn init(_lang: dioxus_translate::Language, member_id: String) -> Self {
+        let api: MemberApi = use_context();
+        let member_resource: Resource<Result<models::prelude::Member, ServerFnError>> =
+            use_resource(move || {
+                let api = api.clone();
+                let member_id = member_id.clone();
+                async move { api.get_member(member_id.clone()).await }
+            });
         let mut ctrl = Self {
             member: use_signal(|| MemberDetail::default()),
             groups: use_signal(|| vec![]),
@@ -58,6 +71,35 @@ impl Controller {
                     "강연자".to_string(),
                 ]
             }),
+            member_resource,
+        };
+
+        let member = if let Some(v) = member_resource.value()() {
+            match v {
+                Ok(d) => {
+                    let seconds = d.created_at / 1000;
+                    let nanoseconds = (d.created_at % 1000) * 1_000_000;
+                    let datetime = Local.timestamp_opt(seconds, nanoseconds as u32).unwrap();
+
+                    let formatted_date = datetime.format("%Y년 %m월 %d일").to_string();
+
+                    let data = MemberDetail {
+                        email: d.email.clone(),
+                        profile_image: None,
+                        profile_name: d.name,
+                        group: d.group.unwrap_or("".to_string()),
+                        role: d.role.unwrap_or("".to_string()),
+                        register_date: formatted_date,
+                        project_history: vec![],
+                    };
+
+                    tracing::debug!("member data: {:?}", data);
+                    data
+                }
+                Err(_) => MemberDetail::default(),
+            }
+        } else {
+            MemberDetail::default()
         };
 
         ctrl.groups.set(vec![
@@ -67,133 +109,7 @@ impl Controller {
             "보이스코리아3".to_string(),
         ]);
 
-        ctrl.member.set(MemberDetail {
-            email: "email@email.com".to_string(),
-            profile_image: None,
-            profile_name: Some("보이스".to_string()),
-            group: "보이스코리아".to_string(),
-            role: "관리자".to_string(),
-            register_date: "2024년 8월 12일".to_string(),
-            project_history: vec![
-                ProjectHistory {
-                    history_id: "1".to_string(),
-                    project_type: ProjectType::Investigation,
-                    project_subject: "조사주제".to_string(),
-                    role: "관리자".to_string(),
-                    panel: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    period: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Finished,
-                },
-                ProjectHistory {
-                    history_id: "2".to_string(),
-                    project_type: ProjectType::Investigation,
-                    project_subject: "조사주제".to_string(),
-                    role: "관리자".to_string(),
-                    panel: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    period: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::InProgress,
-                },
-                ProjectHistory {
-                    history_id: "3".to_string(),
-                    project_type: ProjectType::PublicOpinion,
-                    project_subject: "공론주제".to_string(),
-                    role: "관리자".to_string(),
-                    panel: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    period: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::InProgress,
-                },
-                ProjectHistory {
-                    history_id: "4".to_string(),
-                    project_type: ProjectType::PublicOpinion,
-                    project_subject: "공론주제".to_string(),
-                    role: "관리자".to_string(),
-                    panel: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    period: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::InProgress,
-                },
-                ProjectHistory {
-                    history_id: "5".to_string(),
-                    project_type: ProjectType::PublicOpinion,
-                    project_subject: "공론주제".to_string(),
-                    role: "관리자".to_string(),
-                    panel: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    period: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Ready,
-                },
-                ProjectHistory {
-                    history_id: "6".to_string(),
-                    project_type: ProjectType::PublicOpinion,
-                    project_subject: "공론주제".to_string(),
-                    role: "관리자".to_string(),
-                    panel: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    period: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Ready,
-                },
-                ProjectHistory {
-                    history_id: "7".to_string(),
-                    project_type: ProjectType::PublicOpinion,
-                    project_subject: "공론주제".to_string(),
-                    role: "관리자".to_string(),
-                    panel: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    period: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Ready,
-                },
-                ProjectHistory {
-                    history_id: "8".to_string(),
-                    project_type: ProjectType::PublicOpinion,
-                    project_subject: "공론주제".to_string(),
-                    role: "관리자".to_string(),
-                    panel: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    period: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Ready,
-                },
-                ProjectHistory {
-                    history_id: "9".to_string(),
-                    project_type: ProjectType::PublicOpinion,
-                    project_subject: "공론주제".to_string(),
-                    role: "관리자".to_string(),
-                    panel: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    period: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Ready,
-                },
-            ],
-        });
+        ctrl.member.set(member);
 
         ctrl
     }
@@ -208,5 +124,17 @@ impl Controller {
 
     pub fn get_roles(&self) -> Vec<String> {
         (self.roles)()
+    }
+
+    pub async fn update_member(&mut self, member_id: String, req: UpdateMemberRequest) {
+        let api: MemberApi = use_context();
+        let _ = api.update_member(member_id, req).await;
+        self.member_resource.restart();
+    }
+
+    pub async fn remove_member(&mut self, user_id: String) {
+        let api: MemberApi = use_context();
+        let _ = api.remove_member(user_id).await;
+        self.member_resource.restart();
     }
 }

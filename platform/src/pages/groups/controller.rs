@@ -2,6 +2,8 @@ use dioxus::prelude::*;
 
 use dioxus_translate::Language;
 
+use crate::service::group_api::GroupApi;
+
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct GroupSummary {
     pub group_id: String,
@@ -10,175 +12,68 @@ pub struct GroupSummary {
     pub member_list: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
     pub groups: Signal<Vec<GroupSummary>>,
+    pub group_resource: Resource<
+        Result<crate::api::common::CommonQueryResponse<models::prelude::Group>, ServerFnError>,
+    >,
 }
 
 impl Controller {
     pub fn init(_lang: Language) -> Self {
+        let api: GroupApi = use_context();
+        let group_resource: Resource<
+            Result<crate::api::common::CommonQueryResponse<models::prelude::Group>, ServerFnError>,
+        > = use_resource(move || {
+            let api = api.clone();
+            async move { api.list_groups(Some(100), None).await }
+        });
         let mut ctrl = Self {
             groups: use_signal(|| vec![]),
+            group_resource,
         };
 
-        ctrl.groups.set(vec![
-            GroupSummary {
-                group_id: "1".to_string(),
-                group_name: "보이스코리아".to_string(),
-                member_count: 10,
-                member_list: vec![
-                    "보이스".to_string(),
-                    "보이스1".to_string(),
-                    "보이스2".to_string(),
-                    "보이스3".to_string(),
-                    "보이스4".to_string(),
-                    "보이스5".to_string(),
-                    "보이스6".to_string(),
-                    "보이스7".to_string(),
-                    "보이스8".to_string(),
-                    "보이스9".to_string(),
-                ],
-            },
-            GroupSummary {
-                group_id: "2".to_string(),
-                group_name: "보이스코리아".to_string(),
-                member_count: 5,
-                member_list: vec![
-                    "보이스".to_string(),
-                    "보이스1".to_string(),
-                    "보이스2".to_string(),
-                    "보이스3".to_string(),
-                    "보이스4".to_string(),
-                ],
-            },
-            GroupSummary {
-                group_id: "3".to_string(),
-                group_name: "보이스코리아".to_string(),
-                member_count: 3,
-                member_list: vec![
-                    "보이스".to_string(),
-                    "보이스1".to_string(),
-                    "보이스2".to_string(),
-                ],
-            },
-            GroupSummary {
-                group_id: "4".to_string(),
-                group_name: "보이스코리아".to_string(),
-                member_count: 10,
-                member_list: vec![
-                    "보이스".to_string(),
-                    "보이스1".to_string(),
-                    "보이스2".to_string(),
-                    "보이스3".to_string(),
-                    "보이스4".to_string(),
-                    "보이스5".to_string(),
-                    "보이스6".to_string(),
-                    "보이스7".to_string(),
-                    "보이스8".to_string(),
-                    "보이스9".to_string(),
-                ],
-            },
-            GroupSummary {
-                group_id: "5".to_string(),
-                group_name: "보이스코리아".to_string(),
-                member_count: 7,
-                member_list: vec![
-                    "보이스".to_string(),
-                    "보이스1".to_string(),
-                    "보이스2".to_string(),
-                    "보이스3".to_string(),
-                    "보이스4".to_string(),
-                    "보이스5".to_string(),
-                    "보이스6".to_string(),
-                ],
-            },
-            GroupSummary {
-                group_id: "6".to_string(),
-                group_name: "보이스코리아".to_string(),
-                member_count: 6,
-                member_list: vec![
-                    "보이스".to_string(),
-                    "보이스1".to_string(),
-                    "보이스2".to_string(),
-                    "보이스3".to_string(),
-                    "보이스4".to_string(),
-                    "보이스5".to_string(),
-                ],
-            },
-            GroupSummary {
-                group_id: "7".to_string(),
-                group_name: "보이스코리아".to_string(),
-                member_count: 10,
-                member_list: vec![
-                    "보이스".to_string(),
-                    "보이스1".to_string(),
-                    "보이스2".to_string(),
-                    "보이스3".to_string(),
-                    "보이스4".to_string(),
-                    "보이스5".to_string(),
-                    "보이스6".to_string(),
-                    "보이스7".to_string(),
-                    "보이스8".to_string(),
-                    "보이스9".to_string(),
-                ],
-            },
-            GroupSummary {
-                group_id: "8".to_string(),
-                group_name: "보이스코리아".to_string(),
-                member_count: 10,
-                member_list: vec![
-                    "보이스".to_string(),
-                    "보이스1".to_string(),
-                    "보이스2".to_string(),
-                    "보이스3".to_string(),
-                    "보이스4".to_string(),
-                    "보이스5".to_string(),
-                    "보이스6".to_string(),
-                    "보이스7".to_string(),
-                    "보이스8".to_string(),
-                    "보이스9".to_string(),
-                ],
-            },
-            GroupSummary {
-                group_id: "9".to_string(),
-                group_name: "보이스코리아".to_string(),
-                member_count: 10,
-                member_list: vec![
-                    "보이스".to_string(),
-                    "보이스1".to_string(),
-                    "보이스2".to_string(),
-                    "보이스3".to_string(),
-                    "보이스4".to_string(),
-                    "보이스5".to_string(),
-                    "보이스6".to_string(),
-                    "보이스7".to_string(),
-                    "보이스8".to_string(),
-                    "보이스9".to_string(),
-                ],
-            },
-            GroupSummary {
-                group_id: "10".to_string(),
-                group_name: "보이스코리아".to_string(),
-                member_count: 10,
-                member_list: vec![
-                    "보이스".to_string(),
-                    "보이스1".to_string(),
-                    "보이스2".to_string(),
-                    "보이스3".to_string(),
-                    "보이스4".to_string(),
-                    "보이스5".to_string(),
-                    "보이스6".to_string(),
-                    "보이스7".to_string(),
-                    "보이스8".to_string(),
-                    "보이스9".to_string(),
-                ],
-            },
-        ]);
+        let groups = if let Some(v) = group_resource.value()() {
+            match v {
+                Ok(d) => d
+                    .items
+                    .iter()
+                    .map(|group| GroupSummary {
+                        group_id: group.id.clone(),
+                        group_name: group.name.clone(),
+                        member_count: group.members.len() as u64,
+                        member_list: group
+                            .members
+                            .iter()
+                            .map(|member| member.name.clone())
+                            .collect(),
+                    })
+                    .collect(),
+                Err(_) => vec![],
+            }
+        } else {
+            vec![]
+        };
+
+        ctrl.groups.set(groups);
 
         ctrl
     }
 
     pub fn get_groups(&self) -> Vec<GroupSummary> {
         (self.groups)()
+    }
+
+    pub async fn remove_group(&mut self, group_id: String) {
+        let api: GroupApi = use_context();
+        let _ = api.remove_group(group_id).await;
+        self.group_resource.restart();
+    }
+
+    pub async fn update_group_name(&mut self, group_id: String, group_name: String) {
+        let api: GroupApi = use_context();
+        let _ = api.update_group_name(group_id, group_name).await;
+        self.group_resource.restart();
     }
 }

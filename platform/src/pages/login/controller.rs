@@ -72,7 +72,7 @@ impl Controller {
 
         match res {
             Ok(token) => {
-                login_service.setup(self.get_email(), token);
+                login_service.setup(self.get_email(), token).await;
                 navigator.push(Route::DashboardPage { lang });
             }
             Err(e) => match e {

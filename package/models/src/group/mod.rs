@@ -1,10 +1,16 @@
 use serde::{Deserialize, Serialize};
 
+use crate::member::MemberProject;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct GroupMember {
     pub user_id: String,
     pub name: String,
     pub email: String,
+
+    pub group: Option<String>,
+    pub role: Option<String>,
+    pub projects: Option<Vec<MemberProject>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]

@@ -2,8 +2,10 @@
 use super::controller::Controller;
 use super::i18n::MemberTranslate;
 use dioxus::prelude::*;
+use dioxus_logger::tracing;
 use dioxus_translate::translate;
 use dioxus_translate::Language;
+use models::prelude::InviteMemberRequest;
 
 use crate::{
     components::{
@@ -55,7 +57,7 @@ pub enum ModalType {
 
 #[component]
 pub fn MemberPage(props: MemberPageProps) -> Element {
-    let ctrl = Controller::init(props.lang);
+    let mut ctrl = Controller::init(props.lang);
     let mut name = use_signal(|| "".to_string());
     let mut is_focused = use_signal(|| false);
     let mut modal_type = use_signal(|| ModalType::None);
@@ -83,6 +85,13 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                         modal_type.set(ModalType::None);
                         clicked_member_id.set("".to_string());
                     },
+                    remove_member: move |_e: MouseEvent| {
+                        spawn(async move {
+                            ctrl.remove_member(clicked_member_id()).await;
+                            modal_type.set(ModalType::None);
+                            clicked_member_id.set("".to_string());
+                        });
+                    },
                     i18n: RemoveMemberModalTranslate {
                         remove_info: translates.remove_info.to_string(),
                         remove_warning: translates.remove_warning.to_string(),
@@ -101,6 +110,12 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                     roles: roles.clone(),
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
+                    },
+                    invite_member: move |req: InviteMemberRequest| {
+                        spawn(async move {
+                            ctrl.invite_member(req).await;
+                            modal_type.set(ModalType::None);
+                        });
                     },
                     i18n: AddMemberModalTranslate {
                         necessary: translates.necessary.to_string(),
@@ -247,9 +262,9 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                                             lang: props.lang.clone(),
                                             member_id: members[index].member_id.clone(),
                                         },
-                                        div { class: "flex flex-row w-[355px] min-w-[355px] h-full justify-center items-center gap-[10px]",
+                                        div { class: "flex flex-row w-[355px] min-w-[355px] h-full justify-center items-center gap-[10px] px-[50px]",
                                             div { class: "w-[36px] h-[36px] rounded-[40px] bg-[#9baae4] mr-[10px]" }
-                                            div { class: "flex flex-col justify-start items-start",
+                                            div { class: "flex flex-col justify-start items-start w-full",
                                                 div { class: "text-[14px] font-medium text-[#3a3a3a] mb-[5px]",
                                                     {members[index].clone().profile_name}
                                                 }
@@ -264,7 +279,18 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                                             class: "bg-transparent focus:outline-none",
                                             value: members[index].clone().group,
                                             //TODO: update member group
-                                            onchange: |_evt| {},
+                                            onchange: move |e: Event<FormData>| {
+                                                spawn(async move {
+                                                    tracing::debug!("select_group: {}", e.value());
+                                                    ctrl.update_group(index, e.value()).await;
+                                                });
+                                            },
+                                            option {
+                                                value: "",
+                                                disabled: true,
+                                                selected: members[index].clone().group == "",
+                                                "그룹 없음"
+                                            }
                                             for group in groups.clone() {
                                                 option {
                                                     value: group.clone(),
@@ -279,7 +305,18 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                                             class: "bg-transparent focus:outline-none",
                                             value: members[index].clone().role,
                                             //TODO: update member role
-                                            onchange: |_evt| {},
+                                            onchange: move |e: Event<FormData>| {
+                                                spawn(async move {
+                                                    tracing::debug!("select_role: {}", e.value());
+                                                    ctrl.update_role(index, e.value()).await;
+                                                });
+                                            },
+                                            option {
+                                                value: "",
+                                                disabled: true,
+                                                selected: members[index].clone().role == "",
+                                                "역할 없음"
+                                            }
                                             for role in roles.clone() {
                                                 option {
                                                     value: role.clone(),
@@ -296,47 +333,53 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                                             clicked[index] = !clicked[index];
                                             projects_clicked.set(clicked);
                                         },
-                                        if !projects_clicked()[index] && members[index].projects.len() > 0 {
+                                        if members.len() != 0 && index < projects_clicked().len()
+                                            && (!projects_clicked()[index] && members[index].projects.len() > 0)
+                                        {
                                             Label {
                                                 label_name: members[index].projects[0].clone(),
                                                 label_color: "bg-[#35343f]",
                                                 is_delete: false,
                                             }
                                         } else {
-                                            div { class: "flex flex-row w-full h-full",
-                                                div { class: "flex flex-row w-full justify-center items-center",
-                                                    div { class: "inline-flex flex-wrap justify-center items-center gap-[10px] mr-[20px]",
-                                                        for project in members[index].projects.clone() {
-                                                            Label {
-                                                                label_name: project,
-                                                                label_color: "bg-[#35343f]",
-                                                            }
-                                                        }
-                                                    }
-                                                    div {
-                                                        onclick: move |e: MouseEvent| {
-                                                            e.stop_propagation();
-                                                            e.prevent_default();
-                                                            let mut extended = projects_extended.clone()();
-                                                            extended[index] = !extended[index];
-                                                            projects_extended.set(extended);
-                                                        },
-                                                        Expand {
-                                                            width: "24",
-                                                            height: "24",
-                                                        }
-                                                    }
-                                                }
-                                                if projects_extended()[index] {
-                                                    div { class: "absolute top-full bg-white border border-[#bfc8d9] shadow-lg rounded-lg w-full z-50 py-[20px] pl-[15px] pr-[100px]",
-                                                        div { class: "font-semibold text-[#7c8292] text-[14px] mb-[20px]",
-                                                            {translates.project}
-                                                        }
-                                                        div { class: "inline-flex flex-wrap justify-start items-start gap-[10px] mr-[20px]",
+                                            if members.len() != 0 {
+                                                div { class: "flex flex-row w-full h-full",
+                                                    div { class: "flex flex-row w-full justify-center items-center",
+                                                        div { class: "inline-flex flex-wrap justify-center items-center gap-[10px] mr-[20px]",
                                                             for project in members[index].projects.clone() {
                                                                 Label {
                                                                     label_name: project,
                                                                     label_color: "bg-[#35343f]",
+                                                                }
+                                                            }
+                                                        }
+                                                        div {
+                                                            onclick: move |e: MouseEvent| {
+                                                                e.stop_propagation();
+                                                                e.prevent_default();
+                                                                let mut extended = projects_extended.clone()();
+                                                                if index < extended.len() {
+                                                                    extended[index] = !extended[index];
+                                                                    projects_extended.set(extended);
+                                                                }
+                                                            },
+                                                            Expand {
+                                                                width: "24",
+                                                                height: "24",
+                                                            }
+                                                        }
+                                                    }
+                                                    if index < projects_extended().len() && projects_extended()[index] {
+                                                        div { class: "absolute top-full bg-white border border-[#bfc8d9] shadow-lg rounded-lg w-full z-50 py-[20px] pl-[15px] pr-[100px]",
+                                                            div { class: "font-semibold text-[#7c8292] text-[14px] mb-[20px]",
+                                                                {translates.project}
+                                                            }
+                                                            div { class: "inline-flex flex-wrap justify-start items-start gap-[10px] mr-[20px]",
+                                                                for project in members[index].projects.clone() {
+                                                                    Label {
+                                                                        label_name: project,
+                                                                        label_color: "bg-[#35343f]",
+                                                                    }
                                                                 }
                                                             }
                                                         }
@@ -405,6 +448,7 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
 #[component]
 pub fn RemoveMemberModal(
     onclose: EventHandler<MouseEvent>,
+    remove_member: EventHandler<MouseEvent>,
     i18n: RemoveMemberModalTranslate,
 ) -> Element {
     rsx! {
@@ -416,7 +460,9 @@ pub fn RemoveMemberModal(
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
-                    onclick: move |_| {},
+                    onclick: move |e: MouseEvent| {
+                        remove_member.call(e);
+                    },
                     div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
@@ -436,6 +482,7 @@ pub fn AddMemberModal(
     groups: Vec<String>,
     roles: Vec<String>,
     onclose: EventHandler<MouseEvent>,
+    invite_member: EventHandler<InviteMemberRequest>,
     i18n: AddMemberModalTranslate,
 ) -> Element {
     let mut email = use_signal(|| "".to_string());
@@ -495,13 +542,7 @@ pub fn AddMemberModal(
                             onchange: move |evt| {
                                 select_role.set(evt.value());
                             },
-                            option {
-                                value: "",
-                                disabled: true,
-                                selected: select_role() == "",
-                                hidden: select_role() != "",
-                                {i18n.select_role}
-                            }
+                            option { value: "", selected: select_role() == "", {i18n.select_role} }
                             for role in roles.clone() {
                                 option {
                                     value: role.clone(),
@@ -522,13 +563,7 @@ pub fn AddMemberModal(
                             onchange: move |evt| {
                                 select_group.set(evt.value());
                             },
-                            option {
-                                value: "",
-                                disabled: true,
-                                selected: select_group() == "",
-                                hidden: select_group() != "",
-                                {i18n.select_group}
-                            }
+                            option { value: "", selected: select_group() == "", {i18n.select_group} }
                             for group in groups.clone() {
                                 option {
                                     value: group.clone(),
@@ -564,7 +599,16 @@ pub fn AddMemberModal(
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[120px] h-[40px] bg-[#2a60d3] rounded-md px-[14px] py-[8px] gap-[5px] cursor-pointer",
-                    onclick: move |_| {},
+                    onclick: move |_| async move {
+                        invite_member
+                            .call(InviteMemberRequest {
+                                email: email(),
+                                name: name(),
+                                group: None,
+                                role: None,
+                                projects: None,
+                            });
+                    },
                     AddUser { width: "24", height: "24" }
                     div { class: "text-white font-bold text-[16px]", {i18n.invite} }
                 }

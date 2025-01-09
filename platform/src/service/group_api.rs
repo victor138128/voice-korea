@@ -7,29 +7,26 @@ use models::prelude::{CreateGroupRequest, Group, GroupActionRequest};
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
 
-#[derive(Debug, Clone, Copy, Default)]
+use super::login_service::LoginService;
+
+#[derive(Debug, Clone, Copy)]
 pub struct GroupApi {
     pub endpoint: Signal<String>,
+    pub login_service: LoginService,
 }
 
 impl GroupApi {
     pub fn init() {
+        let login_service: LoginService = use_context();
         let srv = Self {
-            endpoint: use_signal(|| match option_env!("API_DOMAIN") {
-                Some(endpoint) => endpoint.to_string(),
-                None => format!(
-                    "https://voice-korea-api.{}",
-                    option_env!("SUBDOMAIN").unwrap_or("dev.biyard.co")
-                ),
-            }),
+            endpoint: use_signal(|| "http://localhost:3000".to_string()),
+            login_service,
         };
         use_context_provider(|| srv);
     }
 
-    pub async fn create_group(&self, cookie: String, req: CreateGroupRequest) -> Result<Group> {
-        let format_cookie = format!("{:?}", cookie);
-        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
-
+    pub async fn create_group(&self, req: CreateGroupRequest) -> Result<Group> {
+        let token = self.get_token();
         let client = ReqwestClient::new()?;
 
         let res = client
@@ -39,18 +36,11 @@ impl GroupApi {
             .send()
             .await?;
 
-        let res = res.error_for_status()?;
         Ok(res.json().await?)
     }
 
-    pub async fn update_group_name(
-        &self,
-        cookie: String,
-        group_id: String,
-        group_name: String,
-    ) -> Result<()> {
-        let format_cookie = format!("{:?}", cookie);
-        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
+    pub async fn update_group_name(&self, group_id: String, group_name: String) -> Result<()> {
+        let token = self.get_token();
 
         let client = ReqwestClient::new()?;
 
@@ -64,10 +54,8 @@ impl GroupApi {
         Ok(())
     }
 
-    pub async fn remove_group(&self, cookie: String, group_id: String) -> Result<()> {
-        let format_cookie = format!("{:?}", cookie);
-        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
-
+    pub async fn remove_group(&self, group_id: String) -> Result<()> {
+        let token = self.get_token();
         let client = ReqwestClient::new()?;
 
         let _res = client
@@ -82,12 +70,10 @@ impl GroupApi {
 
     pub async fn list_groups(
         &self,
-        cookie: String,
         size: Option<i64>,
         bookmark: Option<String>,
     ) -> Result<CommonQueryResponse<Group>> {
-        let format_cookie = format!("{:?}", cookie);
-        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
+        let token = self.get_token();
 
         let mut params = HashMap::new();
         if let Some(size) = size {
@@ -112,9 +98,8 @@ impl GroupApi {
         Ok(groups)
     }
 
-    pub async fn get_group(&self, cookie: String, group_id: String) -> Result<Group> {
-        let format_cookie = format!("{:?}", cookie);
-        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
+    pub async fn get_group(&self, group_id: String) -> Result<Group> {
+        let token = self.get_token();
 
         let client = ReqwestClient::new()?;
 
@@ -128,5 +113,21 @@ impl GroupApi {
 
         let members = res.json().await?;
         Ok(members)
+    }
+
+    pub fn get_token(&self) -> String {
+        let cookie = if cfg!(feature = "web") {
+            self.login_service
+                .get_cookie_value()
+                .unwrap_or_else(|| "".to_string())
+        } else {
+            "".to_string()
+        };
+
+        let token = cookie.replace('"', "");
+        let format_cookie = format!("token={token}");
+        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
+
+        token
     }
 }

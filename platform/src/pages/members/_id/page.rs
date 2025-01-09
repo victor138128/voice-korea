@@ -4,6 +4,7 @@ use super::i18n::MemberDetailTranslate;
 use dioxus::prelude::*;
 use dioxus_translate::translate;
 use dioxus_translate::Language;
+use models::prelude::UpdateMemberRequest;
 
 use crate::{
     components::{
@@ -76,7 +77,7 @@ pub enum ModalType {
 
 #[component]
 pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
-    let ctrl = Controller::init(props.lang, props.member_id);
+    let mut ctrl = Controller::init(props.lang, props.member_id.clone());
     let translates: MemberDetailTranslate = translate(&props.lang.clone());
 
     let member = ctrl.get_member();
@@ -87,12 +88,28 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
     let mut modal_type = use_signal(|| ModalType::None);
     let mut popup: PopupService = use_context();
 
+    let member_id_copy = props.member_id.clone();
+    let member_id_copy1 = props.member_id.clone();
+
+    let navigator = use_navigator();
+
     if ModalType::RemoveMember == modal_type() {
         popup
             .open(rsx! {
                 RemoveMemberModal {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
+                    },
+                    remove_member: move |_onclick: Event<MouseData>| {
+                        let member_id = member_id_copy1.clone();
+                        spawn(async move {
+                            ctrl.remove_member(member_id.clone()).await;
+                            modal_type.set(ModalType::None);
+                            navigator
+                                .push(Route::MemberPage {
+                                    lang: props.lang,
+                                });
+                        });
                     },
                     i18n: RemoveMemberModalTranslate {
                         remove_info: translates.remove_member_info.to_string(),
@@ -170,10 +187,18 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
                         profile_name,
                         group: member.group,
                         role: member.role,
-                        email: member.email,
+                        email_address: member.email,
 
                         total_groups: groups,
                         total_roles: roles,
+
+                        update_member: move |req: UpdateMemberRequest| {
+                            let member_id = member_id_copy.clone();
+                            spawn(async move {
+                                ctrl.update_member(member_id.clone(), req).await;
+                                modal_type.set(ModalType::None);
+                            });
+                        },
 
                         i18n: ProfileInfoTranslate {
                             privacy: translates.privacy.to_string(),
@@ -379,17 +404,29 @@ pub fn ProfileInfo(
     profile_name: Option<String>,
     group: String,
     role: String,
-    email: String,
+    email_address: String,
 
     total_groups: Vec<String>,
     total_roles: Vec<String>,
 
+    update_member: EventHandler<UpdateMemberRequest>,
+
     i18n: ProfileInfoTranslate,
 ) -> Element {
-    let mut name = use_signal(|| profile_name.unwrap_or_default());
-    let mut email = use_signal(|| email.clone());
-    let mut select_group = use_signal(|| group.clone());
-    let mut select_role = use_signal(|| role.clone());
+    let mut name = use_signal(|| "".to_string());
+    let mut email = use_signal(|| "".to_string());
+    let mut select_group = use_signal(|| "".to_string());
+    let mut select_role = use_signal(|| "".to_string());
+
+    use_effect(use_reactive(
+        (&email_address, &profile_name, &group, &role),
+        move |(email_address, profile_name, group, role)| {
+            email.set(email_address);
+            name.set(profile_name.unwrap_or_default());
+            select_group.set(group);
+            select_role.set(role);
+        },
+    ));
 
     rsx! {
         div { class: "flex flex-col w-[370px] justify-start items-start",
@@ -421,8 +458,13 @@ pub fn ProfileInfo(
                             onchange: move |evt| {
                                 select_group.set(evt.value());
                             },
+                            option { value: "", selected: select_group() == "", "그룹 없음" }
                             for group in total_groups {
-                                option { value: group.clone(), "{group}" }
+                                option {
+                                    value: group.clone(),
+                                    selected: group == select_group(),
+                                    "{group}"
+                                }
                             }
                         }
                     }
@@ -434,8 +476,13 @@ pub fn ProfileInfo(
                             onchange: move |evt| {
                                 select_role.set(evt.value());
                             },
+                            option { value: "", selected: select_role() == "", "역할 없음" }
                             for role in total_roles {
-                                option { value: role.clone(), "{role}" }
+                                option {
+                                    value: role.clone(),
+                                    selected: role == select_role(),
+                                    "{role}"
+                                }
                             }
                         }
                     }
@@ -452,11 +499,17 @@ pub fn ProfileInfo(
                         }
                     }
                     div { class: "flex flex-row w-full justify-between items-end mt-[10px]",
-                        div { class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] font-bold text-[16px] text-white rounded-md",
+                        div {
+                            class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] font-bold text-[16px] text-white rounded-md",
+                            onclick: move |_| async move {
+                                update_member
+                                    .call(UpdateMemberRequest {
+                                        name: Some(name()),
+                                        group: if select_group() == "" { None } else { Some(select_group()) },
+                                        role: if select_role() == "" { None } else { Some(select_role()) },
+                                    });
+                            },
                             "{i18n.save}"
-                        }
-                        div { class: "font-bold text-[16px] text-[#3a3a3a] underline",
-                            "{i18n.remove_team_member}"
                         }
                     }
                 }
@@ -497,6 +550,7 @@ pub fn RemoveProjectModal(
 #[component]
 pub fn RemoveMemberModal(
     onclose: EventHandler<MouseEvent>,
+    remove_member: EventHandler<MouseEvent>,
     i18n: RemoveMemberModalTranslate,
 ) -> Element {
     rsx! {
@@ -508,7 +562,9 @@ pub fn RemoveMemberModal(
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
-                    onclick: move |_| {},
+                    onclick: move |e: MouseEvent| async move {
+                        remove_member.call(e);
+                    },
                     div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {

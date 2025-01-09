@@ -113,12 +113,12 @@ translate! {
         en: "Required input",
     },
     select_group: {
-        ko: "그룹 선택",
-        en: "Group selection",
+        ko: "선택 없음",
+        en: "No Selection",
     },
     select_role: {
-        ko: "역할 선택",
-        en: "Role selection",
+        ko: "선택 없음",
+        en: "No Selection",
     },
     public_opinion: {
         ko: "공론",
