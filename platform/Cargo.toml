@@ -15,7 +15,6 @@ dioxus = { version = "0.6.0", features = [
 ] }
 chrono = "0.4"
 dioxus-aws = { version = "0.6.13" }
-dioxus-popup = { version = "0.1.0" }
 reqwest = { version = "0.12.5", features = ["blocking", "json"] }
 dioxus-logger = "0.5.1"
 easy-dynamodb = { version = "0.1.6", optional = true }
@@ -38,6 +37,7 @@ axum = { version = "0.7.9", optional = true }
 wasm-bindgen = { version = "0.2.99", optional = true }
 wasm-bindgen-futures = { version = "0.4.49", optional = true }
 web-sys = { version = "0.3.74", optional = true }
+dioxus-translate = { version = "0.1.0", features = ["ko"] }
 
 [features]
 default = []
@@ -54,5 +54,6 @@ server = [
   "axum",
 ]
 lambda = ["dioxus-aws/lambda", "server"]
-web = ["dioxus-aws/web", "web-sys", "wasm-bindgen", "wasm-bindgen-futures"]
+web = ["dioxus-aws/web", "web-only", "web-sys", "wasm-bindgen", "wasm-bindgen-futures"]
+web-only = ["dioxus-translate/web"]
 static_str_ops = ["dep:static_str_ops"]

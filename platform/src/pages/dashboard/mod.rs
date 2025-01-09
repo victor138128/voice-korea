@@ -10,6 +10,10 @@ pub mod dashboard_card;
 pub mod dashboard_row;
 pub mod i18n;
 
+use dioxus_translate::translate;
+use dioxus_translate::Language;
+use i18n::DashboardTranslate;
+
 #[derive(PartialEq, Props, Clone)]
 pub struct DashboardPageProps {
     lang: Language,
@@ -48,7 +52,7 @@ pub struct DashboardListTypeProps {
 #[component]
 pub fn DashboardPage(props: DashboardPageProps) -> Element {
     let mut ctrl = controller::Controller::init(props.lang);
-    let translates = i18n::translate(props.lang.clone());
+    let translates: DashboardTranslate = translate(&props.lang);
 
     #[cfg(feature = "web")]
     use_effect(move || {
@@ -88,19 +92,15 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
     });
 
     rsx! {
-        div {
-            class: "flex flex-col w-full h-full pt-[45px] pr-[45px] pl-[35px] items-start justify-start",
-            div {
-                class: "flex flex-row w-full items-start justify-between",
-                div {
-                    class: "flex flex-row mr-[10px]",
-                    div {
-                        class: "flex flex-row w-[450px] h-[55px] items-center bg-white border-solid border border-[#e0e0e0] rounded-[8px] pl-[15px] mr-[10px]",
+        div { class: "flex flex-col w-full h-full pt-[45px] pr-[45px] pl-[35px] items-start justify-start",
+            div { class: "flex flex-row w-full items-start justify-between",
+                div { class: "flex flex-row mr-[10px]",
+                    div { class: "flex flex-row w-[450px] h-[55px] items-center bg-white border-solid border border-[#e0e0e0] rounded-[8px] pl-[15px] mr-[10px]",
                         img {
                             class: "mr-[5px]",
                             src: asset!("/public/images/search.png"),
                             width: 24,
-                            height: 24
+                            height: 24,
                         }
                         input {
                             id: "search-input",
@@ -123,7 +123,7 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                         img {
                             src: asset!("/public/images/menu_1.png"),
                             width: 27,
-                            height: 27
+                            height: 27,
                         }
                     }
                     div {
@@ -132,7 +132,7 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                         img {
                             src: asset!("/public/images/menu_2.png"),
                             width: 27,
-                            height: 27
+                            height: 27,
                         }
                     }
                 }
@@ -141,8 +141,7 @@ pub fn DashboardPage(props: DashboardPageProps) -> Element {
                     onclick: move |_| async move {
                         ctrl.clicked_create_survey(props.lang.clone()).await;
                     },
-                    div {
-                        class: "flex flex-row w-full h-full justify-center items-center text-[21px] font-semibold text-white",
+                    div { class: "flex flex-row w-full h-full justify-center items-center text-[21px] font-semibold text-white",
                         "{translates.create_survey}"
                     }
                 }
@@ -206,8 +205,7 @@ pub fn StatusButton(
     }
 
     rsx! {
-        div {
-            class: "flex flex-row w-[65px] h-[30px] rounded-[5px] justify-center items-center {label_bg_color} {label_text_color} mb-[25px]",
+        div { class: "flex flex-row w-[65px] h-[30px] rounded-[5px] justify-center items-center {label_bg_color} {label_text_color} mb-[25px]",
             {survey_type_label}
         }
     }
@@ -216,8 +214,7 @@ pub fn StatusButton(
 pub fn DashboardCardTypes(props: DashboardCardTypeProps) -> Element {
     let surveys = props.surveys;
     rsx! {
-        div {
-            class: "flex flex-wrap w-full h-full justify-center items-start pt-[35px]",
+        div { class: "flex flex-wrap w-full h-full justify-center items-start pt-[35px]",
             for survey in surveys.iter() {
                 DashboardCard {
                     lang: props.lang,
@@ -245,35 +242,25 @@ pub fn DashboardCardTypes(props: DashboardCardTypeProps) -> Element {
 pub fn DashboardListTypes(props: DashboardListTypeProps) -> Element {
     let surveys = props.surveys;
     rsx! {
-        div {
-            class: "flex flex-col w-full justify-start items-start pt-[35px] min-w-[1375px]",
-            div {
-                class: "flex flex-row w-full justify-between items-between pt-[25px] pb-[20px] px-[30px]",
-                div {
-                    class: "text-[#696969] font-normal text-[20px] pl-[45px] min-w-[500px]",
+        div { class: "flex flex-col w-full justify-start items-start pt-[35px] min-w-[1375px]",
+            div { class: "flex flex-row w-full justify-between items-between pt-[25px] pb-[20px] px-[30px]",
+                div { class: "text-[#696969] font-normal text-[20px] pl-[45px] min-w-[500px]",
                     "{props.survey_name}"
-                },
-                div {
-                    class: "flex flex-row justify-start items-start",
-                    div {
-                        class: "flex flex-row items-center justify-center w-[80px] text-[#696969] font-normal text-[20px] mr-[50px]",
+                }
+                div { class: "flex flex-row justify-start items-start",
+                    div { class: "flex flex-row items-center justify-center w-[80px] text-[#696969] font-normal text-[20px] mr-[50px]",
                         "{props.response_count}"
                     }
-                    div {
-                        class: "flex flex-row items-center justify-center w-[210px] text-[#696969] font-normal text-[20px] mr-[50px]",
+                    div { class: "flex flex-row items-center justify-center w-[210px] text-[#696969] font-normal text-[20px] mr-[50px]",
                         "{props.final_update_date}"
                     }
-                    div {
-                        class: "flex flex-row items-center justify-center w-[110px] text-[#696969] font-normal text-[20px] mr-[50px]",
+                    div { class: "flex flex-row items-center justify-center w-[110px] text-[#696969] font-normal text-[20px] mr-[50px]",
                         "{props.status}"
                     }
-                    div {
-                        class: "w-[265px]"
-                    }
+                    div { class: "w-[265px]" }
                 }
             }
-            div {
-                class: "flex flex-col w-full h-full justify-start items-start",
+            div { class: "flex flex-col w-full h-full justify-start items-start",
                 for survey in surveys.iter() {
                     DashboardRow {
                         lang: props.lang,

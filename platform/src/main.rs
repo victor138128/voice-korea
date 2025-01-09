@@ -3,8 +3,8 @@
 use dioxus_logger::tracing::{self, Level};
 
 use dioxus::prelude::*;
+use platform::service::popup_service::PopupService;
 
-use dioxus_popup::PopupService;
 use platform::{
     routes::Route, service::login_service::LoginService, utils::context::use_iitp_context_provider,
 };

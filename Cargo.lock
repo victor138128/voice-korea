@@ -1238,15 +1238,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dioxus-popup"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7dccd58ae70e63ea8be1f85f7839cea6211a12466110ce2b805e45503d85f6ac"
-dependencies = [
- "dioxus",
-]
-
-[[package]]
 name = "dioxus-router"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1314,6 +1305,36 @@ dependencies = [
  "dioxus-core-types",
  "rustc-hash",
 ]
+
+[[package]]
+name = "dioxus-translate"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf55ba0b1ac90bb8bcc31c45d7f91ad26529c669bcc6f89e7175368d5a59cf29"
+dependencies = [
+ "dioxus-translate-macro",
+ "dioxus-translate-types",
+ "serde",
+ "web-sys",
+]
+
+[[package]]
+name = "dioxus-translate-macro"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aebf71c2957c420b7a403f3db1df5d00358b8ca9edfc541bf9ee0cfcc16527f8"
+dependencies = [
+ "dioxus-translate-types",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "dioxus-translate-types"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1e6a15669535abad89691e8128a9050bd5eb51c8acb772c5be625085f4c8468"
 
 [[package]]
 name = "dioxus-web"
@@ -2768,7 +2789,7 @@ dependencies = [
  "dioxus",
  "dioxus-aws",
  "dioxus-logger 0.5.1",
- "dioxus-popup",
+ "dioxus-translate",
  "easy-dynamodb",
  "models",
  "rand",
@@ -2834,9 +2855,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.37"
+version = "1.0.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5b9d34b8991d19d98081b46eacdd8eb58c6f2b201139f7c5f643cc155a633af"
+checksum = "0e4dccaaaf89514f546c693ddc140f729f958c247918a13380cccc6078391acc"
 dependencies = [
  "proc-macro2",
 ]
@@ -3521,9 +3542,9 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "syn"
-version = "2.0.89"
+version = "2.0.95"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "44d46482f1c1c87acd84dea20c1bf5ebff4c757009ed6bf19cfd36fb10e92c4e"
+checksum = "46f71c0377baf4ef1cc3e3402ded576dccc315800fbc62dfc7fe04b009773b4a"
 dependencies = [
  "proc-macro2",
  "quote",

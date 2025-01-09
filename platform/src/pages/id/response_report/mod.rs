@@ -3,7 +3,9 @@ use components::{response_list::ResponseList, response_summary::ResponseSummary}
 use controller::SelectPage;
 use dioxus::prelude::*;
 
-use crate::prelude::Language;
+use dioxus_translate::translate;
+use dioxus_translate::Language;
+use i18n::ResponseReportTranslate;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ResponseReportProps {
@@ -21,23 +23,19 @@ pub mod components {
 #[component]
 pub fn ResponseReportPage(props: ResponseReportProps) -> Element {
     let mut ctrl = controller::Controller::init(props.lang, props.survey_id);
-    let translates = i18n::translate(props.lang.clone());
+    let translates: ResponseReportTranslate = translate(&props.lang.clone());
     rsx! {
-        div {
-            class: "flex flex-col w-full h-full justify-start items-center",
-            div {
-                class: "flex flex-col max-w-[1300px] min-w-[600px] w-full justify-start items-start mt-[45px] px-[50px]",
-                div {
-                    class: "flex flex-row w-full justify-center items-center h-[60px] rounded-[10px] bg-white mb-[30px]",
+        div { class: "flex flex-col w-full h-full justify-start items-center",
+            div { class: "flex flex-col max-w-[1300px] min-w-[600px] w-full justify-start items-start mt-[45px] px-[50px]",
+                div { class: "flex flex-row w-full justify-center items-center h-[60px] rounded-[10px] bg-white mb-[30px]",
                     if ctrl.get_select_page() == SelectPage::Summary {
-                        div {
-                            class: "pr-[100px]",
+                        div { class: "pr-[100px]",
                             div {
                                 class: "flex flex-row w-[150px] justify-center items-center text-[#686868] font-semibold text-[22px] h-[45px] border-[2px] border-b-[#2168c3] border-r-transparent border-t-transparent border-l-transparent",
                                 onclick: move |_| {
                                     ctrl.change_select_page(SelectPage::Summary);
                                 },
-                                {translates.survey_summary.clone()}
+                                {translates.survey_summary}
                             }
                         }
                         div {
@@ -53,7 +51,7 @@ pub fn ResponseReportPage(props: ResponseReportProps) -> Element {
                             onclick: move |_| {
                                 ctrl.change_select_page(SelectPage::Summary);
                             },
-                            {translates.survey_summary.clone()}
+                            {translates.survey_summary}
                         }
                         div {
                             div {
@@ -66,19 +64,18 @@ pub fn ResponseReportPage(props: ResponseReportProps) -> Element {
                         }
                     }
                 }
-                div {
-                    class: "flex flex-col max-w-[1300px] min-w-[600px] w-full justify-start items-start mt-[10px] px-[30px] py-[20px] bg-white rounded-lg",
+                div { class: "flex flex-col max-w-[1300px] min-w-[600px] w-full justify-start items-start mt-[10px] px-[30px] py-[20px] bg-white rounded-lg",
                     if ctrl.get_select_page() == SelectPage::Summary {
                         ResponseSummary {
-                            response_report: translates.response_report.clone(),
-                            response_download: translates.response_download.clone(),
+                            response_report: translates.response_report,
+                            response_download: translates.response_download,
                             response_summary: translates.response_summary,
                             total_number_of_responses: translates.total_number_of_responses,
                             completion_rate: translates.completion_rate,
                             normal_time_required: translates.normal_time_required,
                             most_skipped_questions: translates.most_skipped_questions,
                             response_attribute: translates.response_attribute,
-                            survey_summary: translates.survey_summary.clone(),
+                            survey_summary: translates.survey_summary,
 
                             number_of_replies: translates.number_of_replies,
                             number_of_skipped: translates.number_of_skipped,
@@ -88,9 +85,9 @@ pub fn ResponseReportPage(props: ResponseReportProps) -> Element {
                         }
                     } else {
                         ResponseList {
-                            attribute_response: translates.attribute_response.clone(),
-                            response_report: translates.response_report.clone(),
-                            response_download: translates.response_download.clone(),
+                            attribute_response: translates.attribute_response,
+                            response_report: translates.response_report,
+                            response_download: translates.response_download,
                             total_respondents: translates.total_respondents,
                             respondent_type: translates.respondent_type,
                             status: translates.status,

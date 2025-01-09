@@ -1,7 +1,5 @@
 use dioxus::prelude::*;
 
-use crate::prelude::Language;
-
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct MemberSummary {
     pub role_counts: Vec<u64>, // [전체 팀원, 관리자 수, 공론 관리자 수, 분석가 수, 중개자 수, 강연자 수],
@@ -26,7 +24,7 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn init(_lang: Language) -> Self {
+    pub fn init(_lang: dioxus_translate::Language) -> Self {
         let mut ctrl = Self {
             members: use_signal(|| MemberSummary::default()),
             groups: use_signal(|| vec![]),

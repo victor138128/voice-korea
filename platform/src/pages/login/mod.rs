@@ -1,6 +1,9 @@
 #![allow(non_snake_case)]
 use crate::{components::bottom::Bottom, prelude::*};
 use dioxus::prelude::*;
+use dioxus_translate::translate;
+use dioxus_translate::Language;
+use i18n::LoginTranslate;
 
 mod controller;
 mod i18n;
@@ -54,7 +57,7 @@ pub struct MemberInfoProps {
 #[component]
 pub fn LoginPage(props: LoginPageProps) -> Element {
     let ctrl = controller::Controller::init();
-    let translates = i18n::translate(props.lang.clone());
+    let translates: LoginTranslate = translate(&props.lang.clone());
     let logo_path = asset!("/public/images/logo.png");
 
     let login_message = translates.login;
@@ -69,22 +72,16 @@ pub fn LoginPage(props: LoginPageProps) -> Element {
 
     rsx! {
         div { class: "bg-white dark:bg-black w-screen min-h-screen flex flex-col",
-            div {
-                class: "flex flex-row w-full justify-start items-center px-[30px] py-[3px]",
+            div { class: "flex flex-row w-full justify-start items-center px-[30px] py-[3px]",
                 div { class: "mr-[7px]",
-                    img {
-                        src: logo_path,
-                        width: 42,
-                        height: 42
-                    }
+                    img { src: logo_path, width: 42, height: 42 }
                 }
                 div { class: "text-[24px] font-bold text-[#2168C3]", "VOICE KOREA" }
             }
             div {
                 class: "flex flex-col h-full w-full justify-start items-center",
                 style: "height: calc(100vh - 48px)",
-                div {
-                    class: "flex flex-col w-full h-full justify-center items-center",
+                div { class: "flex flex-col w-full h-full justify-center items-center",
                     LoginComponent {
                         ctrl,
                         lang: props.lang,
@@ -102,28 +99,22 @@ pub fn LoginPage(props: LoginPageProps) -> Element {
                         create_account_message,
                         check_title_message,
                         check_description_1_message,
-                        check_description_2_message
+                        check_description_2_message,
                     }
                 }
-                div {
-                    class: "flex flex-col h-full w-full justify-end items-end",
-                    Bottom {
-                        lang: props.lang,
-                    }
+                div { class: "flex flex-col h-full w-full justify-end items-end",
+                    Bottom { lang: props.lang }
                 }
             }
         }
-
     }
 }
 
 #[component]
 pub fn MemberInfoComponent(props: MemberInfoProps) -> Element {
     rsx! {
-        div {
-            class: "flex flex-col w-full h-[180px] justify-start items-start px-[50px]",
-            div {
-                class: "flex flex-row w-full h-min justify-end items-center",
+        div { class: "flex flex-col w-full h-[180px] justify-start items-start px-[50px]",
+            div { class: "flex flex-row w-full h-min justify-end items-center",
                 // Link {
                 //     to: Route::FindEmailPage {
                 //         lang: props.lang.clone(),
@@ -141,37 +132,28 @@ pub fn MemberInfoComponent(props: MemberInfoProps) -> Element {
                     to: Route::ResetPasswordPage {
                         lang: props.lang.clone(),
                     },
-                    div {
-                        class: "flex flex-row text-black text-[20px] font-normal w-[160px] justify-center items-center",
+                    div { class: "flex flex-row text-black text-[20px] font-normal w-[160px] justify-center items-center",
                         "{props.reset_pw_message}"
                     }
                 }
-                div {
-                    class: "text-[#e0e0e0] text-[20px] font-normal",
-                    "|"
-                }
+                div { class: "text-[#e0e0e0] text-[20px] font-normal", "|" }
                 Link {
                     to: Route::CreatePage {
                         lang: props.lang.clone(),
                     },
-                    div {
-                        class: "flex flex-row text-[#2168c3] text-[20px] font-normal w-[130px] justify-center items-center",
+                    div { class: "flex flex-row text-[#2168c3] text-[20px] font-normal w-[130px] justify-center items-center",
                         "{props.create_account_message}"
                     }
                 }
             }
-            div {
-                class: "flex flex-col w-full h-[135px] border-solid border border-[#e0e0e0] px-[20px] py-[15px]",
-                div {
-                    class: "text-black text-[20px] font-normal pb-[15px]",
+            div { class: "flex flex-col w-full h-[135px] border-solid border border-[#e0e0e0] px-[20px] py-[15px]",
+                div { class: "text-black text-[20px] font-normal pb-[15px]",
                     "{props.check_title_message}"
                 }
-                div {
-                    class: "text-[#636363] text-[20px] font-normal pb-[5px]",
+                div { class: "text-[#636363] text-[20px] font-normal pb-[5px]",
                     "{props.check_description_1_message}"
                 }
-                div {
-                    class: "text-[#636363] text-[20px] font-normal",
+                div { class: "text-[#636363] text-[20px] font-normal",
                     "{props.check_description_2_message}"
                 }
             }
@@ -184,49 +166,39 @@ pub fn LoginComponent(props: LoginProps) -> Element {
     let mut ctrl = props.ctrl;
 
     rsx! {
-        div {
-            class: "flex flex-col w-[610px] h-[530px] justify-center items-center",
-            div {
-                class: "flex flex-row w-full h-40 justify-center items-center text-[32px] font-bold text-black pb-[50px]",
+        div { class: "flex flex-col w-[610px] h-[530px] justify-center items-center",
+            div { class: "flex flex-row w-full h-40 justify-center items-center text-[32px] font-bold text-black pb-[50px]",
                 "{props.login_message}"
             }
-            div {
-                class: "flex flex-col justify-start items-start",
-                div {
-                    class: "flex flex-row justify-between w-[610px] h-[100px]",
-                    div {
-                        class: "flex flex-col w-[300px] h-full justify-between",
+            div { class: "flex flex-col justify-start items-start",
+                div { class: "flex flex-row justify-between w-[610px] h-[100px]",
+                    div { class: "flex flex-col w-[300px] h-full justify-between",
                         InputEmailComponent {
                             ctrl: props.ctrl,
-                            email_message: props.email_message
+                            email_message: props.email_message,
                         }
                         InputPasswordComponent {
                             ctrl: props.ctrl,
-                            password_message: props.password_message
+                            password_message: props.password_message,
                         }
                     }
                     div {
                         onclick: move |_| async move {
                             let _ = ctrl.login_clicked(props.lang).await;
                         },
-                        LoginButton {
-                            login_message: props.login_message,
-                        }
+                        LoginButton { login_message: props.login_message }
                     }
                 }
                 if ctrl.get_not_matched_error() {
-                    div {
-                        class: "mt-[10px] text-[#ff0000] font-normal text-[12px]",
+                    div { class: "mt-[10px] text-[#ff0000] font-normal text-[12px]",
                         {props.not_matched_error}
                     }
                 } else if ctrl.get_exists_error() {
-                    div {
-                        class: "mt-[10px] text-[#ff0000] font-normal text-[12px]",
+                    div { class: "mt-[10px] text-[#ff0000] font-normal text-[12px]",
                         {props.not_exists_user_error}
                     }
                 } else if ctrl.get_login_failed_error() {
-                    div {
-                        class: "mt-[10px] text-[#ff0000] font-normal text-[12px]",
+                    div { class: "mt-[10px] text-[#ff0000] font-normal text-[12px]",
                         {props.login_failed_error}
                     }
                 }
@@ -241,8 +213,7 @@ pub fn LoginButton(props: LoginButtonProps) -> Element {
         div {
             class: "flex flex-row w-[300px] h-[100px] bg-[#2168c3]",
             style: "width: 300px",
-            div {
-                class: "flex flex-row w-full h-full justify-center items-center text-[24px] font-bold text-white",
+            div { class: "flex flex-row w-full h-full justify-center items-center text-[24px] font-bold text-white",
                 "{props.login_message}"
             }
         }
@@ -253,14 +224,13 @@ pub fn LoginButton(props: LoginButtonProps) -> Element {
 pub fn InputPasswordComponent(props: InputPasswordProps) -> Element {
     let mut ctrl = props.ctrl;
     rsx! {
-        div {
-            class: "flex flex-row w-[300px] h-[42px] justify-start items-start",
+        div { class: "flex flex-row w-[300px] h-[42px] justify-start items-start",
             input {
                 class: "flex flex-row px-[10px] py-[10px] w-full h-full",
                 r#type: "password",
                 style: "border: 1px solid #e0e0e0; color: #8e929b;",
                 placeholder: "{props.password_message}",
-                oninput: move |event| ctrl.set_password(event.value())
+                oninput: move |event| ctrl.set_password(event.value()),
             }
         }
     }
@@ -270,14 +240,13 @@ pub fn InputPasswordComponent(props: InputPasswordProps) -> Element {
 pub fn InputEmailComponent(props: InputEmailProps) -> Element {
     let mut ctrl = props.ctrl;
     rsx! {
-        div {
-            class: "flex flex-row w-[300px] h-[42px] justify-start items-start",
+        div { class: "flex flex-row w-[300px] h-[42px] justify-start items-start",
             input {
                 class: "flex flex-row px-[10px] py-[10px] w-full h-full",
                 r#type: "text",
                 style: "border: 1px solid #e0e0e0; color: #8e929b;",
                 placeholder: "{props.email_message}",
-                oninput: move |event| ctrl.set_email(event.value())
+                oninput: move |event| ctrl.set_email(event.value()),
             }
         }
     }

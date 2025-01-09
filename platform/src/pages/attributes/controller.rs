@@ -28,7 +28,7 @@ impl Controller {
     pub fn init(lang: Language) -> Self {
         #[cfg(feature = "web")]
         {
-            use super::Route;
+            use crate::routes::Route;
             use crate::service::login_service::use_login_service;
 
             let navigator = use_navigator();

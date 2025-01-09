@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::prelude::Language;
+use dioxus_translate::Language;
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct GroupSummary {

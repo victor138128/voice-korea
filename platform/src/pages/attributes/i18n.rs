@@ -1,48 +1,50 @@
-use crate::utils::context::Language;
+use dioxus_translate::translate;
 
-pub struct AttributeTranslate {
-    pub temporary_save: String,
-    pub attribute_status: String,
-    pub selected_attribute: String,
-    pub add_attribute: String,
-    pub search_result: String,
-    pub tabel_label: Vec<String>,
-    pub search_hint: String,
-    pub cancel: String,
-    pub save: String,
-}
+translate! {
+    AttributeTranslate;
 
-pub fn translate(lang: Language) -> AttributeTranslate {
-    match lang {
-        Language::En => AttributeTranslate {
-            temporary_save: "Temporary Save".to_string(),
-            attribute_status: "Attribute Status".to_string(),
-            selected_attribute: "Currently Selected Attribute".to_string(),
-            add_attribute: "Add Attribute".to_string(),
-            search_result: "Search Results".to_string(),
-            tabel_label: vec![
-                "No.".to_string(),
-                "Attributes".to_string(),
-                "Selected Attributes".to_string(),
-            ],
-            search_hint: "Please enter the property you want to search for".to_string(),
-            cancel: "Cancel".to_string(),
-            save: "Save".to_string(),
-        },
-        Language::Ko => AttributeTranslate {
-            temporary_save: "임시 저장".to_string(),
-            attribute_status: "속성 현황".to_string(),
-            selected_attribute: "현재 선택된 속성".to_string(),
-            add_attribute: "속성 추가하기".to_string(),
-            search_result: "검색 결과".to_string(),
-            tabel_label: vec![
-                "No.".to_string(),
-                "속성".to_string(),
-                "선택 속성".to_string(),
-            ],
-            search_hint: "검색을 원하는 속성을 입력해 주세요".to_string(),
-            cancel: "취소".to_string(),
-            save: "저장".to_string(),
-        },
-    }
+    temporary_save: {
+        ko: "임시 저장",
+        en: "Temporary Save"
+    },
+    attribute_status: {
+        ko: "속성 현황",
+        en: "Attribute Status"
+    },
+    selected_attribute: {
+        ko: "현재 선택된 속성",
+        en: "Currently Selected Attribute"
+    },
+    add_attribute: {
+        ko: "속성 추가하기",
+        en: "Add Attribute"
+    },
+    search_result: {
+        ko: "검색 결과",
+        en: "Search Results"
+    },
+    tabel_label_0: {
+        ko: "No.",
+        en: "No."
+    },
+    tabel_label_1: {
+        ko: "속성",
+        en: "Attributes"
+    },
+    tabel_label_2: {
+        ko: "선택 속성",
+        en: "Selected Attributes"
+    },
+    search_hint: {
+        ko: "검색을 원하는 속성을 입력해 주세요",
+        en: "Please enter the property you want to search for"
+    },
+    cancel: {
+        ko: "취소",
+        en: "Cancel"
+    },
+    save: {
+        ko: "저장",
+        en: "Save"
+    },
 }

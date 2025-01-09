@@ -1,53 +1,67 @@
-use crate::utils::context::Language;
+use dioxus_translate::translate;
 
-pub struct FindEmailTranslate {
-    pub find_email: String,
-    pub name_label: String,
-    pub name_hint: String,
-    pub phone_label: String,
-    pub phone_hint: String,
-    pub send_authentication_number: String,
-    pub authentication_number: String,
-    pub authentication_number_description: Vec<String>,
-    pub check_title: String,
-    pub check_description: Vec<String>,
+translate! {
+    FindEmailTranslate;
 
-    pub get_email_description: String,
-    pub email_address: String,
-    pub go_to_login: String,
-}
+    find_email: {
+        ko: "이메일 찾기",
+        en: "Find Email"
+    },
+    name_label: {
+        ko: "이름",
+        en: "Name"
+    },
+    name_hint: {
+        ko: "OOO",
+        en: "OOO"
+    },
+    phone_label: {
+        ko: "휴대폰",
+        en: "CellPhone"
+    },
+    phone_hint: {
+        ko: "010-0000-0000",
+        en: "010-0000-0000"
+    },
+    send_authentication_number: {
+        ko: "인증번호 전송",
+        en: "Send Authentication Number"
+    },
+    authentication_number: {
+        ko: "인증번호",
+        en: "Authentication Number"
+    },
+    authentication_number_description_0: {
+        ko: "- 3분 이내로 인증번호(6자리)를 입력해 주세요.",
+        en: "- Please enter the authentication number (6 digits) within 3 minutes."
+    },
+    authentication_number_description_1: {
+        ko: "- 인증시간이 초과된 경우 인증번호를 재발송 하신 후 입력해 주세요.",
+        en: "- If the authentication time has expired, please resend the authentication number and then enter it."
+    },
+    check_title: {
+        ko: "확인하세요!",
+        en: "Check it out!"
+    },
+    check_description_0: {
+        ko: "- 본인인증은 본인명의로 개통된 휴대폰으로만 가능합니다.",
+        en: "- Identity verification is only possible using a mobile phone activated in your name."
+    },
+    check_description_1: {
+        ko: "- 휴대폰 본인인증 절차가 정상적으로 이루어지지 않을 경우 XXXX(XXXX-XXXX)로 문의하시기 바랍니다.",
+        en: "- If the mobile phone identity verification process does not proceed normally, please contact XXXX(XXXX-XXXX)."
+    },
 
-pub fn translate(lang: Language) -> FindEmailTranslate {
-    match lang {
-        Language::En => FindEmailTranslate {
-            find_email: "Find Email".to_string(),
-            name_label: "Name".to_string(),
-            name_hint: "OOO".to_string(),
-            phone_label: "CellPhone".to_string(),
-            phone_hint: "010-0000-0000".to_string(),
-            send_authentication_number: "Send Authentication Number".to_string(),
-            authentication_number: "Authentication Number".to_string(),
-            authentication_number_description: vec!["- Please enter the authentication number (6 digits) within 3 minutes.".to_string(), "- If the authentication time has expired, please resend the authentication number and then enter it.".to_string()],
-            check_title: "Check it out!".to_string(),
-            check_description: vec!["- Identity verification is only possible using a mobile phone activated in your name.".to_string(), "- If the authentication time has expired, please resend the authentication number and then enter it.".to_string()],
-            get_email_description: "We found your registered email with the following information".to_string(),
-            email_address: "Email Address".to_string(),
-            go_to_login: "To the login screen".to_string(),
-        },
-        Language::Ko => FindEmailTranslate {
-            find_email: "이메일 찾기".to_string(),
-            name_label: "이름".to_string(),
-            name_hint: "OOO".to_string(),
-            phone_label: "휴대폰".to_string(),
-            phone_hint: "010-0000-0000".to_string(),
-            send_authentication_number: "인증번호 전송".to_string(),
-            authentication_number: "인증번호".to_string(),
-            authentication_number_description: vec!["- 3분 이내로 인증번호(6자리)를 입력해 주세요.".to_string(), "- 인증시간이 초과된 경우 인증번호를 재발송 하신 후 입력해 주세요.".to_string()],
-            check_title: "확인하세요!".to_string(),
-            check_description: vec!["- 본인인증은 본인명의로 개통된 휴대폰으로만 가능합니다.".to_string(), "- 휴대폰 본인인증 절차가 정상적으로 이루어지지 않을 경우 XXXX(XXXX-XXXX)로 문의하시기 바랍니다.".to_string()],
-            get_email_description: "다음 정보로 가입된 이메일을 찾았습니다.".to_string(),
-            email_address: "이메일 주소".to_string(),
-            go_to_login: "로그인 화면으로".to_string(),
-        },
-    }
+    get_email_description: {
+        ko: "다음 정보로 가입된 이메일을 찾았습니다.",
+        en: "We found your registered email with the following information"
+    },
+    email_address: {
+        ko: "이메일 주소",
+        en: "Email Address"
+    },
+    go_to_login: {
+        ko: "로그인 화면으로",
+        en: "To the login screen"
+    },
 }

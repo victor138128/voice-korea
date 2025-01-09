@@ -4,8 +4,8 @@ use crate::pages::attributes::AttributePage;
 use crate::pages::create::CreatePage;
 use crate::pages::dashboard::DashboardPage;
 use crate::pages::find_email::FindEmailPage;
-use crate::pages::groups::GroupPage;
-use crate::pages::groups::_id::GroupDetailPage;
+use crate::pages::groups::_id::page::GroupDetailPage;
+use crate::pages::groups::page::GroupPage;
 use crate::pages::id::response_report::ResponseReportPage;
 use crate::pages::id::select_response::response_type::SelectResponseDetailPage;
 use crate::pages::id::select_response::SelectResponsePage;
@@ -13,11 +13,11 @@ use crate::pages::id::survey_summary::SurveySummaryPage;
 use crate::pages::id::write_question::WriteQuestionPage;
 use crate::pages::id::write_title::WriteTitlePage;
 use crate::pages::login::LoginPage;
-use crate::pages::members::MemberPage;
-use crate::pages::members::_id::MemberDetailPage;
+use crate::pages::members::_id::page::MemberDetailPage;
+use crate::pages::members::page::MemberPage;
 use crate::pages::reset_password::ResetPasswordPage;
 use crate::prelude::*;
-use crate::utils::context::{default_lang, Language};
+use dioxus_translate::Language;
 
 #[derive(Clone, Routable, Debug, PartialEq)]
 #[rustfmt::skip]
@@ -60,7 +60,7 @@ pub enum Route {
         ResetPasswordPage { lang: Language },
     #[end_nest]
 
-    #[redirect("/", || Route::LoginPage { lang: default_lang() })]
+    #[redirect("/", || Route::LoginPage { lang: Language::default() })]
     #[route("/:..route")]
     NotFoundPage { route: Vec<String> },
 }

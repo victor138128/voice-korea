@@ -1,12 +1,13 @@
 #![allow(non_snake_case)]
-use crate::{components::icons::Logout, prelude::*};
+use crate::{components::icons::Logout, prelude::*, service::popup_service::PopupZone};
 use dioxus::prelude::*;
-use dioxus_popup::PopupZone;
 use side_bar::{SelectedMenu, SideBar};
 
 pub mod header;
 pub mod i18n;
 pub mod side_bar;
+
+use dioxus_translate::Language;
 
 #[component]
 pub fn RootLayout(lang: Language) -> Element {
