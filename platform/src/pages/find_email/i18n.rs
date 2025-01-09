@@ -49,7 +49,7 @@ translate! {
     },
     check_description_1: {
         ko: "- 휴대폰 본인인증 절차가 정상적으로 이루어지지 않을 경우 XXXX(XXXX-XXXX)로 문의하시기 바랍니다.",
-        en: "- If the authentication time has expired, please resend the authentication number and then enter it."
+        en: "- If the mobile phone identity verification process does not proceed normally, please contact XXXX(XXXX-XXXX)."
     },
 
     get_email_description: {
