@@ -16,7 +16,10 @@ pub struct GroupSummary {
 pub struct Controller {
     pub groups: Signal<Vec<GroupSummary>>,
     pub group_resource: Resource<
-        Result<crate::api::common::CommonQueryResponse<models::prelude::Group>, ServerFnError>,
+        Result<
+            crate::api::common::CommonQueryResponse<models::prelude::GroupResponse>,
+            ServerFnError,
+        >,
     >,
 }
 
@@ -24,7 +27,10 @@ impl Controller {
     pub fn init(_lang: Language) -> Self {
         let api: GroupApi = use_context();
         let group_resource: Resource<
-            Result<crate::api::common::CommonQueryResponse<models::prelude::Group>, ServerFnError>,
+            Result<
+                crate::api::common::CommonQueryResponse<models::prelude::GroupResponse>,
+                ServerFnError,
+            >,
         > = use_resource(move || {
             let api = api.clone();
             async move { api.list_groups(Some(100), None).await }
@@ -43,11 +49,7 @@ impl Controller {
                         group_id: group.id.clone(),
                         group_name: group.name.clone(),
                         member_count: group.members.len() as u64,
-                        member_list: group
-                            .members
-                            .iter()
-                            .map(|member| member.name.clone())
-                            .collect(),
+                        member_list: group.members.iter().map(|v| v.user_name.clone()).collect(), //FIXME: fix to real member list
                     })
                     .collect(),
                 Err(_) => vec![],

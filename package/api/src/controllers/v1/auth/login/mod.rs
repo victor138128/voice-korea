@@ -6,7 +6,7 @@ use by_axum::axum::response::Response;
 use by_axum::axum::Json;
 use by_axum::log::root;
 use easy_dynamodb::Client;
-use models::prelude::{CreateMemberRequest, InviteMember, Member, UpdateField};
+use models::prelude::{CreateMemberRequest, Member};
 use serde::Deserialize;
 
 use crate::common::CommonQueryResponse;
@@ -25,7 +25,6 @@ pub async fn handler(
     Json(body): Json<LoginParams>,
 ) -> Result<Response<String>, ApiError> {
     let log = root();
-    let cli = easy_dynamodb::get_client(log.clone());
     let email = body.email.clone();
     let users = CommonQueryResponse::<models::User>::query(
         &log,
@@ -57,41 +56,7 @@ pub async fn handler(
         .map_err(|e| ApiError::JWTGenerationFail(e.to_string()))?;
 
     // If the member list has not been added, add the member list
-    let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
-        &log,
-        "gsi1-index",
-        None,
-        Some(100),
-        vec![("gsi1", Member::get_gsi1(body.email.clone()))],
-    )
-    .await?;
-
-    if res.items.len() == 0 {
-        let member: Member = get_member_data(db.clone(), body).await;
-
-        cli.upsert(member.clone())
-            .await
-            .map_err(|e| ApiError::DynamoCreateException(e.to_string()))?;
-    } else {
-        let item = res.items.first().unwrap();
-
-        if item.deleted_at.is_some() {
-            let member: Member = (
-                CreateMemberRequest {
-                    email,
-                    name: None,
-                    group: None,
-                    role: None,
-                },
-                item.id.clone(),
-            )
-                .into();
-
-            cli.upsert(member.clone())
-                .await
-                .map_err(|e| ApiError::DynamoCreateException(e.to_string()))?;
-        }
-    }
+    let _ = create_member(db, body).await;
 
     Ok(Response::builder()
         .status(200)
@@ -103,72 +68,45 @@ pub async fn handler(
         .map_err(|e| ApiError::ValidationError(e.to_string()))?)
 }
 
-async fn get_member_data(db: Arc<Client>, body: LoginParams) -> Member {
-    let now = chrono::Utc::now().timestamp_millis();
-    let id = uuid::Uuid::new_v4().to_string();
+async fn create_member(_db: Arc<Client>, body: LoginParams) -> Result<(), ApiError> {
     let log = root();
-    let res: CommonQueryResponse<InviteMember> = CommonQueryResponse::query(
+    let cli = easy_dynamodb::get_client(log.clone());
+
+    let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
         &log,
         "gsi1-index",
         None,
         Some(1),
-        vec![("gsi1", InviteMember::get_gsi1(body.email.clone()))],
+        vec![("gsi1", Member::get_gsi1(body.email.clone()))],
     )
-    .await
-    .unwrap();
+    .await?;
 
     if res.items.len() != 0 {
         let item = res.items.first().unwrap();
-        let _ = db
-            .update(
-                &item.id,
-                vec![
-                    ("deleted_at", UpdateField::I64(now)),
-                    (
-                        "type",
-                        UpdateField::String(InviteMember::get_deleted_type()),
-                    ),
-                    (
-                        "gsi1",
-                        UpdateField::String(InviteMember::get_gsi_deleted(&body.email)),
-                    ),
-                ],
-            )
-            .await;
 
         if item.deleted_at.is_none() {
-            (
-                CreateMemberRequest {
-                    email: body.email.clone(),
-                    name: Some(item.name.clone()),
-                    group: item.group.clone(),
-                    role: item.role.clone(),
-                },
-                id,
-            )
-                .into()
-        } else {
-            (
-                CreateMemberRequest {
-                    email: body.email.clone(),
-                    name: None,
-                    group: None,
-                    role: None,
-                },
-                id,
-            )
-                .into()
+            return Ok(()); //already member
         }
-    } else {
-        (
-            CreateMemberRequest {
-                email: body.email.clone(),
-                name: None,
-                group: None,
-                role: None,
-            },
-            id,
-        )
-            .into()
+    }
+
+    let id = uuid::Uuid::new_v4().to_string();
+
+    let member: Member = (
+        CreateMemberRequest {
+            email: body.email.clone(),
+            name: None,
+            group: None,
+            role: None,
+        },
+        id,
+    )
+        .into();
+
+    match cli.upsert(member.clone()).await {
+        Ok(()) => Ok(()),
+        Err(e) => {
+            slog::error!(log, "Create Member Failed {e:?}");
+            Err(ApiError::DynamoCreateException(e.to_string()))
+        }
     }
 }

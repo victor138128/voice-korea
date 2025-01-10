@@ -3,7 +3,7 @@ pub type Result<T> = std::result::Result<T, ServerFnError>;
 use std::collections::HashMap;
 
 use dioxus::prelude::*;
-use models::prelude::{CreateGroupRequest, Group, GroupActionRequest};
+use models::prelude::{CreateGroupRequest, Group, GroupActionRequest, GroupResponse};
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
 
@@ -72,7 +72,7 @@ impl GroupApi {
         &self,
         size: Option<i64>,
         bookmark: Option<String>,
-    ) -> Result<CommonQueryResponse<Group>> {
+    ) -> Result<CommonQueryResponse<GroupResponse>> {
         let token = self.get_token();
 
         let mut params = HashMap::new();
@@ -98,7 +98,7 @@ impl GroupApi {
         Ok(groups)
     }
 
-    pub async fn get_group(&self, group_id: String) -> Result<Group> {
+    pub async fn get_group(&self, group_id: String) -> Result<GroupResponse> {
         let token = self.get_token();
 
         let client = ReqwestClient::new()?;

@@ -117,12 +117,13 @@ impl Controller {
         (self.roles)()
     }
 
-    pub async fn invite_member(&self, req: InviteMemberRequest) {
+    pub async fn invite_member(&mut self, req: InviteMemberRequest) {
         let api: MemberApi = use_context();
         let _ = api.invite_member(req).await;
+        self.member_resource.restart();
     }
 
-    pub async fn update_group(&mut self, index: usize, group_name: String) {
+    pub async fn update_group(&mut self, index: usize, _group_name: String) {
         let api: MemberApi = use_context();
         let members = self.get_members().members;
         let member = members[index].clone();
@@ -131,7 +132,7 @@ impl Controller {
                 member.member_id,
                 UpdateMemberRequest {
                     name: member.profile_name,
-                    group: Some(group_name),
+                    group: None, //FIXME: fix to real group
                     role: if member.role != "" {
                         Some(member.role)
                     } else {
@@ -153,7 +154,7 @@ impl Controller {
                 UpdateMemberRequest {
                     name: member.profile_name,
                     group: if member.group != "" {
-                        Some(member.group)
+                        None //FIXME: fix to real group
                     } else {
                         None
                     },

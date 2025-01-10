@@ -26,6 +26,7 @@ endif
 ifeq ("$(ENV)","local")
 	VOICE_KOREA_TABLE_NAME = voice-korea-dev
 	BASE_URL = http://localhost:8080
+	API_URL ?= http://localhost:3000
 endif
 
 API_URL ?= https://voice-korea-api.dev.biyard.co

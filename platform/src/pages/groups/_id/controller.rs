@@ -1,5 +1,6 @@
 use chrono::{Local, TimeZone};
 use dioxus::prelude::*;
+use models::prelude::GroupMemberResponse;
 
 use crate::service::group_api::GroupApi;
 
@@ -22,7 +23,7 @@ pub enum ProjectStatus {
 pub struct GroupDetail {
     pub group: String,
     pub register_date: String,
-    pub group_members: Vec<GroupMember>,
+    pub group_members: Vec<GroupMemberResponse>,
     pub group_projects: Vec<GroupProject>,
 }
 
@@ -51,13 +52,13 @@ pub struct Controller {
     pub group: Signal<GroupDetail>,
     pub groups: Signal<Vec<String>>,
     pub roles: Signal<Vec<String>>,
-    pub group_resource: Resource<Result<models::prelude::Group, ServerFnError>>,
+    pub group_resource: Resource<Result<models::prelude::GroupResponse, ServerFnError>>,
 }
 
 impl Controller {
     pub fn init(_lang: dioxus_translate::Language, group_id: String) -> Self {
         let api: GroupApi = use_context();
-        let group_resource: Resource<Result<models::prelude::Group, ServerFnError>> =
+        let group_resource: Resource<Result<models::prelude::GroupResponse, ServerFnError>> =
             use_resource(move || {
                 let api = api.clone();
                 let group_id = group_id.clone();
@@ -96,19 +97,7 @@ impl Controller {
                     let data = GroupDetail {
                         group: d.name.clone(),
                         register_date: formatted_date.clone(),
-                        group_members: d
-                            .members
-                            .iter()
-                            .map(|member| GroupMember {
-                                member_id: member.user_id.clone(),
-                                email: member.email.clone(),
-                                profile_image: None,
-                                profile_name: Some(member.name.clone()),
-                                group: d.name.clone(),
-                                role: member.role.clone().unwrap_or_default(),
-                                projects: vec![],
-                            })
-                            .collect(),
+                        group_members: d.members,
                         group_projects: vec![],
                     };
 

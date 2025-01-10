@@ -505,7 +505,7 @@ pub fn ProfileInfo(
                                 update_member
                                     .call(UpdateMemberRequest {
                                         name: Some(name()),
-                                        group: if select_group() == "" { None } else { Some(select_group()) },
+                                        group: None,
                                         role: if select_role() == "" { None } else { Some(select_role()) },
                                     });
                             },

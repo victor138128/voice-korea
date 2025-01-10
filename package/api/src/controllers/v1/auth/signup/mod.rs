@@ -3,7 +3,6 @@ use std::sync::Arc;
 use by_axum::axum::Json;
 use by_axum::{axum::extract::State, log::root};
 use easy_dynamodb::Client;
-use models::prelude::{InviteMember, UpdateField};
 use models::{
     prelude::{CreateMemberRequest, Member},
     User,
@@ -63,81 +62,54 @@ pub async fn handler(
     let _ = db.delete(&auth_doc_id);
     let _ = db.create(user).await;
 
-    let member: Member = get_member_data(db.clone(), body).await;
-
-    db.upsert(member.clone())
-        .await
-        .map_err(|e| ApiError::DynamoCreateException(e.to_string()))?;
+    let _ = create_member(db, body).await;
 
     Ok(())
 }
 
-async fn get_member_data(db: Arc<Client>, body: SignUpParams) -> Member {
-    let now = chrono::Utc::now().timestamp_millis();
-    let id = uuid::Uuid::new_v4().to_string();
+async fn create_member(_db: Arc<Client>, body: SignUpParams) -> Result<(), ApiError> {
     let log = root();
-    let res: CommonQueryResponse<InviteMember> = CommonQueryResponse::query(
+    let cli = easy_dynamodb::get_client(log.clone());
+
+    let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
         &log,
         "gsi1-index",
         None,
         Some(1),
-        vec![("gsi1", InviteMember::get_gsi1(body.email.clone()))],
+        vec![("gsi1", Member::get_gsi1(body.email.clone()))],
     )
-    .await
-    .unwrap();
+    .await?;
+
+    slog::debug!(log, "This line come1 {:?}", res.items);
 
     if res.items.len() != 0 {
         let item = res.items.first().unwrap();
-        let _ = db
-            .update(
-                &item.id,
-                vec![
-                    ("deleted_at", UpdateField::I64(now)),
-                    (
-                        "type",
-                        UpdateField::String(InviteMember::get_deleted_type()),
-                    ),
-                    (
-                        "gsi1",
-                        UpdateField::String(InviteMember::get_gsi_deleted(&body.email)),
-                    ),
-                ],
-            )
-            .await;
+        slog::debug!(log, "This line come2 {:?}", item);
 
         if item.deleted_at.is_none() {
-            (
-                CreateMemberRequest {
-                    email: body.email.clone(),
-                    name: Some(item.name.clone()),
-                    group: item.group.clone(),
-                    role: item.role.clone(),
-                },
-                id,
-            )
-                .into()
-        } else {
-            (
-                CreateMemberRequest {
-                    email: body.email.clone(),
-                    name: None,
-                    group: None,
-                    role: None,
-                },
-                id,
-            )
-                .into()
+            return Ok(()); //already invited member
         }
-    } else {
-        (
-            CreateMemberRequest {
-                email: body.email.clone(),
-                name: None,
-                group: None,
-                role: None,
-            },
-            id,
-        )
-            .into()
+    }
+
+    let id = uuid::Uuid::new_v4().to_string();
+
+    let member: Member = (
+        CreateMemberRequest {
+            email: body.email.clone(),
+            name: None,
+            group: None,
+            role: None,
+        },
+        id,
+    )
+        .into();
+    slog::debug!(log, "This line come3 {:?}", member);
+
+    match cli.upsert(member.clone()).await {
+        Ok(()) => Ok(()),
+        Err(e) => {
+            slog::error!(log, "Create Member Failed {e:?}");
+            Err(ApiError::DynamoCreateException(e.to_string()))
+        }
     }
 }

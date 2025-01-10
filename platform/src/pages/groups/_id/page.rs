@@ -1,15 +1,15 @@
 #![allow(non_snake_case)]
-use super::controller::{Controller, GroupMember, GroupProject, ProjectStatus, ProjectType};
+use super::controller::{Controller, GroupProject, ProjectStatus, ProjectType};
 use super::i18n::GroupDetailTranslate;
 use dioxus::prelude::*;
 use dioxus_translate::translate;
 use dioxus_translate::Language;
+use models::prelude::GroupMemberResponse;
 
+use crate::components::icons::Plus;
 use crate::{
     components::{
-        icons::{
-            AddUser, ArrowLeft, ArrowRight, ColOption, Expand, Plus, RowOption, Search, Switch,
-        },
+        icons::{AddUser, ArrowLeft, ArrowRight, ColOption, Expand, RowOption, Search, Switch},
         label::Label,
     },
     routes::Route,
@@ -200,6 +200,7 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
                     members: ctrl.get_group().group_members,
                     total_groups,
                     total_roles,
+                    group_name,
                     i18n: GroupParticipantTranslate {
                         group_team_member: translates.group_team_member.to_string(),
                         add_member: translates.add_member.to_string(),
@@ -387,10 +388,11 @@ pub fn GroupCommonProject(
 
 #[component]
 pub fn GroupParticipant(
-    members: Vec<GroupMember>,
+    members: Vec<GroupMemberResponse>,
     total_groups: Vec<String>,
     total_roles: Vec<String>,
     change_popup_state: EventHandler<String>,
+    group_name: String,
     i18n: GroupParticipantTranslate,
 ) -> Element {
     let mut name = use_signal(|| "".to_string());
@@ -480,28 +482,28 @@ pub fn GroupParticipant(
                                     div { class: "w-[36px] h-[36px] rounded-[40px] bg-[#9baae4] mr-[10px]" }
                                     div { class: "flex flex-col justify-start items-start",
                                         div { class: "text-[14px] font-medium text-[#3a3a3a] mb-[5px]",
-                                            {member.profile_name.clone().unwrap_or_default()}
+                                            {member.user_name.clone()}
                                         }
                                         div { class: "text-[14px] font-normal text-[#7c8292]",
-                                            {member.email.clone()}
+                                            {member.user_email.clone()}
                                         }
                                     }
                                 }
                                 div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center gap-[10px]",
                                     select {
                                         class: "bg-transparent focus:outline-none",
-                                        value: member.group.clone(),
+                                        value: group_name.clone(),
                                         //TODO: update member group
                                         onchange: |_evt| {},
                                         option {
                                             value: "",
-                                            selected: member.group.clone() == "".to_string(),
+                                            selected: group_name.clone() == "".to_string(),
                                             "그룹 없음"
                                         }
                                         for group in total_groups.clone() {
                                             option {
                                                 value: group.clone(),
-                                                selected: member.group.clone() == group,
+                                                selected: group_name.clone() == group,
                                                 "{group}"
                                             }
                                         }
@@ -510,30 +512,30 @@ pub fn GroupParticipant(
                                 div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center gap-[10px]",
                                     select {
                                         class: "bg-transparent focus:outline-none",
-                                        value: member.role.clone(),
+                                        value: member.role_name.clone(),
                                         //TODO: update member role
                                         onchange: |_evt| {},
                                         option {
                                             value: "",
-                                            selected: member.role.clone() == "".to_string(),
+                                            selected: member.role_name.is_none(),
                                             "역할 없음"
                                         }
                                         for role in total_roles.clone() {
                                             option {
                                                 value: role.clone(),
-                                                selected: member.role.clone() == role,
+                                                selected: !member.role_name.is_none() && member.role_name.clone().unwrap_or_default() == role,
                                                 "{role}"
                                             }
                                         }
                                     }
                                 }
                                 div { class: "flex flex-row w-full h-full justify-center items-center gap-[10px]",
-                                    if member.projects.len() > 0 {
-                                        Label {
-                                            label_name: member.projects[0].clone(),
-                                            label_color: "bg-[#35343f]",
-                                        }
-                                    }
+                                    // if member.projects.len() > 0 {
+                                    //     Label {
+                                    //         label_name: member.projects[0].clone(),
+                                    //         label_color: "bg-[#35343f]",
+                                    //     }
+                                    // }
                                     div { class: "flex flex-row w-[24px] h-[24px] justify-center items-center bg-[#d1d1d1] ml-[5px] opacity-50 rounded-lg",
                                         Plus { width: "10", height: "10" }
                                     }
