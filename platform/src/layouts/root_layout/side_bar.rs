@@ -1,9 +1,11 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
+use dioxus_logger::tracing;
 
 use crate::{
     components::icons::{BottomArrow, Logo},
     routes::Route,
+    service::organization_api::OrganizationApi,
 };
 
 use super::Language;
@@ -17,6 +19,21 @@ pub struct SidebarProps {
 
 #[component]
 pub fn SideBar(props: SidebarProps) -> Element {
+    let mut api: OrganizationApi = use_context();
+    let organizations = api.get_organizations();
+    let selected_organization = api.get_selected_organization_id();
+
+    tracing::debug!("selected organization: {selected_organization}");
+
+    let organization_menus: Vec<MenuItem> = organizations
+        .iter()
+        .map(|v| MenuItem {
+            id: v.organization_id.clone(),
+            title: v.organization_name.clone(),
+            is_selected: false,
+            link: None,
+        })
+        .collect();
     rsx! {
         div { class: "flex-col min-w-[250px] grow bg-[#435393] justify-between items-between rounded-tr-lg rounded-br-lg",
             div { class: "flex flex-col w-full h-full justify-between items-between",
@@ -29,22 +46,31 @@ pub fn SideBar(props: SidebarProps) -> Element {
                     }
                     div { class: "flex flex-col grow items-center w-full",
                         SectionMenus {
+                            onselected: move |menu: SelectedMenu| {
+                                api.set_selected_organization_id(menu.id.clone());
+                            },
+                            title: "{Organization}".to_string(),
+                            menus: organization_menus,
+                        }
+                        SectionMenus {
                             onselected: props.onselected,
                             title: "Overview".to_string(),
                             menus: vec![
                                 MenuItem {
+                                    id: "".to_string(),
                                     title: "프로젝트 검색".to_string(),
                                     is_selected: props.selected_menu == "프로젝트 검색",
-                                    link: Route::DashboardPage {
+                                    link: Some(Route::DashboardPage {
                                         lang: props.lang,
-                                    },
+                                    }),
                                 },
                                 MenuItem {
+                                    id: "".to_string(),
                                     title: "기본 프로젝트 가져오기".to_string(),
                                     is_selected: props.selected_menu == "기본 프로젝트 가져오기",
-                                    link: Route::DashboardPage {
+                                    link: Some(Route::DashboardPage {
                                         lang: props.lang,
-                                    },
+                                    }),
                                 },
                             ],
                         }
@@ -53,18 +79,20 @@ pub fn SideBar(props: SidebarProps) -> Element {
                             title: "조직 관리".to_string(),
                             menus: vec![
                                 MenuItem {
+                                    id: "".to_string(),
                                     title: "팀원 관리".to_string(),
                                     is_selected: props.selected_menu == "팀원 관리",
-                                    link: Route::MemberPage {
+                                    link: Some(Route::MemberPage {
                                         lang: props.lang,
-                                    },
+                                    }),
                                 },
                                 MenuItem {
+                                    id: "".to_string(),
                                     title: "그룹 관리".to_string(),
                                     is_selected: props.selected_menu == "그룹 관리",
-                                    link: Route::GroupPage {
+                                    link: Some(Route::GroupPage {
                                         lang: props.lang,
-                                    },
+                                    }),
                                 },
                             ],
                         }
@@ -73,18 +101,20 @@ pub fn SideBar(props: SidebarProps) -> Element {
                             title: "조사 관리".to_string(),
                             menus: vec![
                                 MenuItem {
+                                    id: "".to_string(),
                                     title: "조사 관리".to_string(),
                                     is_selected: props.selected_menu == "조사 관리",
-                                    link: Route::DashboardPage {
+                                    link: Some(Route::DashboardPage {
                                         lang: props.lang,
-                                    },
+                                    }),
                                 },
                                 MenuItem {
+                                    id: "".to_string(),
                                     title: "질문 뱅크".to_string(),
                                     is_selected: props.selected_menu == "질문 뱅크",
-                                    link: Route::DashboardPage {
+                                    link: Some(Route::DashboardPage {
                                         lang: props.lang,
-                                    },
+                                    }),
                                 },
                             ],
                         }
@@ -93,11 +123,12 @@ pub fn SideBar(props: SidebarProps) -> Element {
                             title: "공론 관리".to_string(),
                             menus: vec![
                                 MenuItem {
+                                    id: "".to_string(),
                                     title: "공론 관리".to_string(),
                                     is_selected: props.selected_menu == "공론 관리",
-                                    link: Route::DashboardPage {
+                                    link: Some(Route::DashboardPage {
                                         lang: props.lang,
-                                    },
+                                    }),
                                 },
                             ],
                         }
@@ -106,11 +137,12 @@ pub fn SideBar(props: SidebarProps) -> Element {
                             title: "속성 & 패널 관리".to_string(),
                             menus: vec![
                                 MenuItem {
+                                    id: "".to_string(),
                                     title: "속성 & 패널 관리".to_string(),
                                     is_selected: props.selected_menu == "속성 & 패널 관리",
-                                    link: Route::DashboardPage {
+                                    link: Some(Route::DashboardPage {
                                         lang: props.lang,
-                                    },
+                                    }),
                                 },
                             ],
                         }
@@ -119,11 +151,12 @@ pub fn SideBar(props: SidebarProps) -> Element {
                             title: "자료 관리".to_string(),
                             menus: vec![
                                 MenuItem {
+                                    id: "".to_string(),
                                     title: "자료 관리".to_string(),
                                     is_selected: props.selected_menu == "자료 관리",
-                                    link: Route::DashboardPage {
+                                    link: Some(Route::DashboardPage {
                                         lang: props.lang,
-                                    },
+                                    }),
                                 },
                             ],
                         }
@@ -149,13 +182,15 @@ pub fn SideBar(props: SidebarProps) -> Element {
 pub struct SelectedMenu {
     pub category: String,
     pub menu: String,
+    pub id: String,
 }
 
 #[derive(Clone, PartialEq, Props)]
 pub struct MenuItem {
+    id: String,
     title: String,
     is_selected: bool,
-    link: Route,
+    link: Option<Route>,
 }
 
 #[component]
@@ -188,20 +223,39 @@ pub fn SectionMenus(
                         let title = title.clone();
                         let cm = menu.clone();
                         rsx! {
-                            Link {
-                                onclick: move |_evt| {
-                                    onselected
-                                        .call(SelectedMenu {
-                                            category: title.clone(),
-                                            menu: cm.title.clone(),
-                                        });
-                                },
-                                to: menu.link,
-                                class: format!(
-                                    "flex flex-row h-[45px] w-full px-[16px] items-center justify-start {}",
-                                    if menu.is_selected { "rounded-lg bg-[#182248]" } else { "" },
-                                ),
-                                div { class: "flex font-medium text-[14px] text-[#daeaff]", "{menu.title}" }
+                            if menu.link.is_some() {
+                                Link {
+                                    onclick: move |_evt| {
+                                        onselected
+                                            .call(SelectedMenu {
+                                                id: cm.id.clone(),
+                                                category: title.clone(),
+                                                menu: cm.title.clone(),
+                                            });
+                                    },
+                                    to: menu.link.unwrap(),
+                                    class: format!(
+                                        "flex flex-row h-[45px] w-full px-[16px] items-center justify-start {}",
+                                        if menu.is_selected { "rounded-lg bg-[#182248]" } else { "" },
+                                    ),
+                                    div { class: "flex font-medium text-[14px] text-[#daeaff]", "{menu.title}" }
+                                }
+                            } else {
+                                div {
+                                    onclick: move |_evt| {
+                                        onselected
+                                            .call(SelectedMenu {
+                                                id: cm.id.clone(),
+                                                category: title.clone(),
+                                                menu: cm.title.clone(),
+                                            });
+                                    },
+                                    class: format!(
+                                        "flex flex-row h-[45px] w-full px-[16px] items-center justify-start cursor-pointer {}",
+                                        if menu.is_selected { "rounded-lg bg-[#182248]" } else { "" },
+                                    ),
+                                    div { class: "flex font-medium text-[14px] text-[#daeaff]", "{menu.title}" }
+                                }
                             }
                         }
                     }

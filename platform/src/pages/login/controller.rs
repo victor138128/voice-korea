@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 
 use crate::{
     api::v1::users::login::{login_user, LoginRequest},
-    service::login_service::use_login_service,
+    service::{login_service::use_login_service, organization_api::OrganizationApi},
     utils::hash::get_hash_string,
 };
 
@@ -63,6 +63,7 @@ impl Controller {
 
     pub async fn login_clicked(&mut self, lang: Language) {
         let mut login_service = use_login_service();
+        let mut api: OrganizationApi = use_context();
         let navigator = use_navigator();
         let res = login_user(LoginRequest {
             email: self.get_email(),
@@ -73,6 +74,9 @@ impl Controller {
         match res {
             Ok(token) => {
                 login_service.setup(self.get_email(), token).await;
+                let organizations = api.list_organizations(Some(100), None).await;
+                let items = organizations.unwrap_or_default().items;
+                api.set_organization(items);
                 navigator.push(Route::DashboardPage { lang });
             }
             Err(e) => match e {

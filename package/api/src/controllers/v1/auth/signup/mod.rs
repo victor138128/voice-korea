@@ -3,6 +3,7 @@ use std::sync::Arc;
 use by_axum::axum::Json;
 use by_axum::{axum::extract::State, log::root};
 use easy_dynamodb::Client;
+use models::prelude::{Organization, OrganizationMember};
 use models::{
     prelude::{CreateMemberRequest, Member},
     User,
@@ -13,7 +14,7 @@ use super::super::verification::email::{verify_handler, EmailVerifyParams};
 use crate::common::CommonQueryResponse;
 use crate::utils::{error::ApiError, hash::get_hash_string};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct SignUpParams {
     pub auth_id: String,
     pub auth_value: String,
@@ -52,7 +53,7 @@ pub async fn handler(
         )
         .await;
     match result {
-        Ok((Some(docs), Some(_))) => {
+        Ok((Some(docs), _)) => {
             if docs.len() > 0 {
                 return Err(ApiError::DuplicateUser);
             }
@@ -60,9 +61,39 @@ pub async fn handler(
         _ => (),
     };
     let _ = db.delete(&auth_doc_id);
-    let _ = db.create(user).await;
+    let _ = db.create(user.clone()).await;
 
-    let _ = create_member(db, body).await;
+    let _ = create_organization(db.clone(), user.id.clone(), body.clone()).await?;
+
+    let _ = create_member(db, body).await; //FIXME: add to organization
+
+    Ok(())
+}
+
+async fn create_organization(
+    _db: Arc<Client>,
+    user_id: String,
+    body: SignUpParams,
+) -> Result<(), ApiError> {
+    let log = root();
+    let cli = easy_dynamodb::get_client(log.clone());
+
+    let id = uuid::Uuid::new_v4().to_string();
+
+    let organization: Organization =
+        Organization::new(id.clone(), user_id.clone(), body.email.clone());
+    let _ = cli
+        .upsert(organization)
+        .await
+        .map_err(|e| ApiError::DynamoCreateException(e.to_string()))?;
+
+    let organization_member_id = uuid::Uuid::new_v4().to_string();
+    let organization_member: OrganizationMember =
+        OrganizationMember::new(organization_member_id, user_id.clone(), id.clone());
+    let _ = cli
+        .upsert(organization_member)
+        .await
+        .map_err(|e| ApiError::DynamoCreateException(e.to_string()))?;
 
     Ok(())
 }
@@ -80,11 +111,8 @@ async fn create_member(_db: Arc<Client>, body: SignUpParams) -> Result<(), ApiEr
     )
     .await?;
 
-    slog::debug!(log, "This line come1 {:?}", res.items);
-
     if res.items.len() != 0 {
         let item = res.items.first().unwrap();
-        slog::debug!(log, "This line come2 {:?}", item);
 
         if item.deleted_at.is_none() {
             return Ok(()); //already invited member
@@ -103,7 +131,6 @@ async fn create_member(_db: Arc<Client>, body: SignUpParams) -> Result<(), ApiEr
         id,
     )
         .into();
-    slog::debug!(log, "This line come3 {:?}", member);
 
     match cli.upsert(member.clone()).await {
         Ok(()) => Ok(()),

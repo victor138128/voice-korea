@@ -329,9 +329,11 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                                     div {
                                         class: "flex flex-row w-full h-full justify-center items-center gap-[10px] cursor-pointer relative",
                                         onclick: move |_| {
-                                            let mut clicked = projects_clicked.clone()();
-                                            clicked[index] = !clicked[index];
-                                            projects_clicked.set(clicked);
+                                            if index < projects_clicked().len() {
+                                                let mut clicked = projects_clicked.clone()();
+                                                clicked[index] = !clicked[index];
+                                                projects_clicked.set(clicked);
+                                            }
                                         },
                                         if members.len() != 0 && index < projects_clicked().len()
                                             && (!projects_clicked()[index] && members[index].projects.len() > 0)
