@@ -290,7 +290,7 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                                                 value: "",
                                                 disabled: true,
                                                 selected: members[index].clone().group == "",
-                                                "그룹 없음"
+                                                {translates.no_group}
                                             }
                                             for group in groups.clone() {
                                                 option {
@@ -316,7 +316,7 @@ pub fn MemberPage(props: MemberPageProps) -> Element {
                                                 value: "",
                                                 disabled: true,
                                                 selected: members[index].clone().role == "",
-                                                "역할 없음"
+                                                {translates.no_role}
                                             }
                                             for role in roles.clone() {
                                                 option {

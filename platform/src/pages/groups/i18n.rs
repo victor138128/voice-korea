@@ -62,6 +62,10 @@ translate! {
         ko: "중복 입력은 허용되지 않으며, 최소 2글자 이상 입력해야 합니다.",
         en: "Duplicate entries are not allowed, and you must enter at least 2 characters.",
     },
+    group_name: {
+        ko: "그룹명",
+        en: "Group Name"
+    },
     update: {
         ko: "수정하기",
         en: "Edit",
@@ -83,4 +87,33 @@ translate! {
         ko: "삭제하기",
         en: "Delete",
     },
+
+    input_contents: {
+        ko: "내용 입력",
+        en: "Input Contents"
+    },
+    create_group_hint: {
+        ko: "중복 입력은 허용되지 않으며, 최소 2글자 이상 입력해야 합니다.",
+        en: "Duplicate entries are not allowed, and you must enter at least 2 characters."
+    },
+    add_team_member: {
+        ko: "팀원 추가",
+        en: "Add Team Member"
+    },
+    invite_project: {
+        ko: "프로젝트 초대",
+        en: "Invite Project"
+    },
+    public_opinion: {
+        ko: "공론",
+        en: "Public Opinion"
+    },
+    investigation: {
+        ko: "조사",
+        en: "Investigation"
+    },
+    create: {
+        ko: "만들기",
+        en: "Create"
+    }
 }

@@ -48,6 +48,14 @@ translate! {
         ko: "팀원 삭제하기",
         en: "Remove Team Member",
     },
+    no_group: {
+        ko: "그룹 없음",
+        en: "No Group"
+    },
+    no_role: {
+        ko: "역할 없음",
+        en: "No Role"
+    }
 
     participation_record: {
         ko: "참여 기록",
@@ -77,6 +85,30 @@ translate! {
         ko: "상태",
         en: "Status",
     },
+    investigation: {
+        ko: "조사",
+        en: "Investigation"
+    },
+    public_opinion: {
+        ko: "공론",
+        en: "Public Opinion"
+    },
+    ready: {
+        ko: "준비",
+        en: "Ready"
+    },
+    in_progress: {
+        ko: "진행",
+        en: "In Progress"
+    },
+    finish: {
+        ko: "마감",
+        en: "Finish"
+    },
+    exclude_from_project: {
+        ko: "프로젝트에서 제외하기",
+        en: "Exclude From Project"
+    }
 
     remove_team_member_title: {
         ko: "팀원 삭제",

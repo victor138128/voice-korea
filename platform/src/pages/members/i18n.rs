@@ -116,6 +116,14 @@ translate! {
         ko: "선택 없음",
         en: "No Selection",
     },
+    no_group: {
+        ko: "그룹 없음",
+        en: "No Group"
+    },
+    no_role: {
+        ko: "역할 없음",
+        en: "No Role"
+    },
     select_role: {
         ko: "선택 없음",
         en: "No Selection",

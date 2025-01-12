@@ -26,6 +26,7 @@ pub struct UpdateGroupNameModalTranslates {
     update_group_name_info: String,
     update_group_name_hint: String,
     update_group_name_warning: String,
+    group_name: String,
     update: String,
     cancel: String,
 }
@@ -39,7 +40,18 @@ pub struct RemoveGroupModalTranslates {
 }
 
 #[derive(Props, Clone, PartialEq)]
-pub struct CreateGroupModalTranslates {}
+pub struct CreateGroupModalTranslates {
+    group_name: String,
+    input_contents: String,
+    create_group_hint: String,
+    add_team_member: String,
+    team_member: String,
+    invite_project: String,
+    public_opinion: String,
+    investigation: String,
+    create: String,
+    cancel: String,
+}
 
 #[derive(Clone, PartialEq)]
 pub enum ModalType {
@@ -88,6 +100,7 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                         update_group_name_info: translates.update_group_name_info.to_string(),
                         update_group_name_hint: translates.update_group_name_hint.to_string(),
                         update_group_name_warning: translates.update_group_name_warning.to_string(),
+                        group_name: translates.group_name.to_string(),
                         update: translates.update.to_string(),
                         cancel: translates.cancel.to_string(),
                     },
@@ -143,11 +156,22 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                         clicked_group_id.set("".to_string());
                         clicked_group_name.set("".to_string());
                     },
-                    i18n: CreateGroupModalTranslates {},
+                    i18n: CreateGroupModalTranslates {
+                        group_name: translates.group_name.to_string(),
+                        input_contents: translates.input_contents.to_string(),
+                        create_group_hint: translates.create_group_hint.to_string(),
+                        add_team_member: translates.add_team_member.to_string(),
+                        team_member: translates.team_member.to_string(),
+                        invite_project: translates.invite_project.to_string(),
+                        public_opinion: translates.public_opinion.to_string(),
+                        investigation: translates.investigation.to_string(),
+                        create: translates.create.to_string(),
+                        cancel: translates.cancel.to_string(),
+                    },
                 }
             })
             .with_id("create_group")
-            .with_title("그룹 만들기");
+            .with_title(translates.create_group);
     } else {
         popup.close();
     }
@@ -395,7 +419,7 @@ pub fn UpdateGroupNameModal(
                 {i18n.update_group_name_info}
             }
             div { class: "flex flex-col w-full justify-start items-start",
-                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]", "그룹명" }
+                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]", {i18n.group_name} }
                 input {
                     class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
                     r#type: "text",
@@ -470,43 +494,43 @@ pub fn CreateGroupModal(
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start ",
             div { class: "flex flex-col w-full justify-start items-start",
-                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]", "그룹명" }
+                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]", {i18n.group_name} }
                 input {
                     class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
                     r#type: "text",
-                    placeholder: "내용 입력",
+                    placeholder: i18n.input_contents,
                     value: (group_name)(),
                     oninput: move |event| {
                         group_name.set(event.value());
                     },
                 }
-                div { class: "font-normal text-[13px] text-[#222222]",
-                    "중복 입력은 허용되지 않으며, 최소 2글자 이상 입력해야 합니다."
-                }
+                div { class: "font-normal text-[13px] text-[#222222]", {} }
             }
             div { class: "flex flex-col w-full justify-start items-start mt-[40px]",
-                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]", "팀원 추가" }
+                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]",
+                    {i18n.add_team_member}
+                }
                 div { class: "flex flex-row w-full justify-center items-start",
                     div { class: "flex flex-row justify-start items-center text-[#222222] font-medium text-[15px] mr-[3px] w-[40px] h-[45px]",
-                        "팀원"
+                        {i18n.team_member}
                     }
                     div { class: "flex flex-row w-full h-[45px] justify-center items-start bg-[#f7f7f7] rounded-md" }
                 }
             }
             div { class: "flex flex-col w-full justify-start items-start mt-[40px]",
                 div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]",
-                    "프로젝트 초대"
+                    {i18n.invite_project}
                 }
                 div { class: "flex flex-col w-full justify-center items-start",
                     div { class: "flex flex-row w-full justify-center items-start mb-[10px]",
                         div { class: "flex flex-row justify-start items-center text-[#222222] font-medium text-[15px] mr-[3px] w-[40px] h-[45px]",
-                            "공론"
+                            {i18n.public_opinion}
                         }
                         div { class: "flex flex-row w-full h-[45px] justify-center items-start bg-[#f7f7f7] rounded-md" }
                     }
                     div { class: "flex flex-row w-full justify-center items-start",
                         div { class: "flex flex-row justify-start items-center text-[#222222] font-medium text-[15px] mr-[3px] w-[40px] h-[45px]",
-                            "조사"
+                            {i18n.investigation}
                         }
                         div { class: "flex flex-row w-full h-[45px] justify-center items-start bg-[#f7f7f7] rounded-md" }
                     }
@@ -516,14 +540,14 @@ pub fn CreateGroupModal(
                 div { class: "flex flex-row w-[110px] h-[40px] bg-[#2a60d3] rounded-md px-[14px] py-[8px] gap-[5px]",
                     //FIMME: implement create logic with condition
                     Folder { width: "24", height: "24" }
-                    div { class: "text-white font-bold text-[16px]", "만들기" }
+                    div { class: "text-white font-bold text-[16px]", {i18n.create} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
-                    "취소하기"
+                    {i18n.cancel}
                 }
             }
         }

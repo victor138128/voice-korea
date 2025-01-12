@@ -30,6 +30,8 @@ pub struct ProfileInfoTranslate {
     email: String,
     save: String,
     remove_team_member: String,
+    no_group: String,
+    no_role: String,
 }
 
 #[derive(Props, Clone, PartialEq)]
@@ -42,6 +44,12 @@ pub struct ProfileHistoryTranslate {
     period: String,
     status: String,
     search_info: String,
+    investigation: String,
+    public_opinion: String,
+    ready: String,
+    in_progress: String,
+    finish: String,
+    exclude_from_project: String,
 }
 
 #[derive(Props, Clone, PartialEq)]
@@ -208,6 +216,8 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
                             email: translates.email.to_string(),
                             save: translates.save.to_string(),
                             remove_team_member: translates.remove_team_member.to_string(),
+                            no_group: translates.no_group.to_string(),
+                            no_role: translates.no_role.to_string(),
                         },
                     }
                 }
@@ -222,6 +232,12 @@ pub fn MemberDetailPage(props: MemberDetailPageProps) -> Element {
                         period: translates.period.to_string(),
                         status: translates.status.to_string(),
                         search_info: translates.search_info.to_string(),
+                        investigation: translates.investigation.to_string(),
+                        public_opinion: translates.public_opinion.to_string(),
+                        ready: translates.ready.to_string(),
+                        in_progress: translates.in_progress.to_string(),
+                        finish: translates.finish.to_string(),
+                        exclude_from_project: translates.exclude_from_project.to_string(),
                     },
                     change_popup_state: move |history_id: String| {
                         modal_type.set(ModalType::RemoveProject(history_id));
@@ -319,8 +335,8 @@ pub fn ProfileHistory(
                             div { class: "flex flex-row w-full h-[55px] justify-start items-center text-[#35343f] font-semibold text-[14px]",
                                 div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center gap-[10px]",
                                     match history.project_type {
-                                        ProjectType::Investigation => "조사",
-                                        _ => "공론",
+                                        ProjectType::Investigation => i18n.investigation.clone(),
+                                        _ => i18n.public_opinion.clone(),
                                     }
                                 }
                                 div { class: "flex flex-row w-[200px] min-w-[200px] h-full justify-center items-center gap-[10px]",
@@ -344,9 +360,9 @@ pub fn ProfileHistory(
                                 }
                                 div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center gap-[10px]",
                                     match history.project_status {
-                                        ProjectStatus::Ready => "준비",
-                                        ProjectStatus::InProgress => "진행",
-                                        _ => "마감",
+                                        ProjectStatus::Ready => i18n.ready.clone(),
+                                        ProjectStatus::InProgress => i18n.in_progress.clone(),
+                                        _ => i18n.finish.clone(),
                                     }
                                 }
                                 div { class: "group relative w-[120px] min-w-[120px] h-full justify-center items-center ",
@@ -364,7 +380,7 @@ pub fn ProfileHistory(
                                                 onclick: move |_| {
                                                     change_popup_state.call(history.history_id.clone());
                                                 },
-                                                "프로젝트에서 제외하기"
+                                                {i18n.exclude_from_project.clone()}
                                             }
                                         }
                                     }
@@ -458,7 +474,7 @@ pub fn ProfileInfo(
                             onchange: move |evt| {
                                 select_group.set(evt.value());
                             },
-                            option { value: "", selected: select_group() == "", "그룹 없음" }
+                            option { value: "", selected: select_group() == "", {i18n.no_group} }
                             for group in total_groups {
                                 option {
                                     value: group.clone(),
@@ -476,7 +492,7 @@ pub fn ProfileInfo(
                             onchange: move |evt| {
                                 select_role.set(evt.value());
                             },
-                            option { value: "", selected: select_role() == "", "역할 없음" }
+                            option { value: "", selected: select_role() == "", {i18n.no_role} }
                             for role in total_roles {
                                 option {
                                     value: role.clone(),
