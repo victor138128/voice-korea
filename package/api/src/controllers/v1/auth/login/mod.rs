@@ -56,7 +56,9 @@ pub async fn handler(
         .map_err(|e| ApiError::JWTGenerationFail(e.to_string()))?;
 
     // If the member list has not been added, add the member list
-    let _ = create_member(db, body).await;
+    let _ = create_member(db, body)
+        .await
+        .map_err(|e| ApiError::DynamoCreateException(e.to_string()))?;
 
     Ok(Response::builder()
         .status(200)

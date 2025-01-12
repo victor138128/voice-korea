@@ -51,12 +51,10 @@ impl GroupControllerV1 {
 
         match body {
             GroupActionRequest::UpdateName(group_name) => {
-                ctrl.update_group_name(ctrl.clone(), &group_id, group_name)
-                    .await?;
+                ctrl.update_group_name(&group_id, group_name).await?;
             }
             GroupActionRequest::Delete => {
-                ctrl.remove_group(ctrl.clone(), &claims.id, &group_id)
-                    .await?;
+                ctrl.remove_group(&claims.id, &group_id).await?;
             }
         }
 
@@ -440,11 +438,10 @@ impl GroupControllerV1 {
 impl GroupControllerV1 {
     pub async fn update_group_name(
         &self,
-        ctrl: GroupControllerV1,
         group_id: &str,
         group_name: String,
     ) -> Result<(), ApiError> {
-        let log = ctrl.log.new(o!("api" => "update_group"));
+        let log = self.log.new(o!("api" => "update_group"));
         slog::debug!(log, "update_group_name {:?} {:?}", group_id, group_name);
         let cli = easy_dynamodb::get_client(log.clone());
 
@@ -502,13 +499,8 @@ impl GroupControllerV1 {
         }
     }
 
-    pub async fn remove_group(
-        &self,
-        ctrl: GroupControllerV1,
-        user_id: &str,
-        group_id: &str,
-    ) -> Result<(), ApiError> {
-        let log = ctrl.log.new(o!("api" => "remove group"));
+    pub async fn remove_group(&self, user_id: &str, group_id: &str) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "remove group"));
         slog::debug!(log, "remove group {:?}", group_id);
         let cli = easy_dynamodb::get_client(log.clone());
         let now = chrono::Utc::now().timestamp_millis();

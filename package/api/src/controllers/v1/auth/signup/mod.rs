@@ -61,11 +61,14 @@ pub async fn handler(
         _ => (),
     };
     let _ = db.delete(&auth_doc_id);
-    let _ = db.create(user.clone()).await;
+    let _ = db
+        .create(user.clone())
+        .await
+        .map_err(|e| ApiError::DynamoCreateException(e.to_string()))?;
 
     let _ = create_organization(db.clone(), user.id.clone(), body.clone()).await?;
 
-    let _ = create_member(db, body).await; //FIXME: add to organization
+    let _ = create_member(db, body).await?; //FIXME: add to organization
 
     Ok(())
 }

@@ -128,13 +128,21 @@ impl Controller {
 
     pub async fn update_member(&mut self, member_id: String, req: UpdateMemberRequest) {
         let api: MemberApi = use_context();
-        let _ = api.update_member(member_id, req).await;
-        self.member_resource.restart();
+        let _ = match api.update_member(member_id, req).await {
+            Ok(_) => self.member_resource.restart(),
+            Err(v) => {
+                tracing::error!("update failed: {v}");
+            }
+        };
     }
 
     pub async fn remove_member(&mut self, user_id: String) {
         let api: MemberApi = use_context();
-        let _ = api.remove_member(user_id).await;
-        self.member_resource.restart();
+        let _ = match api.remove_member(user_id).await {
+            Ok(_) => self.member_resource.restart(),
+            Err(v) => {
+                tracing::error!("remove failed: {v}");
+            }
+        };
     }
 }

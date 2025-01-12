@@ -67,14 +67,17 @@ impl Controller {
         (self.groups)()
     }
 
-    pub async fn remove_group(&mut self, group_id: String) {
-        let api: GroupApi = use_context();
+    pub async fn remove_group(&mut self, api: &GroupApi, group_id: String) {
         let _ = api.remove_group(group_id).await;
         self.group_resource.restart();
     }
 
-    pub async fn update_group_name(&mut self, group_id: String, group_name: String) {
-        let api: GroupApi = use_context();
+    pub async fn update_group_name(
+        &mut self,
+        api: &GroupApi,
+        group_id: String,
+        group_name: String,
+    ) {
         let _ = api.update_group_name(group_id, group_name).await;
         self.group_resource.restart();
     }

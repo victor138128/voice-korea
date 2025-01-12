@@ -81,14 +81,12 @@ impl LoginService {
     }
 
     #[allow(unused_variables)]
-    pub async fn setup(&mut self, email: String, token: String) -> String {
+    pub async fn setup(&mut self, email: String, token: String) {
         self.email.set(Some(email));
         // self.token.set(token);
 
         #[cfg(feature = "web")]
         self.set_cookie(token.as_str());
-
-        "".to_string()
     }
 }
 

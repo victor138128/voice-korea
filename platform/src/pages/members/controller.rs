@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use models::prelude::{InviteMemberRequest, UpdateMemberRequest};
+use models::prelude::{GroupInfo, InviteMemberRequest, UpdateMemberRequest};
 
 use crate::{api::common::CommonQueryResponse, service::member_api::MemberApi};
 
@@ -123,7 +123,7 @@ impl Controller {
         self.member_resource.restart();
     }
 
-    pub async fn update_group(&mut self, index: usize, _group_name: String) {
+    pub async fn update_group(&mut self, index: usize, group_name: String) {
         let api: MemberApi = use_context();
         let members = self.get_members().members;
         let member = members[index].clone();
@@ -132,7 +132,10 @@ impl Controller {
                 member.member_id,
                 UpdateMemberRequest {
                     name: member.profile_name,
-                    group: None, //FIXME: fix to real group
+                    group: Some(GroupInfo {
+                        id: "group_id".to_string(),
+                        name: group_name.clone(),
+                    }), //FIXME: fix to real group
                     role: if member.role != "" {
                         Some(member.role)
                     } else {
@@ -154,7 +157,10 @@ impl Controller {
                 UpdateMemberRequest {
                     name: member.profile_name,
                     group: if member.group != "" {
-                        None //FIXME: fix to real group
+                        Some(GroupInfo {
+                            id: "group_id".to_string(),
+                            name: member.group.clone(),
+                        }) //FIXME: fix to real group
                     } else {
                         None
                     },

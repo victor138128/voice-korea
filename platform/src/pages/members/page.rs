@@ -5,6 +5,7 @@ use dioxus::prelude::*;
 use dioxus_logger::tracing;
 use dioxus_translate::translate;
 use dioxus_translate::Language;
+use models::prelude::GroupInfo;
 use models::prelude::InviteMemberRequest;
 
 use crate::{
@@ -601,13 +602,21 @@ pub fn AddMemberModal(
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[120px] h-[40px] bg-[#2a60d3] rounded-md px-[14px] py-[8px] gap-[5px] cursor-pointer",
+                    //FIXME: fix to real group id
                     onclick: move |_| async move {
                         invite_member
                             .call(InviteMemberRequest {
                                 email: email(),
                                 name: name(),
-                                group: None,
-                                role: None,
+                                group: if select_group().is_empty() {
+                                    None
+                                } else {
+                                    Some(GroupInfo {
+                                        id: "group_id".to_string(),
+                                        name: select_group(),
+                                    })
+                                },
+                                role: if select_role().is_empty() { None } else { Some(select_role()) },
                                 projects: None,
                             });
                     },
