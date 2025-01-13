@@ -24,18 +24,18 @@ pub struct OrganizationControllerV1 {
 
 #[derive(Debug, serde::Deserialize)]
 pub struct Pagination {
-    pub size: Option<usize>,
+    pub size: Option<i32>,
     pub bookmark: Option<String>,
 }
 
 impl OrganizationControllerV1 {
-    pub fn router(_db: std::sync::Arc<easy_dynamodb::Client>) -> Router {
+    pub fn router() -> Router {
         let log = root().new(o!("api-controller" => "OrganizationControllerV1"));
         let ctrl = OrganizationControllerV1 { log };
 
         Router::new()
             .route("/", get(Self::list_organizations))
-            .with_state(ctrl.clone())
+            .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
     }
 
@@ -45,7 +45,7 @@ impl OrganizationControllerV1 {
         Query(pagination): Query<Pagination>,
     ) -> Result<Json<CommonQueryResponse<OrganizationMemberResponse>>, ApiError> {
         let log = ctrl.log.new(o!("api" => "list_organizations"));
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
         slog::debug!(
             log,
             "list_organizations {:?} {:?}",
@@ -53,15 +53,7 @@ impl OrganizationControllerV1 {
             claims.id.clone()
         );
 
-        let size = if let Some(size) = pagination.size {
-            if size > 100 {
-                Some(100)
-            } else {
-                Some(size as i32)
-            }
-        } else {
-            Some(100)
-        };
+        let size = pagination.size.unwrap_or(100);
 
         let bookmark = pagination.bookmark;
 
@@ -69,7 +61,7 @@ impl OrganizationControllerV1 {
             &log,
             "gsi1-index",
             bookmark,
-            size,
+            Some(size),
             vec![("gsi1", OrganizationMember::get_gsi1(&claims.id))],
         )
         .await?;

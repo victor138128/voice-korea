@@ -46,7 +46,7 @@ impl MemberControllerV1 {
         Json(body): Json<InviteMemberRequest>,
     ) -> Result<(), ApiError> {
         let log = ctrl.log.new(o!("api" => "invite_member"));
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
         slog::debug!(log, "invite_member: {:?}", body);
 
         //Error: already exists member
@@ -84,8 +84,7 @@ impl MemberControllerV1 {
             Ok(()) => {
                 if let Some(group) = body.group.clone() {
                     let _ = ctrl
-                        .clone()
-                        .update_group_member(ctrl, group.id, group.name, id.to_string())
+                        .update_group_member(group.id, group.name, id.to_string())
                         .await?;
                 }
 
@@ -134,7 +133,7 @@ impl MemberControllerV1 {
         )
         .await?;
 
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
 
         let member = if res.items.len() != 0 {
             let item = res.items.first().unwrap();
@@ -166,8 +165,7 @@ impl MemberControllerV1 {
             Ok(()) => {
                 if let Some(group) = body.group.clone() {
                     let _ = ctrl
-                        .clone()
-                        .update_group_member(ctrl, group.id, group.name, member.id.clone())
+                        .update_group_member(group.id, group.name, member.id.clone())
                         .await?;
                 }
                 Ok(Json(member))
@@ -216,7 +214,7 @@ impl MemberControllerV1 {
     ) -> Result<Json<Member>, ApiError> {
         let log = ctrl.log.new(o!("api" => "get_member"));
         slog::debug!(log, "get_member {:?}", member_id);
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
 
         let res = cli.get::<Member>(&member_id).await;
 
@@ -243,7 +241,7 @@ impl MemberControllerV1 {
     pub async fn remove_group_member(&self, member_id: String) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "update_member"));
         slog::debug!(log, "update_group_member");
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
 
         //check member
         let res = cli
@@ -301,14 +299,13 @@ impl MemberControllerV1 {
 
     pub async fn update_group_member(
         &self,
-        ctrl: MemberControllerV1,
         group_id: String,
         group_name: String,
         member_id: String,
     ) -> Result<(), ApiError> {
-        let log = ctrl.log.new(o!("api" => "update_member"));
+        let log = self.log.new(o!("api" => "update_member"));
         slog::debug!(log, "update_group_member");
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
 
         //check member
         let res = cli
@@ -431,7 +428,7 @@ impl MemberControllerV1 {
     ) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "update_member"));
         slog::debug!(log, "update_member");
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
 
         let now = chrono::Utc::now().timestamp_millis();
 
@@ -461,7 +458,6 @@ impl MemberControllerV1 {
                 if req.group.is_some() {
                     let _ = self
                         .update_group_member(
-                            self.clone(),
                             req.group.clone().unwrap().id,
                             req.group.unwrap().name,
                             member_id.to_string(),
@@ -481,7 +477,7 @@ impl MemberControllerV1 {
     pub async fn remove_member(&self, member_id: &str) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "remove_member"));
         slog::debug!(log, "remove member {:?}", member_id);
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
         let now = chrono::Utc::now().timestamp_millis();
 
         let d: Result<Option<Member>, DynamoException> = match cli.get(member_id).await {

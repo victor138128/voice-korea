@@ -69,7 +69,7 @@ impl GroupControllerV1 {
         let log = ctrl.log.new(o!("api" => "create_group"));
         slog::debug!(log, "create_group {:?}", body);
 
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
         let id = uuid::Uuid::new_v4().to_string();
         let group: Group = (body.clone(), id.clone(), claims.id).into();
 
@@ -101,7 +101,7 @@ impl GroupControllerV1 {
         Query(pagination): Query<Pagination>,
     ) -> Result<Json<CommonQueryResponse<GroupResponse>>, ApiError> {
         let log = ctrl.log.new(o!("api" => "list_groups"));
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
         slog::debug!(log, "list_groups {:?}", pagination);
 
         let size = if let Some(size) = pagination.size {
@@ -181,7 +181,7 @@ impl GroupControllerV1 {
     ) -> Result<Json<GroupResponse>, ApiError> {
         let log = ctrl.log.new(o!("api" => "get_group"));
         slog::debug!(log, "get_group {:?}", group_id);
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
 
         let res = cli.get::<Group>(&group_id).await;
 
@@ -255,7 +255,7 @@ impl GroupControllerV1 {
     ) -> Result<(), ApiError> {
         let log = ctrl.log.new(o!("api" => "update_member"));
         slog::debug!(log, "update_group_member");
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
 
         //check member
         let res = cli
@@ -320,7 +320,7 @@ impl GroupControllerV1 {
     ) -> Result<(), ApiError> {
         let log = ctrl.log.new(o!("api" => "update_member"));
         slog::debug!(log, "update_group_member");
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
 
         //check member
         let res = cli
@@ -443,7 +443,7 @@ impl GroupControllerV1 {
     ) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "update_group"));
         slog::debug!(log, "update_group_name {:?} {:?}", group_id, group_name);
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
 
         let now = chrono::Utc::now().timestamp_millis();
 
@@ -502,7 +502,7 @@ impl GroupControllerV1 {
     pub async fn remove_group(&self, user_id: &str, group_id: &str) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "remove group"));
         slog::debug!(log, "remove group {:?}", group_id);
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
         let now = chrono::Utc::now().timestamp_millis();
 
         let _ = cli

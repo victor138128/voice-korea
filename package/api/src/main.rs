@@ -30,7 +30,7 @@ async fn main() {
         None,
         None,
     );
-    let db_client = Arc::new(easy_dynamodb::get_client(log.clone()));
+    let db_client = Arc::new(easy_dynamodb::get_client(&log));
 
     let app = by_axum::new().nest("/", controllers::router(db_client));
 

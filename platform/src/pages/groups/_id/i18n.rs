@@ -149,7 +149,7 @@ translate! {
         en: "Are you sure you want to delete it?"
     },
     remove_member_modal_info: {
-        ko: "삭제된 프로젝트는 복원할 수 없습니다. 삭제 전에 다시 한번 확인해주세요.",
+        ko: "삭제된 팀원은 복원할 수 없습니다. 삭제 전에 다시 한번 확인해주세요.",
         en: "Deleted team members cannot be restored. Please check again before deleting."
     },
 
@@ -162,7 +162,7 @@ translate! {
         en: "Group Name"
     },
     update_group_name_hint: {
-        ko: "그룹명은 한 번 수정하면 되돌릴 수 없습니다.",
+        ko: "그룹명을 입력해주세요.",
         en: "Please enter the group name."
     },
     update_group_name_warning: {

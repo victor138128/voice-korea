@@ -1,5 +1,6 @@
 use dioxus::prelude::*;
 
+use dioxus_logger::tracing;
 use dioxus_translate::Language;
 
 use crate::service::group_api::GroupApi;
@@ -52,7 +53,10 @@ impl Controller {
                         member_list: group.members.iter().map(|v| v.user_name.clone()).collect(), //FIXME: fix to real member list
                     })
                     .collect(),
-                Err(_) => vec![],
+                Err(e) => {
+                    tracing::error!("Failed to fetch groups: {:?}", e);
+                    vec![]
+                }
             }
         } else {
             vec![]
@@ -68,8 +72,12 @@ impl Controller {
     }
 
     pub async fn remove_group(&mut self, api: &GroupApi, group_id: String) {
-        let _ = api.remove_group(group_id).await;
-        self.group_resource.restart();
+        match api.remove_group(group_id).await {
+            Ok(_) => self.group_resource.restart(),
+            Err(e) => {
+                tracing::error!("failed to remove group: {e}");
+            }
+        };
     }
 
     pub async fn update_group_name(
@@ -78,7 +86,11 @@ impl Controller {
         group_id: String,
         group_name: String,
     ) {
-        let _ = api.update_group_name(group_id, group_name).await;
-        self.group_resource.restart();
+        match api.update_group_name(group_id, group_name).await {
+            Ok(_) => self.group_resource.restart(),
+            Err(e) => {
+                tracing::error!("failed to update group name: {e}");
+            }
+        };
     }
 }
