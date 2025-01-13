@@ -53,8 +53,9 @@ fn App() -> Element {
     use_iitp_context_provider();
     LoginService::init();
     PopupService::init();
-    GroupApi::init();
+
     MemberApi::init();
+    GroupApi::init();
     OrganizationApi::init();
 
     rsx! {

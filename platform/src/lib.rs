@@ -23,6 +23,7 @@ pub mod pages {
     pub mod login;
     pub mod members;
     pub mod not_found;
+    pub mod opinions;
     pub mod reset_password;
 }
 

@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::pages::groups::controller::Controller;
+use crate::service::group_api::GroupApi;
 use dioxus::prelude::*;
 use dioxus_translate::translate;
 use dioxus_translate::Language;
@@ -79,7 +80,7 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
     let mut member_clicked = use_signal(|| vec![]);
     let mut member_extended = use_signal(|| vec![]);
 
-    let group_api = use_context();
+    let group_api: GroupApi = use_context();
 
     use_effect(use_reactive(&group_len, move |group_len| {
         member_clicked.set(vec![false; group_len]);
@@ -109,7 +110,7 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                         let group_name = group_name.clone();
                         async move {
                             let _ = ctrl
-                                .update_group_name(group_api, clicked_group_id(), group_name)
+                                .update_group_name(&group_api, clicked_group_id(), group_name)
                                 .await;
                             modal_type.set(ModalType::None);
                             clicked_group_id.set("".to_string());
@@ -137,7 +138,7 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                     },
                     remove_group: move |_e: Event<MouseData>| {
                         async move {
-                            let _ = ctrl.remove_group(group_api, clicked_group_id()).await;
+                            let _ = ctrl.remove_group(&group_api, clicked_group_id()).await;
                             modal_type.set(ModalType::None);
                             clicked_group_id.set("".to_string());
                             clicked_group_name.set("".to_string());
