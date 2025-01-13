@@ -2,7 +2,7 @@ use by_axum::{
     axum::{
         extract::{Path, Query, State},
         middleware,
-        routing::post,
+        routing::{get, post},
         Extension, Json, Router,
     },
     log::root,
@@ -28,26 +28,79 @@ pub struct Pagination {
     pub bookmark: Option<String>,
 }
 
+#[derive(Debug, serde::Deserialize)]
+pub struct SearchParams {
+    pub _keyword: String,
+}
+
 impl GroupControllerV1 {
     pub fn router(_db: std::sync::Arc<easy_dynamodb::Client>) -> Router {
         let log = root().new(o!("api-controller" => "GroupControllerV1"));
         let ctrl = GroupControllerV1 { log };
 
         Router::new()
-            .route("/", post(Self::create_group).get(Self::list_groups))
-            .route("/:group_id", post(Self::act_group).get(Self::get_group))
+            .route(
+                "/organizations/:organization_id",
+                post(Self::create_group).get(Self::list_groups),
+            )
+            .route(
+                "/organizations/:organization_id/groups/:group_id",
+                post(Self::act_group).get(Self::get_group),
+            )
+            .route(
+                "/organizations/:organization_id/search/groups",
+                get(Self::search_groups),
+            )
+            .route(
+                "/organizations/:organization_id/groups/:group_id/search/members",
+                get(Self::search_groups_by_id),
+            )
             .layer(middleware::from_fn(authorization_middleware)) //FIXME: fix management authorization
             .with_state(ctrl.clone())
+    }
+
+    pub async fn search_groups_by_id(
+        State(ctrl): State<GroupControllerV1>,
+        Path((organization_id, group_id)): Path<(String, String)>,
+        Query(params): Query<SearchParams>,
+    ) -> Result<Json<CommonQueryResponse<GroupResponse>>, ApiError> {
+        let log = ctrl.log.new(o!("api" => "search_groups_by_id"));
+        slog::debug!(
+            log,
+            "search_groups_by_id {:?} {:?} {:?}",
+            organization_id,
+            group_id,
+            params
+        );
+
+        Ok(Json(CommonQueryResponse {
+            items: vec![],
+            bookmark: None,
+        }))
+    }
+
+    pub async fn search_groups(
+        State(ctrl): State<GroupControllerV1>,
+        Path(organization_id): Path<String>,
+        Query(params): Query<SearchParams>,
+    ) -> Result<Json<CommonQueryResponse<GroupResponse>>, ApiError> {
+        let log = ctrl.log.new(o!("api" => "search_groups"));
+        slog::debug!(log, "search_groups {:?} {:?}", organization_id, params);
+
+        Ok(Json(CommonQueryResponse {
+            items: vec![],
+            bookmark: None,
+        }))
     }
 
     pub async fn act_group(
         Extension(claims): Extension<Claims>,
         State(ctrl): State<GroupControllerV1>,
-        Path(group_id): Path<String>,
+        Path((organization_id, group_id)): Path<(String, String)>,
         Json(body): Json<GroupActionRequest>,
     ) -> Result<(), ApiError> {
         let log = ctrl.log.new(o!("api" => "act_group"));
-        slog::debug!(log, "act_group: {:?}", group_id);
+        slog::debug!(log, "act_group: {:?} {:?}", organization_id, group_id);
 
         match body {
             GroupActionRequest::UpdateName(group_name) => {
@@ -56,6 +109,12 @@ impl GroupControllerV1 {
             GroupActionRequest::Delete => {
                 ctrl.remove_group(&claims.id, &group_id).await?;
             }
+            GroupActionRequest::AddTeamMember(req) => {
+                ctrl.add_team_member(&group_id, req).await?;
+            }
+            GroupActionRequest::RemoveTeamMember(member_id) => {
+                ctrl.remove_team_member(&group_id, &member_id).await?;
+            }
         }
 
         Ok(())
@@ -63,11 +122,12 @@ impl GroupControllerV1 {
 
     pub async fn create_group(
         Extension(claims): Extension<Claims>,
+        Path(organization_id): Path<String>,
         State(ctrl): State<GroupControllerV1>,
         Json(body): Json<CreateGroupRequest>,
     ) -> Result<Json<Group>, ApiError> {
         let log = ctrl.log.new(o!("api" => "create_group"));
-        slog::debug!(log, "create_group {:?}", body);
+        slog::debug!(log, "create_group {:?} {:?}", organization_id, body);
 
         let cli = easy_dynamodb::get_client(&log);
         let id = uuid::Uuid::new_v4().to_string();
@@ -99,10 +159,11 @@ impl GroupControllerV1 {
     pub async fn list_groups(
         State(ctrl): State<GroupControllerV1>,
         Query(pagination): Query<Pagination>,
+        Path(organization_id): Path<String>,
     ) -> Result<Json<CommonQueryResponse<GroupResponse>>, ApiError> {
         let log = ctrl.log.new(o!("api" => "list_groups"));
         let cli = easy_dynamodb::get_client(&log);
-        slog::debug!(log, "list_groups {:?}", pagination);
+        slog::debug!(log, "list_groups {:?} {:?}", organization_id, pagination);
 
         let size = if let Some(size) = pagination.size {
             if size > 100 {
@@ -177,10 +238,10 @@ impl GroupControllerV1 {
 
     pub async fn get_group(
         State(ctrl): State<GroupControllerV1>,
-        Path(group_id): Path<String>,
+        Path((organization_id, group_id)): Path<(String, String)>,
     ) -> Result<Json<GroupResponse>, ApiError> {
         let log = ctrl.log.new(o!("api" => "get_group"));
-        slog::debug!(log, "get_group {:?}", group_id);
+        slog::debug!(log, "get_group {:?} {:?}", organization_id, group_id);
         let cli = easy_dynamodb::get_client(&log);
 
         let res = cli.get::<Group>(&group_id).await;
@@ -436,6 +497,26 @@ impl GroupControllerV1 {
 }
 
 impl GroupControllerV1 {
+    pub async fn add_team_member(
+        &self,
+        group_id: &str,
+        req: TeamMemberRequest,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "add_team_member"));
+        slog::debug!(log, "add_team_member {:?} {:?}", group_id, req);
+        Ok(())
+    }
+
+    pub async fn remove_team_member(
+        &self,
+        group_id: &str,
+        member_id: &str,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "remove_team_member"));
+        slog::debug!(log, "remove_team_member {:?} {:?}", group_id, member_id);
+        Ok(())
+    }
+
     pub async fn update_group_name(
         &self,
         group_id: &str,

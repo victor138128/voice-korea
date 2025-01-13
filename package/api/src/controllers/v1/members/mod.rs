@@ -2,7 +2,7 @@ use by_axum::{
     axum::{
         extract::{Path, Query, State},
         middleware,
-        routing::post,
+        routing::{get, post},
         Json, Router,
     },
     log::root,
@@ -22,6 +22,11 @@ pub struct Pagination {
     pub bookmark: Option<String>,
 }
 
+#[derive(Debug, serde::Deserialize)]
+pub struct SearchParams {
+    pub _keyword: String,
+}
+
 #[derive(Clone, Debug)]
 pub struct MemberControllerV1 {
     log: slog::Logger,
@@ -34,20 +39,38 @@ impl MemberControllerV1 {
 
         //FIXME: implement projects api
         Router::new()
-            .route("/", post(Self::create_member).get(Self::list_members))
-            .route("/:member_id", post(Self::act_member).get(Self::get_member))
-            .route("/invite", post(Self::invite_member))
+            .route(
+                "/organizations/:organization_id",
+                post(Self::create_member).get(Self::list_members),
+            )
+            .route(
+                "/organizations/:organization_id/members/:member_id",
+                post(Self::act_member).get(Self::get_member),
+            )
+            .route(
+                "/organizations/:organization_id/search/projects",
+                get(Self::search_projects),
+            )
+            .route(
+                "/organizations/:organization_id/search/members",
+                get(Self::search_members),
+            )
+            .route(
+                "/organizations/:organization_id/invite",
+                post(Self::invite_member),
+            )
             .layer(middleware::from_fn(authorization_middleware)) //FIXME: fix management authorization (오직 관리자만 해당 함수들 호출할 수 있도록 수정)
             .with_state(ctrl.clone())
     }
 
     pub async fn invite_member(
         State(ctrl): State<MemberControllerV1>,
+        Path(organization_id): Path<String>,
         Json(body): Json<InviteMemberRequest>,
     ) -> Result<(), ApiError> {
         let log = ctrl.log.new(o!("api" => "invite_member"));
         let cli = easy_dynamodb::get_client(&log);
-        slog::debug!(log, "invite_member: {:?}", body);
+        slog::debug!(log, "invite_member: {:?} {:?}", organization_id, body);
 
         //Error: already exists member
         let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
@@ -99,11 +122,11 @@ impl MemberControllerV1 {
 
     pub async fn act_member(
         State(ctrl): State<MemberControllerV1>,
-        Path(member_id): Path<String>,
+        Path((organization_id, member_id)): Path<(String, String)>,
         Json(body): Json<MemberActionRequest>,
     ) -> Result<(), ApiError> {
         let log = ctrl.log.new(o!("api" => "act_member"));
-        slog::debug!(log, "act_member: {:?}", member_id);
+        slog::debug!(log, "act_member: {:?} {:?}", organization_id, member_id);
 
         match body {
             MemberActionRequest::Update(req) => {
@@ -112,6 +135,12 @@ impl MemberControllerV1 {
             MemberActionRequest::Delete => {
                 ctrl.remove_member(&member_id).await?;
             }
+            MemberActionRequest::AddProject(req) => {
+                ctrl.add_project(&member_id, req).await?;
+            }
+            MemberActionRequest::RemoveProject(project_id) => {
+                ctrl.remove_project(&member_id, &project_id).await?;
+            }
         }
 
         Ok(())
@@ -119,10 +148,11 @@ impl MemberControllerV1 {
 
     pub async fn create_member(
         State(ctrl): State<MemberControllerV1>,
+        Path(organization_id): Path<String>,
         Json(body): Json<CreateMemberRequest>,
     ) -> Result<Json<Member>, ApiError> {
         let log = ctrl.log.new(o!("api" => "create_member"));
-        slog::debug!(log, "create_member {:?}", body);
+        slog::debug!(log, "create_member {:?} {:?}", organization_id, body);
 
         let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
             &log,
@@ -178,12 +208,41 @@ impl MemberControllerV1 {
         }
     }
 
+    pub async fn search_projects(
+        State(ctrl): State<MemberControllerV1>,
+        Path(organization_id): Path<String>,
+        Query(params): Query<SearchParams>,
+    ) -> Result<Json<CommonQueryResponse<MemberProject>>, ApiError> {
+        let log = ctrl.log.new(o!("api" => "search_projects"));
+        slog::debug!(log, "search_projects {:?} {:?}", organization_id, params);
+
+        Ok(Json(CommonQueryResponse {
+            items: vec![],
+            bookmark: None,
+        }))
+    }
+
+    pub async fn search_members(
+        State(ctrl): State<MemberControllerV1>,
+        Path(organization_id): Path<String>,
+        Query(params): Query<SearchParams>,
+    ) -> Result<Json<CommonQueryResponse<Member>>, ApiError> {
+        let log = ctrl.log.new(o!("api" => "search_member"));
+        slog::debug!(log, "search_member {:?} {:?}", organization_id, params);
+
+        Ok(Json(CommonQueryResponse {
+            items: vec![],
+            bookmark: None,
+        }))
+    }
+
     pub async fn list_members(
         State(ctrl): State<MemberControllerV1>,
+        Path(organization_id): Path<String>,
         Query(pagination): Query<Pagination>,
-    ) -> Result<Json<CommonQueryResponse<Member>>, ApiError> {
+    ) -> Result<Json<ListMemberResponse>, ApiError> {
         let log = ctrl.log.new(o!("api" => "list_members"));
-        slog::debug!(log, "list_members {:?}", pagination);
+        slog::debug!(log, "list_members {:?} {:?}", organization_id, pagination);
 
         let size = if let Some(size) = pagination.size {
             if size > 100 {
@@ -205,15 +264,19 @@ impl MemberControllerV1 {
             vec![("type", "member")],
         )
         .await?;
-        Ok(Json(res))
+        Ok(Json(ListMemberResponse {
+            members: res.items,
+            role_count: vec![0, 0, 0, 0, 0, 0], //[전체, 관리자, 공론 관리자, 분석가, 중계자, 강연자]
+            bookmark: res.bookmark,
+        }))
     }
 
     pub async fn get_member(
         State(ctrl): State<MemberControllerV1>,
-        Path(member_id): Path<String>,
+        Path((organization_id, member_id)): Path<(String, String)>,
     ) -> Result<Json<Member>, ApiError> {
         let log = ctrl.log.new(o!("api" => "get_member"));
-        slog::debug!(log, "get_member {:?}", member_id);
+        slog::debug!(log, "get_member {:?} {:?}", organization_id, member_id);
         let cli = easy_dynamodb::get_client(&log);
 
         let res = cli.get::<Member>(&member_id).await;
@@ -421,6 +484,18 @@ impl MemberControllerV1 {
 }
 
 impl MemberControllerV1 {
+    pub async fn add_project(&self, member_id: &str, req: MemberProject) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "add_project"));
+        slog::debug!(log, "add_project {:?} {:?}", member_id, req);
+        Ok(())
+    }
+
+    pub async fn remove_project(&self, member_id: &str, project_id: &str) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "remove_project"));
+        slog::debug!(log, "remove_project {:?} {:?}", member_id, project_id);
+        Ok(())
+    }
+
     pub async fn update_member(
         &self,
         member_id: &str,

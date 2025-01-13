@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::member::GroupInfo;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct GroupProject {
     pub project_id: String,
@@ -178,9 +180,20 @@ impl Into<Group> for (CreateGroupRequest, String, String) {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default, Eq)]
+pub struct TeamMemberRequest {
+    pub id: String,
+    pub email: String,
+    pub name: Option<String>,
+    pub group: Option<GroupInfo>,
+    pub role: Option<String>,
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum GroupActionRequest {
     UpdateName(String),
     Delete,
+    AddTeamMember(TeamMemberRequest),
+    RemoveTeamMember(String),
 }
