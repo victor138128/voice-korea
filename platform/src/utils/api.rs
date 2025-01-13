@@ -4,13 +4,7 @@ pub async fn get<T>(url: &str) -> T
 where
     T: Default + serde::de::DeserializeOwned,
 {
-    match reqwest::get(format!(
-        "{}/api{}",
-        option_env!("BASE_URL").unwrap_or("https://voice-korea.dev.biyard.co/"),
-        url
-    ))
-    .await
-    {
+    match reqwest::get("http://localhost:3000").await {
         Ok(res) => match res.json::<T>().await {
             Ok(v) => v,
             Err(e) => {

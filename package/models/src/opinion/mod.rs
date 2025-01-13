@@ -16,7 +16,7 @@ pub struct UpsertOpinionRequest {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct DiscussionInfo {
     pub groups: DiscussionGroupInfo,
-    pub mettings: Vec<MeetingInfo>,
+    pub meetings: Vec<MeetingInfo>,
     pub schedules: Vec<ScheduleInfo>,
     pub documents: Vec<Document>,
 }
@@ -178,6 +178,16 @@ pub enum ProjectStatus {
     Finish,
 }
 
+impl std::fmt::Display for ProjectStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ProjectStatus::Ready => write!(f, "준비"),
+            ProjectStatus::InProgress => write!(f, "진행"),
+            ProjectStatus::Finish => write!(f, "마감"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum OpinionType {
@@ -192,4 +202,21 @@ pub enum OpinionType {
     Technology,
     Health,
     Politics,
+}
+
+impl std::fmt::Display for OpinionType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            OpinionType::Economy => write!(f, "경제"),
+            OpinionType::Society => write!(f, "사회"),
+            OpinionType::Environment => write!(f, "환경"),
+            OpinionType::Education => write!(f, "교육"),
+            OpinionType::Culture => write!(f, "문화"),
+            OpinionType::Labor => write!(f, "노동"),
+            OpinionType::City => write!(f, "도시"),
+            OpinionType::Technology => write!(f, "기술"),
+            OpinionType::Health => write!(f, "보건"),
+            OpinionType::Politics => write!(f, "정치"),
+        }
+    }
 }
