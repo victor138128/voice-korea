@@ -23,6 +23,13 @@ pub struct Member {
     // pub projects: Option<Vec<MemberProject>>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ListMemberResponse {
+    pub members: Vec<Member>,
+    pub role_count: Vec<u64>,
+    pub bookmark: Option<String>,
+}
+
 impl Member {
     pub fn new(
         id: String,
@@ -209,4 +216,6 @@ impl Into<Member> for (CreateMemberRequest, String) {
 pub enum MemberActionRequest {
     Update(UpdateMemberRequest),
     Delete,
+    AddProject(MemberProject),
+    RemoveProject(String), //project_id
 }
