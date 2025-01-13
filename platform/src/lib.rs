@@ -70,6 +70,7 @@ pub mod components {
     pub mod pi_graph;
     pub mod popup;
     pub mod select;
+    pub mod stepper;
     pub mod table_row;
 }
 
