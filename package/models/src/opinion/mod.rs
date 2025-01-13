@@ -1,7 +1,145 @@
 use serde::{Deserialize, Serialize};
 
+use crate::group::MemberInfo;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
-pub struct CreateOpinionRequest {}
+pub struct UpsertOpinionRequest {
+    pub id: Option<String>,
+    pub status: Option<OpinionDraftStatus>,
+    pub opinions: Option<Vec<OpinionInfo>>,
+    pub informations: Option<OpinionInformation>,
+    pub committees: Option<Vec<Vec<MemberInfo>>>,
+    pub panels: Option<UpsertPanelInfo>,
+    pub discussions: Option<DiscussionInfo>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct DiscussionInfo {
+    pub groups: DiscussionGroupInfo,
+    pub mettings: Vec<MeetingInfo>,
+    pub schedules: Vec<ScheduleInfo>,
+    pub documents: Vec<Document>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct ScheduleInfo {
+    pub title: String,
+    pub schedules: Vec<ScheduleDetailInfo>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct ScheduleDetailInfo {
+    pub start_date: u64,
+    pub end_date: u64,
+    pub title: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct MeetingInfo {
+    pub meeting_type: MeetingType,
+    pub title: String,
+    pub start_date: u64,
+    pub end_date: u64,
+    pub discussion_group: Vec<DiscussionGroupInfo>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub enum MeetingType {
+    #[default]
+    Offline,
+    Online,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct DiscussionGroupInfo {
+    pub panels: Vec<PanelInfo>,
+    pub panel_count: u64,
+    pub groups: Vec<DiscussionGroupDetailInfo>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct DiscussionGroupDetailInfo {
+    pub name: String,
+    pub discussion_count: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct UpsertPanelInfo {
+    pub totals: u64,
+    pub allocation_method: AllocationMethod,
+    pub panels: Vec<PanelAttribute>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct PanelAttribute {
+    pub panel_count: u64,
+    pub attributes: Vec<AttributeInfo>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct AttributeInfo {
+    pub id: String,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub enum AllocationMethod {
+    #[default]
+    FairAllocated,
+    ProportionalAllocation,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct OpinionInformation {
+    pub opinion_type: OpinionType,
+    pub title: String,
+    pub description: String,
+    pub documents: Vec<Document>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct Document {
+    pub url: String,
+    pub name: String,
+    pub volume: Option<String>, //etc. 3.5 MB
+    pub projects: Option<ProjectInfo>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct ProjectInfo {
+    pub id: String,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct OpinionInfo {
+    pub name: String,
+    pub start_date: u64,
+    pub end_date: u64,
+    pub public_opinion_type: PublicOpinionType,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub enum PublicOpinionType {
+    #[default]
+    General,
+    Video,
+    Post,
+    Vote,
+    Report,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub enum OpinionDraftStatus {
+    #[default]
+    Init,
+    PublicOpinionComposition,
+    InputInformation,
+    CommitteeComposition,
+    PanelComposition,
+    DiscussionSetting,
+    Finish,
+}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct OpinionResponse {
