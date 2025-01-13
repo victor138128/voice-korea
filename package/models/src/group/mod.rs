@@ -112,10 +112,14 @@ pub struct Group {
     pub name: String,
     pub public_opinion_projects: Vec<GroupProject>, //공론 프로젝트
     pub investigation_projects: Vec<GroupProject>,  //조사 프로젝트
+    pub organization_id: String,
 }
 
 impl Group {
-    pub fn new(id: String, user_id: String) -> Self {
+    pub fn new(
+        id: String, 
+        user_id: String,
+    ) -> Self {
         let mut group = Group::default();
         let now = chrono::Utc::now().timestamp_millis();
         group.id = id;
@@ -160,9 +164,9 @@ pub struct CreateGroupRequest {
     pub investigation_projects: Vec<GroupProject>,  //조사 프로젝트
 }
 
-impl Into<Group> for (CreateGroupRequest, String, String) {
+impl Into<Group> for (CreateGroupRequest, String, String, String) {
     fn into(self) -> Group {
-        let (req, id, user_id) = self;
+        let (req, id, user_id, org_id) = self;
         let now = chrono::Utc::now().timestamp_millis();
 
         Group {
@@ -176,6 +180,7 @@ impl Into<Group> for (CreateGroupRequest, String, String) {
             name: req.name,
             public_opinion_projects: req.public_opinion_projects,
             investigation_projects: req.investigation_projects,
+            organization_id: org_id,
         }
     }
 }

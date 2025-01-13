@@ -135,7 +135,7 @@ impl GroupControllerV1 {
 
         let cli = easy_dynamodb::get_client(&log);
         let id = uuid::Uuid::new_v4().to_string();
-        let group: Group = (body.clone(), id.clone(), claims.id).into();
+        let group: Group = (body.clone(), id.clone(), claims.id, organization_id).into();
 
         match cli.create(group.clone()).await {
             Ok(()) => {
