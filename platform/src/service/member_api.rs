@@ -6,30 +6,32 @@ use models::prelude::{
     CreateMemberRequest, InviteMemberRequest, Member, MemberActionRequest, UpdateMemberRequest,
 };
 
+use super::login_service::LoginService;
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
 
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy)]
 pub struct MemberApi {
     pub endpoint: Signal<String>,
+    pub login_service: LoginService,
 }
 
 impl MemberApi {
     pub fn init() {
+        let login_service: LoginService = use_context();
         let srv = Self {
-            endpoint: use_signal(|| match option_env!("API_DOMAIN") {
-                Some(endpoint) => endpoint.to_string(),
-                None => format!(
-                    "https://voice-korea-api.{}",
-                    option_env!("SUBDOMAIN").unwrap_or("dev.biyard.co")
-                ),
+            endpoint: use_signal(|| {
+                format!(
+                    "{}",
+                    option_env!("API_URL").unwrap_or("https://voice-korea-api.dev.biyard.co")
+                )
             }),
+            login_service,
         };
         use_context_provider(|| srv);
     }
 
-    pub async fn create_member(&self, cookie: String, req: CreateMemberRequest) -> Result<Member> {
-        let format_cookie = format!("{:?}", cookie);
-        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
+    pub async fn create_member(&self, req: CreateMemberRequest) -> Result<Member> {
+        let token = self.get_token();
 
         let client = ReqwestClient::new()?;
 
@@ -44,14 +46,8 @@ impl MemberApi {
         Ok(res.json().await?)
     }
 
-    pub async fn update_member(
-        &self,
-        cookie: String,
-        user_id: String,
-        req: UpdateMemberRequest,
-    ) -> Result<()> {
-        let format_cookie = format!("{:?}", cookie);
-        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
+    pub async fn update_member(&self, user_id: String, req: UpdateMemberRequest) -> Result<()> {
+        let token = self.get_token();
 
         let client = ReqwestClient::new()?;
 
@@ -65,9 +61,8 @@ impl MemberApi {
         Ok(())
     }
 
-    pub async fn remove_member(&self, cookie: String, user_id: String) -> Result<()> {
-        let format_cookie = format!("{:?}", cookie);
-        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
+    pub async fn remove_member(&self, user_id: String) -> Result<()> {
+        let token = self.get_token();
 
         let client = ReqwestClient::new()?;
 
@@ -83,12 +78,10 @@ impl MemberApi {
 
     pub async fn list_members(
         &self,
-        cookie: String,
         size: Option<i64>,
         bookmark: Option<String>,
     ) -> Result<CommonQueryResponse<Member>> {
-        let format_cookie = format!("{:?}", cookie);
-        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
+        let token = self.get_token();
 
         let mut params = HashMap::new();
         if let Some(size) = size {
@@ -113,9 +106,8 @@ impl MemberApi {
         Ok(members)
     }
 
-    pub async fn get_member(&self, cookie: String, user_id: String) -> Result<Member> {
-        let format_cookie = format!("{:?}", cookie);
-        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
+    pub async fn get_member(&self, user_id: String) -> Result<Member> {
+        let token = self.get_token();
 
         let client = ReqwestClient::new()?;
 
@@ -131,9 +123,8 @@ impl MemberApi {
         Ok(members)
     }
 
-    pub async fn invite_member(&self, cookie: String, req: InviteMemberRequest) -> Result<()> {
-        let format_cookie = format!("{:?}", cookie);
-        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
+    pub async fn invite_member(&self, req: InviteMemberRequest) -> Result<()> {
+        let token = self.get_token();
 
         let client = ReqwestClient::new()?;
 
@@ -145,5 +136,21 @@ impl MemberApi {
             .await?;
 
         Ok(())
+    }
+
+    pub fn get_token(&self) -> String {
+        let cookie = if cfg!(feature = "web") {
+            self.login_service
+                .get_cookie_value()
+                .unwrap_or_else(|| "".to_string())
+        } else {
+            "".to_string()
+        };
+
+        let token = cookie.replace('"', "");
+        let format_cookie = format!("token={token}");
+        let token = format_cookie.replace("token=", "Bearer ").replace("\"", "");
+
+        token
     }
 }

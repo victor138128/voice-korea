@@ -38,7 +38,7 @@ where
     where
         F: std::fmt::Debug + serde::Serialize,
     {
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
 
         match cli.create(doc).await {
             Ok(_) => Ok(()),
@@ -58,7 +58,7 @@ where
     where
         F: std::fmt::Debug + serde::Serialize,
     {
-        let cli = easy_dynamodb::get_client(log.clone());
+        let cli = easy_dynamodb::get_client(&log);
 
         match cli
             .find(index, bookmark, Some(size.unwrap_or(100)), filter)

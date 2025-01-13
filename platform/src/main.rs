@@ -3,6 +3,9 @@
 use dioxus_logger::tracing::{self, Level};
 
 use dioxus::prelude::*;
+use platform::service::group_api::GroupApi;
+use platform::service::member_api::MemberApi;
+use platform::service::organization_api::OrganizationApi;
 use platform::service::popup_service::PopupService;
 
 use platform::{
@@ -50,6 +53,9 @@ fn App() -> Element {
     use_iitp_context_provider();
     LoginService::init();
     PopupService::init();
+    GroupApi::init();
+    MemberApi::init();
+    OrganizationApi::init();
 
     rsx! {
         head {

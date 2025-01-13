@@ -49,7 +49,7 @@ dependencies = [
 
 [[package]]
 name = "api"
-version = "0.1.10"
+version = "0.1.11"
 dependencies = [
  "aws-config",
  "aws-sdk-sesv2",
@@ -1414,9 +1414,9 @@ dependencies = [
 
 [[package]]
 name = "easy-dynamodb"
-version = "0.1.6"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b1fc7652b3bbad6ef2c90e995eee0c4d2fd7dd4563ecf35a2d648222148fef0"
+checksum = "e60c5672adbb230d4fc6399e245788a7ae85a80084856e3efcbf81a4e6541df0"
 dependencies = [
  "aws-config",
  "aws-credential-types",

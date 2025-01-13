@@ -1,15 +1,15 @@
 #![allow(non_snake_case)]
-use super::controller::{Controller, GroupMember, GroupProject, ProjectStatus, ProjectType};
+use super::controller::{Controller, GroupProject, ProjectStatus, ProjectType};
 use super::i18n::GroupDetailTranslate;
 use dioxus::prelude::*;
 use dioxus_translate::translate;
 use dioxus_translate::Language;
+use models::prelude::GroupMemberResponse;
 
+use crate::components::icons::Plus;
 use crate::{
     components::{
-        icons::{
-            AddUser, ArrowLeft, ArrowRight, ColOption, Expand, Plus, RowOption, Search, Switch,
-        },
+        icons::{AddUser, ArrowLeft, ArrowRight, ColOption, Expand, RowOption, Search, Switch},
         label::Label,
     },
     routes::Route,
@@ -30,6 +30,9 @@ pub struct GroupParticipantTranslate {
     group: String,
     role: String,
     project: String,
+    no_group: String,
+    no_role: String,
+    remove_team_member: String,
 }
 
 #[derive(Props, Clone, PartialEq)]
@@ -42,6 +45,66 @@ pub struct CommonProjectTranslate {
     panel: String,
     period: String,
     status: String,
+
+    investigation: String,
+    public_opinion: String,
+    ready: String,
+    in_progress: String,
+    finish: String,
+    exclude_from_project: String,
+}
+
+#[derive(Props, Clone, PartialEq)]
+pub struct RemoveProjectTranslate {
+    remove_project_modal_title: String,
+    remove_project_modal_info: String,
+    remove: String,
+    cancel: String,
+}
+
+#[derive(Props, Clone, PartialEq)]
+pub struct RemoveMemberTranslate {
+    remove_member_modal_title: String,
+    remove_member_modal_info: String,
+    remove: String,
+    cancel: String,
+}
+
+#[derive(Props, Clone, PartialEq)]
+pub struct UpdateGroupNameTranslate {
+    update_group_name_modal_info: String,
+    group_name: String,
+    update_group_name_hint: String,
+    update_group_name_warning: String,
+    update: String,
+    cancel: String,
+}
+
+#[derive(Props, Clone, PartialEq)]
+pub struct RemoveGroupTranslate {
+    remove_group_modal_title: String,
+    remove_group_modal_info: String,
+    remove: String,
+    cancel: String,
+}
+
+#[derive(Props, Clone, PartialEq)]
+pub struct AddMemberTranslate {
+    necessary: String,
+    input_email_address: String,
+    input_email_address_hint: String,
+    input_email_address_info: String,
+    privacy: String,
+    required_input: String,
+    select_role: String,
+    invite_project: String,
+    invite: String,
+    cancel: String,
+
+    name: String,
+    role: String,
+    public_opinion: String,
+    investigation: String,
 }
 
 #[derive(Clone, PartialEq)]
@@ -56,38 +119,78 @@ pub enum ModalType {
 
 #[component]
 pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
-    let ctrl = Controller::init(props.lang, props.group_id);
+    let mut ctrl = Controller::init(props.lang, props.group_id.clone());
     let group = ctrl.get_group();
     let total_groups = ctrl.get_groups();
     let total_roles = ctrl.get_roles();
+    let group_id_copy1 = props.group_id.clone();
+    let group_id_copy2 = props.group_id.clone();
 
     let group_name = group.group.clone();
 
     let translates: GroupDetailTranslate = translate(&props.lang);
     let mut modal_type = use_signal(|| ModalType::None);
     let mut popup: PopupService = use_context();
+
+    let navigator = use_navigator();
+
     if ModalType::UpdateGroupName == modal_type() {
         popup
             .open(rsx! {
                 UpdateGroupNameModal {
+                    update_group_name: move |name: String| {
+                        let group_id = group_id_copy1.clone();
+                        async move {
+                            ctrl.update_group_name(group_id, name).await;
+                            modal_type.set(ModalType::None);
+                        }
+                    },
+                    initialize_group_name: group_name.clone(),
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
+                    },
+                    i18n: UpdateGroupNameTranslate {
+                        update_group_name_modal_info: translates
+                            .update_group_name_modal_info
+                            .to_string(),
+                        group_name: translates.group_name.to_string(),
+                        update_group_name_hint: translates.update_group_name_hint.to_string(),
+                        update_group_name_warning: translates.update_group_name_warning.to_string(),
+                        update: translates.update.to_string(),
+                        cancel: translates.cancel.to_string(),
                     },
                 }
             })
             .with_id("update_group_name")
-            .with_title("그룹명 수정하기");
+            .with_title(translates.update_group_name);
     } else if ModalType::RemoveGroup == modal_type() {
         popup
             .open(rsx! {
                 RemoveGroupModal {
+                    remove_group: move |_e: MouseEvent| {
+                        let group_id = group_id_copy2.clone();
+                        async move {
+                            ctrl.remove_group(group_id).await;
+                            modal_type.set(ModalType::None);
+                            navigator
+                                .push(Route::GroupPage {
+                                    lang: props.lang,
+                                });
+                        }
+                    },
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
+                    },
+                    i18n: RemoveGroupTranslate {
+                        remove_group_modal_title: translates.remove_group_modal_title.to_string(),
+                        remove_group_modal_info: translates.remove_group_modal_info.to_string(),
+                        remove: translates.remove.to_string(),
+                        cancel: translates.cancel.to_string(),
                     },
                 }
             })
             .with_id("remove_group")
-            .with_title("그룹 삭제");
+            .with_title(translates.remove_group);
     } else if ModalType::RemoveMember == modal_type() {
         popup
             .open(rsx! {
@@ -95,10 +198,16 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
                     },
+                    i18n: RemoveMemberTranslate {
+                        remove_member_modal_title: translates.remove_member_modal_title.to_string(),
+                        remove_member_modal_info: translates.remove_member_modal_info.to_string(),
+                        remove: translates.remove.to_string(),
+                        cancel: translates.cancel.to_string(),
+                    },
                 }
             })
             .with_id("remove_team_member")
-            .with_title("팀원 삭제");
+            .with_title(translates.remove_team_member);
     } else if ModalType::AddMember == modal_type() {
         popup
             .open(rsx! {
@@ -107,10 +216,26 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
                         modal_type.set(ModalType::None);
                     },
                     roles: total_roles.clone(),
+                    i18n: AddMemberTranslate {
+                        necessary: translates.necessary.to_string(),
+                        input_email_address: translates.input_email_address.to_string(),
+                        input_email_address_hint: translates.input_email_address_hint.to_string(),
+                        input_email_address_info: translates.input_email_address_info.to_string(),
+                        privacy: translates.privacy.to_string(),
+                        required_input: translates.required_input.to_string(),
+                        select_role: translates.select_role.to_string(),
+                        invite_project: translates.invite_project.to_string(),
+                        invite: translates.invite.to_string(),
+                        cancel: translates.cancel.to_string(),
+                        name: translates.name.to_string(),
+                        role: translates.role.to_string(),
+                        public_opinion: translates.public_opinion.to_string(),
+                        investigation: translates.investigation.to_string(),
+                    },
                 }
             })
             .with_id("add_team_member")
-            .with_title("팀원 추가하기");
+            .with_title(translates.add_team_member);
     } else if ModalType::RemoveProject == modal_type() {
         popup
             .open(rsx! {
@@ -118,10 +243,16 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
                     },
+                    i18n: RemoveProjectTranslate {
+                        remove_project_modal_title: translates.remove_project_modal_title.to_string(),
+                        remove_project_modal_info: translates.remove_project_modal_info.to_string(),
+                        remove: translates.remove.to_string(),
+                        cancel: translates.cancel.to_string(),
+                    },
                 }
             })
             .with_id("remove_project")
-            .with_title("프로젝트 삭제");
+            .with_title(translates.remove_project);
     } else {
         popup.close();
     }
@@ -155,14 +286,14 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
                                 onclick: move |_| {
                                     modal_type.set(ModalType::RemoveGroup);
                                 },
-                                "그룹 삭제하기"
+                                {translates.remove_group}
                             }
                             li {
                                 class: "p-3 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer",
                                 onclick: move |_| {
                                     modal_type.set(ModalType::UpdateGroupName);
                                 },
-                                "그룹명 수정하기"
+                                {translates.update_group_name}
                             }
                         }
                     }
@@ -176,6 +307,7 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
                     members: ctrl.get_group().group_members,
                     total_groups,
                     total_roles,
+                    group_name,
                     i18n: GroupParticipantTranslate {
                         group_team_member: translates.group_team_member.to_string(),
                         add_member: translates.add_member.to_string(),
@@ -183,6 +315,9 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
                         group: translates.group.to_string(),
                         role: translates.role.to_string(),
                         project: translates.project.to_string(),
+                        no_group: translates.no_group.to_string(),
+                        no_role: translates.no_role.to_string(),
+                        remove_team_member: translates.remove_team_member_li.to_string(),
                     },
                     change_popup_state: move |modal: String| {
                         if modal == "add_member" {
@@ -202,6 +337,12 @@ pub fn GroupDetailPage(props: GroupDetailPageProps) -> Element {
                         panel: translates.panel.to_string(),
                         period: translates.period.to_string(),
                         status: translates.status.to_string(),
+                        investigation: translates.investigation.to_string(),
+                        public_opinion: translates.public_opinion.to_string(),
+                        ready: translates.ready.to_string(),
+                        in_progress: translates.in_progress.to_string(),
+                        finish: translates.finish.to_string(),
+                        exclude_from_project: translates.exclude_from_project.to_string(),
                     },
                     change_popup_state: move |_e: MouseEvent| {
                         modal_type.set(ModalType::RemoveProject);
@@ -305,8 +446,8 @@ pub fn GroupCommonProject(
                             div { class: "flex flex-row w-full h-[55px] justify-start items-center text-[#35343f] font-semibold text-[14px]",
                                 div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center gap-[10px]",
                                     match project.project_type {
-                                        ProjectType::Investigation => "조사",
-                                        _ => "공론",
+                                        ProjectType::Investigation => i18n.investigation.clone(),
+                                        _ => i18n.public_opinion.clone(),
                                     }
                                 }
                                 div { class: "flex flex-row flex-1 h-full justify-center items-center gap-[10px]",
@@ -327,9 +468,9 @@ pub fn GroupCommonProject(
                                 }
                                 div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center gap-[10px]",
                                     match project.project_status {
-                                        ProjectStatus::Ready => "준비",
-                                        ProjectStatus::InProgress => "진행",
-                                        _ => "마감",
+                                        ProjectStatus::Ready => i18n.ready.clone(),
+                                        ProjectStatus::InProgress => i18n.in_progress.clone(),
+                                        _ => i18n.finish.clone(),
                                     }
                                 }
                                 div { class: "group relative w-[90px] min-w-[90px] h-full justify-center items-center",
@@ -347,7 +488,7 @@ pub fn GroupCommonProject(
                                                 onclick: move |e: MouseEvent| {
                                                     change_popup_state.call(e);
                                                 },
-                                                "프로젝트에서 제외하기"
+                                                {i18n.exclude_from_project.clone()}
                                             }
                                         }
                                     }
@@ -363,10 +504,11 @@ pub fn GroupCommonProject(
 
 #[component]
 pub fn GroupParticipant(
-    members: Vec<GroupMember>,
+    members: Vec<GroupMemberResponse>,
     total_groups: Vec<String>,
     total_roles: Vec<String>,
     change_popup_state: EventHandler<String>,
+    group_name: String,
     i18n: GroupParticipantTranslate,
 ) -> Element {
     let mut name = use_signal(|| "".to_string());
@@ -456,42 +598,60 @@ pub fn GroupParticipant(
                                     div { class: "w-[36px] h-[36px] rounded-[40px] bg-[#9baae4] mr-[10px]" }
                                     div { class: "flex flex-col justify-start items-start",
                                         div { class: "text-[14px] font-medium text-[#3a3a3a] mb-[5px]",
-                                            {member.profile_name.unwrap_or_default()}
+                                            {member.user_name.clone()}
                                         }
                                         div { class: "text-[14px] font-normal text-[#7c8292]",
-                                            {member.email}
+                                            {member.user_email.clone()}
                                         }
                                     }
                                 }
                                 div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center gap-[10px]",
                                     select {
                                         class: "bg-transparent focus:outline-none",
-                                        value: member.group,
+                                        value: group_name.clone(),
                                         //TODO: update member group
                                         onchange: |_evt| {},
+                                        option {
+                                            value: "",
+                                            selected: group_name.clone() == "".to_string(),
+                                            {i18n.no_group.clone()}
+                                        }
                                         for group in total_groups.clone() {
-                                            option { value: group.clone(), "{group}" }
+                                            option {
+                                                value: group.clone(),
+                                                selected: group_name.clone() == group,
+                                                "{group}"
+                                            }
                                         }
                                     }
                                 }
                                 div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center gap-[10px]",
                                     select {
                                         class: "bg-transparent focus:outline-none",
-                                        value: member.role,
+                                        value: member.role_name.clone(),
                                         //TODO: update member role
                                         onchange: |_evt| {},
+                                        option {
+                                            value: "",
+                                            selected: member.role_name.is_none(),
+                                            {i18n.no_role.clone()}
+                                        }
                                         for role in total_roles.clone() {
-                                            option { value: role.clone(), "{role}" }
+                                            option {
+                                                value: role.clone(),
+                                                selected: !member.role_name.is_none() && member.role_name.clone().unwrap_or_default() == role,
+                                                "{role}"
+                                            }
                                         }
                                     }
                                 }
                                 div { class: "flex flex-row w-full h-full justify-center items-center gap-[10px]",
-                                    if member.projects.len() > 0 {
-                                        Label {
-                                            label_name: member.projects[0].clone(),
-                                            label_color: "bg-[#35343f]",
-                                        }
-                                    }
+                                    // if member.projects.len() > 0 {
+                                    //     Label {
+                                    //         label_name: member.projects[0].clone(),
+                                    //         label_color: "bg-[#35343f]",
+                                    //     }
+                                    // }
                                     div { class: "flex flex-row w-[24px] h-[24px] justify-center items-center bg-[#d1d1d1] ml-[5px] opacity-50 rounded-lg",
                                         Plus { width: "10", height: "10" }
                                     }
@@ -514,7 +674,7 @@ pub fn GroupParticipant(
                                                 onclick: move |_| {
                                                     change_popup_state.call("remove_member".to_string());
                                                 },
-                                                "팀원 삭제하기"
+                                                {i18n.remove_team_member.clone()}
                                             }
                                         }
                                     }
@@ -529,27 +689,28 @@ pub fn GroupParticipant(
 }
 
 #[component]
-pub fn RemoveProjectModal(onclose: EventHandler<MouseEvent>) -> Element {
+pub fn RemoveProjectModal(
+    onclose: EventHandler<MouseEvent>,
+    i18n: RemoveProjectTranslate,
+) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px]",
-                div { "정말 삭제하시겠습니까?" }
-                div {
-                    "삭제된 프로젝트는 복원할 수 없습니다. 삭제 전에 다시 한번 확인해주세요."
-                }
+                div { {i18n.remove_project_modal_title} }
+                div { {i18n.remove_project_modal_info} }
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
                     onclick: move |_| {},
-                    div { class: "text-white font-bold text-[16px]", "삭제하기" }
+                    div { class: "text-white font-bold text-[16px]", {i18n.remove.clone()} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
-                    "취소하기"
+                    {i18n.cancel.clone()}
                 }
             }
         }
@@ -557,27 +718,28 @@ pub fn RemoveProjectModal(onclose: EventHandler<MouseEvent>) -> Element {
 }
 
 #[component]
-pub fn RemoveMemberModal(onclose: EventHandler<MouseEvent>) -> Element {
+pub fn RemoveMemberModal(
+    onclose: EventHandler<MouseEvent>,
+    i18n: RemoveMemberTranslate,
+) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px]",
-                div { "정말 삭제하시겠습니까?" }
-                div {
-                    "삭제된 팀원은 복원할 수 없습니다. 삭제 전에 다시 한번 확인해주세요."
-                }
+                div { {i18n.remove_member_modal_title} }
+                div { {i18n.remove_member_modal_info} }
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
                     onclick: move |_| {},
-                    div { class: "text-white font-bold text-[16px]", "삭제하기" }
+                    div { class: "text-white font-bold text-[16px]", {i18n.remove.clone()} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
-                    "취소하기"
+                    {i18n.cancel.clone()}
                 }
             }
         }
@@ -585,40 +747,47 @@ pub fn RemoveMemberModal(onclose: EventHandler<MouseEvent>) -> Element {
 }
 
 #[component]
-pub fn UpdateGroupNameModal(onclose: EventHandler<MouseEvent>) -> Element {
-    let mut group_name = use_signal(|| "".to_string());
+pub fn UpdateGroupNameModal(
+    onclose: EventHandler<MouseEvent>,
+    update_group_name: EventHandler<String>,
+    initialize_group_name: String,
+    i18n: UpdateGroupNameTranslate,
+) -> Element {
+    let mut group_name = use_signal(|| initialize_group_name);
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px] mb-[40px]",
-                "그룹명은 한 번 수정하면 되돌릴 수 없습니다."
+                {i18n.update_group_name_modal_info}
             }
             div { class: "flex flex-col w-full justify-start items-start",
-                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]", "그룹명" }
+                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]", {i18n.group_name} }
                 input {
                     class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
                     r#type: "text",
-                    placeholder: "그룹명을 입력해주세요.".to_string(),
+                    placeholder: i18n.update_group_name_hint,
                     value: (group_name)(),
                     oninput: move |event| {
                         group_name.set(event.value());
                     },
                 }
                 div { class: "font-normal text-[13px] text-[#222222]",
-                    "중복 입력은 허용되지 않으며, 최소 2글자 이상 입력해야 합니다."
+                    {i18n.update_group_name_warning}
                 }
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
-                    onclick: move |_| {},
-                    div { class: "text-white font-bold text-[16px]", "삭제하기" }
+                    onclick: move |_| {
+                        update_group_name.call(group_name());
+                    },
+                    div { class: "text-white font-bold text-[16px]", {i18n.update} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
-                    "취소하기"
+                    {i18n.cancel}
                 }
             }
         }
@@ -626,27 +795,31 @@ pub fn UpdateGroupNameModal(onclose: EventHandler<MouseEvent>) -> Element {
 }
 
 #[component]
-pub fn RemoveGroupModal(onclose: EventHandler<MouseEvent>) -> Element {
+pub fn RemoveGroupModal(
+    onclose: EventHandler<MouseEvent>,
+    remove_group: EventHandler<MouseEvent>,
+    i18n: RemoveGroupTranslate,
+) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px]",
-                div { "정말 삭제하시겠습니까?" }
-                div {
-                    "그룹을 삭제해도 팀원들은 유지되지만, 팀원들의 그룹 설정을 다시 해야합니다."
-                }
+                div { {i18n.remove_group_modal_title} }
+                div { {i18n.remove_group_modal_info} }
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
-                    onclick: move |_| {},
-                    div { class: "text-white font-bold text-[16px]", "삭제하기" }
+                    onclick: move |e: MouseEvent| {
+                        remove_group.call(e);
+                    },
+                    div { class: "text-white font-bold text-[16px]", {i18n.remove} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
-                    "취소하기"
+                    {i18n.cancel}
                 }
             }
         }
@@ -654,7 +827,11 @@ pub fn RemoveGroupModal(onclose: EventHandler<MouseEvent>) -> Element {
 }
 
 #[component]
-pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> Element {
+pub fn AddMemberModal(
+    roles: Vec<String>,
+    onclose: EventHandler<MouseEvent>,
+    i18n: AddMemberTranslate,
+) -> Element {
     let mut email = use_signal(|| "".to_string());
 
     let mut name = use_signal(|| "".to_string());
@@ -664,25 +841,23 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "flex flex-row w-full mb-[16px]",
-                div { class: "text-[#eb5757] font-semibold text-[14px] mr-[5px]", "*[필수]" }
-                div { class: "text-[#222222] font-semibold text-[14px]",
-                    "이메일 주소 입력하기"
-                }
+                div { class: "text-[#eb5757] font-semibold text-[14px] mr-[5px]", {i18n.necessary} }
+                div { class: "text-[#222222] font-semibold text-[14px]", {i18n.input_email_address} }
             }
             input {
                 class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
                 r#type: "text",
-                placeholder: "이메일 주소 입력",
+                placeholder: i18n.input_email_address_hint,
                 value: (email)(),
                 oninput: move |event| {
                     email.set(event.value());
                 },
             }
             div { class: "font-normal text-[#6f6f6f] text-[13px] mt-[5px] mb-[40px]",
-                "이메일 형식은 e.g voicekorea@company.com 으로 입력해주세요."
+                {i18n.input_email_address_info}
             }
             div { class: "flex flex-col w-full justify-start itmes-start",
-                div { class: "font-medium text-[15px] text-[#222222] mb-[16px]", "개인정보" }
+                div { class: "font-medium text-[15px] text-[#222222] mb-[16px]", {i18n.privacy} }
                 div { class: "flex flex-col w-full justify-start items-start border border-[#bfc8d9] rounded-lg p-[24px]",
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
@@ -690,13 +865,13 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
                                 "*"
                             }
                             div { class: "text-[#222222] font-medium text-[15px] mr-[3px] w-[40px]",
-                                "이름"
+                                {i18n.name}
                             }
                         }
                         input {
                             class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
                             r#type: "text",
-                            placeholder: "필수 입력",
+                            placeholder: i18n.required_input,
                             value: (name)(),
                             oninput: move |event| {
                                 name.set(event.value());
@@ -705,7 +880,7 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
                     }
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "text-[#222222] font-medium text-[15px] mr-[3px] w-[60px]",
-                            "역할"
+                            {i18n.role}
                         }
                         select {
                             class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
@@ -718,7 +893,7 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
                                 disabled: true,
                                 selected: select_role() == "",
                                 hidden: select_role() != "",
-                                "역할 선택"
+                                {i18n.select_role}
                             }
                             for role in roles.clone() {
                                 option {
@@ -732,12 +907,14 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
                 }
             }
             div { class: "flex flex-col w-full justify-start items-start mt-[40px]",
-                div { class: "font-medium text-[15px] text-[#222222] mb-[16px]", "프로젝트 초대" }
+                div { class: "font-medium text-[15px] text-[#222222] mb-[16px]",
+                    {i18n.invite_project}
+                }
                 div { class: "flex flex-col w-full justify-start items-start border border-[#bfc8d9] rounded-lg p-[24px]",
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
                             div { class: "text-[#222222] font-medium text-[15px] mr-[3px] w-[40px]",
-                                "공론"
+                                {i18n.public_opinion}
                             }
                         }
                         div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#f7f7f7] rounded-lg " }
@@ -745,7 +922,7 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
                     div { class: "flex flex-row w-full justify-start items-center mb-[10px]",
                         div { class: "flex flex-row w-[60px]",
                             div { class: "text-[#222222] font-medium text-[15px] mr-[3px] w-[40px]",
-                                "조사"
+                                {i18n.investigation}
                             }
                         }
                         div { class: "flex flex-row w-full h-[45px] justify-start items-center px-[11px] py-[13px] bg-[#f7f7f7] rounded-lg " }
@@ -757,14 +934,14 @@ pub fn AddMemberModal(roles: Vec<String>, onclose: EventHandler<MouseEvent>) -> 
                     class: "flex flex-row w-[120px] h-[40px] bg-[#2a60d3] rounded-md px-[14px] py-[8px] gap-[5px] cursor-pointer",
                     onclick: move |_| {},
                     AddUser { width: "24", height: "24" }
-                    div { class: "text-white font-bold text-[16px]", "초대하기" }
+                    div { class: "text-white font-bold text-[16px]", {i18n.invite} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
                     onclick: move |e: MouseEvent| {
                         onclose.call(e);
                     },
-                    "취소하기"
+                    {i18n.cancel}
                 }
             }
         }

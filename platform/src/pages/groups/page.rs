@@ -26,6 +26,7 @@ pub struct UpdateGroupNameModalTranslates {
     update_group_name_info: String,
     update_group_name_hint: String,
     update_group_name_warning: String,
+    group_name: String,
     update: String,
     cancel: String,
 }
@@ -38,29 +39,52 @@ pub struct RemoveGroupModalTranslates {
     cancel: String,
 }
 
+#[derive(Props, Clone, PartialEq)]
+pub struct CreateGroupModalTranslates {
+    group_name: String,
+    input_contents: String,
+    create_group_hint: String,
+    add_team_member: String,
+    team_member: String,
+    invite_project: String,
+    public_opinion: String,
+    investigation: String,
+    create: String,
+    cancel: String,
+}
+
 #[derive(Clone, PartialEq)]
 pub enum ModalType {
     None,
     UpdateGroupName(String),
     RemoveGroup(String),
+    CreateGroup,
 }
 
 #[component]
 pub fn GroupPage(props: GroupPageProps) -> Element {
-    let ctrl = Controller::init(props.lang);
+    let mut ctrl = Controller::init(props.lang);
     let mut name = use_signal(|| "".to_string());
     let mut is_focused = use_signal(|| false);
     let mut modal_type = use_signal(|| ModalType::None);
     let translates: GroupTranslate = translate(&props.lang);
 
     let mut clicked_group_id = use_signal(|| "".to_string());
+    let mut clicked_group_name = use_signal(|| "".to_string());
 
     let group = ctrl.get_groups();
     let groups = group.clone();
     let group_len = groups.len();
 
-    let mut member_clicked = use_signal(|| vec![false; group_len]);
-    let mut member_extended = use_signal(|| vec![false; group_len]);
+    let mut member_clicked = use_signal(|| vec![]);
+    let mut member_extended = use_signal(|| vec![]);
+
+    let group_api = use_context();
+
+    use_effect(use_reactive(&group_len, move |group_len| {
+        member_clicked.set(vec![false; group_len]);
+        member_extended.set(vec![false; group_len]);
+    }));
 
     let mut popup: PopupService = use_context();
     if let ModalType::UpdateGroupName(_group_id) = modal_type() {
@@ -70,13 +94,27 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
                         clicked_group_id.set("".to_string());
+                        clicked_group_name.set("".to_string());
                     },
                     i18n: UpdateGroupNameModalTranslates {
                         update_group_name_info: translates.update_group_name_info.to_string(),
                         update_group_name_hint: translates.update_group_name_hint.to_string(),
                         update_group_name_warning: translates.update_group_name_warning.to_string(),
+                        group_name: translates.group_name.to_string(),
                         update: translates.update.to_string(),
                         cancel: translates.cancel.to_string(),
+                    },
+                    initialize_group_name: clicked_group_name(),
+                    update_group_name: move |group_name: String| {
+                        let group_name = group_name.clone();
+                        async move {
+                            let _ = ctrl
+                                .update_group_name(group_api, clicked_group_id(), group_name)
+                                .await;
+                            modal_type.set(ModalType::None);
+                            clicked_group_id.set("".to_string());
+                            clicked_group_name.set("".to_string());
+                        }
                     },
                 }
             })
@@ -89,6 +127,7 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                     onclose: move |_e: MouseEvent| {
                         modal_type.set(ModalType::None);
                         clicked_group_id.set("".to_string());
+                        clicked_group_name.set("".to_string());
                     },
                     i18n: RemoveGroupModalTranslates {
                         remove_warning: translates.remove_warning.to_string(),
@@ -96,10 +135,43 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                         remove: translates.remove.to_string(),
                         cancel: translates.cancel.to_string(),
                     },
+                    remove_group: move |_e: Event<MouseData>| {
+                        async move {
+                            let _ = ctrl.remove_group(group_api, clicked_group_id()).await;
+                            modal_type.set(ModalType::None);
+                            clicked_group_id.set("".to_string());
+                            clicked_group_name.set("".to_string());
+                        }
+                    },
                 }
             })
             .with_id("remove_group")
             .with_title(translates.remove_group);
+    } else if let ModalType::CreateGroup = modal_type() {
+        popup
+            .open(rsx! {
+                CreateGroupModal {
+                    onclose: move |_e: MouseEvent| {
+                        modal_type.set(ModalType::None);
+                        clicked_group_id.set("".to_string());
+                        clicked_group_name.set("".to_string());
+                    },
+                    i18n: CreateGroupModalTranslates {
+                        group_name: translates.group_name.to_string(),
+                        input_contents: translates.input_contents.to_string(),
+                        create_group_hint: translates.create_group_hint.to_string(),
+                        add_team_member: translates.add_team_member.to_string(),
+                        team_member: translates.team_member.to_string(),
+                        invite_project: translates.invite_project.to_string(),
+                        public_opinion: translates.public_opinion.to_string(),
+                        investigation: translates.investigation.to_string(),
+                        create: translates.create.to_string(),
+                        cancel: translates.cancel.to_string(),
+                    },
+                }
+            })
+            .with_id("create_group")
+            .with_title(translates.create_group);
     } else {
         popup.close();
     }
@@ -152,7 +224,11 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                     div { class: "flex flex-row gap-[10px]",
                         div { class: "flex flex-row w-[140px] h-[40px] bg-[#2a60d3] rounded-md px-[14px] py-[8px] gap-[5px]",
                             Folder { width: "24", height: "24" }
-                            div { class: "text-white font-bold text-[16px]",
+                            div {
+                                class: "text-white font-bold text-[16px]",
+                                onclick: move |_| {
+                                    modal_type.set(ModalType::CreateGroup);
+                                },
                                 "{translates.create_group}"
                             }
                         }
@@ -205,46 +281,50 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                             clicked[index] = !clicked[index];
                                             member_clicked.set(clicked);
                                         },
-                                        if !member_clicked()[index] && groups[index].member_list.len() > 0 {
+                                        if groups.len() != 0 && index < member_clicked().len()
+                                            && (!member_clicked()[index] && groups[index].member_list.len() > 0)
+                                        {
                                             Label {
                                                 label_name: groups[index].member_list[0].clone(),
                                                 label_color: "bg-[#35343f]",
                                             }
                                         } else {
-                                            div { class: "flex flex-row w-full h-full",
-                                                div { class: "flex flex-row w-full justify-center items-center",
-                                                    div { class: "inline-flex flex-wrap justify-center items-center gap-[10px] mr-[20px]",
-                                                        for member in groups[index].member_list.clone() {
-                                                            Label {
-                                                                label_name: member,
-                                                                label_color: "bg-[#35343f]",
-                                                            }
-                                                        }
-                                                    }
-                                                    div {
-                                                        onclick: move |e: MouseEvent| {
-                                                            e.stop_propagation();
-                                                            e.prevent_default();
-                                                            let mut extended = member_extended.clone()();
-                                                            extended[index] = !extended[index];
-                                                            member_extended.set(extended);
-                                                        },
-                                                        Expand {
-                                                            width: "24",
-                                                            height: "24",
-                                                        }
-                                                    }
-                                                }
-                                                if member_extended()[index] {
-                                                    div { class: "absolute top-full bg-white border border-[#bfc8d9] shadow-lg rounded-lg w-full z-50 py-[20px] pl-[15px] pr-[100px]",
-                                                        div { class: "font-semibold text-[#7c8292] text-[14px] mb-[20px]",
-                                                            "{translates.team_member}"
-                                                        }
-                                                        div { class: "inline-flex flex-wrap justify-start items-start gap-[10px] mr-[20px]",
+                                            if groups.len() != 0 {
+                                                div { class: "flex flex-row w-full h-full",
+                                                    div { class: "flex flex-row w-full justify-center items-center",
+                                                        div { class: "inline-flex flex-wrap justify-center items-center gap-[10px] mr-[20px]",
                                                             for member in groups[index].member_list.clone() {
                                                                 Label {
                                                                     label_name: member,
                                                                     label_color: "bg-[#35343f]",
+                                                                }
+                                                            }
+                                                        }
+                                                        div {
+                                                            onclick: move |e: MouseEvent| {
+                                                                e.stop_propagation();
+                                                                e.prevent_default();
+                                                                let mut extended = member_extended.clone()();
+                                                                extended[index] = !extended[index];
+                                                                member_extended.set(extended);
+                                                            },
+                                                            Expand {
+                                                                width: "24",
+                                                                height: "24",
+                                                            }
+                                                        }
+                                                    }
+                                                    if index < member_extended().len() && member_extended()[index] {
+                                                        div { class: "absolute top-full bg-white border border-[#bfc8d9] shadow-lg rounded-lg w-full z-50 py-[20px] pl-[15px] pr-[100px]",
+                                                            div { class: "font-semibold text-[#7c8292] text-[14px] mb-[20px]",
+                                                                "{translates.team_member}"
+                                                            }
+                                                            div { class: "inline-flex flex-wrap justify-start items-start gap-[10px] mr-[20px]",
+                                                                for member in groups[index].member_list.clone() {
+                                                                    Label {
+                                                                        label_name: member,
+                                                                        label_color: "bg-[#35343f]",
+                                                                    }
                                                                 }
                                                             }
                                                         }
@@ -264,8 +344,10 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                             button {
                                                 onclick: {
                                                     let group_id = groups[index].group_id.clone();
+                                                    let group_name = groups[index].group_name.clone();
                                                     move |_| {
                                                         clicked_group_id.set(group_id.clone());
+                                                        clicked_group_name.set(group_name.clone());
                                                     }
                                                 },
                                                 RowOption { width: 24, height: 24 }
@@ -327,15 +409,17 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
 pub fn UpdateGroupNameModal(
     onclose: EventHandler<MouseEvent>,
     i18n: UpdateGroupNameModalTranslates,
+    initialize_group_name: String,
+    update_group_name: EventHandler<String>,
 ) -> Element {
-    let mut group_name = use_signal(|| "".to_string());
+    let mut group_name = use_signal(|| initialize_group_name);
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px] mb-[40px]",
                 {i18n.update_group_name_info}
             }
             div { class: "flex flex-col w-full justify-start items-start",
-                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]", "그룹명" }
+                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]", {i18n.group_name} }
                 input {
                     class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
                     r#type: "text",
@@ -352,7 +436,9 @@ pub fn UpdateGroupNameModal(
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
-                    onclick: move |_| {},
+                    onclick: move |_| {
+                        update_group_name.call(group_name());
+                    },
                     div { class: "text-white font-bold text-[16px]", {i18n.update} }
                 }
                 div {
@@ -371,6 +457,7 @@ pub fn UpdateGroupNameModal(
 pub fn RemoveGroupModal(
     onclose: EventHandler<MouseEvent>,
     i18n: RemoveGroupModalTranslates,
+    remove_group: EventHandler<MouseEvent>,
 ) -> Element {
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start ",
@@ -381,8 +468,79 @@ pub fn RemoveGroupModal(
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div {
                     class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
-                    onclick: move |_| {},
+                    onclick: move |e: Event<MouseData>| {
+                        remove_group.call(e);
+                    },
                     div { class: "text-white font-bold text-[16px]", {i18n.remove} }
+                }
+                div {
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
+                    onclick: move |e: MouseEvent| {
+                        onclose.call(e);
+                    },
+                    {i18n.cancel}
+                }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn CreateGroupModal(
+    onclose: EventHandler<MouseEvent>,
+    i18n: CreateGroupModalTranslates,
+) -> Element {
+    let mut group_name = use_signal(|| "".to_string());
+    rsx! {
+        div { class: "flex flex-col w-full justify-start items-start ",
+            div { class: "flex flex-col w-full justify-start items-start",
+                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]", {i18n.group_name} }
+                input {
+                    class: "flex flex-row w-full h-[45px] bg-[#f7f7f7] rounded-sm focus:outline-none focus:border focus:border-[#2a60d3] focus:bg-white px-[15px] items-center mb-[5px] text-[#222222]",
+                    r#type: "text",
+                    placeholder: i18n.input_contents,
+                    value: (group_name)(),
+                    oninput: move |event| {
+                        group_name.set(event.value());
+                    },
+                }
+                div { class: "font-normal text-[13px] text-[#222222]", {} }
+            }
+            div { class: "flex flex-col w-full justify-start items-start mt-[40px]",
+                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]",
+                    {i18n.add_team_member}
+                }
+                div { class: "flex flex-row w-full justify-center items-start",
+                    div { class: "flex flex-row justify-start items-center text-[#222222] font-medium text-[15px] mr-[3px] w-[40px] h-[45px]",
+                        {i18n.team_member}
+                    }
+                    div { class: "flex flex-row w-full h-[45px] justify-center items-start bg-[#f7f7f7] rounded-md" }
+                }
+            }
+            div { class: "flex flex-col w-full justify-start items-start mt-[40px]",
+                div { class: "font-semibold text-[14px] text-[#222222] mb-[16px]",
+                    {i18n.invite_project}
+                }
+                div { class: "flex flex-col w-full justify-center items-start",
+                    div { class: "flex flex-row w-full justify-center items-start mb-[10px]",
+                        div { class: "flex flex-row justify-start items-center text-[#222222] font-medium text-[15px] mr-[3px] w-[40px] h-[45px]",
+                            {i18n.public_opinion}
+                        }
+                        div { class: "flex flex-row w-full h-[45px] justify-center items-start bg-[#f7f7f7] rounded-md" }
+                    }
+                    div { class: "flex flex-row w-full justify-center items-start",
+                        div { class: "flex flex-row justify-start items-center text-[#222222] font-medium text-[15px] mr-[3px] w-[40px] h-[45px]",
+                            {i18n.investigation}
+                        }
+                        div { class: "flex flex-row w-full h-[45px] justify-center items-start bg-[#f7f7f7] rounded-md" }
+                    }
+                }
+            }
+            div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
+                div { class: "flex flex-row w-[110px] h-[40px] bg-[#2a60d3] rounded-md px-[14px] py-[8px] gap-[5px]",
+                    //FIMME: implement create logic with condition
+                    Folder { width: "24", height: "24" }
+                    div { class: "text-white font-bold text-[16px]", {i18n.create} }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",

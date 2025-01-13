@@ -68,6 +68,11 @@ impl LoginService {
         })
     }
 
+    #[cfg(not(feature = "web"))]
+    pub fn get_cookie_value(&self) -> Option<String> {
+        None
+    }
+
     pub fn get_email(&self) -> String {
         match (self.email)() {
             Some(email) => email,
@@ -76,7 +81,7 @@ impl LoginService {
     }
 
     #[allow(unused_variables)]
-    pub fn setup(&mut self, email: String, token: String) {
+    pub async fn setup(&mut self, email: String, token: String) {
         self.email.set(Some(email));
         // self.token.set(token);
 

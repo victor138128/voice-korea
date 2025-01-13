@@ -77,7 +77,7 @@ pub struct InviteMember {
 
     pub email: String,
     pub name: String,
-    pub group: Option<String>,
+    pub group: Option<GroupInfo>,
     pub role: Option<String>,
     pub projects: Option<Vec<MemberProject>>, //FIXME: implement project model sepalately after public opinion, investigation api implemented
 }
@@ -87,7 +87,7 @@ impl InviteMember {
         id: String,
         email: String,
         name: String,
-        group: Option<String>,
+        group: Option<GroupInfo>,
         role: Option<String>,
         projects: Option<Vec<MemberProject>>,
     ) -> Self {
@@ -129,7 +129,7 @@ impl InviteMember {
 pub struct InviteMemberRequest {
     pub email: String,
     pub name: String,
-    pub group: Option<String>,
+    pub group: Option<GroupInfo>,
     pub role: Option<String>,
     pub projects: Option<Vec<MemberProject>>,
 }
@@ -160,17 +160,23 @@ impl Into<InviteMember> for (InviteMemberRequest, String) {
 pub struct CreateMemberRequest {
     pub email: String,
     pub name: Option<String>,
-    pub group: Option<String>,
+    pub group: Option<GroupInfo>,
     pub role: Option<String>,
     // pub projects: Option<Vec<MemberProject>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default, Eq)]
+pub struct GroupInfo {
+    pub id: String,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default, Eq)]
 pub struct UpdateMemberRequest {
-    pub name: Option<String>,
-    pub group: Option<String>,
-    pub role: Option<String>,
-    // pub projects: Option<Vec<MemberProject>>,
+    pub name: Option<String>,     //user_name
+    pub group: Option<GroupInfo>, //group_id
+    pub role: Option<String>,     //role_name
+                                  // pub projects: Option<Vec<MemberProject>>,
 }
 
 impl Into<Member> for (CreateMemberRequest, String) {
@@ -187,7 +193,11 @@ impl Into<Member> for (CreateMemberRequest, String) {
             deleted_at: None,
             email: req.email,
             name: req.name,
-            group: req.group,
+            group: if req.group.is_none() {
+                None
+            } else {
+                Some(req.group.unwrap().name)
+            },
             role: req.role,
             // projects: req.projects,
         }

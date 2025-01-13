@@ -1,4 +1,8 @@
+use chrono::{Local, TimeZone};
 use dioxus::prelude::*;
+use models::prelude::GroupMemberResponse;
+
+use crate::service::group_api::GroupApi;
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub enum ProjectType {
@@ -19,7 +23,7 @@ pub enum ProjectStatus {
 pub struct GroupDetail {
     pub group: String,
     pub register_date: String,
-    pub group_members: Vec<GroupMember>,
+    pub group_members: Vec<GroupMemberResponse>,
     pub group_projects: Vec<GroupProject>,
 }
 
@@ -43,15 +47,23 @@ pub struct GroupMember {
     pub projects: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
     pub group: Signal<GroupDetail>,
     pub groups: Signal<Vec<String>>,
     pub roles: Signal<Vec<String>>,
+    pub group_resource: Resource<Result<models::prelude::GroupResponse, ServerFnError>>,
 }
 
 impl Controller {
-    pub fn init(_lang: dioxus_translate::Language, _group_id: String) -> Self {
+    pub fn init(_lang: dioxus_translate::Language, group_id: String) -> Self {
+        let api: GroupApi = use_context();
+        let group_resource: Resource<Result<models::prelude::GroupResponse, ServerFnError>> =
+            use_resource(move || {
+                let api = api.clone();
+                let group_id = group_id.clone();
+                async move { api.get_group(group_id.clone()).await }
+            });
         let mut ctrl = Self {
             group: use_signal(|| GroupDetail::default()),
             groups: use_signal(|| vec![]),
@@ -64,6 +76,7 @@ impl Controller {
                     "강연자".to_string(),
                 ]
             }),
+            group_resource,
         };
         ctrl.groups.set(vec![
             "보이스코리아".to_string(),
@@ -72,149 +85,31 @@ impl Controller {
             "보이스코리아3".to_string(),
         ]);
 
-        ctrl.group.set(GroupDetail {
-            group: "보이스코리아".to_string(),
-            register_date: "2024년 8월 12일".to_string(),
-            group_members: vec![
-                GroupMember {
-                    member_id: "1".to_string(),
-                    email: "email@email.com".to_string(),
-                    profile_image: None,
-                    profile_name: Some("보이스".to_string()),
-                    group: "보이스코리아".to_string(),
-                    role: "관리자".to_string(),
-                    projects: vec!["공론주제".to_string(), "조사주제".to_string()],
-                },
-                GroupMember {
-                    member_id: "2".to_string(),
-                    email: "email@email.com".to_string(),
-                    profile_image: None,
-                    profile_name: Some("보이스".to_string()),
-                    group: "보이스코리아".to_string(),
-                    role: "관리자".to_string(),
-                    projects: vec!["공론주제".to_string(), "조사주제".to_string()],
-                },
-                GroupMember {
-                    member_id: "3".to_string(),
-                    email: "email@email.com".to_string(),
-                    profile_image: None,
-                    profile_name: Some("보이스".to_string()),
-                    group: "보이스코리아".to_string(),
-                    role: "관리자".to_string(),
-                    projects: vec!["공론주제".to_string(), "조사주제".to_string()],
-                },
-                GroupMember {
-                    member_id: "4".to_string(),
-                    email: "email@email.com".to_string(),
-                    profile_image: None,
-                    profile_name: Some("보이스".to_string()),
-                    group: "보이스코리아".to_string(),
-                    role: "관리자".to_string(),
-                    projects: vec!["공론주제".to_string(), "조사주제".to_string()],
-                },
-            ],
-            group_projects: vec![
-                GroupProject {
-                    project_type: ProjectType::Investigation,
-                    project_subject: "조사주제".to_string(),
-                    panels: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    periods: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Finished,
-                },
-                GroupProject {
-                    project_type: ProjectType::PublicOpinion,
-                    project_subject: "공론주제".to_string(),
-                    panels: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    periods: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Finished,
-                },
-                GroupProject {
-                    project_type: ProjectType::PublicOpinion,
-                    project_subject: "공론주제".to_string(),
-                    panels: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    periods: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Finished,
-                },
-                GroupProject {
-                    project_type: ProjectType::Investigation,
-                    project_subject: "조사주제".to_string(),
-                    panels: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    periods: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Finished,
-                },
-                GroupProject {
-                    project_type: ProjectType::Investigation,
-                    project_subject: "조사주제".to_string(),
-                    panels: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    periods: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Finished,
-                },
-                GroupProject {
-                    project_type: ProjectType::Investigation,
-                    project_subject: "조사주제".to_string(),
-                    panels: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    periods: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Finished,
-                },
-                GroupProject {
-                    project_type: ProjectType::Investigation,
-                    project_subject: "조사주제".to_string(),
-                    panels: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    periods: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Finished,
-                },
-                GroupProject {
-                    project_type: ProjectType::Investigation,
-                    project_subject: "조사주제".to_string(),
-                    panels: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    periods: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Finished,
-                },
-                GroupProject {
-                    project_type: ProjectType::Investigation,
-                    project_subject: "조사주제".to_string(),
-                    panels: vec![
-                        "패널1".to_string(),
-                        "패널2".to_string(),
-                        "패널3".to_string(),
-                    ],
-                    periods: "2025.10.01 ~ 2025.12.02".to_string(),
-                    project_status: ProjectStatus::Finished,
-                },
-            ],
-        });
+        let group = if let Some(v) = group_resource.value()() {
+            match v {
+                Ok(d) => {
+                    let seconds = d.created_at / 1000;
+                    let nanoseconds = (d.created_at % 1000) * 1_000_000;
+                    let datetime = Local.timestamp_opt(seconds, nanoseconds as u32).unwrap();
+
+                    let formatted_date = datetime.format("%Y년 %m월 %d일").to_string();
+
+                    let data = GroupDetail {
+                        group: d.name.clone(),
+                        register_date: formatted_date.clone(),
+                        group_members: d.members,
+                        group_projects: vec![],
+                    };
+
+                    data
+                }
+                Err(_) => GroupDetail::default(),
+            }
+        } else {
+            GroupDetail::default()
+        };
+
+        ctrl.group.set(group);
 
         ctrl
     }
@@ -229,5 +124,17 @@ impl Controller {
 
     pub fn get_roles(&self) -> Vec<String> {
         (self.roles)()
+    }
+
+    pub async fn remove_group(&mut self, group_id: String) {
+        let api: GroupApi = use_context();
+        let _ = api.remove_group(group_id).await;
+        self.group_resource.restart();
+    }
+
+    pub async fn update_group_name(&mut self, group_id: String, group_name: String) {
+        let api: GroupApi = use_context();
+        let _ = api.update_group_name(group_id, group_name).await;
+        self.group_resource.restart();
     }
 }
