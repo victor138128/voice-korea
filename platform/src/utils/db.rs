@@ -8,5 +8,5 @@ pub fn cli_for_api(method: &'static str, api: &str) -> easy_dynamodb::Client {
 }
 
 pub fn get(logger: &slog::Logger) -> easy_dynamodb::Client {
-    easy_dynamodb::get_client(&logger.clone())
+    easy_dynamodb::get_client(&logger)
 }
