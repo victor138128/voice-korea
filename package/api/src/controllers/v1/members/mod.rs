@@ -63,6 +63,7 @@ impl MemberControllerV1 {
             .with_state(ctrl.clone())
     }
 
+    //TODO: implement invite member in organization
     pub async fn invite_member(
         State(ctrl): State<MemberControllerV1>,
         Path(organization_id): Path<String>,
@@ -120,6 +121,7 @@ impl MemberControllerV1 {
         }
     }
 
+    //TODO: implement act member by organization id
     pub async fn act_member(
         State(ctrl): State<MemberControllerV1>,
         Path((organization_id, member_id)): Path<(String, String)>,
@@ -146,6 +148,7 @@ impl MemberControllerV1 {
         Ok(())
     }
 
+    //TODO: implement create member in organization
     pub async fn create_member(
         State(ctrl): State<MemberControllerV1>,
         Path(organization_id): Path<String>,
@@ -208,6 +211,7 @@ impl MemberControllerV1 {
         }
     }
 
+    //TODO: implement search projects in organization
     pub async fn search_projects(
         State(ctrl): State<MemberControllerV1>,
         Path(organization_id): Path<String>,
@@ -236,6 +240,7 @@ impl MemberControllerV1 {
         }))
     }
 
+    //TODO: implement list members in organization
     pub async fn list_members(
         State(ctrl): State<MemberControllerV1>,
         Path(organization_id): Path<String>,
@@ -271,6 +276,7 @@ impl MemberControllerV1 {
         }))
     }
 
+    //TODO: implement get member in organization
     pub async fn get_member(
         State(ctrl): State<MemberControllerV1>,
         Path((organization_id, member_id)): Path<(String, String)>,

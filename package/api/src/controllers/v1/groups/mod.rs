@@ -59,6 +59,7 @@ impl GroupControllerV1 {
             .with_state(ctrl.clone())
     }
 
+    //TODO: implement search groups by group id
     pub async fn search_groups_by_id(
         State(ctrl): State<GroupControllerV1>,
         Path((organization_id, group_id)): Path<(String, String)>,
@@ -79,6 +80,7 @@ impl GroupControllerV1 {
         }))
     }
 
+    //TODO: implement search groups
     pub async fn search_groups(
         State(ctrl): State<GroupControllerV1>,
         Path(organization_id): Path<String>,
@@ -93,6 +95,7 @@ impl GroupControllerV1 {
         }))
     }
 
+    //TODO: implement act group by organization id
     pub async fn act_group(
         Extension(claims): Extension<Claims>,
         State(ctrl): State<GroupControllerV1>,
@@ -120,6 +123,7 @@ impl GroupControllerV1 {
         Ok(())
     }
 
+    //TODO: implement create group by organization id
     pub async fn create_group(
         Extension(claims): Extension<Claims>,
         Path(organization_id): Path<String>,
@@ -156,6 +160,7 @@ impl GroupControllerV1 {
         }
     }
 
+    //TODO: implement list groups by organization id
     pub async fn list_groups(
         State(ctrl): State<GroupControllerV1>,
         Query(pagination): Query<Pagination>,
@@ -236,6 +241,7 @@ impl GroupControllerV1 {
         }))
     }
 
+    //TODO: implement get group by organization id
     pub async fn get_group(
         State(ctrl): State<GroupControllerV1>,
         Path((organization_id, group_id)): Path<(String, String)>,
