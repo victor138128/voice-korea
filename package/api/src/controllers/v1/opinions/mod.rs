@@ -31,15 +31,6 @@ pub struct SearchParams {
     pub _keyword: String,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum OpinionActionRequest {
-    Delete,
-    UpdateProjectType(OpinionType),
-    UpdatePanels(Vec<PanelInfo>),
-    UpdateStatus(ProjectStatus),
-}
-
 impl PublicOpinionControllerV1 {
     pub fn router() -> Router {
         let log = root().new(o!("api-controller" => "PublicOpinionControllerV1"));

@@ -21,6 +21,15 @@ pub struct DiscussionInfo {
     pub documents: Vec<Document>,
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum OpinionActionRequest {
+    Delete,
+    UpdateProjectType(OpinionType),
+    UpdatePanels(Vec<PanelInfo>),
+    UpdateStatus(ProjectStatus),
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct ScheduleInfo {
     pub title: String,

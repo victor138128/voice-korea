@@ -5,6 +5,7 @@ use dioxus_logger::tracing::{self, Level};
 use dioxus::prelude::*;
 use platform::service::group_api::GroupApi;
 use platform::service::member_api::MemberApi;
+use platform::service::opinion_api::OpinionApi;
 use platform::service::organization_api::OrganizationApi;
 use platform::service::popup_service::PopupService;
 
@@ -57,6 +58,7 @@ fn App() -> Element {
     MemberApi::init();
     GroupApi::init();
     OrganizationApi::init();
+    OpinionApi::init();
 
     rsx! {
         head {

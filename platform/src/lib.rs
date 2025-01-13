@@ -31,6 +31,7 @@ pub mod service {
     pub mod group_api;
     pub mod login_service;
     pub mod member_api;
+    pub mod opinion_api;
     pub mod organization_api;
     pub mod popup_service;
 }
