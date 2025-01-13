@@ -1,7 +1,11 @@
 #![allow(non_snake_case)]
-use crate::components::{
-    icons::{ArrowLeft, Expand, RowOption, Search, Switch},
-    label::Label,
+use crate::{
+    components::{
+        icons::{ArrowLeft, Expand, RowOption, Search, Switch},
+        label::Label,
+    },
+    routes::Route,
+    service::popup_service::PopupService,
 };
 
 use super::controller::Controller;
@@ -14,10 +18,24 @@ pub struct OpinionProps {
     lang: Language,
 }
 
+#[derive(Props, Clone, PartialEq)]
+pub struct RemoveProjectModalTranslate {
+    remove_project_info: String,
+    remove_project_warning: String,
+    cancel: String,
+    remove: String,
+}
+
+#[derive(Clone, PartialEq)]
+pub enum ModalType {
+    None,
+    RemoveProject(String), //project_id
+}
+
 #[component]
 pub fn OpinionPage(props: OpinionProps) -> Element {
     let ctrl = Controller::init(props.lang);
-    let _translates: OpinionTranslate = translate(&props.lang.clone());
+    let translates: OpinionTranslate = translate(&props.lang.clone());
     let mut is_focused = use_signal(|| false);
     let mut search_text = use_signal(|| "".to_string());
 
@@ -27,15 +45,41 @@ pub fn OpinionPage(props: OpinionProps) -> Element {
     let mut clicked_opinion_type: Signal<i64> = use_signal(|| -1);
     let mut clicked_opinion_status: Signal<i64> = use_signal(|| -1);
     let mut clicked_panel: Signal<i64> = use_signal(|| -1);
+    let mut modal_type = use_signal(|| ModalType::None);
+
+    let mut popup: PopupService = use_context();
+
+    if let ModalType::RemoveProject(_project_id) = modal_type() {
+        popup
+            .open(rsx! {
+                RemoveProjectModal {
+                    onclose: move |_| {
+                        modal_type.set(ModalType::None);
+                    },
+                    i18n: RemoveProjectModalTranslate {
+                        remove_project_info: translates.remove_project_info.to_string(),
+                        remove_project_warning: translates.remove_project_warning.to_string(),
+                        cancel: translates.cancel.to_string(),
+                        remove: translates.remove.to_string(),
+                    },
+                }
+            })
+            .with_id("remove_project")
+            .with_title(&translates.remove_project);
+    } else {
+        popup.close();
+    }
 
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "text-[#9b9b9b] font-medium text-[14px] mb-[10px]",
-                "조직 관리 / 공론관리"
+                "{translates.organization_management} / {translates.public_opinion_management}"
             }
-            div { class: "text-[#3a3a3a] font-semibold text-[28px] mb-[25px]", "공론관리" }
+            div { class: "text-[#3a3a3a] font-semibold text-[28px] mb-[25px]",
+                "{translates.public_opinion_management}"
+            }
             div { class: "text-[#35343f] font-normal text-[14px] mb-[40px]",
-                "공론 관리 페이지는 의견과 토론 내용을 체계적으로 관리하고 공유할 수 있도록 도와줍니다."
+                "{translates.public_opinion_info}"
             }
 
             div {
@@ -54,9 +98,12 @@ pub fn OpinionPage(props: OpinionProps) -> Element {
                         input {
                             class: "flex flex-row w-full h-full bg-transparent focus:outline-none",
                             r#type: "text",
-                            placeholder: "검색어를 입력해주세요.".to_string(),
+                            placeholder: translates.search_hint,
                             value: (search_text)(),
                             onfocus: move |_| {
+                                if !popup.is_opened() {
+                                    modal_type.set(ModalType::None);
+                                }
                                 is_focused.set(true);
                             },
                             onblur: move |_| {
@@ -69,11 +116,16 @@ pub fn OpinionPage(props: OpinionProps) -> Element {
                         Search { width: "18", height: "18", color: "#7c8292" }
                     }
                     div { class: "flex flex-row gap-[10px]",
-                        div { class: "flex flex-row w-[130px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md gap-[5px]",
-                            div {
-                                class: "text-white font-semibold text-[16px]",
-                                onclick: move |_| {},
-                                "공론 시작하기"
+                        Link {
+                            to: Route::OpinionCreatePage {
+                                lang: props.lang,
+                            },
+                            div { class: "flex flex-row w-[130px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md gap-[5px]",
+                                div {
+                                    class: "text-white font-semibold text-[16px]",
+                                    onclick: move |_| {},
+                                    "{translates.start_public_opinion}"
+                                }
                             }
                         }
                     }
@@ -83,43 +135,43 @@ pub fn OpinionPage(props: OpinionProps) -> Element {
                     div { class: "flex flex-row w-full h-[55px] justify-start items-center",
                         div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "분야"
+                                "{translates.field}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row flex-1 h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "프로젝트"
+                                "{translates.project}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row flex-1 h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "응답율"
+                                "{translates.response_rate}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row flex-1 h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "패널"
+                                "{translates.panel}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row flex-1 h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "기간"
+                                "{translates.period}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "상태"
+                                "{translates.status}"
                             }
                             Switch { width: "19", height: "19" }
                         }
                         div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center gap-[10px]",
                             div { class: "text-[#555462] font-semibold text-[14px]",
-                                "보기"
+                                "{translates.view}"
                             }
                         }
                         div { class: "w-[90px] h-full justify-center items-center gap-[10px]" }
@@ -203,15 +255,17 @@ pub fn OpinionPage(props: OpinionProps) -> Element {
                                             if clicked_panel() == index as i64 && index < opinions.len() {
                                                 div { class: "absolute top-full bg-white border border-[#bfc8d9] shadow-lg rounded-lg w-full z-50 py-[20px] pl-[15px] pr-[10ㅔㅌ]",
                                                     div { class: "font-semibold text-[#7c8292] text-[14px] mb-[20px]",
-                                                        "패널"
+                                                        "{translates.panel}"
                                                     }
                                                     div { class: "inline-flex flex-wrap justify-start items-start gap-[10px] mr-[20px]",
                                                         for panel in opinions[index].panels.clone() {
                                                             Label {
                                                                 label_name: panel.name.clone(),
                                                                 label_color: if opinions[index].status == "마감" { "bg-[#b4b4b4]".to_string() } else { "bg-[#35343f]".to_string() },
-                                                                is_delete: false,
                                                             }
+                                                        }
+                                                        div { class: "flex flex-row w-[24px] h-[24px] bg-[#d1d1d1] opacity-50 justify-center items-center rounded-lg font-bold text-[#35343f] text-[15px]",
+                                                            "+"
                                                         }
                                                     }
                                                 }
@@ -259,17 +313,17 @@ pub fn OpinionPage(props: OpinionProps) -> Element {
                                         div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center",
                                             if opinions[index].status == "준비" || opinions[index].status == "진행" {
                                                 div { class: "font-semibold text-[14px] text-[#2a60d3]",
-                                                    "자세히 보기"
+                                                    "{translates.view_more}"
                                                 }
                                             } else {
                                                 div { class: "font-semibold text-[14px] text-[#2a60d3]",
-                                                    "결과 보기"
+                                                    "{translates.view_result}"
                                                 }
                                             }
                                         }
                                         div { class: "flex flex-row w-[90px] h-full justify-center items-center",
                                             div { class: "group relative",
-                                                button { onclick: move |_| {},
+                                                button {
                                                     RowOption { width: 24, height: 24 }
                                                 }
                                                 nav {
@@ -278,8 +332,13 @@ pub fn OpinionPage(props: OpinionProps) -> Element {
                                                     ul { class: "py-1",
                                                         li {
                                                             class: "p-3 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer",
-                                                            onclick: move |_| {},
-                                                            "프로젝트 삭제하기"
+                                                            onclick: {
+                                                                let project_id = opinions[index].project_id.clone();
+                                                                move |_| {
+                                                                    modal_type.set(ModalType::RemoveProject(project_id.clone()));
+                                                                }
+                                                            },
+                                                            "{translates.remove_project}"
                                                         }
                                                     }
                                                 }
@@ -312,6 +371,35 @@ pub fn OpinionPage(props: OpinionProps) -> Element {
                     div { class: "flex flex-row ml-[12px] w-[60px] h-[40px] justify-center items-center font-bold text-[15px] text-[#0d1732]",
                         "More"
                     }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn RemoveProjectModal(
+    onclose: EventHandler<MouseEvent>,
+    i18n: RemoveProjectModalTranslate,
+) -> Element {
+    rsx! {
+        div { class: "flex flex-col w-full justify-start items-start",
+            div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px]",
+                div { {i18n.remove_project_info} }
+                div { {i18n.remove_project_warning} }
+            }
+            div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
+                div {
+                    class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
+                    onclick: move |_| {},
+                    div { class: "text-white font-bold text-[16px]", {i18n.remove.clone()} }
+                }
+                div {
+                    class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
+                    onclick: move |e: MouseEvent| {
+                        onclose.call(e);
+                    },
+                    {i18n.cancel.clone()}
                 }
             }
         }
