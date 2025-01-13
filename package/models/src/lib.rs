@@ -1,5 +1,6 @@
 mod group;
 mod member;
+mod opinion;
 mod organization;
 mod search;
 mod survey;
@@ -10,6 +11,7 @@ pub use crate::user::{AuthDocument, User};
 pub mod prelude {
     pub use crate::group::*;
     pub use crate::member::*;
+    pub use crate::opinion::*;
     pub use crate::organization::*;
     pub use crate::search::*;
     pub use crate::survey::*;
