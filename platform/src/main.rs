@@ -55,9 +55,9 @@ fn App() -> Element {
     LoginService::init();
     PopupService::init();
 
+    OrganizationApi::init();
     MemberApi::init();
     GroupApi::init();
-    OrganizationApi::init();
     OpinionApi::init();
 
     rsx! {
