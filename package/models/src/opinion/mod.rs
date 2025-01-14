@@ -181,9 +181,9 @@ pub enum ProjectStatus {
 impl std::fmt::Display for ProjectStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ProjectStatus::Ready => write!(f, "준비"),
-            ProjectStatus::InProgress => write!(f, "진행"),
-            ProjectStatus::Finish => write!(f, "마감"),
+            ProjectStatus::Ready => write!(f, "Ready"),
+            ProjectStatus::InProgress => write!(f, "In Progress"),
+            ProjectStatus::Finish => write!(f, "Finish"),
         }
     }
 }
@@ -207,16 +207,16 @@ pub enum OpinionType {
 impl std::fmt::Display for OpinionType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            OpinionType::Economy => write!(f, "경제"),
-            OpinionType::Society => write!(f, "사회"),
-            OpinionType::Environment => write!(f, "환경"),
-            OpinionType::Education => write!(f, "교육"),
-            OpinionType::Culture => write!(f, "문화"),
-            OpinionType::Labor => write!(f, "노동"),
-            OpinionType::City => write!(f, "도시"),
-            OpinionType::Technology => write!(f, "기술"),
-            OpinionType::Health => write!(f, "보건"),
-            OpinionType::Politics => write!(f, "정치"),
+            OpinionType::Economy => write!(f, "Economy"),
+            OpinionType::Society => write!(f, "Society"),
+            OpinionType::Environment => write!(f, "Environment"),
+            OpinionType::Education => write!(f, "Education"),
+            OpinionType::Culture => write!(f, "Culture"),
+            OpinionType::Labor => write!(f, "Labor"),
+            OpinionType::City => write!(f, "City"),
+            OpinionType::Technology => write!(f, "Technology"),
+            OpinionType::Health => write!(f, "Health"),
+            OpinionType::Politics => write!(f, "Politics"),
         }
     }
 }

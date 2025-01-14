@@ -63,6 +63,18 @@ translate! {
         ko: "프로젝트 삭제하기",
         en: "Remove Project"
     },
+    ready: {
+        ko: "준비",
+        en: "Ready"
+    },
+    in_progress: {
+        ko: "진행",
+        en: "In Progress"
+    },
+    finish: {
+        ko: "마감",
+        en: "Finish"
+    }
 
     remove_project_info: {
         ko: "정말 삭제하시겠습니까?",

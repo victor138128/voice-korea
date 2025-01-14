@@ -1,7 +1,8 @@
 use chrono::{TimeZone, Utc};
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
-use models::prelude::{OpinionResponse, PanelInfo};
+use dioxus_translate::Language;
+use models::prelude::{OpinionResponse, OpinionType, PanelInfo, ProjectStatus};
 use serde::{Deserialize, Serialize};
 
 use crate::service::opinion_api::OpinionApi;
@@ -29,7 +30,7 @@ pub struct Controller {
 }
 
 impl Controller {
-    pub fn init(_lang: dioxus_translate::Language) -> Self {
+    pub fn init(lang: dioxus_translate::Language) -> Self {
         let api: OpinionApi = use_context();
         let opinion_resource: Resource<
             Result<crate::api::common::CommonQueryResponse<OpinionResponse>, ServerFnError>,
@@ -67,14 +68,18 @@ impl Controller {
                     for item in d.items {
                         items.push(Opinion {
                             project_id: item.project_id.clone(),
-                            opinion_type: item.opinion_type.to_string(),
+                            opinion_type: ctrl
+                                .opinion_type_translate(lang.clone(), item.opinion_type)
+                                .to_string(),
                             project_name: item.project_name.clone(),
                             total_response_count: item.total_response_count,
                             response_count: item.response_count,
                             panels: item.panels,
                             start_date: ctrl.format_timestamp(item.start_date as i64),
                             end_date: ctrl.format_timestamp(item.end_date as i64),
-                            status: item.status.to_string(),
+                            status: ctrl
+                                .project_status_translate(lang.clone(), item.status)
+                                .to_string(),
                         });
                     }
 
@@ -108,5 +113,49 @@ impl Controller {
     fn format_timestamp(&self, timestamp: i64) -> String {
         let datetime = Utc.timestamp_opt(timestamp, 0).unwrap();
         datetime.format("%Y.%m.%d").to_string()
+    }
+
+    fn project_status_translate(&self, lang: Language, status: ProjectStatus) -> &'static str {
+        match lang {
+            Language::En => match status {
+                ProjectStatus::Ready => "Ready",
+                ProjectStatus::InProgress => "In Progress",
+                ProjectStatus::Finish => "Finish",
+            },
+            Language::Ko => match status {
+                ProjectStatus::Ready => "준비",
+                ProjectStatus::InProgress => "진행",
+                ProjectStatus::Finish => "마감",
+            },
+        }
+    }
+
+    fn opinion_type_translate(&self, lang: Language, opinion_type: OpinionType) -> &'static str {
+        match lang {
+            Language::En => match opinion_type {
+                OpinionType::Economy => "Economy",
+                OpinionType::Society => "Society",
+                OpinionType::Environment => "Environment",
+                OpinionType::Education => "Education",
+                OpinionType::Culture => "Culture",
+                OpinionType::Labor => "Labor",
+                OpinionType::City => "City",
+                OpinionType::Technology => "Technology",
+                OpinionType::Health => "Health",
+                OpinionType::Politics => "Politics",
+            },
+            Language::Ko => match opinion_type {
+                OpinionType::Economy => "경제",
+                OpinionType::Society => "사회",
+                OpinionType::Environment => "환경",
+                OpinionType::Education => "교육",
+                OpinionType::Culture => "문화",
+                OpinionType::Labor => "노동",
+                OpinionType::City => "도시",
+                OpinionType::Technology => "기술",
+                OpinionType::Health => "보건",
+                OpinionType::Politics => "정치",
+            },
+        }
     }
 }
