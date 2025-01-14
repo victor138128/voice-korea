@@ -123,9 +123,9 @@ pub struct ProjectInfo {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct OpinionInfo {
     pub name: String,
-    pub start_date: u64,
-    pub end_date: u64,
-    pub public_opinion_type: PublicOpinionType,
+    pub start_date: Option<u64>,
+    pub end_date: Option<u64>,
+    pub public_opinion_type: Option<PublicOpinionType>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
