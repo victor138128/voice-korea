@@ -29,7 +29,7 @@ jobs:
           components: clippy, rustfmt
           target: wasm32-unknown-unknown
           toolchain: stable
-
+      - uses: cargo-bins/cargo-binstall@main
       - name: Cache builder
         id: cache-builder
         uses: actions/cache@v3
@@ -37,10 +37,10 @@ jobs:
           key: cache-builder-new
           path: |
             target
-
+      
       - name: Install dioxus-cli
         run: |
-          cargo install --version 0.6.0-rc.0 dioxus-cli
+          cargo binstall dioxus-cli --version 0.6.0
 
       - name: Deploy APIs
         env:

@@ -1,11 +1,13 @@
 use by_axum::axum::Router;
 use groups::GroupControllerV1;
 use members::MemberControllerV1;
+use opinions::PublicOpinionControllerV1;
 use organizations::OrganizationControllerV1;
 
 mod auth;
 mod groups;
 mod members;
+mod opinions;
 mod organizations;
 mod search;
 mod survey;
@@ -19,5 +21,6 @@ pub fn router(db: std::sync::Arc<easy_dynamodb::Client>) -> Router {
         .nest("/survey", survey::router(db.clone()))
         .nest("/groups", GroupControllerV1::router(db.clone()))
         .nest("/members", MemberControllerV1::router(db.clone()))
+        .nest("/opinions", PublicOpinionControllerV1::router())
         .nest("/organizations", OrganizationControllerV1::router())
 }
