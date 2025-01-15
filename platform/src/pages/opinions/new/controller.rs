@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 use dioxus_translate::Language;
-use models::prelude::{OpinionInfo, PublicOpinionType};
+use models::prelude::{OpinionFieldType, OpinionInfo, OpinionInformation, PublicOpinionType};
 
 use super::i18n::OpinionNewTranslate;
 
@@ -9,6 +9,10 @@ pub struct Controller {
     current_step: Signal<CurrentStep>,
     public_opinion_sequences: Signal<Vec<OpinionInfo>>,
     total_option_types: Signal<Vec<String>>,
+
+    //step 2
+    total_fields: Signal<Vec<String>>,
+    opinion_informations: Signal<OpinionInformation>,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -67,6 +71,28 @@ impl Controller {
                         public_opinion_type: Some(PublicOpinionType::Report),
                     },
                 ]
+            }),
+
+            // step 2
+            total_fields: use_signal(|| {
+                vec![
+                    "경제".to_string(),
+                    "사회".to_string(),
+                    "환경".to_string(),
+                    "교육".to_string(),
+                    "문화".to_string(),
+                    "노동".to_string(),
+                    "도시".to_string(),
+                    "기술".to_string(),
+                    "보건".to_string(),
+                    "정치".to_string(),
+                ]
+            }),
+            opinion_informations: use_signal(|| OpinionInformation {
+                opinion_type: None,
+                title: None,
+                description: None,
+                documents: vec![],
             }),
         };
         use_context_provider(|| ctrl);
@@ -153,5 +179,80 @@ impl Controller {
 
     pub fn use_service() -> Self {
         use_context()
+    }
+
+    // step 2
+    pub fn get_total_fields(&self) -> Vec<String> {
+        (self.total_fields)()
+    }
+
+    pub fn get_opinion_informations(&self) -> OpinionInformation {
+        (self.opinion_informations)()
+    }
+
+    pub fn opinion_field_type_translate(
+        &self,
+        lang: Language,
+        opinion_type: OpinionFieldType,
+    ) -> &'static str {
+        match lang {
+            Language::En => match opinion_type {
+                OpinionFieldType::Economy => "Economy",
+                OpinionFieldType::Society => "Society",
+                OpinionFieldType::Environment => "Environment",
+                OpinionFieldType::Education => "Education",
+                OpinionFieldType::Culture => "Culture",
+                OpinionFieldType::Labor => "Labor",
+                OpinionFieldType::City => "City",
+                OpinionFieldType::Technology => "Technology",
+                OpinionFieldType::Health => "Health",
+                OpinionFieldType::Politics => "Politics",
+            },
+            Language::Ko => match opinion_type {
+                OpinionFieldType::Economy => "경제",
+                OpinionFieldType::Society => "사회",
+                OpinionFieldType::Environment => "환경",
+                OpinionFieldType::Education => "교육",
+                OpinionFieldType::Culture => "문화",
+                OpinionFieldType::Labor => "노동",
+                OpinionFieldType::City => "도시",
+                OpinionFieldType::Technology => "기술",
+                OpinionFieldType::Health => "보건",
+                OpinionFieldType::Politics => "정치",
+            },
+        }
+    }
+
+    pub fn update_opinion_field_type_from_str(
+        &self,
+        opinion_field_type: String,
+    ) -> Option<OpinionFieldType> {
+        if opinion_field_type == "경제" || opinion_field_type == "Economy" {
+            Some(OpinionFieldType::Economy)
+        } else if opinion_field_type == "사회" || opinion_field_type == "Society" {
+            Some(OpinionFieldType::Economy)
+        } else if opinion_field_type == "환경" || opinion_field_type == "Environment" {
+            Some(OpinionFieldType::Economy)
+        } else if opinion_field_type == "교육" || opinion_field_type == "Education" {
+            Some(OpinionFieldType::Economy)
+        } else if opinion_field_type == "문화" || opinion_field_type == "Culture" {
+            Some(OpinionFieldType::Economy)
+        } else if opinion_field_type == "노동" || opinion_field_type == "Labor" {
+            Some(OpinionFieldType::Economy)
+        } else if opinion_field_type == "도시" || opinion_field_type == "City" {
+            Some(OpinionFieldType::Economy)
+        } else if opinion_field_type == "기술" || opinion_field_type == "Technology" {
+            Some(OpinionFieldType::Economy)
+        } else if opinion_field_type == "보건" || opinion_field_type == "Health" {
+            Some(OpinionFieldType::Economy)
+        } else if opinion_field_type == "정치" || opinion_field_type == "Politics" {
+            Some(OpinionFieldType::Economy)
+        } else {
+            None
+        }
+    }
+
+    pub fn update_opinion_information(&mut self, information: OpinionInformation) {
+        self.opinion_informations.set(information);
     }
 }

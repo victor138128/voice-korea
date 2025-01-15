@@ -5,7 +5,7 @@ use crate::{
     routes::Route,
 };
 
-use super::{composition_opinion::CompositionOpinion, controller::Controller};
+use super::controller::Controller;
 use super::{i18n::OpinionNewTranslate, input_opinion::InputOpinion};
 use dioxus::prelude::*;
 use dioxus_translate::{translate, Language};
@@ -55,11 +55,13 @@ pub fn OpinionCreatePage(props: OpinionProps) -> Element {
                 }
             }
 
-            if step == CurrentStep::PublicOpinionComposition {
-                CompositionOpinion { lang: props.lang.clone() }
-            } else {
-                InputOpinion { lang: props.lang.clone() }
-            }
+            InputOpinion { lang: props.lang.clone() }
+
+        // if step == CurrentStep::PublicOpinionComposition {
+        //     CompositionOpinion { lang: props.lang.clone() }
+        // } else {
+        //     InputOpinion { lang: props.lang.clone() }
+        // }
         }
     }
 }

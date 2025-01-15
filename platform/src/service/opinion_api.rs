@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use dioxus::prelude::*;
 use models::prelude::{
-    OpinionActionRequest, OpinionResponse, OpinionType, PanelInfo, ProjectStatus,
+    OpinionActionRequest, OpinionFieldType, OpinionResponse, PanelInfo, ProjectStatus,
     UpsertOpinionRequest,
 };
 
@@ -91,7 +91,7 @@ impl OpinionApi {
     pub async fn update_project_type(
         &self,
         project_id: String,
-        project_type: OpinionType,
+        project_type: OpinionFieldType,
     ) -> Result<()> {
         let token = self.get_token();
         let id = self.get_organization_id();

@@ -2,7 +2,7 @@ use chrono::{TimeZone, Utc};
 use dioxus::prelude::*;
 use dioxus_logger::tracing;
 use dioxus_translate::Language;
-use models::prelude::{OpinionResponse, OpinionType, PanelInfo, ProjectStatus};
+use models::prelude::{OpinionFieldType, OpinionResponse, PanelInfo, ProjectStatus};
 use serde::{Deserialize, Serialize};
 
 use crate::service::opinion_api::OpinionApi;
@@ -69,7 +69,7 @@ impl Controller {
                         items.push(Opinion {
                             project_id: item.project_id.clone(),
                             opinion_type: ctrl
-                                .opinion_type_translate(lang.clone(), item.opinion_type)
+                                .opinion_field_type_translate(lang.clone(), item.opinion_type)
                                 .to_string(),
                             project_name: item.project_name.clone(),
                             total_response_count: item.total_response_count,
@@ -130,31 +130,35 @@ impl Controller {
         }
     }
 
-    fn opinion_type_translate(&self, lang: Language, opinion_type: OpinionType) -> &'static str {
+    pub fn opinion_field_type_translate(
+        &self,
+        lang: Language,
+        opinion_type: OpinionFieldType,
+    ) -> &'static str {
         match lang {
             Language::En => match opinion_type {
-                OpinionType::Economy => "Economy",
-                OpinionType::Society => "Society",
-                OpinionType::Environment => "Environment",
-                OpinionType::Education => "Education",
-                OpinionType::Culture => "Culture",
-                OpinionType::Labor => "Labor",
-                OpinionType::City => "City",
-                OpinionType::Technology => "Technology",
-                OpinionType::Health => "Health",
-                OpinionType::Politics => "Politics",
+                OpinionFieldType::Economy => "Economy",
+                OpinionFieldType::Society => "Society",
+                OpinionFieldType::Environment => "Environment",
+                OpinionFieldType::Education => "Education",
+                OpinionFieldType::Culture => "Culture",
+                OpinionFieldType::Labor => "Labor",
+                OpinionFieldType::City => "City",
+                OpinionFieldType::Technology => "Technology",
+                OpinionFieldType::Health => "Health",
+                OpinionFieldType::Politics => "Politics",
             },
             Language::Ko => match opinion_type {
-                OpinionType::Economy => "경제",
-                OpinionType::Society => "사회",
-                OpinionType::Environment => "환경",
-                OpinionType::Education => "교육",
-                OpinionType::Culture => "문화",
-                OpinionType::Labor => "노동",
-                OpinionType::City => "도시",
-                OpinionType::Technology => "기술",
-                OpinionType::Health => "보건",
-                OpinionType::Politics => "정치",
+                OpinionFieldType::Economy => "경제",
+                OpinionFieldType::Society => "사회",
+                OpinionFieldType::Environment => "환경",
+                OpinionFieldType::Education => "교육",
+                OpinionFieldType::Culture => "문화",
+                OpinionFieldType::Labor => "노동",
+                OpinionFieldType::City => "도시",
+                OpinionFieldType::Technology => "기술",
+                OpinionFieldType::Health => "보건",
+                OpinionFieldType::Politics => "정치",
             },
         }
     }
