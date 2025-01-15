@@ -1,11 +1,12 @@
 #![allow(non_snake_case)]
 use crate::{
     components::{icons::ArrowLeft, stepper::Stepper},
+    pages::opinions::new::controller::CurrentStep,
     routes::Route,
 };
 
-use super::controller::Controller;
-use super::i18n::OpinionNewTranslate;
+use super::{composition_opinion::CompositionOpinion, controller::Controller};
+use super::{i18n::OpinionNewTranslate, input_opinion::InputOpinion};
 use dioxus::prelude::*;
 use dioxus_translate::{translate, Language};
 
@@ -16,8 +17,10 @@ pub struct OpinionProps {
 
 #[component]
 pub fn OpinionCreatePage(props: OpinionProps) -> Element {
-    let _ctrl = Controller::init(props.lang);
     let translates: OpinionNewTranslate = translate(&props.lang.clone());
+    let ctrl = Controller::init(props.lang, translates.clone());
+
+    let step = ctrl.get_current_step();
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "text-[#9b9b9b] font-medium text-[14px] mb-[10px]",
@@ -36,10 +39,10 @@ pub fn OpinionCreatePage(props: OpinionProps) -> Element {
                 }
             }
 
-            div { class: "flex flex-col w-full justify-start items-center mt-[20px]",
+            div { class: "flex flex-col w-full justify-start items-center mt-[20px] mb-[80px]",
                 div { class: "flex flex-row w-[1400px] min-w-[1400px] justify-center items-center",
                     Stepper {
-                        current_step: 2,
+                        current_step: if step == CurrentStep::PublicOpinionComposition { 1 } else { 2 },
                         steps: vec![
                             "공론 구성 및 기간".to_string(),
                             "필수정보 입력".to_string(),
@@ -50,6 +53,12 @@ pub fn OpinionCreatePage(props: OpinionProps) -> Element {
                         ],
                     }
                 }
+            }
+
+            if step == CurrentStep::PublicOpinionComposition {
+                CompositionOpinion { lang: props.lang.clone() }
+            } else {
+                InputOpinion { lang: props.lang.clone() }
             }
         }
     }
