@@ -19,23 +19,23 @@ pub struct GroupMember {
     pub deleted_at: Option<i64>,
 
     pub group_id: String,
-    pub user_id: String,
+    pub org_member_id: String,
 }
 
 impl GroupMember {
-    pub fn new(id: String, group_id: String, user_id: String) -> Self {
+    pub fn new(id: String, group_id: String, org_member_id: String) -> Self {
         let mut group = GroupMember::default();
         let now = chrono::Utc::now().timestamp_millis();
         group.id = id;
         group.r#type = GroupMember::get_type();
         group.gsi1 = GroupMember::get_gsi1(&group_id);
-        group.gsi2 = GroupMember::get_gsi2(&user_id);
+        group.gsi2 = GroupMember::get_gsi2(&org_member_id);
         group.created_at = now;
         group.updated_at = now;
         group.deleted_at = None;
 
         group.group_id = group_id;
-        group.user_id = user_id;
+        group.org_member_id = org_member_id;
         group
     }
 
@@ -78,7 +78,7 @@ pub struct GroupMemberResponse {
     pub deleted_at: Option<i64>,
 
     pub group_id: String,
-    pub user_id: String,
+    pub org_member_id: String,
     pub user_name: String,
     pub user_email: String,
     pub role_name: Option<String>,
