@@ -55,13 +55,13 @@ pub fn OpinionCreatePage(props: OpinionProps) -> Element {
                 }
             }
 
-            InputOpinion { lang: props.lang.clone() }
+            // InputOpinion { lang: props.lang.clone() }
 
-        // if step == CurrentStep::PublicOpinionComposition {
-        //     CompositionOpinion { lang: props.lang.clone() }
-        // } else {
-        //     InputOpinion { lang: props.lang.clone() }
-        // }
+            if step == CurrentStep::PublicOpinionComposition {
+                CompositionOpinion { lang: props.lang.clone() }
+            } else {
+                InputOpinion { lang: props.lang.clone() }
+            }
         }
     }
 }
