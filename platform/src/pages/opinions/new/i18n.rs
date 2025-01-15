@@ -115,4 +115,109 @@ translate! {
         ko: "결과 분석",
         en: "Analysis Result"
     }
+
+    //step 2
+    essential_information: {
+        ko: "공론 필수 정보",
+        en: "Public opinion essential information"
+    }
+    backward: {
+        ko: "뒤로",
+        en: "Backward"
+    }
+
+    research_project_linkage: {
+        ko: "조사 프로젝트 연동",
+        en: "Research project linkage"
+    }
+    research_project_linkage_description: {
+        ko: "해당 공론과 관련된 조사자료를 불러와주세요. (예. 여론조사, 설문조사, 기타조사 등)",
+        en: "Please retrieve research data related to this public opinion. (e.g. opinion polls, surveys, other surveys, etc.)"
+    }
+    research_selection: {
+        ko: "조사 선택",
+        en: "Research Selection"
+    }
+
+    upload_document: {
+        ko: "자료 업로드",
+        en: "Upload Document"
+    }
+    upload_document_description: {
+        ko: "해당 공론과 관련된 자료를 업로드해주세요. (예. 공론 소개, 참여 방법, 가이드라인)",
+        en: "Please upload materials related to the public opinion. (e.g. introduction to public opinion, participation methods, guidelines)"
+    }
+    direct_upload: {
+        ko: "직접 업로드하기",
+        en: "Direct Upload"
+    }
+    import_from_data_management: {
+        ko: "자료관리에서 불러오기",
+        en: "Import from data management"
+    }
+    upload_file_description: {
+        ko: "업로드할 파일을 드래그해주세요.",
+        en: "Please drag the file you want to upload."
+    }
+    load_file: {
+        ko: "파일 불러오기",
+        en: "Load File"
+    }
+    upload_file_warning: {
+        ko: "jpg, .png, pdf, zip, word, excel, pptx 파일만 업로드 가능합니다.",
+        en: "Only jpg, .png, pdf, zip, word, excel, and pptx files can be uploaded."
+    }
+    title: {
+        ko: "제목",
+        en: "Title"
+    }
+    document_type: {
+        ko: "유형",
+        en: "Type"
+    }
+    field: {
+        ko: "분야",
+        en: "Field"
+    }
+    purpose_of_use: {
+        ko: "활용 목적",
+        en: "Purpose of use"
+    }
+    source: {
+        ko: "출처",
+        en: "Source"
+    }
+    authority: {
+        ko: "권한",
+        en: "Authority"
+    }
+    last_modified_date: {
+        ko: "최종 수정일",
+        en: "Last Modified Date"
+    }
+    form: {
+        ko: "형식",
+        en: "Form"
+    }
+
+    enter_introduction: {
+        ko: "소개글 입력",
+        en: "Enter Introduction"
+    }
+    introduction_description: {
+        ko: "공론의 주제와 목적에 대해 설명해주세요. 참여자들이 더 쉽게 이해하고 적극적으로 참여할 수 있을 것입니다.",
+        en: "Please explain the topic and purpose of the public debate. Participants will be able to understand more easily and participate actively."
+    }
+    select_field: {
+        ko: "분야 선택",
+        en: "Select Field"
+    }
+    enter_title_hint: {
+        ko: "제목을 입력해주세요.",
+        en: "Please enter a title."
+    }
+    enter_description_hint: {
+        ko: "내용을 입력해주세요.",
+        en: "Please enter a description."
+    }
 }
