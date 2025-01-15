@@ -7,17 +7,19 @@ use models::prelude::{CreateGroupRequest, Group, GroupActionRequest, GroupRespon
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
 
-use super::login_service::LoginService;
+use super::{login_service::LoginService, organization_api::OrganizationApi};
 
 #[derive(Debug, Clone, Copy)]
 pub struct GroupApi {
     pub endpoint: Signal<String>,
     pub login_service: LoginService,
+    pub organization_service: OrganizationApi,
 }
 
 impl GroupApi {
     pub fn init() {
         let login_service: LoginService = use_context();
+        let organization_service: OrganizationApi = use_context();
         let srv = Self {
             endpoint: use_signal(|| {
                 format!(
@@ -26,16 +28,18 @@ impl GroupApi {
                 )
             }),
             login_service,
+            organization_service,
         };
         use_context_provider(|| srv);
     }
 
     pub async fn create_group(&self, req: CreateGroupRequest) -> Result<Group> {
         let token = self.get_token();
+        let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post("/v1/groups")
+            .post(&format!("/v1/groups/organizations/{id}"))
             .header("Authorization", token)
             .json(&req)
             .send()
@@ -46,11 +50,11 @@ impl GroupApi {
 
     pub async fn update_group_name(&self, group_id: String, group_name: String) -> Result<()> {
         let token = self.get_token();
-
+        let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let _res = client
-            .post(format!("/v1/groups/{}", group_id).as_str())
+            .post(format!("/v1/groups/organizations/{}/groups/{}", id, group_id).as_str())
             .header("Authorization", token)
             .json(&GroupActionRequest::UpdateName(group_name))
             .send()
@@ -61,10 +65,11 @@ impl GroupApi {
 
     pub async fn remove_group(&self, group_id: String) -> Result<()> {
         let token = self.get_token();
+        let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let _res = client
-            .post(format!("/v1/groups/{}", group_id).as_str())
+            .post(format!("/v1/groups/organizations/{}/groups/{}", id, group_id).as_str())
             .header("Authorization", token)
             .json(&GroupActionRequest::Delete)
             .send()
@@ -79,6 +84,7 @@ impl GroupApi {
         bookmark: Option<String>,
     ) -> Result<CommonQueryResponse<GroupResponse>> {
         let token = self.get_token();
+        let id = self.get_organization_id();
 
         let mut params = HashMap::new();
         if let Some(size) = size {
@@ -91,7 +97,7 @@ impl GroupApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get("/v1/groups")
+            .get(&format!("/v1/groups/organizations/{id}"))
             .query(&params)
             .header("Authorization", token)
             .send()
@@ -105,11 +111,12 @@ impl GroupApi {
 
     pub async fn get_group(&self, group_id: String) -> Result<GroupResponse> {
         let token = self.get_token();
+        let id = self.get_organization_id();
 
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(format!("/v1/groups/{group_id}").as_str())
+            .get(&format!("/v1/groups/organizations/{id}/groups/{group_id}"))
             .header("Authorization", token)
             .send()
             .await?;
@@ -118,6 +125,11 @@ impl GroupApi {
 
         let members = res.json().await?;
         Ok(members)
+    }
+
+    pub fn get_organization_id(&self) -> String {
+        let id = self.organization_service.get_selected_organization_id();
+        id
     }
 
     pub fn get_token(&self) -> String {

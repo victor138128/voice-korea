@@ -15,6 +15,8 @@ use crate::pages::id::write_title::WriteTitlePage;
 use crate::pages::login::LoginPage;
 use crate::pages::members::_id::page::MemberDetailPage;
 use crate::pages::members::page::MemberPage;
+use crate::pages::opinions::new::page::OpinionCreatePage;
+use crate::pages::opinions::page::OpinionPage;
 use crate::pages::reset_password::ResetPasswordPage;
 use crate::prelude::*;
 use dioxus_translate::Language;
@@ -30,6 +32,10 @@ pub enum Route {
             GroupPage { lang: Language },
             #[route("/groups/:group_id")]
             GroupDetailPage { lang: Language, group_id: String },
+            #[route("/opinions")]
+            OpinionPage { lang: Language },
+            #[route("/opinions/new")]
+            OpinionCreatePage { lang: Language },
             #[route("/members")]
             MemberPage { lang: Language },
             #[route("/members/:member_id")]

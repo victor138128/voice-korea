@@ -23,6 +23,7 @@ pub mod pages {
     pub mod login;
     pub mod members;
     pub mod not_found;
+    pub mod opinions;
     pub mod reset_password;
 }
 
@@ -30,6 +31,7 @@ pub mod service {
     pub mod group_api;
     pub mod login_service;
     pub mod member_api;
+    pub mod opinion_api;
     pub mod organization_api;
     pub mod popup_service;
 }
@@ -68,6 +70,7 @@ pub mod components {
     pub mod pi_graph;
     pub mod popup;
     pub mod select;
+    pub mod stepper;
     pub mod table_row;
 }
 

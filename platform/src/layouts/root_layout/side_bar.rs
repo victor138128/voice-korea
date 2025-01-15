@@ -20,6 +20,16 @@ pub struct SidebarProps {
 #[component]
 pub fn SideBar(props: SidebarProps) -> Element {
     let mut api: OrganizationApi = use_context();
+
+    let _ = use_resource(move || {
+        let mut api = api.clone();
+        async move {
+            let organizations = api.list_organizations(Some(100), None).await;
+            let items = organizations.unwrap_or_default().items;
+            api.set_organization(items);
+        }
+    });
+
     let organizations = api.get_organizations();
     let selected_organization = api.get_selected_organization_id();
 
@@ -126,7 +136,7 @@ pub fn SideBar(props: SidebarProps) -> Element {
                                     id: "".to_string(),
                                     title: "공론 관리".to_string(),
                                     is_selected: props.selected_menu == "공론 관리",
-                                    link: Some(Route::DashboardPage {
+                                    link: Some(Route::OpinionPage {
                                         lang: props.lang,
                                     }),
                                 },

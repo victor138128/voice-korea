@@ -11,7 +11,7 @@ env:
 
 jobs:
   dx-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -23,10 +23,10 @@ jobs:
           components: clippy, rustfmt
           target: wasm32-unknown-unknown
           toolchain: stable
-
+      - uses: cargo-bins/cargo-binstall@main
       - name: Install dioxus-cli
         run: |
-          cargo install dioxus-cli --version 0.6.0-alpha.4
+          cargo binstall dioxus-cli --version 0.6.0
 
       - name: Dioxus Lint
         env:
@@ -37,7 +37,7 @@ jobs:
           dx check -p platform
 
   build-deployment:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [dx-check]
     steps:
       - uses: actions/checkout@v3
@@ -50,10 +50,10 @@ jobs:
           components: clippy, rustfmt
           target: wasm32-unknown-unknown
           toolchain: stable
-
+      - uses: cargo-bins/cargo-binstall@main
       - name: Install dioxus-cli
         run: |
-          cargo install dioxus-cli --version 0.6.0-alpha.4
+          cargo binstall dioxus-cli --version 0.6.0
 
       - name: Cache builder
         id: test-cache-builder
