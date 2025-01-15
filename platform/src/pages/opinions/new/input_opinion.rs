@@ -1,10 +1,17 @@
 use dioxus::prelude::*;
+use dioxus_logger::tracing;
 use dioxus_translate::{translate, Language};
 
 use crate::{
-    components::icons::{Search, Switch, UploadFile},
+    components::{
+        icons::{Search, Switch, UploadFile},
+        upload_button::UploadButton,
+    },
     pages::opinions::new::{controller::Controller, i18n::OpinionNewTranslate},
 };
+
+#[cfg(feature = "web")]
+use dioxus::html::HasFileData;
 
 #[derive(Props, Clone, PartialEq)]
 pub struct InputOpinionProps {
@@ -138,6 +145,8 @@ pub fn UploadDocument(i18n: UploadDocumentTranslate) -> Element {
     let mut tab_type = use_signal(|| DocumentTabType::DirectUpload);
     let mut is_focused = use_signal(|| false);
     let mut document_name = use_signal(|| "".to_string());
+
+    let mut indragzone = use_signal(|| false);
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start rounded-lg bg-white px-[40px] py-[24px] mb-[20px]",
             div { class: "flex flex-col w-full mb-[20px]",
@@ -180,8 +189,40 @@ pub fn UploadDocument(i18n: UploadDocumentTranslate) -> Element {
                 }
 
                 if tab_type() == DocumentTabType::DirectUpload {
-                    div { class: "flex flex-col w-full",
-                        div { class: "flex flex-col w-full justify-center items-center p-[24px] rounded-[8px] border-[2px] border-dashed border-[#2a60d3] mb-[10px]",
+                    div {
+                        class: "flex flex-col w-full",
+                        ondrop: move |ev: Event<DragData>| async move {
+                            tracing::debug!("drop files in div");
+                            ev.prevent_default();
+                            ev.stop_propagation();
+                        },
+                        div {
+                            class: format!(
+                                "flex flex-col w-full justify-center items-center p-[24px] rounded-[8px] border-[2px] border-dashed border-[#2a60d3] mb-[10px] {}",
+                                if indragzone() { "bg-[#afc9ff] opacity-50" } else { "" },
+                            ),
+                            ondragover: move |e| {
+                                e.prevent_default();
+                                e.stop_propagation();
+                                tracing::debug!("files in drop zone");
+                                indragzone.set(true);
+                            },
+                            ondragleave: move |e| {
+                                e.prevent_default();
+                                e.stop_propagation();
+                                tracing::debug!("leave drop zone");
+                                indragzone.set(false);
+                            },
+                            ondrop: move |ev: Event<DragData>| async move {
+                                tracing::debug!("drop files");
+                                ev.prevent_default();
+                                ev.stop_propagation();
+                                #[cfg(feature = "web")]
+                                if let Some(file_engine) = ev.files() {
+                                    tracing::debug!("got file_engine {:?}", file_engine.files());
+                                }
+                                indragzone.set(false);
+                            },
                             div { class: "mb-[12px] w-[42px] h-[42px]",
                                 UploadFile { width: "42", height: "42" }
                             }
@@ -195,8 +236,10 @@ pub fn UploadDocument(i18n: UploadDocumentTranslate) -> Element {
                                 }
                                 div { class: "w-[80px] h-[1px] bg-[#e7e7e7] mr-[12px]" }
                             }
-                            div { class: "flex flex-row w-[100px] h-[30px] justify-center items-center bg-white border border-[#1849d6] rounded-[4px] font-semibold text-[#1849d6] text-sm",
-                                "{i18n.load_file}"
+                            UploadButton {
+                                class: "flex flex-row w-[100px] h-[30px] justify-center items-center bg-white border border-[#1849d6] rounded-[4px] font-semibold text-[#1849d6] text-sm",
+                                text: "{i18n.load_file}",
+                                onuploaded: move |_| {},
                             }
                         }
 
