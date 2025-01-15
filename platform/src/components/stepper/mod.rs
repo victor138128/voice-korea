@@ -31,7 +31,7 @@ pub fn Stepper(props: StepperProps) -> Element {
                                 }
                             }
                         } else {
-                            div { class: "relative flex flex-col flex-1 justify-center items-center",
+                            div { class: "relative flex flex-col w-[100px] justify-center items-center",
                                 li { class: "flex items-center w-full",
                                     span { class: get_step_circle_styles(false), "{index + 1}" }
                                     label_text { label }

@@ -63,6 +63,7 @@ pub mod components {
     pub mod bar_graph;
     pub mod bottom;
     pub mod button;
+    pub mod calendar;
     pub mod checkbox;
     pub mod icons;
     pub mod input;
