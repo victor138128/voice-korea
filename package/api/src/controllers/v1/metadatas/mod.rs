@@ -42,7 +42,7 @@ impl MetadataControllerV1 {
                 post(Self::upsert_metadata).get(Self::list_metadatas),
             )
             .route(
-                "/organizations/:organization_id/metadata/:metadata_id",
+                "/organizations/:organization_id/metadatas/:metadata_id",
                 post(Self::act_metadata).get(Self::get_metadata),
             )
             .route(

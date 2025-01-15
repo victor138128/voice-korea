@@ -42,7 +42,7 @@ impl AttributeControllerV1 {
                 post(Self::upsert_attribute).get(Self::list_attributes),
             )
             .route(
-                "/organizations/:organization_id/attribute/:attribute_id",
+                "/organizations/:organization_id/attributes/:attribute_id",
                 post(Self::act_attribute).get(Self::get_attribute),
             )
             .route(

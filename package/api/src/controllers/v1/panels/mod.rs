@@ -42,7 +42,7 @@ impl PanelControllerV1 {
                 post(Self::upsert_panel).get(Self::list_panels),
             )
             .route(
-                "/organizations/:organization_id/panel/:panel_id",
+                "/organizations/:organization_id/panels/:panel_id",
                 post(Self::act_panel).get(Self::get_panel),
             )
             .route(

@@ -47,7 +47,7 @@ impl PublicSurveyControllerV1 {
                 get(Self::search_survey),
             )
             .route(
-                "/organizations/:organization_id/survey/:survey_id",
+                "/organizations/:organization_id/surveys/:survey_id",
                 post(Self::act_survey).get(Self::get_survey),
             )
             .with_state(ctrl)
