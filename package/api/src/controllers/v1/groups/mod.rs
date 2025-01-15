@@ -113,7 +113,7 @@ impl GroupControllerV1 {
                 ctrl.remove_group(&claims.id, &group_id).await?;
             }
             GroupActionRequest::AddTeamMember(req) => {
-                ctrl.add_team_member(&group_id, req).await?;
+                ctrl.add_team_member(&group_id, &organization_id, req).await?;
             }
             GroupActionRequest::RemoveTeamMember(member_id) => {
                 ctrl.remove_team_member(&group_id, &member_id).await?;
@@ -123,7 +123,6 @@ impl GroupControllerV1 {
         Ok(())
     }
 
-    //TODO: implement create group by organization id
     pub async fn create_group(
         Extension(claims): Extension<Claims>,
         Path(organization_id): Path<String>,
@@ -216,7 +215,7 @@ impl GroupControllerV1 {
                     user_id: item.user_id,
                     user_name: mem.name.clone().unwrap_or_default(),
                     user_email: mem.email.clone(),
-                    role_name: mem.role,
+                    role_name: mem.role.map(|r| r.to_string()),
                     group_name: mem.group.unwrap_or_default(),
                 });
             }
@@ -283,7 +282,7 @@ impl GroupControllerV1 {
                                 user_id: item.user_id,
                                 user_name: mem.name.clone().unwrap_or_default(),
                                 user_email: mem.email.clone(),
-                                role_name: mem.role,
+                                role_name: mem.role.map(|r| r.to_string()),
                                 group_name: mem.group.unwrap_or_default(),
                             });
                         }
@@ -506,10 +505,36 @@ impl GroupControllerV1 {
     pub async fn add_team_member(
         &self,
         group_id: &str,
+        org_id: &str,
         req: TeamMemberRequest,
     ) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "add_team_member"));
         slog::debug!(log, "add_team_member {:?} {:?}", group_id, req);
+
+        let cli = easy_dynamodb::get_client(&log);
+
+        let res = cli
+            .get::<Member>(&req.id)
+            .await
+            .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
+        
+        // check whether the user exists
+        if res.is_none() {
+            return Err(ApiError::NotFound);
+        }
+
+        let org = cli
+            .get::<Organization>(&org_id)
+            .await
+            .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
+
+        // check whether the user is in the organization
+        if org.is_none() {
+            return Err(ApiError::NotFound);
+        }
+
+        // add member to group
+
         Ok(())
     }
 

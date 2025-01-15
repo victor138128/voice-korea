@@ -269,9 +269,27 @@ impl MemberControllerV1 {
             vec![("type", "member")],
         )
         .await?;
+
+        let mut role_count = vec![0, 0, 0, 0, 0, 0]; //[전체, 관리자, 공론 관리자, 분석가, 중계자, 강연자]
+
+        // TODO: need to change this string to enum
+        res.items.iter().for_each(|v| {
+            if let Some(role) = &v.role {
+                match role {
+                    Role::Admin => role_count[1] += 1,
+                    Role::PublicAdmin => role_count[2] += 1,
+                    Role::Analyst => role_count[3] += 1,
+                    Role::Mediator => role_count[4] += 1,
+                    Role::Speaker => role_count[5] += 1,
+                }
+            }
+            role_count[0] += 1;
+        });
+
         Ok(Json(ListMemberResponse {
             members: res.items,
-            role_count: vec![0, 0, 0, 0, 0, 0], //[전체, 관리자, 공론 관리자, 분석가, 중계자, 강연자]
+            // TODO: 몇명인지
+            role_count,
             bookmark: res.bookmark,
         }))
     }

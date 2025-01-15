@@ -60,6 +60,9 @@ pub enum ApiError {
 
     #[error("Already Exists")]
     AlreadyExists,
+
+    #[error("Invalid permission to access")]
+    InvalidPermission,
 }
 
 impl IntoResponse for ApiError {
@@ -82,6 +85,7 @@ impl IntoResponse for ApiError {
             ApiError::InCompleteDraft => StatusCode::UNPROCESSABLE_ENTITY,
             ApiError::ForbiddenAccessError => StatusCode::FORBIDDEN,
             ApiError::AlreadyExists => StatusCode::ALREADY_REPORTED,
+            ApiError::InvalidPermission => StatusCode::FORBIDDEN,
         };
 
         let error_id = uuid::Uuid::new_v4();

@@ -18,9 +18,50 @@ pub struct Member {
     pub email: String,
     pub name: Option<String>,
     pub group: Option<String>,
-    pub role: Option<String>,
+    pub role: Option<Role>,
     //FIXME: implement project model sepalately after public opinion, investigation api implemented
     // pub projects: Option<Vec<MemberProject>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Eq)]
+pub enum Role {
+    #[serde(rename = "super_admin")]
+    Admin,
+    #[serde(rename = "public_admin")]
+    PublicAdmin,
+    #[serde(rename = "analyst")]
+    Analyst,
+    #[serde(rename = "mediator")]
+    Mediator,
+    #[serde(rename = "speaker")]
+    Speaker,
+}
+
+impl std::fmt::Display for Role {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Role::Admin => write!(f, "super_admin"),
+            Role::PublicAdmin => write!(f, "public_admin"),
+            Role::Analyst => write!(f, "analyst"),
+            Role::Mediator => write!(f, "mediator"),
+            Role::Speaker => write!(f, "speaker"),
+        }
+    }
+}
+
+impl std::str::FromStr for Role {
+    type Err = String;
+
+    fn from_str(r: &str) -> Result<Self, Self::Err> {
+        match r {
+            "super_admin" => Ok(Role::Admin),
+            "public_admin" => Ok(Role::PublicAdmin),
+            "analyst" => Ok(Role::Analyst),
+            "mediator" => Ok(Role::Mediator),
+            "speaker" => Ok(Role::Speaker),
+            _ => Err("Invalid role".to_string()),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -51,7 +92,7 @@ impl Member {
             email,
             name,
             group,
-            role,
+            role: role.map(|r| r.parse::<Role>().unwrap()),
             // projects,
         }
     }
@@ -204,8 +245,8 @@ impl Into<Member> for (CreateMemberRequest, String) {
                 None
             } else {
                 Some(req.group.unwrap().name)
-            },
-            role: req.role,
+            },  
+            role: req.role.unwrap_or_default().parse::<Role>().ok(),
             // projects: req.projects,
         }
     }
