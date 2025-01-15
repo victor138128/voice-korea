@@ -102,6 +102,16 @@ pub fn CompositionOpinion(props: CompositionOpinionProps) -> Element {
                                     tracing::error!("start date or end date field is empty");
                                     break;
                                 }
+                                if let (Some(start), Some(end)) = (
+                                    sequence.start_date,
+                                    sequence.end_date,
+                                ) {
+                                    if start >= end {
+                                        check = false;
+                                        tracing::error!("start date must be befor end date");
+                                        break;
+                                    }
+                                }
                             }
                             if check {
                                 ctrl.change_step(CurrentStep::InputInformation);

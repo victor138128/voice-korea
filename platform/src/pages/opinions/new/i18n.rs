@@ -73,4 +73,46 @@ translate! {
         ko: "다음으로",
         en: "Next"
     }
+
+    regular_post: {
+        ko: "일반 게시글",
+        en: "Regular Post"
+    }
+    video_conference: {
+        ko: "화상 회의",
+        en: "Video Conference"
+    }
+    post: {
+        ko: "포스트형 게시글",
+        en: "Post"
+    }
+    vote: {
+        ko: "투표",
+        en: "Vote"
+    }
+    report: {
+        ko: "보고서",
+        en: "Report"
+    }
+
+    information_provided: {
+        ko: "정보 제공",
+        en: "Information Provided"
+    }
+    discussion_and_deliberation: {
+        ko: "토론 및 숙의",
+        en: "Discussion And Deliberation"
+    }
+    derive_opinions: {
+        ko: "의견 도출",
+        en: "Derive Opinions"
+    }
+    reach_consensus: {
+        ko: "합의 도출",
+        en: "Reach Consensus"
+    }
+    analysis_result: {
+        ko: "결과 분석",
+        en: "Analysis Result"
+    }
 }

@@ -4,6 +4,8 @@ use dioxus::prelude::*;
 use dioxus_logger::tracing;
 mod controller;
 use controller::Controller;
+
+use super::icons::{CalendarLeftArrow, CalendarRightArrow};
 #[component]
 pub fn Calendar(timestamp: Option<u64>, update_date: EventHandler<i64>) -> Element {
     let mut ctrl = Controller::init()?;
@@ -36,15 +38,15 @@ pub fn Calendar(timestamp: Option<u64>, update_date: EventHandler<i64>) -> Eleme
             div { class: "flex flex-col items-start justify-start gap-[8px]",
                 div { class: "flex flex-row items-center justify-between w-full gap-[8px] p-[8px]",
                     div {
-                        calendar_title { year: ctrl.get_year(), month: ctrl.get_month() }
+                        CalendarTitle { year: ctrl.get_year(), month: ctrl.get_month() }
                     }
                     div { class: "flex flex-row gap-[20px]",
-                        left_arrow {
+                        LeftArrow {
                             onclick: move |_| {
                                 ctrl.handle_previous_month();
                             },
                         }
-                        right_arrow {
+                        RightArrow {
                             onclick: move |_| {
                                 ctrl.handle_next_month();
                             },
@@ -52,8 +54,8 @@ pub fn Calendar(timestamp: Option<u64>, update_date: EventHandler<i64>) -> Eleme
                     }
                 }
                 div { class: "flex flex-col items-start justify-start gap-[8px]",
-                    weekday_labels {}
-                    calendar_day {
+                    WeekdayLabels {}
+                    CalendarDay {
                         days: ctrl.get_days(),
                         year: ctrl.get_year(),
                         month: ctrl.get_month(),
@@ -76,7 +78,7 @@ pub fn Calendar(timestamp: Option<u64>, update_date: EventHandler<i64>) -> Eleme
     }
 }
 #[component]
-pub fn calendar_day(
+pub fn CalendarDay(
     days: Vec<Vec<u32>>,
     year: i32,
     month: u32,
@@ -97,7 +99,7 @@ pub fn calendar_day(
                     if n == 1 {
                         let day = day.clone();
                         rsx! {
-                            calendar_number {
+                            CalendarNumber {
                                 text: "{day}",
                                 class: if day == selected_day && month == selected_month && year == selected_year { "bg-[#2a60d3] rounded-[100px] text-white font-semibold text-[16px] cursor-pointer"
                                     .to_string() } else { "bg-white text-[#222222] font-semibold text-[16px] cursor-pointer".to_string() },
@@ -108,7 +110,7 @@ pub fn calendar_day(
                         }
                     } else {
                         rsx! {
-                            calendar_number {
+                            CalendarNumber {
                                 text: "{day}",
                                 class: "bg-white text-[#bfc8d9] text-[16px] font-semibold",
                             }
@@ -131,7 +133,7 @@ pub fn calendar_day(
     }
 }
 #[component]
-pub fn calendar_number(
+pub fn CalendarNumber(
     text: String,
     class: Option<String>,
     onclick: Option<EventHandler<MouseEvent>>,
@@ -155,7 +157,7 @@ pub fn calendar_number(
     }
 }
 #[component]
-pub fn weekday_labels() -> Element {
+pub fn WeekdayLabels() -> Element {
     let labels = vec!["S", "M", "T", "W", "T", "F", "S"];
     rsx! {
         div { class: "flex flex-row items-center justify-center gap-[15px]",
@@ -171,7 +173,7 @@ pub fn weekday_labels() -> Element {
     }
 }
 #[component]
-pub fn calendar_title(year: i32, month: u32) -> Element {
+pub fn CalendarTitle(year: i32, month: u32) -> Element {
     rsx! {
         div { class: "flex-grow-1 h-full flex items-center justify-center gap-[8px]",
             div { class: "w-full text-center text-[#2a60d3] font-semibold text-[16px]",
@@ -181,47 +183,21 @@ pub fn calendar_title(year: i32, month: u32) -> Element {
     }
 }
 #[component]
-pub fn right_arrow(onclick: EventHandler<MouseEvent>) -> Element {
+pub fn RightArrow(onclick: EventHandler<MouseEvent>) -> Element {
     rsx! {
-        div { class: "p-[4px] gap-[8px] cursor-pointer", onclick,
+        button { class: "p-[4px] gap-[8px]", onclick,
             div { class: "w-[24px] h-[24px] p-auto flex items-center justify-center",
-                svg {
-                    width: "8",
-                    height: "14",
-                    view_box: "0 0 8 14",
-                    fill: "none",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    path {
-                        d: "M1 1L7 7L1 13",
-                        stroke: "#2a60d3",
-                        stroke_width: "2",
-                        stroke_linecap: "round",
-                        stroke_linejoin: "round",
-                    }
-                }
+                CalendarRightArrow {}
             }
         }
     }
 }
 #[component]
-pub fn left_arrow(onclick: EventHandler<MouseEvent>) -> Element {
+pub fn LeftArrow(onclick: EventHandler<MouseEvent>) -> Element {
     rsx! {
-        div { class: "p-[4px] gap-[8px] cursor-pointer", onclick,
+        button { class: "p-[4px] gap-[8px]", onclick,
             div { class: "w-[24px] h-[24px] p-auto flex items-center justify-center",
-                svg {
-                    width: "8",
-                    height: "14",
-                    view_box: "0 0 8 14",
-                    fill: "none",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    path {
-                        d: "M7 1L1 7L7 13",
-                        stroke: "#2a60d3",
-                        stroke_width: "2",
-                        stroke_linecap: "round",
-                        stroke_linejoin: "round",
-                    }
-                }
+                CalendarLeftArrow {}
             }
         }
     }

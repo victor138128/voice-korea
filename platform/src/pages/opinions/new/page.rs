@@ -5,8 +5,8 @@ use crate::{
     routes::Route,
 };
 
-use super::i18n::OpinionNewTranslate;
 use super::{composition_opinion::CompositionOpinion, controller::Controller};
+use super::{i18n::OpinionNewTranslate, input_opinion::InputOpinion};
 use dioxus::prelude::*;
 use dioxus_translate::{translate, Language};
 
@@ -17,8 +17,9 @@ pub struct OpinionProps {
 
 #[component]
 pub fn OpinionCreatePage(props: OpinionProps) -> Element {
-    let ctrl = Controller::init(props.lang);
     let translates: OpinionNewTranslate = translate(&props.lang.clone());
+    let ctrl = Controller::init(props.lang, translates.clone());
+
     let step = ctrl.get_current_step();
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
@@ -57,7 +58,7 @@ pub fn OpinionCreatePage(props: OpinionProps) -> Element {
             if step == CurrentStep::PublicOpinionComposition {
                 CompositionOpinion { lang: props.lang.clone() }
             } else {
-                div { "Hello" }
+                InputOpinion { lang: props.lang.clone() }
             }
         }
     }

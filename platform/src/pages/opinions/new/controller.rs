@@ -2,6 +2,8 @@ use dioxus::prelude::*;
 use dioxus_translate::Language;
 use models::prelude::{OpinionInfo, PublicOpinionType};
 
+use super::i18n::OpinionNewTranslate;
+
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub struct Controller {
     current_step: Signal<CurrentStep>,
@@ -20,46 +22,46 @@ pub enum CurrentStep {
 }
 
 impl Controller {
-    pub fn init(_lang: dioxus_translate::Language) -> Self {
+    pub fn init(_lang: dioxus_translate::Language, translates: OpinionNewTranslate) -> Self {
         let ctrl = Self {
             current_step: use_signal(|| CurrentStep::PublicOpinionComposition),
             total_option_types: use_signal(|| {
                 vec![
-                    "일반 게시글".to_string(),
-                    "화상 회의".to_string(),
-                    "포스트형 게시글".to_string(),
-                    "투표".to_string(),
-                    "보고서".to_string(),
+                    translates.regular_post.to_string(),
+                    translates.video_conference.to_string(),
+                    translates.post.to_string(),
+                    translates.vote.to_string(),
+                    translates.report.to_string(),
                 ]
             }),
             public_opinion_sequences: use_signal(|| {
                 vec![
                     OpinionInfo {
-                        name: "정보 제공".to_string(),
+                        name: translates.information_provided.to_string(),
                         start_date: None,
                         end_date: None,
                         public_opinion_type: Some(PublicOpinionType::General),
                     },
                     OpinionInfo {
-                        name: "화상 회의".to_string(),
+                        name: translates.discussion_and_deliberation.to_string(),
                         start_date: None,
                         end_date: None,
                         public_opinion_type: Some(PublicOpinionType::Video),
                     },
                     OpinionInfo {
-                        name: "포스트형 게시글".to_string(),
+                        name: translates.derive_opinions.to_string(),
                         start_date: None,
                         end_date: None,
                         public_opinion_type: Some(PublicOpinionType::Post),
                     },
                     OpinionInfo {
-                        name: "합의 도출".to_string(),
+                        name: translates.reach_consensus.to_string(),
                         start_date: None,
                         end_date: None,
                         public_opinion_type: Some(PublicOpinionType::Vote),
                     },
                     OpinionInfo {
-                        name: "결과 분석".to_string(),
+                        name: translates.analysis_result.to_string(),
                         start_date: None,
                         end_date: None,
                         public_opinion_type: Some(PublicOpinionType::Report),
