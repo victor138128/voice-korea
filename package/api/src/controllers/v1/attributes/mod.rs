@@ -3,7 +3,7 @@ use by_axum::{
         extract::{Path, Query, State},
         middleware,
         routing::{get, post},
-        Json, Router,
+        Extension, Json, Router,
     },
     log::root,
 };
@@ -26,27 +26,22 @@ impl AttributeControllerV1 {
         let ctrl = AttributeControllerV1 { log };
 
         Router::new()
+            .route("/", post(Self::upsert_attribute).get(Self::list_attributes))
             .route(
-                "/organizations/:organization_id",
-                post(Self::upsert_attribute).get(Self::list_attributes),
-            )
-            .route(
-                "/organizations/:organization_id/attributes/:attribute_id",
+                "/attributes/:attribute_id",
                 post(Self::act_attribute).get(Self::get_attribute),
             )
-            .route(
-                "/organizations/:organization_id/attributes",
-                get(Self::search_attribute),
-            )
+            .route("/attributes", get(Self::search_attribute))
             .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
     }
 
     pub async fn search_attribute(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<AttributeControllerV1>,
-        Path(organization_id): Path<String>,
         Query(params): Query<SearchParams>,
     ) -> Result<Json<CommonQueryResponse<AttributeSummary>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "search_attribute"));
         slog::debug!(log, "search_attribute {:?} {:?}", organization_id, params);
         Ok(Json(CommonQueryResponse {
@@ -207,10 +202,12 @@ impl AttributeControllerV1 {
     }
 
     pub async fn act_attribute(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<AttributeControllerV1>,
-        Path((organization_id, attribute_id)): Path<(String, String)>,
+        Path(attribute_id): Path<String>,
         Json(body): Json<AttributeActionRequest>,
     ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "act_attribute"));
         slog::debug!(
             log,
@@ -230,9 +227,11 @@ impl AttributeControllerV1 {
     }
 
     pub async fn get_attribute(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<AttributeControllerV1>,
-        Path((organization_id, attribute_id)): Path<(String, String)>,
+        Path(attribute_id): Path<String>,
     ) -> Result<Json<AttributeSummary>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "get_attribute"));
         slog::debug!(
             log,
@@ -294,20 +293,22 @@ impl AttributeControllerV1 {
     }
 
     pub async fn upsert_attribute(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<AttributeControllerV1>,
-        Path(organization_id): Path<String>,
         Json(body): Json<UpsertAttributeRequest>,
     ) -> Result<Json<UpsertAttributeRequest>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "upsert_attribute"));
         slog::debug!(log, "upsert_attribute {:?} {:?}", organization_id, body);
         Ok(Json(UpsertAttributeRequest::default()))
     }
 
     pub async fn list_attributes(
-        Path(organization_id): Path<String>,
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<AttributeControllerV1>,
         Query(pagination): Query<Pagination>,
     ) -> Result<Json<CommonQueryResponse<AttributeSummary>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "list_attributes"));
         slog::debug!(
             log,

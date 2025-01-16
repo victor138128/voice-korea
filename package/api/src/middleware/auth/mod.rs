@@ -10,6 +10,7 @@ use by_axum::{
     },
     log::root,
 };
+use models::prelude::OrganizationMiddlewareParams;
 
 use crate::utils::{error::ApiError, jwt::validate_jwt};
 
@@ -18,6 +19,7 @@ pub async fn authorization_middleware(
     next: Next,
 ) -> Result<Response<Body>, ApiError> {
     let mut token: &str = "";
+    let mut organization_id: &str = "";
     if let Some(cookie_header) = req.headers().get(COOKIE) {
         if let Ok(cookie_str) = cookie_header.to_str() {
             slog::debug!(root(), "cookie_str: {}", cookie_str);
@@ -47,7 +49,24 @@ pub async fn authorization_middleware(
         }
     };
 
-    req.extensions_mut().insert(token_data);
+    if let Some(organization_header) = req.headers().get("x-organization") {
+        if let Ok(organization_str) = organization_header.to_str() {
+            organization_id = organization_str;
+        } else {
+            return Err(ApiError::OrganizationNotFound);
+        }
+    }
+
+    let organizations = OrganizationMiddlewareParams {
+        id: organization_id.to_string(),
+    };
+
+    {
+        let extensions = req.extensions_mut();
+        extensions.insert(token_data);
+        extensions.insert(organizations);
+    }
+
     Ok(next.run(req).await)
 }
 

@@ -3,7 +3,7 @@ use by_axum::{
         extract::{Path, Query, State},
         middleware,
         routing::{get, post},
-        Json, Router,
+        Extension, Json, Router,
     },
     log::root,
 };
@@ -29,35 +29,27 @@ impl MemberControllerV1 {
         //FIXME: implement projects api
         Router::new()
             .route(
-                "/organizations/:organization_id",
+                "/",
                 post(Self::create_member).get(Self::list_organization_members),
             )
             .route(
-                "/organizations/:organization_id/members/:member_id",
+                "/members/:member_id",
                 post(Self::act_member).get(Self::get_organization_member),
             )
-            .route(
-                "/organizations/:organization_id/search/projects",
-                get(Self::search_projects),
-            )
-            .route(
-                "/organizations/:organization_id/search/members",
-                get(Self::search_members),
-            )
-            .route(
-                "/organizations/:organization_id/invite",
-                post(Self::invite_member),
-            )
+            .route("/search/projects", get(Self::search_projects))
+            .route("/search/members", get(Self::search_members))
+            .route("/invite", post(Self::invite_member))
             .layer(middleware::from_fn(authorization_middleware)) //FIXME: fix management authorization (오직 관리자만 해당 함수들 호출할 수 있도록 수정)
             .with_state(ctrl.clone())
     }
 
     //TODO: implement invite member in organization
     pub async fn invite_member(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MemberControllerV1>,
-        Path(organization_id): Path<String>,
         Json(body): Json<InviteMemberRequest>,
     ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "invite_member"));
         let cli = easy_dynamodb::get_client(&log);
         slog::debug!(log, "invite_member: {:?} {:?}", organization_id, body);
@@ -112,10 +104,12 @@ impl MemberControllerV1 {
 
     //TODO: implement act member by organization id (deprecated)
     pub async fn act_member(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MemberControllerV1>,
-        Path((organization_id, member_id)): Path<(String, String)>,
+        Path(member_id): Path<String>,
         Json(body): Json<MemberActionRequest>,
     ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "act_member"));
         slog::debug!(log, "act_member: {:?} {:?}", organization_id, member_id);
 
@@ -139,10 +133,11 @@ impl MemberControllerV1 {
 
     //TODO: implement create member in organization
     pub async fn create_member(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MemberControllerV1>,
-        Path(organization_id): Path<String>,
         Json(body): Json<CreateMemberRequest>,
     ) -> Result<Json<Member>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "create_member"));
         slog::debug!(log, "create_member {:?} {:?}", organization_id, body);
 
@@ -202,10 +197,11 @@ impl MemberControllerV1 {
 
     //TODO: implement search projects in organization
     pub async fn search_projects(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MemberControllerV1>,
-        Path(organization_id): Path<String>,
         Query(params): Query<SearchParams>,
     ) -> Result<Json<CommonQueryResponse<MemberProject>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "search_projects"));
         slog::debug!(log, "search_projects {:?} {:?}", organization_id, params);
 
@@ -216,10 +212,11 @@ impl MemberControllerV1 {
     }
 
     pub async fn search_members(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MemberControllerV1>,
-        Path(organization_id): Path<String>,
         Query(params): Query<SearchParams>,
     ) -> Result<Json<CommonQueryResponse<Member>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "search_member"));
         slog::debug!(log, "search_member {:?} {:?}", organization_id, params);
 
@@ -230,10 +227,11 @@ impl MemberControllerV1 {
     }
 
     pub async fn list_organization_members(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MemberControllerV1>,
-        Path(organization_id): Path<String>,
         Query(pagination): Query<Pagination>,
     ) -> Result<Json<ListMemberResponse>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "list_members"));
         slog::debug!(log, "list_members {:?} {:?}", organization_id, pagination);
 
@@ -258,7 +256,8 @@ impl MemberControllerV1 {
         )
         .await?;
 
-        let filtered =  res.items
+        let filtered = res
+            .items
             .into_iter()
             .filter(|v| v.organization_id == organization_id && v.deleted_at.is_none())
             .collect::<Vec<OrganizationMember>>();
@@ -286,9 +285,11 @@ impl MemberControllerV1 {
     }
 
     pub async fn get_organization_member(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MemberControllerV1>,
-        Path((organization_id, member_id)): Path<(String, String)>,
+        Path(member_id): Path<String>,
     ) -> Result<Json<OrganizationMember>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "get_member"));
         slog::debug!(log, "get_member {:?} {:?}", organization_id, member_id);
         let cli = easy_dynamodb::get_client(&log);
@@ -359,7 +360,9 @@ impl MemberControllerV1 {
                     ),
                     (
                         "gsi2",
-                        UpdateField::String(GroupMember::get_gsi2_deleted(&group_member.org_member_id)),
+                        UpdateField::String(GroupMember::get_gsi2_deleted(
+                            &group_member.org_member_id,
+                        )),
                     ),
                 ],
             )
@@ -396,8 +399,8 @@ impl MemberControllerV1 {
 
         let member = res.unwrap();
 
-        let res = cli.
-            get::<User>(&member.user_id)
+        let res = cli
+            .get::<User>(&member.user_id)
             .await
             .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
 
@@ -447,7 +450,8 @@ impl MemberControllerV1 {
             let item = res.items.first().unwrap();
 
             if item.deleted_at.is_some() {
-                let group_member = GroupMember::new(item.id.clone(), group_id, member.organization_id.clone());
+                let group_member =
+                    GroupMember::new(item.id.clone(), group_id, member.organization_id.clone());
 
                 match cli.upsert(group_member.clone()).await {
                     Ok(()) => {

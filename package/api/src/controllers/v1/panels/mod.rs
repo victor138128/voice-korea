@@ -3,7 +3,7 @@ use by_axum::{
         extract::{Path, Query, State},
         middleware,
         routing::{get, post},
-        Json, Router,
+        Extension, Json, Router,
     },
     log::root,
 };
@@ -26,27 +26,22 @@ impl PanelControllerV1 {
         let ctrl = PanelControllerV1 { log };
 
         Router::new()
+            .route("/", post(Self::upsert_panel).get(Self::list_panels))
             .route(
-                "/organizations/:organization_id",
-                post(Self::upsert_panel).get(Self::list_panels),
-            )
-            .route(
-                "/organizations/:organization_id/panels/:panel_id",
+                "/panels/:panel_id",
                 post(Self::act_panel).get(Self::get_panel),
             )
-            .route(
-                "/organizations/:organization_id/panels",
-                get(Self::search_panel),
-            )
+            .route("/panels", get(Self::search_panel))
             .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
     }
 
     pub async fn search_panel(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PanelControllerV1>,
-        Path(organization_id): Path<String>,
         Query(params): Query<SearchParams>,
     ) -> Result<Json<CommonQueryResponse<PanelSummary>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "search_panel"));
         slog::debug!(log, "search_panel {:?} {:?}", organization_id, params);
         Ok(Json(CommonQueryResponse {
@@ -347,9 +342,11 @@ impl PanelControllerV1 {
     }
 
     pub async fn get_panel(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PanelControllerV1>,
-        Path((organization_id, panel_id)): Path<(String, String)>,
+        Path(panel_id): Path<String>,
     ) -> Result<Json<PanelSummary>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "get_panel"));
         slog::debug!(log, "get_panel: {:?} {:?}", organization_id, panel_id);
 
@@ -447,20 +444,22 @@ impl PanelControllerV1 {
     }
 
     pub async fn upsert_panel(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PanelControllerV1>,
-        Path(organization_id): Path<String>,
         Json(body): Json<UpsertPanelRequest>,
     ) -> Result<Json<UpsertPanelRequest>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "upsert_panel"));
         slog::debug!(log, "upsert_panel {:?} {:?}", organization_id, body);
         Ok(Json(UpsertPanelRequest::default()))
     }
 
     pub async fn list_panels(
-        Path(organization_id): Path<String>,
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PanelControllerV1>,
         Query(pagination): Query<Pagination>,
     ) -> Result<Json<CommonQueryResponse<PanelSummary>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "list_panels"));
         slog::debug!(log, "list_panels {:?} {:?}", organization_id, pagination);
 

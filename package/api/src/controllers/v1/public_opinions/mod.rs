@@ -3,7 +3,7 @@ use by_axum::{
         extract::{Path, Query, State},
         middleware,
         routing::{get, post},
-        Json, Router,
+        Extension, Json, Router,
     },
     log::root,
 };
@@ -27,16 +27,10 @@ impl PublicOpinionControllerV1 {
 
         //TODO: implement metadata uri
         Router::new()
+            .route("/", post(Self::upsert_opinion).get(Self::list_opinions))
+            .route("/opinions", get(Self::search_opinion))
             .route(
-                "/organizations/:organization_id",
-                post(Self::upsert_opinion).get(Self::list_opinions),
-            )
-            .route(
-                "/organizations/:organization_id/opinions",
-                get(Self::search_opinion),
-            )
-            .route(
-                "/organizations/:organization_id/projects/:project_id",
+                "/projects/:project_id",
                 post(Self::act_opinion).get(Self::get_opinion),
             )
             .with_state(ctrl)
@@ -44,9 +38,11 @@ impl PublicOpinionControllerV1 {
     }
 
     pub async fn get_opinion(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicOpinionControllerV1>,
-        Path((organization_id, project_id)): Path<(String, String)>,
+        Path(project_id): Path<String>,
     ) -> Result<Json<OpinionResponse>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "get_opinion"));
         slog::debug!(log, "get_opinion: {:?} {:?}", organization_id, project_id);
         Ok(Json(OpinionResponse {
@@ -76,10 +72,12 @@ impl PublicOpinionControllerV1 {
     }
 
     pub async fn act_opinion(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicOpinionControllerV1>,
-        Path((organization_id, project_id)): Path<(String, String)>,
+        Path(project_id): Path<String>,
         Json(body): Json<OpinionActionRequest>,
     ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "act_opinion"));
         slog::debug!(log, "act_opinion: {:?} {:?}", organization_id, project_id);
 
@@ -105,20 +103,22 @@ impl PublicOpinionControllerV1 {
     }
 
     pub async fn upsert_opinion(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicOpinionControllerV1>,
-        Path(organization_id): Path<String>,
         Json(body): Json<UpsertOpinionRequest>,
     ) -> Result<Json<UpsertOpinionRequest>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "create_opinion"));
         slog::debug!(log, "create_opinion {:?} {:?}", organization_id, body);
         Ok(Json(UpsertOpinionRequest::default()))
     }
 
     pub async fn search_opinion(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicOpinionControllerV1>,
-        Path(organization_id): Path<String>,
         Query(params): Query<SearchParams>,
     ) -> Result<Json<CommonQueryResponse<OpinionResponse>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "search_opinion"));
         slog::debug!(log, "search_opinion {:?} {:?}", organization_id, params);
         Ok(Json(CommonQueryResponse {
@@ -177,10 +177,11 @@ impl PublicOpinionControllerV1 {
     }
 
     pub async fn list_opinions(
-        Path(organization_id): Path<String>,
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicOpinionControllerV1>,
         Query(pagination): Query<Pagination>,
     ) -> Result<Json<CommonQueryResponse<OpinionResponse>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "list_opinions"));
         slog::debug!(log, "list_opinions {:?} {:?}", organization_id, pagination);
         Ok(Json(CommonQueryResponse {

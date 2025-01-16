@@ -3,7 +3,7 @@ use by_axum::{
         extract::{Path, Query, State},
         middleware,
         routing::{get, post},
-        Json, Router,
+        Extension, Json, Router,
     },
     log::root,
 };
@@ -26,28 +26,23 @@ impl MetadataControllerV1 {
         let ctrl = MetadataControllerV1 { log };
 
         Router::new()
+            .route("/", post(Self::upsert_metadata).get(Self::list_metadatas))
             .route(
-                "/organizations/:organization_id",
-                post(Self::upsert_metadata).get(Self::list_metadatas),
-            )
-            .route(
-                "/organizations/:organization_id/metadata/:metadata_id",
+                "/metadata/:metadata_id",
                 post(Self::act_metadata).get(Self::get_metadata),
             )
-            .route(
-                "/organizations/:organization_id/metadata",
-                get(Self::search_metadata),
-            )
+            .route("/metadata", get(Self::search_metadata))
             .route("/upload", post(Self::upload_metadata))
             .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
     }
 
     pub async fn search_metadata(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MetadataControllerV1>,
-        Path(organization_id): Path<String>,
         Query(params): Query<SearchParams>,
     ) -> Result<Json<CommonQueryResponse<MetadataSummary>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "search_metadata"));
         slog::debug!(log, "search_metadata {:?} {:?}", organization_id, params);
         Ok(Json(CommonQueryResponse {
@@ -118,10 +113,12 @@ impl MetadataControllerV1 {
     }
 
     pub async fn act_metadata(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MetadataControllerV1>,
-        Path((organization_id, metadata_id)): Path<(String, String)>,
+        Path(metadata_id): Path<String>,
         Json(body): Json<MetadataActionRequest>,
     ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "act_metadata"));
         slog::debug!(log, "act_metadata: {:?} {:?}", organization_id, metadata_id);
 
@@ -135,9 +132,11 @@ impl MetadataControllerV1 {
     }
 
     pub async fn get_metadata(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MetadataControllerV1>,
-        Path((organization_id, metadata_id)): Path<(String, String)>,
+        Path(metadata_id): Path<String>,
     ) -> Result<Json<MetadataSummary>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "get_metadata"));
         slog::debug!(log, "get_metadata: {:?} {:?}", organization_id, metadata_id);
 
@@ -160,20 +159,22 @@ impl MetadataControllerV1 {
     }
 
     pub async fn upsert_metadata(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MetadataControllerV1>,
-        Path(organization_id): Path<String>,
         Json(body): Json<UpsertMetadataRequest>,
     ) -> Result<Json<UpsertMetadataRequest>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "upsert_metadata"));
         slog::debug!(log, "upsert_metadata {:?} {:?}", organization_id, body);
         Ok(Json(UpsertMetadataRequest::default()))
     }
 
     pub async fn list_metadatas(
-        Path(organization_id): Path<String>,
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MetadataControllerV1>,
         Query(pagination): Query<Pagination>,
     ) -> Result<Json<CommonQueryResponse<MetadataSummary>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "list_metadatas"));
         slog::debug!(log, "list_metadatas {:?} {:?}", organization_id, pagination);
 

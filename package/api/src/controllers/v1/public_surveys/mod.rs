@@ -3,7 +3,7 @@ use by_axum::{
         extract::{Path, Query, State},
         middleware,
         routing::{get, post},
-        Json, Router,
+        Extension, Json, Router,
     },
     log::root,
 };
@@ -27,16 +27,10 @@ impl PublicSurveyControllerV1 {
 
         //TODO: implement metadata uri
         Router::new()
+            .route("/", post(Self::upsert_survey).get(Self::list_surveys))
+            .route("/surveys", get(Self::search_survey))
             .route(
-                "/organizations/:organization_id",
-                post(Self::upsert_survey).get(Self::list_surveys),
-            )
-            .route(
-                "/organizations/:organization_id/surveys",
-                get(Self::search_survey),
-            )
-            .route(
-                "/organizations/:organization_id/surveys/:survey_id",
+                "/surveys/:survey_id",
                 post(Self::act_survey).get(Self::get_survey),
             )
             .with_state(ctrl)
@@ -44,11 +38,12 @@ impl PublicSurveyControllerV1 {
     }
 
     pub async fn get_survey(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicSurveyControllerV1>,
-        Path((organization_id, survey_id)): Path<(String, String)>,
+        Path(survey_id): Path<String>,
     ) -> Result<Json<PublicSurveyResponse>, ApiError> {
         let log = ctrl.log.new(o!("api" => "get_survey"));
-        slog::debug!(log, "get_survey: {:?} {:?}", organization_id, survey_id);
+        slog::debug!(log, "get_survey: {:?} {:?}", organizations.id, survey_id);
 
         Ok(Json(PublicSurveyResponse {
             id: "1".to_string(),
@@ -301,16 +296,17 @@ impl PublicSurveyControllerV1 {
     }
 
     pub async fn act_survey(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicSurveyControllerV1>,
-        Path((organization_id, survey_id)): Path<(String, String)>,
+        Path(survey_id): Path<String>,
         Json(body): Json<SurveyActionRequest>,
     ) -> Result<(), ApiError> {
         let log = ctrl.log.new(o!("api" => "act_survey"));
-        slog::debug!(log, "act_survey: {:?} {:?}", organization_id, survey_id);
+        slog::debug!(log, "act_survey: {:?} {:?}", organizations.id, survey_id);
 
         match body {
             SurveyActionRequest::Delete => {
-                ctrl.remove_survey(&organization_id, &survey_id).await?;
+                ctrl.remove_survey(&organizations.id, &survey_id).await?;
             }
         }
 
@@ -318,22 +314,22 @@ impl PublicSurveyControllerV1 {
     }
 
     pub async fn upsert_survey(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicSurveyControllerV1>,
-        Path(organization_id): Path<String>,
         Json(body): Json<UpsertPublicSurveyRequest>,
     ) -> Result<Json<UpsertPublicSurveyRequest>, ApiError> {
         let log = ctrl.log.new(o!("api" => "upsert_survey"));
-        slog::debug!(log, "upsert_survey {:?} {:?}", organization_id, body);
+        slog::debug!(log, "upsert_survey {:?} {:?}", organizations.id, body);
         Ok(Json(UpsertPublicSurveyRequest::default()))
     }
 
     pub async fn search_survey(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicSurveyControllerV1>,
-        Path(organization_id): Path<String>,
         Query(params): Query<SearchParams>,
     ) -> Result<Json<CommonQueryResponse<PublicSurveySummary>>, ApiError> {
         let log = ctrl.log.new(o!("api" => "list_surveys"));
-        slog::debug!(log, "list_surveys: {:?} {:?}", organization_id, params);
+        slog::debug!(log, "list_surveys: {:?} {:?}", organizations.id, params);
         Ok(Json(CommonQueryResponse {
             items: vec![
                 PublicSurveySummary {
@@ -378,12 +374,12 @@ impl PublicSurveyControllerV1 {
     }
 
     pub async fn list_surveys(
-        Path(organization_id): Path<String>,
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicSurveyControllerV1>,
         Query(pagination): Query<Pagination>,
     ) -> Result<Json<CommonQueryResponse<PublicSurveySummary>>, ApiError> {
         let log = ctrl.log.new(o!("api" => "list_surveys"));
-        slog::debug!(log, "list_surveys: {:?} {:?}", organization_id, pagination);
+        slog::debug!(log, "list_surveys: {:?} {:?}", organizations.id, pagination);
         Ok(Json(CommonQueryResponse {
             items: vec![
                 PublicSurveySummary {

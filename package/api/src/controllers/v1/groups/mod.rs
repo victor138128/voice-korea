@@ -40,20 +40,14 @@ impl GroupControllerV1 {
         let ctrl = GroupControllerV1 { log };
 
         Router::new()
+            .route("/", post(Self::create_group).get(Self::list_groups))
             .route(
-                "/organizations/:organization_id",
-                post(Self::create_group).get(Self::list_groups),
-            )
-            .route(
-                "/organizations/:organization_id/groups/:group_id",
+                "/groups/:group_id",
                 post(Self::act_group).get(Self::get_group),
             )
+            .route("/groups", get(Self::search_groups))
             .route(
-                "/organizations/:organization_id/groups",
-                get(Self::search_groups),
-            )
-            .route(
-                "/organizations/:organization_id/groups/:group_id/search/members",
+                "/groups/:group_id/search/members",
                 get(Self::search_groups_by_id),
             )
             .layer(middleware::from_fn(authorization_middleware)) //FIXME: fix management authorization
@@ -62,10 +56,12 @@ impl GroupControllerV1 {
 
     //TODO: implement search groups by group id
     pub async fn search_groups_by_id(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<GroupControllerV1>,
-        Path((organization_id, group_id)): Path<(String, String)>,
+        Path(group_id): Path<String>,
         Query(params): Query<SearchParams>,
     ) -> Result<Json<CommonQueryResponse<GroupResponse>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "search_groups_by_id"));
         slog::debug!(
             log,
@@ -83,10 +79,11 @@ impl GroupControllerV1 {
 
     //TODO: implement search groups
     pub async fn search_groups(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<GroupControllerV1>,
-        Path(organization_id): Path<String>,
         Query(params): Query<SearchParams>,
     ) -> Result<Json<CommonQueryResponse<GroupResponse>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "search_groups"));
         slog::debug!(log, "search_groups {:?} {:?}", organization_id, params);
 
@@ -99,10 +96,12 @@ impl GroupControllerV1 {
     //TODO: implement act group by organization id
     pub async fn act_group(
         Extension(claims): Extension<Claims>,
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<GroupControllerV1>,
-        Path((organization_id, group_id)): Path<(String, String)>,
+        Path(group_id): Path<String>,
         Json(body): Json<GroupActionRequest>,
     ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "act_group"));
         slog::debug!(log, "act_group: {:?} {:?}", organization_id, group_id);
 
@@ -127,10 +126,11 @@ impl GroupControllerV1 {
 
     pub async fn create_group(
         Extension(claims): Extension<Claims>,
-        Path(organization_id): Path<String>,
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<GroupControllerV1>,
         Json(body): Json<CreateGroupRequest>,
     ) -> Result<Json<Group>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "create_group"));
         slog::debug!(log, "create_group {:?} {:?}", organization_id, body);
 
@@ -162,10 +162,11 @@ impl GroupControllerV1 {
     }
 
     pub async fn list_groups(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<GroupControllerV1>,
         Query(pagination): Query<Pagination>,
-        Path(organization_id): Path<String>,
     ) -> Result<Json<CommonQueryResponse<GroupResponse>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "list_groups"));
         let cli = easy_dynamodb::get_client(&log);
         slog::debug!(log, "list_groups {:?} {:?}", organization_id, pagination);
@@ -267,9 +268,11 @@ impl GroupControllerV1 {
     }
 
     pub async fn get_group(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<GroupControllerV1>,
-        Path((organization_id, group_id)): Path<(String, String)>,
+        Path(group_id): Path<String>,
     ) -> Result<Json<GroupResponse>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "get_group"));
         slog::debug!(log, "get_group {:?} {:?}", organization_id, group_id);
         let cli = easy_dynamodb::get_client(&log);
