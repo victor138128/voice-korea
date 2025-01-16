@@ -4,7 +4,8 @@ use std::collections::HashMap;
 
 use dioxus::prelude::*;
 use models::prelude::{
-    PublicSurveyResponse, PublicSurveySummary, SurveyActionRequest, UpsertPublicSurveyRequest,
+    CreatePublicSurveyRequest, PublicSurveyResponse, PublicSurveySummary, SurveyActionRequest,
+    SurveyByIdActionRequest, UpdatePublicSurveyRequest,
 };
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
@@ -35,18 +36,38 @@ impl SurveyApi {
         use_context_provider(|| srv);
     }
 
-    pub async fn upsert_survey(
+    pub async fn update_survey(
         &self,
-        req: UpsertPublicSurveyRequest,
-    ) -> Result<UpsertPublicSurveyRequest> {
+        survey_id: String,
+        req: UpdatePublicSurveyRequest,
+    ) -> Result<()> {
         let token = self.get_token();
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post(&format!("/v1/surveys/organizations/{id}"))
+            .post(&format!("/v1/surveys/{survey_id}"))
             .header("Authorization", token)
-            .json(&req)
+            .header("x-organization", id)
+            .json(&SurveyByIdActionRequest::Update(req))
+            .send()
+            .await?;
+
+        let res = res.error_for_status()?;
+
+        Ok(res.json().await?)
+    }
+
+    pub async fn create_survey(&self, req: CreatePublicSurveyRequest) -> Result<()> {
+        let token = self.get_token();
+        let id = self.get_organization_id();
+        let client = ReqwestClient::new()?;
+
+        let res = client
+            .post(&format!("/v1/surveys"))
+            .header("Authorization", token)
+            .header("x-organization", id)
+            .json(&SurveyActionRequest::Create(req))
             .send()
             .await?;
 
@@ -62,10 +83,9 @@ impl SurveyApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!(
-                "/v1/surveys/organizations/{id}/surveys/{survey_id}"
-            ))
+            .get(&format!("/v1/surveys/{survey_id}"))
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 
@@ -81,9 +101,10 @@ impl SurveyApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post(format!("/v1/surveys/organizations/{}/surveys/{}", id, survey_id).as_str())
+            .post(format!("/v1/surveys/{}", survey_id).as_str())
             .header("Authorization", token)
-            .json(&SurveyActionRequest::Delete)
+            .header("x-organization", id)
+            .json(&SurveyByIdActionRequest::Delete)
             .send()
             .await?;
 
@@ -105,9 +126,10 @@ impl SurveyApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/surveys/organizations/{id}/surveys"))
+            .get(&format!("/v1/surveys"))
             .query(&params)
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 
@@ -136,9 +158,10 @@ impl SurveyApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/surveys/organizations/{id}"))
+            .get(&format!("/v1/surveys"))
             .query(&params)
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 

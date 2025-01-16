@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{field::Field, prelude::PanelInfo};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct CreatePublicSurveyRequest {
     pub introductions: Option<PublicSurveyIntroduction>,
     pub questions: Option<Vec<PublicSurveyQuestion>>,
@@ -19,6 +19,12 @@ pub struct UpdatePublicSurveyRequest {
 #[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SurveyActionRequest {
+    Create(CreatePublicSurveyRequest),
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SurveyByIdActionRequest {
     Delete,
     Update(UpdatePublicSurveyRequest),
 }

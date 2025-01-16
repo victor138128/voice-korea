@@ -26,25 +26,60 @@ impl MetadataControllerV1 {
         let ctrl = MetadataControllerV1 { log };
 
         Router::new()
-            .route("/", post(Self::create_metadata).get(Self::list_metadatas))
+            .route("/", post(Self::act_metadata).get(Self::list_metadatas))
             .route(
                 "/:metadata_id",
-                post(Self::act_metadata).get(Self::get_metadata),
+                post(Self::act_metadata_by_id).get(Self::get_metadata),
             )
             .route("/upload", post(Self::upload_metadata))
             .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
     }
 
-    pub async fn create_metadata(
+    pub async fn act_metadata(
         Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MetadataControllerV1>,
-        Json(body): Json<CreateMetadataRequest>,
-    ) -> Result<Json<CreateMetadataRequest>, ApiError> {
+        Json(body): Json<MetadataActionRequest>,
+    ) -> Result<(), ApiError> {
         let organization_id = organizations.id;
-        let log = ctrl.log.new(o!("api" => "create_metadata"));
-        slog::debug!(log, "create_metadata {:?} {:?}", organization_id, body);
-        Ok(Json(CreateMetadataRequest::default()))
+        let log = ctrl.log.new(o!("api" => "act_metadata"));
+        slog::debug!(log, "act_metadata: {:?} {:?}", organization_id, body);
+
+        match body {
+            MetadataActionRequest::Create(req) => {
+                ctrl.create_metadata(&organization_id, req).await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    pub async fn act_metadata_by_id(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
+        State(ctrl): State<MetadataControllerV1>,
+        Path(metadata_id): Path<String>,
+        Json(body): Json<MetadataByIdActionRequest>,
+    ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
+        let log = ctrl.log.new(o!("api" => "act_metadata_by_id"));
+        slog::debug!(
+            log,
+            "act_metadata_by_id: {:?} {:?}",
+            organization_id,
+            metadata_id
+        );
+
+        match body {
+            MetadataByIdActionRequest::Delete => {
+                ctrl.remove_metadata(&organization_id, &metadata_id).await?;
+            }
+            MetadataByIdActionRequest::Update(req) => {
+                ctrl.update_metadata(&organization_id, &metadata_id, req)
+                    .await?;
+            }
+        }
+
+        Ok(())
     }
 
     pub async fn upload_metadata(
@@ -57,29 +92,6 @@ impl MetadataControllerV1 {
             presigned_uris: vec![],
             uris: vec![],
         }))
-    }
-
-    pub async fn act_metadata(
-        Extension(organizations): Extension<OrganizationMiddlewareParams>,
-        State(ctrl): State<MetadataControllerV1>,
-        Path(metadata_id): Path<String>,
-        Json(body): Json<MetadataActionRequest>,
-    ) -> Result<(), ApiError> {
-        let organization_id = organizations.id;
-        let log = ctrl.log.new(o!("api" => "act_metadata"));
-        slog::debug!(log, "act_metadata: {:?} {:?}", organization_id, metadata_id);
-
-        match body {
-            MetadataActionRequest::Delete => {
-                ctrl.remove_metadata(&organization_id, &metadata_id).await?;
-            }
-            MetadataActionRequest::Update(req) => {
-                ctrl.update_metadata(&organization_id, &metadata_id, req)
-                    .await?;
-            }
-        }
-
-        Ok(())
     }
 
     pub async fn get_metadata(
@@ -219,6 +231,18 @@ impl MetadataControllerV1 {
             ],
             bookmark: None,
         }))
+    }
+}
+
+impl MetadataControllerV1 {
+    pub async fn create_metadata(
+        &self,
+        organization_id: &str,
+        req: CreateMetadataRequest,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "create_metadata"));
+        slog::debug!(log, "create_metadata {:?} {:?}", organization_id, req);
+        Ok(())
     }
 }
 

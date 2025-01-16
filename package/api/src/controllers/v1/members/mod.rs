@@ -30,17 +30,113 @@ impl MemberControllerV1 {
         Router::new()
             .route(
                 "/",
-                post(Self::create_member).get(Self::list_organization_members),
+                post(Self::act_member).get(Self::list_organization_members),
             )
             .route(
                 "/:member_id",
-                post(Self::act_member).get(Self::get_organization_member),
+                post(Self::act_member_by_id).get(Self::get_organization_member),
             )
             .route("/search/project", get(Self::search_projects))
             .route("/search", get(Self::search_members))
             .route("/invite", post(Self::invite_member))
             .layer(middleware::from_fn(authorization_middleware)) //FIXME: fix management authorization (오직 관리자만 해당 함수들 호출할 수 있도록 수정)
             .with_state(ctrl.clone())
+    }
+
+    pub async fn act_member(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
+        State(ctrl): State<MemberControllerV1>,
+        Json(body): Json<MemberActionRequest>,
+    ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
+        let log = ctrl.log.new(o!("api" => "act_member"));
+        slog::debug!(log, "act_member: {:?} {:?}", organization_id, body.clone());
+
+        match body {
+            MemberActionRequest::Create(req) => {
+                let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
+                    &log,
+                    "gsi1-index",
+                    None,
+                    Some(100),
+                    vec![("gsi1", Member::get_gsi1(req.email.clone()))],
+                )
+                .await?;
+
+                let cli = easy_dynamodb::get_client(&log);
+
+                let member = if res.items.len() != 0 {
+                    let item = res.items.first().unwrap();
+
+                    if item.deleted_at.is_some() {
+                        let mem: Member = (
+                            CreateMemberRequest {
+                                email: req.email,
+                                name: None,
+                                group: None,
+                                role: None,
+                            },
+                            item.id.clone(),
+                        )
+                            .into();
+
+                        mem
+                    } else {
+                        return Err(ApiError::AlreadyExists);
+                    }
+                } else {
+                    let id = uuid::Uuid::new_v4().to_string();
+                    let mem: Member = (req.clone(), id).into();
+
+                    mem
+                };
+
+                match cli.upsert(member.clone()).await {
+                    Ok(()) => {
+                        if let Some(group) = req.group.clone() {
+                            let _ = ctrl
+                                .update_group_member(group.id, group.name, member.id.clone())
+                                .await?;
+                        }
+                        return Ok(());
+                    }
+
+                    Err(e) => {
+                        slog::error!(log, "Create Group Failed {e:?}");
+                        return Err(ApiError::DynamoCreateException(e.to_string()));
+                    }
+                }
+            }
+        }
+    }
+
+    //TODO: implement act member by organization id (deprecated)
+    pub async fn act_member_by_id(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
+        State(ctrl): State<MemberControllerV1>,
+        Path(member_id): Path<String>,
+        Json(body): Json<MemberByIdActionRequest>,
+    ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
+        let log = ctrl.log.new(o!("api" => "act_member"));
+        slog::debug!(log, "act_member: {:?} {:?}", organization_id, member_id);
+
+        match body {
+            MemberByIdActionRequest::Update(req) => {
+                ctrl.update_member(&member_id, req).await?;
+            }
+            MemberByIdActionRequest::Delete => {
+                ctrl.remove_member(&member_id).await?;
+            }
+            MemberByIdActionRequest::AddProject(req) => {
+                ctrl.add_project(&member_id, req).await?;
+            }
+            MemberByIdActionRequest::RemoveProject(project_id) => {
+                ctrl.remove_project(&member_id, &project_id).await?;
+            }
+        }
+
+        Ok(())
     }
 
     //TODO: implement invite member in organization
@@ -97,99 +193,6 @@ impl MemberControllerV1 {
             }
             Err(e) => {
                 slog::error!(log, "Create Member Failed {e:?}");
-                Err(ApiError::DynamoCreateException(e.to_string()))
-            }
-        }
-    }
-
-    //TODO: implement act member by organization id (deprecated)
-    pub async fn act_member(
-        Extension(organizations): Extension<OrganizationMiddlewareParams>,
-        State(ctrl): State<MemberControllerV1>,
-        Path(member_id): Path<String>,
-        Json(body): Json<MemberActionRequest>,
-    ) -> Result<(), ApiError> {
-        let organization_id = organizations.id;
-        let log = ctrl.log.new(o!("api" => "act_member"));
-        slog::debug!(log, "act_member: {:?} {:?}", organization_id, member_id);
-
-        match body {
-            MemberActionRequest::Update(req) => {
-                ctrl.update_member(&member_id, req).await?;
-            }
-            MemberActionRequest::Delete => {
-                ctrl.remove_member(&member_id).await?;
-            }
-            MemberActionRequest::AddProject(req) => {
-                ctrl.add_project(&member_id, req).await?;
-            }
-            MemberActionRequest::RemoveProject(project_id) => {
-                ctrl.remove_project(&member_id, &project_id).await?;
-            }
-        }
-
-        Ok(())
-    }
-
-    //TODO: implement create member in organization
-    pub async fn create_member(
-        Extension(organizations): Extension<OrganizationMiddlewareParams>,
-        State(ctrl): State<MemberControllerV1>,
-        Json(body): Json<CreateMemberRequest>,
-    ) -> Result<Json<Member>, ApiError> {
-        let organization_id = organizations.id;
-        let log = ctrl.log.new(o!("api" => "create_member"));
-        slog::debug!(log, "create_member {:?} {:?}", organization_id, body);
-
-        let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
-            &log,
-            "gsi1-index",
-            None,
-            Some(100),
-            vec![("gsi1", Member::get_gsi1(body.email.clone()))],
-        )
-        .await?;
-
-        let cli = easy_dynamodb::get_client(&log);
-
-        let member = if res.items.len() != 0 {
-            let item = res.items.first().unwrap();
-
-            if item.deleted_at.is_some() {
-                let mem: Member = (
-                    CreateMemberRequest {
-                        email: body.email,
-                        name: None,
-                        group: None,
-                        role: None,
-                    },
-                    item.id.clone(),
-                )
-                    .into();
-
-                mem
-            } else {
-                return Err(ApiError::AlreadyExists);
-            }
-        } else {
-            let id = uuid::Uuid::new_v4().to_string();
-            let mem: Member = (body.clone(), id).into();
-
-            mem
-        };
-
-        match cli.upsert(member.clone()).await {
-            Ok(()) => {
-                if let Some(group) = body.group.clone() {
-                    let _ = ctrl
-                        .update_group_member(group.id, group.name, member.id.clone())
-                        .await?;
-                }
-                Ok(Json(member))
-            }
-
-            Err(e) => {
-                slog::error!(log, "Create Group Failed {e:?}");
                 Err(ApiError::DynamoCreateException(e.to_string()))
             }
         }

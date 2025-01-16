@@ -13,7 +13,7 @@ pub struct GetPutObjectUriResponse {
     pub uris: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct CreateMetadataRequest {
     pub name: String,
     pub urls: Vec<String>,
@@ -60,6 +60,12 @@ pub struct MetadataSummary {
 #[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum MetadataActionRequest {
+    Create(CreateMetadataRequest),
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum MetadataByIdActionRequest {
     Delete,
     Update(UpdateMetadataRequest),
 }

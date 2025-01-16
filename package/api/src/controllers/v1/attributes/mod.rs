@@ -26,30 +26,18 @@ impl AttributeControllerV1 {
         let ctrl = AttributeControllerV1 { log };
 
         Router::new()
-            .route("/", post(Self::create_attribute).get(Self::list_attributes))
+            .route("/", post(Self::act_attribute).get(Self::list_attributes))
             .route(
                 "/:attribute_id",
-                post(Self::act_attribute).get(Self::get_attribute),
+                post(Self::act_attribute_by_id).get(Self::get_attribute),
             )
             .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
     }
 
-    pub async fn create_attribute(
-        Extension(organizations): Extension<OrganizationMiddlewareParams>,
-        State(ctrl): State<AttributeControllerV1>,
-        Json(body): Json<CreateAttributeRequest>,
-    ) -> Result<Json<CreateAttributeRequest>, ApiError> {
-        let organization_id = organizations.id;
-        let log = ctrl.log.new(o!("api" => "create_attribute"));
-        slog::debug!(log, "create_attribute {:?} {:?}", organization_id, body);
-        Ok(Json(CreateAttributeRequest::default()))
-    }
-
     pub async fn act_attribute(
         Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<AttributeControllerV1>,
-        Path(attribute_id): Path<String>,
         Json(body): Json<AttributeActionRequest>,
     ) -> Result<(), ApiError> {
         let organization_id = organizations.id;
@@ -58,15 +46,38 @@ impl AttributeControllerV1 {
             log,
             "act_attribute: {:?} {:?}",
             organization_id,
+            body.clone()
+        );
+
+        match body {
+            AttributeActionRequest::Create(req) => {
+                ctrl.create_attribute(&organization_id, req).await?;
+            }
+        }
+        Ok(())
+    }
+
+    pub async fn act_attribute_by_id(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
+        State(ctrl): State<AttributeControllerV1>,
+        Path(attribute_id): Path<String>,
+        Json(body): Json<AttributeByIdActionRequest>,
+    ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
+        let log = ctrl.log.new(o!("api" => "act_attribute_by_id"));
+        slog::debug!(
+            log,
+            "act_attribute_by_id: {:?} {:?}",
+            organization_id,
             attribute_id
         );
 
         match body {
-            AttributeActionRequest::Delete => {
+            AttributeByIdActionRequest::Delete => {
                 ctrl.remove_attribute(&organization_id, &attribute_id)
                     .await?;
             }
-            AttributeActionRequest::Update(req) => {
+            AttributeByIdActionRequest::Update(req) => {
                 ctrl.update_attribute(&organization_id, &attribute_id, req)
                     .await?;
             }
@@ -460,6 +471,18 @@ impl AttributeControllerV1 {
             ],
             bookmark: None,
         }))
+    }
+}
+
+impl AttributeControllerV1 {
+    pub async fn create_attribute(
+        &self,
+        organization_id: &str,
+        body: CreateAttributeRequest,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "create_attribute"));
+        slog::debug!(log, "create_attribute {:?} {:?}", organization_id, body);
+        Ok(())
     }
 }
 

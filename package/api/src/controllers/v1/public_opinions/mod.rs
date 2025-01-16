@@ -27,24 +27,70 @@ impl PublicOpinionControllerV1 {
 
         //TODO: implement metadata uri
         Router::new()
-            .route("/", post(Self::create_opinion).get(Self::list_opinions))
+            .route("/", post(Self::act_attribute).get(Self::list_opinions))
             .route(
                 "/:project_id",
-                post(Self::act_opinion).get(Self::get_opinion),
+                post(Self::act_opinion_by_id).get(Self::get_opinion),
             )
             .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
     }
 
-    pub async fn create_opinion(
+    pub async fn act_attribute(
         Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicOpinionControllerV1>,
-        Json(body): Json<CreateOpinionRequest>,
-    ) -> Result<Json<CreateOpinionRequest>, ApiError> {
+        Json(body): Json<OpinionActionRequest>,
+    ) -> Result<(), ApiError> {
         let organization_id = organizations.id;
-        let log = ctrl.log.new(o!("api" => "create_opinion"));
-        slog::debug!(log, "create_opinion {:?} {:?}", organization_id, body);
-        Ok(Json(CreateOpinionRequest::default()))
+        let log = ctrl.log.new(o!("api" => "act_opinion"));
+        slog::debug!(log, "act_opinion: {:?} {:?}", organization_id, body.clone());
+
+        match body {
+            OpinionActionRequest::Create(req) => {
+                ctrl.create_opinion(&organization_id, req).await?;
+            }
+        }
+        Ok(())
+    }
+
+    pub async fn act_opinion_by_id(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
+        State(ctrl): State<PublicOpinionControllerV1>,
+        Path(project_id): Path<String>,
+        Json(body): Json<OpinionByIdActionRequest>,
+    ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
+        let log = ctrl.log.new(o!("api" => "act_opinion_by_id"));
+        slog::debug!(
+            log,
+            "act_opinion_by_id: {:?} {:?}",
+            organization_id,
+            project_id
+        );
+
+        match body {
+            OpinionByIdActionRequest::Delete => {
+                ctrl.remove_opinion(&organization_id, &project_id).await?;
+            }
+            OpinionByIdActionRequest::Update(req) => {
+                ctrl.update_opinion(&organization_id, &project_id, req)
+                    .await?;
+            }
+            OpinionByIdActionRequest::UpdateProjectType(project_type) => {
+                ctrl.update_project_type(&organization_id, &project_id, project_type)
+                    .await?;
+            }
+            OpinionByIdActionRequest::UpdatePanels(panels) => {
+                ctrl.update_panels(&organization_id, &project_id, panels)
+                    .await?;
+            }
+            OpinionByIdActionRequest::UpdateStatus(status) => {
+                ctrl.update_project_status(&organization_id, &project_id, status)
+                    .await?;
+            }
+        }
+
+        Ok(())
     }
 
     pub async fn get_opinion(
@@ -79,41 +125,6 @@ impl PublicOpinionControllerV1 {
             end_date: 1764601200,
             status: ProjectStatus::Finish,
         }))
-    }
-
-    pub async fn act_opinion(
-        Extension(organizations): Extension<OrganizationMiddlewareParams>,
-        State(ctrl): State<PublicOpinionControllerV1>,
-        Path(project_id): Path<String>,
-        Json(body): Json<OpinionActionRequest>,
-    ) -> Result<(), ApiError> {
-        let organization_id = organizations.id;
-        let log = ctrl.log.new(o!("api" => "act_opinion"));
-        slog::debug!(log, "act_opinion: {:?} {:?}", organization_id, project_id);
-
-        match body {
-            OpinionActionRequest::Delete => {
-                ctrl.remove_opinion(&organization_id, &project_id).await?;
-            }
-            OpinionActionRequest::Update(req) => {
-                ctrl.update_opinion(&organization_id, &project_id, req)
-                    .await?;
-            }
-            OpinionActionRequest::UpdateProjectType(project_type) => {
-                ctrl.update_project_type(&organization_id, &project_id, project_type)
-                    .await?;
-            }
-            OpinionActionRequest::UpdatePanels(panels) => {
-                ctrl.update_panels(&organization_id, &project_id, panels)
-                    .await?;
-            }
-            OpinionActionRequest::UpdateStatus(status) => {
-                ctrl.update_project_status(&organization_id, &project_id, status)
-                    .await?;
-            }
-        }
-
-        Ok(())
     }
 
     pub async fn list_opinions(
@@ -273,6 +284,18 @@ impl PublicOpinionControllerV1 {
             ],
             bookmark: None,
         }))
+    }
+}
+
+impl PublicOpinionControllerV1 {
+    pub async fn create_opinion(
+        &self,
+        organization_id: &str,
+        body: CreateOpinionRequest,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "remove create_opinion"));
+        slog::debug!(log, "create_opinion {:?} {:?}", organization_id, body);
+        Ok(())
     }
 }
 

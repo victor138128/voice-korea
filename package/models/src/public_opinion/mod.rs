@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{field::Field, group::MemberInfo};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct CreateOpinionRequest {
     pub status: Option<OpinionDraftStatus>,
     pub opinions: Option<Vec<OpinionInfo>>,
@@ -33,6 +33,12 @@ pub struct DiscussionInfo {
 #[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum OpinionActionRequest {
+    Create(CreateOpinionRequest),
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum OpinionByIdActionRequest {
     Delete,
     Update(UpdateOpinionRequest),
     UpdateProjectType(Field),

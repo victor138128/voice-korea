@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::member::GroupInfo;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct GroupProject {
     pub project_id: String,
     pub name: String,
@@ -116,10 +116,7 @@ pub struct Group {
 }
 
 impl Group {
-    pub fn new(
-        id: String, 
-        user_id: String,
-    ) -> Self {
+    pub fn new(id: String, user_id: String) -> Self {
         let mut group = Group::default();
         let now = chrono::Utc::now().timestamp_millis();
         group.id = id;
@@ -149,14 +146,14 @@ impl Group {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct CreateGroupMember {
     pub user_id: String,
     pub user_name: String,
     pub user_email: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct CreateGroupRequest {
     pub name: String,
     pub members: Vec<CreateGroupMember>,            //그룹 내 팀원
@@ -197,6 +194,12 @@ pub struct TeamMemberRequest {
 #[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum GroupActionRequest {
+    Create(CreateGroupRequest),
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum GroupByIdActionRequest {
     UpdateName(String),
     Delete,
     AddTeamMember(TeamMemberRequest),

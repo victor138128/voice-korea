@@ -27,20 +27,57 @@ impl PublicSurveyControllerV1 {
 
         //TODO: implement metadata uri
         Router::new()
-            .route("/", post(Self::create_survey).get(Self::list_surveys))
-            .route("/:survey_id", post(Self::act_survey).get(Self::get_survey))
+            .route("/", post(Self::act_survey).get(Self::list_surveys))
+            .route(
+                "/:survey_id",
+                post(Self::act_survey_by_id).get(Self::get_survey),
+            )
             .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
     }
 
-    pub async fn create_survey(
+    pub async fn act_survey(
         Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicSurveyControllerV1>,
-        Json(body): Json<CreatePublicSurveyRequest>,
-    ) -> Result<Json<CreatePublicSurveyRequest>, ApiError> {
-        let log = ctrl.log.new(o!("api" => "create_survey"));
-        slog::debug!(log, "create_survey {:?} {:?}", organizations.id, body);
-        Ok(Json(CreatePublicSurveyRequest::default()))
+        Json(body): Json<SurveyActionRequest>,
+    ) -> Result<(), ApiError> {
+        let log = ctrl.log.new(o!("api" => "act_survey"));
+        slog::debug!(log, "act_survey: {:?} {:?}", organizations.id, body);
+
+        match body {
+            SurveyActionRequest::Create(req) => {
+                ctrl.create_survey(&organizations.id, req).await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    pub async fn act_survey_by_id(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
+        State(ctrl): State<PublicSurveyControllerV1>,
+        Path(survey_id): Path<String>,
+        Json(body): Json<SurveyByIdActionRequest>,
+    ) -> Result<(), ApiError> {
+        let log = ctrl.log.new(o!("api" => "act_survey_by_id"));
+        slog::debug!(
+            log,
+            "act_survey_by_id: {:?} {:?}",
+            organizations.id,
+            survey_id
+        );
+
+        match body {
+            SurveyByIdActionRequest::Delete => {
+                ctrl.remove_survey(&organizations.id, &survey_id).await?;
+            }
+            SurveyByIdActionRequest::Update(req) => {
+                ctrl.update_survey(&organizations.id, &survey_id, req)
+                    .await?;
+            }
+        }
+
+        Ok(())
     }
 
     pub async fn get_survey(
@@ -301,28 +338,6 @@ impl PublicSurveyControllerV1 {
         }))
     }
 
-    pub async fn act_survey(
-        Extension(organizations): Extension<OrganizationMiddlewareParams>,
-        State(ctrl): State<PublicSurveyControllerV1>,
-        Path(survey_id): Path<String>,
-        Json(body): Json<SurveyActionRequest>,
-    ) -> Result<(), ApiError> {
-        let log = ctrl.log.new(o!("api" => "act_survey"));
-        slog::debug!(log, "act_survey: {:?} {:?}", organizations.id, survey_id);
-
-        match body {
-            SurveyActionRequest::Delete => {
-                ctrl.remove_survey(&organizations.id, &survey_id).await?;
-            }
-            SurveyActionRequest::Update(req) => {
-                ctrl.update_survey(&organizations.id, &survey_id, req)
-                    .await?;
-            }
-        }
-
-        Ok(())
-    }
-
     pub async fn list_surveys(
         Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PublicSurveyControllerV1>,
@@ -407,6 +422,18 @@ impl PublicSurveyControllerV1 {
             ],
             bookmark: None,
         }))
+    }
+}
+
+impl PublicSurveyControllerV1 {
+    pub async fn create_survey(
+        &self,
+        organization_id: &str,
+        body: CreatePublicSurveyRequest,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "create_survey"));
+        slog::debug!(log, "create_survey {:?} {:?}", organization_id, body);
+        Ok(())
     }
 }
 

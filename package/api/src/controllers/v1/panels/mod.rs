@@ -26,36 +26,48 @@ impl PanelControllerV1 {
         let ctrl = PanelControllerV1 { log };
 
         Router::new()
-            .route("/", post(Self::create_panel).get(Self::list_panels))
-            .route("/:panel_id", post(Self::act_panel).get(Self::get_panel))
+            .route("/", post(Self::act_panel).get(Self::list_panels))
+            .route(
+                "/:panel_id",
+                post(Self::act_panel_by_id).get(Self::get_panel),
+            )
             .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
     }
 
-    pub async fn create_panel(
+    pub async fn act_panel(
         Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PanelControllerV1>,
-        Json(body): Json<CreatePanelRequest>,
-    ) -> Result<Json<CreatePanelRequest>, ApiError> {
-        let organization_id = organizations.id;
-        let log = ctrl.log.new(o!("api" => "create_panel"));
-        slog::debug!(log, "create_panel {:?} {:?}", organization_id, body);
-        Ok(Json(CreatePanelRequest::default()))
-    }
-
-    pub async fn act_panel(
-        State(ctrl): State<PanelControllerV1>,
-        Path((organization_id, panel_id)): Path<(String, String)>,
         Json(body): Json<PanelActionRequest>,
     ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "act_panel"));
-        slog::debug!(log, "act_panel: {:?} {:?}", organization_id, panel_id);
+        slog::debug!(log, "act_panel: {:?} {:?}", organization_id, body);
 
         match body {
-            PanelActionRequest::Delete => {
+            PanelActionRequest::Create(req) => {
+                ctrl.create_panel(&organization_id, req).await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    pub async fn act_panel_by_id(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
+        State(ctrl): State<PanelControllerV1>,
+        Path(panel_id): Path<String>,
+        Json(body): Json<PanelByIdActionRequest>,
+    ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
+        let log = ctrl.log.new(o!("api" => "act_panel_by_id"));
+        slog::debug!(log, "act_panel_by_id: {:?} {:?}", organization_id, panel_id);
+
+        match body {
+            PanelByIdActionRequest::Delete => {
                 ctrl.remove_panel(&organization_id, &panel_id).await?;
             }
-            PanelActionRequest::Update(req) => {
+            PanelByIdActionRequest::Update(req) => {
                 ctrl.update_panel(&organization_id, &panel_id, req).await?;
             }
         }
@@ -816,6 +828,18 @@ impl PanelControllerV1 {
             ],
             bookmark: None,
         }))
+    }
+}
+
+impl PanelControllerV1 {
+    pub async fn create_panel(
+        &self,
+        organization_id: &str,
+        body: CreatePanelRequest,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "create_panel"));
+        slog::debug!(log, "create_panel {:?} {:?}", organization_id, body);
+        Ok(())
     }
 }
 

@@ -3,7 +3,9 @@ pub type Result<T> = std::result::Result<T, ServerFnError>;
 use std::collections::HashMap;
 
 use dioxus::prelude::*;
-use models::prelude::{CreateGroupRequest, Group, GroupActionRequest, GroupResponse};
+use models::prelude::{
+    CreateGroupRequest, GroupActionRequest, GroupByIdActionRequest, GroupResponse,
+};
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
 
@@ -33,19 +35,22 @@ impl GroupApi {
         use_context_provider(|| srv);
     }
 
-    pub async fn create_group(&self, req: CreateGroupRequest) -> Result<Group> {
+    pub async fn create_group(&self, req: CreateGroupRequest) -> Result<()> {
         let token = self.get_token();
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post(&format!("/v1/groups/organizations/{id}"))
+            .post(&format!("/v1/groups"))
             .header("Authorization", token)
-            .json(&req)
+            .header("x-organization", id)
+            .json(&GroupActionRequest::Create(req))
             .send()
             .await?;
 
-        Ok(res.json().await?)
+        let _res = res.error_for_status();
+
+        Ok(())
     }
 
     pub async fn update_group_name(&self, group_id: String, group_name: String) -> Result<()> {
@@ -54,9 +59,10 @@ impl GroupApi {
         let client = ReqwestClient::new()?;
 
         let _res = client
-            .post(format!("/v1/groups/organizations/{}/groups/{}", id, group_id).as_str())
+            .post(format!("/v1/groups/{}", group_id).as_str())
             .header("Authorization", token)
-            .json(&GroupActionRequest::UpdateName(group_name))
+            .header("x-organization", id)
+            .json(&GroupByIdActionRequest::UpdateName(group_name))
             .send()
             .await?;
 
@@ -69,9 +75,10 @@ impl GroupApi {
         let client = ReqwestClient::new()?;
 
         let _res = client
-            .post(format!("/v1/groups/organizations/{}/groups/{}", id, group_id).as_str())
+            .post(format!("/v1/groups/{}", group_id).as_str())
             .header("Authorization", token)
-            .json(&GroupActionRequest::Delete)
+            .header("x-organization", id)
+            .json(&GroupByIdActionRequest::Delete)
             .send()
             .await?;
 
@@ -97,9 +104,10 @@ impl GroupApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/groups/organizations/{id}"))
+            .get(&format!("/v1/groups"))
             .query(&params)
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 
@@ -116,8 +124,9 @@ impl GroupApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/groups/organizations/{id}/groups/{group_id}"))
+            .get(&format!("/v1/groups/{group_id}"))
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 
