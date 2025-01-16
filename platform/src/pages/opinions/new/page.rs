@@ -1,12 +1,15 @@
 #![allow(non_snake_case)]
 use crate::{
     components::{icons::ArrowLeft, stepper::Stepper},
-    pages::opinions::new::{composition_opinion::CompositionOpinion, controller::CurrentStep},
+    pages::opinions::new::{
+        composition_opinion::CompositionOpinion, controller::CurrentStep,
+        input_opinion::InputOpinion,
+    },
     routes::Route,
 };
 
-use super::controller::Controller;
-use super::{i18n::OpinionNewTranslate, input_opinion::InputOpinion};
+use super::i18n::OpinionNewTranslate;
+use super::{composition_commitee::CompositionCommitee, controller::Controller};
 use dioxus::prelude::*;
 use dioxus_translate::{translate, Language};
 
@@ -55,12 +58,15 @@ pub fn OpinionCreatePage(props: OpinionProps) -> Element {
                 }
             }
 
-            // InputOpinion { lang: props.lang.clone() }
 
             if step == CurrentStep::PublicOpinionComposition {
                 CompositionOpinion { lang: props.lang.clone() }
-            } else {
+            } else if step == CurrentStep::InputInformation {
                 InputOpinion { lang: props.lang.clone() }
+            } else if step == CurrentStep::CommitteeComposition {
+                CompositionCommitee { lang: props.lang.clone() }
+            } else {
+                div { "Hello" }
             }
         }
     }

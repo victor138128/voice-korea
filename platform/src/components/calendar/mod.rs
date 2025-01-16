@@ -34,7 +34,7 @@ pub fn Calendar(timestamp: Option<u64>, update_date: EventHandler<i64>) -> Eleme
     }));
 
     rsx! {
-        div { class: "flex flex-col w-[500px] items-center justify-center p-[20px] gap-[20px] bg-white border-[1px] borber-[#f5f5f5] rounded-[16px]",
+        div { class: "flex flex-col w-[450px] items-center justify-center p-[20px] gap-[20px] bg-white border-[1px] borber-[#f5f5f5] rounded-[16px]",
             div { class: "flex flex-col items-start justify-start gap-[8px]",
                 div { class: "flex flex-row items-center justify-between w-full gap-[8px] p-[8px]",
                     div {
