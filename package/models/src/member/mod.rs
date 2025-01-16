@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::organization::OrganizationMember;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default, Eq)]
 pub struct MemberProject {
@@ -25,11 +26,12 @@ pub struct Member {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ListMemberResponse {
-    pub members: Vec<Member>,
+    pub members: Vec<OrganizationMember>,
     pub role_count: Vec<u64>,
     pub bookmark: Option<String>,
 }
 
+// FIXME: depreciated data structure (-> OrganizationMember)
 impl Member {
     pub fn new(
         id: String,
@@ -204,7 +206,7 @@ impl Into<Member> for (CreateMemberRequest, String) {
                 None
             } else {
                 Some(req.group.unwrap().name)
-            },
+            },  
             role: req.role,
             // projects: req.projects,
         }

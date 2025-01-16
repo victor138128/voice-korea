@@ -33,6 +33,7 @@ pub struct SearchParams {
     pub _keyword: String,
 }
 
+// TODO: feat create group member
 impl GroupControllerV1 {
     pub fn router(_db: std::sync::Arc<easy_dynamodb::Client>) -> Router {
         let log = root().new(o!("api-controller" => "GroupControllerV1"));
@@ -113,17 +114,16 @@ impl GroupControllerV1 {
                 ctrl.remove_group(&claims.id, &group_id).await?;
             }
             GroupActionRequest::AddTeamMember(req) => {
-                ctrl.add_team_member(&group_id, req).await?;
+                ctrl.add_team_member(&group_id, &organization_id, req).await?;
             }
-            GroupActionRequest::RemoveTeamMember(member_id) => {
-                ctrl.remove_team_member(&group_id, &member_id).await?;
+            GroupActionRequest::RemoveTeamMember(group_member_id) => {
+                ctrl.remove_team_member(&group_id, &group_member_id).await?;
             }
         }
 
         Ok(())
     }
 
-    //TODO: implement create group by organization id
     pub async fn create_group(
         Extension(claims): Extension<Claims>,
         Path(organization_id): Path<String>,
@@ -135,7 +135,7 @@ impl GroupControllerV1 {
 
         let cli = easy_dynamodb::get_client(&log);
         let id = uuid::Uuid::new_v4().to_string();
-        let group: Group = (body.clone(), id.clone(), claims.id).into();
+        let group: Group = (body.clone(), id.clone(), claims.id, organization_id).into();
 
         match cli.create(group.clone()).await {
             Ok(()) => {
@@ -160,7 +160,6 @@ impl GroupControllerV1 {
         }
     }
 
-    //TODO: implement list groups by organization id
     pub async fn list_groups(
         State(ctrl): State<GroupControllerV1>,
         Query(pagination): Query<Pagination>,
@@ -202,22 +201,47 @@ impl GroupControllerV1 {
 
             for item in res.items {
                 let member = cli
-                    .get::<Member>(&item.user_id)
+                    .get::<OrganizationMember>(&item.org_member_id)
                     .await
                     .map_err(|e| ApiError::DynamoQueryException(e.to_string()));
 
+                if member.is_err() {
+                    continue;
+                }
+
+                // TODO: refactor check member logic
                 let mem = member.unwrap().unwrap();
+
+                if item.deleted_at.is_some() {
+                    continue;
+                }
+
+                if item.group_id != group.id {
+                    continue;
+                }
+
+                let res = cli.
+                    get::<User>(&mem.user_id)
+                    .await
+                    .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
+
+                if res.is_none() {
+                    continue;
+                }
+
+                let user: User = res.unwrap();
+
                 members.push(GroupMemberResponse {
                     id: item.id,
                     created_at: item.created_at,
                     updated_at: item.updated_at,
                     deleted_at: item.deleted_at,
                     group_id: item.group_id,
-                    user_id: item.user_id,
+                    org_member_id: item.org_member_id,
                     user_name: mem.name.clone().unwrap_or_default(),
-                    user_email: mem.email.clone(),
-                    role_name: mem.role,
-                    group_name: mem.group.unwrap_or_default(),
+                    user_email: user.email.clone(),
+                    role_name: mem.role.map(|r| r.to_string()),
+                    group_name: group.name.clone(),
                 });
             }
 
@@ -241,7 +265,6 @@ impl GroupControllerV1 {
         }))
     }
 
-    //TODO: implement get group by organization id
     pub async fn get_group(
         State(ctrl): State<GroupControllerV1>,
         Path((organization_id, group_id)): Path<(String, String)>,
@@ -269,22 +292,39 @@ impl GroupControllerV1 {
 
                         for item in res.items {
                             let member = cli
-                                .get::<Member>(&item.user_id)
+                                .get::<OrganizationMember>(&item.org_member_id)
                                 .await
                                 .map_err(|e| ApiError::DynamoQueryException(e.to_string()));
 
+                            if member.is_err() {
+                                continue;
+                            }
+
+                            // TODO: refactor check member logic
                             let mem = member.unwrap().unwrap();
+
+                            let user = cli
+                                .get::<User>(&mem.user_id)
+                                .await
+                                .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
+
+                            if user.is_none() {
+                                continue;
+                            }
+
+                            let user = user.unwrap();
+
                             members.push(GroupMemberResponse {
                                 id: item.id,
                                 created_at: item.created_at,
                                 updated_at: item.updated_at,
                                 deleted_at: item.deleted_at,
                                 group_id: item.group_id,
-                                user_id: item.user_id,
+                                org_member_id: item.org_member_id,
                                 user_name: mem.name.clone().unwrap_or_default(),
-                                user_email: mem.email.clone(),
-                                role_name: mem.role,
-                                group_name: mem.group.unwrap_or_default(),
+                                user_email: user.email.clone(),
+                                role_name: mem.role.map(|r| r.to_string()),
+                                group_name: v.name.clone(),
                             });
                         }
                         Ok(Json(GroupResponse {
@@ -363,7 +403,7 @@ impl GroupControllerV1 {
                     ),
                     (
                         "gsi2",
-                        UpdateField::String(GroupMember::get_gsi2_deleted(&group_member.user_id)),
+                        UpdateField::String(GroupMember::get_gsi2_deleted(&group_member.org_member_id)),
                     ),
                 ],
             )
@@ -391,7 +431,7 @@ impl GroupControllerV1 {
 
         //check member
         let res = cli
-            .get::<Member>(&member_id)
+            .get::<OrganizationMember>(&member_id)
             .await
             .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
 
@@ -400,6 +440,17 @@ impl GroupControllerV1 {
         }
 
         let member = res.unwrap();
+
+        let res = cli
+            .get::<User>(&member.user_id)
+            .await
+            .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
+
+        if res.is_none() {
+            return Err(ApiError::NotFound);
+        }
+
+        let user = res.unwrap();
 
         // check member in group
         let res: CommonQueryResponse<GroupMember> = CommonQueryResponse::query(
@@ -415,7 +466,7 @@ impl GroupControllerV1 {
         if res.items.len() == 0 {
             //group member not exists
             let id = uuid::Uuid::new_v4().to_string();
-            let group_member = GroupMember::new(id, group_id, member.id.clone());
+            let group_member = GroupMember::new(id, group_id, member.organization_id.clone());
 
             match cli.upsert(group_member.clone()).await {
                 Ok(()) => {
@@ -441,7 +492,7 @@ impl GroupControllerV1 {
             let item = res.items.first().unwrap();
 
             if item.deleted_at.is_some() {
-                let group_member = GroupMember::new(item.id.clone(), group_id, member.id.clone());
+                let group_member = GroupMember::new(item.id.clone(), group_id, member.organization_id.clone());
 
                 match cli.upsert(group_member.clone()).await {
                     Ok(()) => {
@@ -474,12 +525,12 @@ impl GroupControllerV1 {
                     UpdateField::String(GroupMember::get_gsi2(&member.id)),
                 ));
                 update_data.push(("group_id", UpdateField::String(group_id)));
-                update_data.push(("user_id", UpdateField::String(member.id.clone())));
+                update_data.push(("org_member_id", UpdateField::String(member.id.clone())));
                 update_data.push((
                     "user_name",
                     UpdateField::String(member.name.unwrap_or_default()),
                 ));
-                update_data.push(("user_email", UpdateField::String(member.email)));
+                update_data.push(("user_email", UpdateField::String(user.email)));
                 update_data.push(("updated_at", UpdateField::I64(now)));
 
                 cli.update(&item.id, update_data)
@@ -506,20 +557,71 @@ impl GroupControllerV1 {
     pub async fn add_team_member(
         &self,
         group_id: &str,
+        org_id: &str,
         req: TeamMemberRequest,
     ) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "add_team_member"));
         slog::debug!(log, "add_team_member {:?} {:?}", group_id, req);
+
+        let cli = easy_dynamodb::get_client(&log);
+
+        let res = cli
+            .get::<OrganizationMember>(&req.id)
+            .await
+            .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
+        
+        // check whether the member exists
+        if res.is_none() {
+            return Err(ApiError::NotFound);
+        }
+
+        let res = cli
+            .get::<Group>(&group_id)
+            .await
+            .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
+
+        // check whether the group exists
+        if res.is_none() {
+            return Err(ApiError::NotFound);
+        }
+
+        // check whether the user is in the organization
+        if res.unwrap().organization_id != org_id {
+            return Err(ApiError::InvalidPermissions);
+        }
+
+        // add member to group
+        cli.create(GroupMember::new(
+            uuid::Uuid::new_v4().to_string(),
+            group_id.to_string(),
+            req.id.clone(),
+        ))
+        .await
+        .map_err(|e| ApiError::DynamoCreateException(e.to_string()))?;
+
         Ok(())
     }
 
     pub async fn remove_team_member(
         &self,
         group_id: &str,
-        member_id: &str,
+        group_member_id: &str,
     ) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "remove_team_member"));
-        slog::debug!(log, "remove_team_member {:?} {:?}", group_id, member_id);
+        slog::debug!(log, "remove_team_member {:?} {:?}", group_id, group_member_id);
+        let cli = easy_dynamodb::get_client(&log);
+
+        cli.update(
+            group_member_id,
+            vec![
+                ("updated_at", UpdateField::I64(chrono::Utc::now().timestamp_millis())),
+                ("deleted_at", UpdateField::I64(chrono::Utc::now().timestamp_millis())),
+                ("type", UpdateField::String(GroupMember::get_deleted_type())),
+            ],
+        )
+        .await
+        .map_err(|e| ApiError::DynamoUpdateException(e.to_string()))?;
+
         Ok(())
     }
 
@@ -561,7 +663,7 @@ impl GroupControllerV1 {
                     for member in res.items {
                         let _ = cli
                             .update(
-                                &member.user_id,
+                                &member.org_member_id,
                                 vec![
                                     ("updated_at", UpdateField::I64(now)),
                                     ("group", UpdateField::String(group_name.clone())),
@@ -629,7 +731,7 @@ impl GroupControllerV1 {
                             ),
                             (
                                 "gsi2",
-                                UpdateField::String(GroupMember::get_gsi2_deleted(&member.user_id)),
+                                UpdateField::String(GroupMember::get_gsi2_deleted(&member.org_member_id)),
                             ),
                         ],
                     )
@@ -638,7 +740,7 @@ impl GroupControllerV1 {
 
                 let _ = cli
                     .update(
-                        &member.user_id,
+                        &member.org_member_id,
                         vec![("group", UpdateField::String("".to_string()))],
                     )
                     .await
