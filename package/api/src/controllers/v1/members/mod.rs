@@ -30,11 +30,11 @@ impl MemberControllerV1 {
         Router::new()
             .route(
                 "/organizations/:organization_id",
-                post(Self::create_member).get(Self::list_members),
+                post(Self::create_member).get(Self::list_organization_members),
             )
             .route(
                 "/organizations/:organization_id/members/:member_id",
-                post(Self::act_member).get(Self::get_member),
+                post(Self::act_member).get(Self::get_organization_member),
             )
             .route(
                 "/organizations/:organization_id/search/projects",
@@ -110,7 +110,7 @@ impl MemberControllerV1 {
         }
     }
 
-    //TODO: implement act member by organization id
+    //TODO: implement act member by organization id (deprecated)
     pub async fn act_member(
         State(ctrl): State<MemberControllerV1>,
         Path((organization_id, member_id)): Path<(String, String)>,
@@ -229,8 +229,7 @@ impl MemberControllerV1 {
         }))
     }
 
-    //TODO: implement list members in organization
-    pub async fn list_members(
+    pub async fn list_organization_members(
         State(ctrl): State<MemberControllerV1>,
         Path(organization_id): Path<String>,
         Query(pagination): Query<Pagination>,
@@ -250,36 +249,56 @@ impl MemberControllerV1 {
 
         let bookmark = pagination.bookmark;
 
-        let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
+        let res: CommonQueryResponse<OrganizationMember> = CommonQueryResponse::query(
             &log,
             "type-index",
             bookmark,
             size,
-            vec![("type", "member")],
+            vec![("type", "organization#member")],
         )
         .await?;
+
+        let filtered =  res.items
+            .into_iter()
+            .filter(|v| v.organization_id == organization_id && v.deleted_at.is_none())
+            .collect::<Vec<OrganizationMember>>();
+
+        let mut role_count = vec![0, 0, 0, 0, 0, 0]; //[전체, 관리자, 공론 관리자, 분석가, 중계자, 강연자]
+
+        filtered.iter().for_each(|v| {
+            if let Some(role) = &v.role {
+                match role {
+                    Role::Admin => role_count[1] += 1,
+                    Role::PublicAdmin => role_count[2] += 1,
+                    Role::Analyst => role_count[3] += 1,
+                    Role::Mediator => role_count[4] += 1,
+                    Role::Speaker => role_count[5] += 1,
+                }
+            }
+            role_count[0] += 1;
+        });
+
         Ok(Json(ListMemberResponse {
-            members: res.items,
-            role_count: vec![0, 0, 0, 0, 0, 0], //[전체, 관리자, 공론 관리자, 분석가, 중계자, 강연자]
+            members: filtered,
+            role_count,
             bookmark: res.bookmark,
         }))
     }
 
-    //TODO: implement get member in organization
-    pub async fn get_member(
+    pub async fn get_organization_member(
         State(ctrl): State<MemberControllerV1>,
         Path((organization_id, member_id)): Path<(String, String)>,
-    ) -> Result<Json<Member>, ApiError> {
+    ) -> Result<Json<OrganizationMember>, ApiError> {
         let log = ctrl.log.new(o!("api" => "get_member"));
         slog::debug!(log, "get_member {:?} {:?}", organization_id, member_id);
         let cli = easy_dynamodb::get_client(&log);
 
-        let res = cli.get::<Member>(&member_id).await;
+        let res = cli.get::<OrganizationMember>(&member_id).await;
 
         match res {
             Ok(v) => match v {
                 Some(v) => {
-                    if !v.r#type.contains("deleted") {
+                    if v.deleted_at.is_none() {
                         Ok(Json(v))
                     } else {
                         Err(ApiError::NotFound)
@@ -340,7 +359,7 @@ impl MemberControllerV1 {
                     ),
                     (
                         "gsi2",
-                        UpdateField::String(GroupMember::get_gsi2_deleted(&group_member.user_id)),
+                        UpdateField::String(GroupMember::get_gsi2_deleted(&group_member.org_member_id)),
                     ),
                 ],
             )
@@ -367,7 +386,7 @@ impl MemberControllerV1 {
 
         //check member
         let res = cli
-            .get::<Member>(&member_id)
+            .get::<OrganizationMember>(&member_id)
             .await
             .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
 
@@ -376,6 +395,17 @@ impl MemberControllerV1 {
         }
 
         let member = res.unwrap();
+
+        let res = cli.
+            get::<User>(&member.user_id)
+            .await
+            .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
+
+        if res.is_none() {
+            return Err(ApiError::NotFound);
+        }
+
+        let user = res.unwrap();
 
         // check member in group
         let res: CommonQueryResponse<GroupMember> = CommonQueryResponse::query(
@@ -391,7 +421,7 @@ impl MemberControllerV1 {
         if res.items.len() == 0 {
             //group member not exists
             let id = uuid::Uuid::new_v4().to_string();
-            let group_member = GroupMember::new(id, group_id, member.id.clone());
+            let group_member = GroupMember::new(id, group_id, member.organization_id.clone());
 
             match cli.upsert(group_member.clone()).await {
                 Ok(()) => {
@@ -417,7 +447,7 @@ impl MemberControllerV1 {
             let item = res.items.first().unwrap();
 
             if item.deleted_at.is_some() {
-                let group_member = GroupMember::new(item.id.clone(), group_id, member.id.clone());
+                let group_member = GroupMember::new(item.id.clone(), group_id, member.organization_id.clone());
 
                 match cli.upsert(group_member.clone()).await {
                     Ok(()) => {
@@ -450,12 +480,12 @@ impl MemberControllerV1 {
                     UpdateField::String(GroupMember::get_gsi2(&member.id)),
                 ));
                 update_data.push(("group_id", UpdateField::String(group_id)));
-                update_data.push(("user_id", UpdateField::String(member.id.clone())));
+                update_data.push(("org_member_id", UpdateField::String(member.id.clone())));
                 update_data.push((
                     "user_name",
                     UpdateField::String(member.name.unwrap_or_default()),
                 ));
-                update_data.push(("user_email", UpdateField::String(member.email)));
+                update_data.push(("user_email", UpdateField::String(user.email)));
                 update_data.push(("updated_at", UpdateField::I64(now)));
 
                 cli.update(&item.id, update_data)
