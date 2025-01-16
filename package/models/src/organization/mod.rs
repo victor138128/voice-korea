@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::member::CreateMemberRequest;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct OrganizationMemberResponse {
@@ -30,7 +31,7 @@ pub struct OrganizationMember {
 }
 
 impl OrganizationMember {
-    pub fn new(id: String, user_id: String, organization_id: String) -> Self {
+    pub fn new(id: String, user_id: String, organization_id: String, role: Option<Role>) -> Self {
         //uuid, user_id, organization_id
         let mut organization_member = OrganizationMember::default();
         let now = chrono::Utc::now().timestamp_millis();
@@ -44,6 +45,10 @@ impl OrganizationMember {
 
         organization_member.user_id = user_id;
         organization_member.organization_id = organization_id;
+
+        if let Some(r) = role {
+            organization_member.role = Some(r);
+        };
 
         organization_member
     }
@@ -75,6 +80,28 @@ impl OrganizationMember {
 
     pub fn get_type() -> String {
         "organization#member".to_string()
+    }
+}
+
+impl Into<OrganizationMember> for (CreateMemberRequest, String) {
+    fn into(self) -> OrganizationMember {
+        let (req, id) = self;
+        let now = chrono::Utc::now().timestamp_millis();
+
+        OrganizationMember {
+            id,
+            r#type: OrganizationMember::get_type(),
+            gsi1: OrganizationMember::get_gsi1(&req.user_id),
+            gsi2: OrganizationMember::get_gsi2(&req.user_id, &req.org_id),
+            user_id: req.user_id,
+            organization_id: req.org_id,
+            created_at: now,
+            updated_at: now,
+            deleted_at: None,
+            name: req.name,
+            role: req.role,
+            // projects: req.projects,
+        }
     }
 }
 

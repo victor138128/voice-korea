@@ -85,6 +85,7 @@ impl LoginControllerV1 {
             .map_err(|e| ApiError::ValidationError(e.to_string()))?)
     }
 
+    // FIXME: deprecated
     async fn create_member(body: LoginParams) -> Result<(), ApiError> {
         let log = root();
         let cli = easy_dynamodb::get_client(&log);
@@ -110,12 +111,13 @@ impl LoginControllerV1 {
 
         let member: Member = (
             CreateMemberRequest {
-                email: body.email.clone(),
+                user_id: id.clone(),
+                org_id: "default".to_string(),
                 name: None,
                 group: None,
                 role: None,
             },
-            id,
+            id.clone(),
         )
             .into();
 

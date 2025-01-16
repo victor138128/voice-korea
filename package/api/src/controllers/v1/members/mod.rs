@@ -52,7 +52,6 @@ impl MemberControllerV1 {
             .with_state(ctrl.clone())
     }
 
-    //TODO: implement invite member in organization
     pub async fn invite_member(
         State(ctrl): State<MemberControllerV1>,
         Path(organization_id): Path<String>,
@@ -62,29 +61,26 @@ impl MemberControllerV1 {
         let cli = easy_dynamodb::get_client(&log);
         slog::debug!(log, "invite_member: {:?} {:?}", organization_id, body);
 
-        //Error: already exists member
-        let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
+        // check org member exists
+        let res: CommonQueryResponse<OrganizationMember> = CommonQueryResponse::query(
             &log,
             "gsi1-index",
             None,
             Some(1),
-            vec![("gsi1", Member::get_gsi1(body.email.clone()))],
+            vec![("gsi1", OrganizationMember::get_gsi2(&body.user_id.clone(), &organization_id.clone()))],
         )
         .await?;
 
         if res.items.len() != 0 {
-            let item = res.items.first().unwrap();
-
-            if item.deleted_at.is_none() {
-                return Err(ApiError::AlreadyExists);
-            }
+            return Err(ApiError::AlreadyExists);
         }
 
         let id = uuid::Uuid::new_v4().to_string();
 
-        let member: Member = (
+        let member: OrganizationMember = (
             CreateMemberRequest {
-                email: body.email.clone(),
+                user_id: body.user_id.clone(),
+                org_id: organization_id.clone(),
                 name: Some(body.name.clone()),
                 group: body.group.clone(),
                 role: body.role,
@@ -146,12 +142,12 @@ impl MemberControllerV1 {
         let log = ctrl.log.new(o!("api" => "create_member"));
         slog::debug!(log, "create_member {:?} {:?}", organization_id, body);
 
-        let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
+        let res: CommonQueryResponse<OrganizationMember> = CommonQueryResponse::query(
             &log,
             "gsi1-index",
             None,
             Some(100),
-            vec![("gsi1", Member::get_gsi1(body.email.clone()))],
+            vec![("gsi1", OrganizationMember::get_gsi2(&body.user_id.clone(), &organization_id.clone()))],
         )
         .await?;
 
@@ -163,7 +159,8 @@ impl MemberControllerV1 {
             if item.deleted_at.is_some() {
                 let mem: Member = (
                     CreateMemberRequest {
-                        email: body.email,
+                        user_id: body.user_id.clone(),
+                        org_id: organization_id.clone(),
                         name: None,
                         group: None,
                         role: None,
