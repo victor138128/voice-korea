@@ -3,22 +3,20 @@ pub type Result<T> = std::result::Result<T, ServerFnError>;
 use std::collections::HashMap;
 
 use dioxus::prelude::*;
-use models::prelude::{
-    Field, OpinionActionRequest, OpinionResponse, PanelInfo, ProjectStatus, UpsertOpinionRequest,
-};
+use models::prelude::{PanelActionRequest, PanelSummary, UpsertPanelRequest};
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
 
 use super::{login_service::LoginService, organization_api::OrganizationApi};
 
 #[derive(Debug, Clone, Copy)]
-pub struct OpinionApi {
+pub struct PanelApi {
     pub endpoint: Signal<String>,
     pub login_service: LoginService,
     pub organization_service: OrganizationApi,
 }
 
-impl OpinionApi {
+impl PanelApi {
     pub fn init() {
         let login_service: LoginService = use_context();
         let organization_service: OrganizationApi = use_context();
@@ -35,130 +33,85 @@ impl OpinionApi {
         use_context_provider(|| srv);
     }
 
-    pub async fn remove_opinion(&self, project_id: String) -> Result<()> {
+    pub async fn get_panel(&self, panel_id: String) -> Result<PanelSummary> {
         let token = self.get_token();
         let id = self.get_organization_id();
+
         let client = ReqwestClient::new()?;
 
-        let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
+        let res = client
+            .get(&format!("/v1/panels/organizations/{id}/panels/{panel_id}"))
             .header("Authorization", token)
-            .json(&OpinionActionRequest::Delete)
             .send()
             .await?;
-        Ok(())
+
+        let res = res.error_for_status()?;
+
+        let panel = res.json().await?;
+        Ok(panel)
     }
 
-    pub async fn update_project_status(
-        &self,
-        project_id: String,
-        status: ProjectStatus,
-    ) -> Result<()> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
-            .header("Authorization", token)
-            .json(&OpinionActionRequest::UpdateStatus(status))
-            .send()
-            .await?;
-        Ok(())
-    }
-
-    pub async fn update_panels(&self, project_id: String, panels: Vec<PanelInfo>) -> Result<()> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
-            .header("Authorization", token)
-            .json(&OpinionActionRequest::UpdatePanels(panels))
-            .send()
-            .await?;
-        Ok(())
-    }
-
-    pub async fn update_project_type(&self, project_id: String, project_type: Field) -> Result<()> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
-            .header("Authorization", token)
-            .json(&OpinionActionRequest::UpdateProjectType(project_type))
-            .send()
-            .await?;
-        Ok(())
-    }
-
-    pub async fn upsert_opinion(&self, req: UpsertOpinionRequest) -> Result<UpsertOpinionRequest> {
+    pub async fn upsert_panel(&self, req: UpsertPanelRequest) -> Result<UpsertPanelRequest> {
         let token = self.get_token();
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post(&format!("/v1/opinions/organizations/{id}"))
+            .post(&format!("/v1/panels/organizations/{id}"))
             .header("Authorization", token)
             .json(&req)
             .send()
             .await?;
 
+        let res = res.error_for_status()?;
+
         Ok(res.json().await?)
     }
 
-    pub async fn search_opinion(
-        &self,
-        keyword: String,
-    ) -> Result<CommonQueryResponse<OpinionResponse>> {
+    pub async fn search_panel(&self, keyword: String) -> Result<CommonQueryResponse<PanelSummary>> {
         let token = self.get_token();
         let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
+
         let mut params = HashMap::new();
-        params.insert("keyword", keyword);
+        params.insert("keyword", keyword.to_string());
+
+        let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/opinions/organizations/{id}/opinions"))
-            .header("Authorization", token)
+            .get(&format!("/v1/panels/organizations/{id}/panels"))
             .query(&params)
+            .header("Authorization", token)
             .send()
             .await?;
 
-        Ok(res.json().await?)
+        let res = res.error_for_status()?;
+
+        let panels = res.json().await?;
+        Ok(panels)
     }
 
-    pub async fn get_opinion(&self, project_id: String) -> Result<OpinionResponse> {
+    pub async fn remove_panel(&self, panel_id: String) -> Result<()> {
         let token = self.get_token();
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
+            .post(format!("/v1/panels/organizations/{}/panels/{}", id, panel_id).as_str())
             .header("Authorization", token)
+            .json(&PanelActionRequest::Delete)
             .send()
             .await?;
 
-        Ok(res.json().await?)
+        let _res = res.error_for_status()?;
+
+        Ok(())
     }
 
-    pub async fn list_opinions(
+    pub async fn list_panels(
         &self,
         size: Option<i64>,
         bookmark: Option<String>,
-    ) -> Result<CommonQueryResponse<OpinionResponse>> {
+    ) -> Result<CommonQueryResponse<PanelSummary>> {
         let token = self.get_token();
         let id = self.get_organization_id();
 
@@ -173,7 +126,7 @@ impl OpinionApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/opinions/organizations/{id}"))
+            .get(&format!("/v1/panels/organizations/{id}"))
             .query(&params)
             .header("Authorization", token)
             .send()
@@ -181,8 +134,8 @@ impl OpinionApi {
 
         let res = res.error_for_status()?;
 
-        let opinions = res.json().await?;
-        Ok(opinions)
+        let panels = res.json().await?;
+        Ok(panels)
     }
 
     pub fn get_organization_id(&self) -> String {

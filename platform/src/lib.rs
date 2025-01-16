@@ -28,12 +28,16 @@ pub mod pages {
 }
 
 pub mod service {
+    pub mod attribute_api;
     pub mod group_api;
     pub mod login_service;
     pub mod member_api;
+    pub mod metadata_api;
     pub mod opinion_api;
     pub mod organization_api;
+    pub mod panel_api;
     pub mod popup_service;
+    pub mod survey_api;
 }
 
 pub mod models {
@@ -73,6 +77,7 @@ pub mod components {
     pub mod select;
     pub mod stepper;
     pub mod table_row;
+    pub mod upload_button;
 }
 
 pub mod api;

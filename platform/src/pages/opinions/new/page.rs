@@ -1,11 +1,11 @@
 #![allow(non_snake_case)]
 use crate::{
     components::{icons::ArrowLeft, stepper::Stepper},
-    pages::opinions::new::controller::CurrentStep,
+    pages::opinions::new::{composition_opinion::CompositionOpinion, controller::CurrentStep},
     routes::Route,
 };
 
-use super::{composition_opinion::CompositionOpinion, controller::Controller};
+use super::controller::Controller;
 use super::{i18n::OpinionNewTranslate, input_opinion::InputOpinion};
 use dioxus::prelude::*;
 use dioxus_translate::{translate, Language};
@@ -54,6 +54,8 @@ pub fn OpinionCreatePage(props: OpinionProps) -> Element {
                     }
                 }
             }
+
+            // InputOpinion { lang: props.lang.clone() }
 
             if step == CurrentStep::PublicOpinionComposition {
                 CompositionOpinion { lang: props.lang.clone() }

@@ -49,7 +49,7 @@ impl GroupControllerV1 {
                 post(Self::act_group).get(Self::get_group),
             )
             .route(
-                "/organizations/:organization_id/search/groups",
+                "/organizations/:organization_id/groups",
                 get(Self::search_groups),
             )
             .route(
@@ -114,7 +114,8 @@ impl GroupControllerV1 {
                 ctrl.remove_group(&claims.id, &group_id).await?;
             }
             GroupActionRequest::AddTeamMember(req) => {
-                ctrl.add_team_member(&group_id, &organization_id, req).await?;
+                ctrl.add_team_member(&group_id, &organization_id, req)
+                    .await?;
             }
             GroupActionRequest::RemoveTeamMember(group_member_id) => {
                 ctrl.remove_team_member(&group_id, &group_member_id).await?;
@@ -220,8 +221,8 @@ impl GroupControllerV1 {
                     continue;
                 }
 
-                let res = cli.
-                    get::<User>(&mem.user_id)
+                let res = cli
+                    .get::<User>(&mem.user_id)
                     .await
                     .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
 
@@ -403,7 +404,9 @@ impl GroupControllerV1 {
                     ),
                     (
                         "gsi2",
-                        UpdateField::String(GroupMember::get_gsi2_deleted(&group_member.org_member_id)),
+                        UpdateField::String(GroupMember::get_gsi2_deleted(
+                            &group_member.org_member_id,
+                        )),
                     ),
                 ],
             )
@@ -492,7 +495,8 @@ impl GroupControllerV1 {
             let item = res.items.first().unwrap();
 
             if item.deleted_at.is_some() {
-                let group_member = GroupMember::new(item.id.clone(), group_id, member.organization_id.clone());
+                let group_member =
+                    GroupMember::new(item.id.clone(), group_id, member.organization_id.clone());
 
                 match cli.upsert(group_member.clone()).await {
                     Ok(()) => {
@@ -569,7 +573,7 @@ impl GroupControllerV1 {
             .get::<OrganizationMember>(&req.id)
             .await
             .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
-        
+
         // check whether the member exists
         if res.is_none() {
             return Err(ApiError::NotFound);
@@ -608,14 +612,25 @@ impl GroupControllerV1 {
         group_member_id: &str,
     ) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "remove_team_member"));
-        slog::debug!(log, "remove_team_member {:?} {:?}", group_id, group_member_id);
+        slog::debug!(
+            log,
+            "remove_team_member {:?} {:?}",
+            group_id,
+            group_member_id
+        );
         let cli = easy_dynamodb::get_client(&log);
 
         cli.update(
             group_member_id,
             vec![
-                ("updated_at", UpdateField::I64(chrono::Utc::now().timestamp_millis())),
-                ("deleted_at", UpdateField::I64(chrono::Utc::now().timestamp_millis())),
+                (
+                    "updated_at",
+                    UpdateField::I64(chrono::Utc::now().timestamp_millis()),
+                ),
+                (
+                    "deleted_at",
+                    UpdateField::I64(chrono::Utc::now().timestamp_millis()),
+                ),
                 ("type", UpdateField::String(GroupMember::get_deleted_type())),
             ],
         )
@@ -731,7 +746,9 @@ impl GroupControllerV1 {
                             ),
                             (
                                 "gsi2",
-                                UpdateField::String(GroupMember::get_gsi2_deleted(&member.org_member_id)),
+                                UpdateField::String(GroupMember::get_gsi2_deleted(
+                                    &member.org_member_id,
+                                )),
                             ),
                         ],
                     )

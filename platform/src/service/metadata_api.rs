@@ -4,7 +4,8 @@ use std::collections::HashMap;
 
 use dioxus::prelude::*;
 use models::prelude::{
-    Field, OpinionActionRequest, OpinionResponse, PanelInfo, ProjectStatus, UpsertOpinionRequest,
+    GetPutObjectUriRequest, GetPutObjectUriResponse, MetadataActionRequest, MetadataSummary,
+    UpsertMetadataRequest,
 };
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
@@ -12,13 +13,13 @@ use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
 use super::{login_service::LoginService, organization_api::OrganizationApi};
 
 #[derive(Debug, Clone, Copy)]
-pub struct OpinionApi {
+pub struct ResourceApi {
     pub endpoint: Signal<String>,
     pub login_service: LoginService,
     pub organization_service: OrganizationApi,
 }
 
-impl OpinionApi {
+impl ResourceApi {
     pub fn init() {
         let login_service: LoginService = use_context();
         let organization_service: OrganizationApi = use_context();
@@ -35,130 +36,31 @@ impl OpinionApi {
         use_context_provider(|| srv);
     }
 
-    pub async fn remove_opinion(&self, project_id: String) -> Result<()> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
-            .header("Authorization", token)
-            .json(&OpinionActionRequest::Delete)
-            .send()
-            .await?;
-        Ok(())
-    }
-
-    pub async fn update_project_status(
+    pub async fn upsert_metadata(
         &self,
-        project_id: String,
-        status: ProjectStatus,
-    ) -> Result<()> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
-            .header("Authorization", token)
-            .json(&OpinionActionRequest::UpdateStatus(status))
-            .send()
-            .await?;
-        Ok(())
-    }
-
-    pub async fn update_panels(&self, project_id: String, panels: Vec<PanelInfo>) -> Result<()> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
-            .header("Authorization", token)
-            .json(&OpinionActionRequest::UpdatePanels(panels))
-            .send()
-            .await?;
-        Ok(())
-    }
-
-    pub async fn update_project_type(&self, project_id: String, project_type: Field) -> Result<()> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
-            .header("Authorization", token)
-            .json(&OpinionActionRequest::UpdateProjectType(project_type))
-            .send()
-            .await?;
-        Ok(())
-    }
-
-    pub async fn upsert_opinion(&self, req: UpsertOpinionRequest) -> Result<UpsertOpinionRequest> {
+        req: UpsertMetadataRequest,
+    ) -> Result<UpsertMetadataRequest> {
         let token = self.get_token();
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post(&format!("/v1/opinions/organizations/{id}"))
+            .post(&format!("/v1/metadata/organizations/{id}"))
             .header("Authorization", token)
             .json(&req)
             .send()
             .await?;
 
-        Ok(res.json().await?)
-    }
-
-    pub async fn search_opinion(
-        &self,
-        keyword: String,
-    ) -> Result<CommonQueryResponse<OpinionResponse>> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-        let mut params = HashMap::new();
-        params.insert("keyword", keyword);
-
-        let res = client
-            .get(&format!("/v1/opinions/organizations/{id}/opinions"))
-            .header("Authorization", token)
-            .query(&params)
-            .send()
-            .await?;
+        let res = res.error_for_status()?;
 
         Ok(res.json().await?)
     }
 
-    pub async fn get_opinion(&self, project_id: String) -> Result<OpinionResponse> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let res = client
-            .get(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
-            .header("Authorization", token)
-            .send()
-            .await?;
-
-        Ok(res.json().await?)
-    }
-
-    pub async fn list_opinions(
+    pub async fn list_metadatas(
         &self,
         size: Option<i64>,
         bookmark: Option<String>,
-    ) -> Result<CommonQueryResponse<OpinionResponse>> {
+    ) -> Result<CommonQueryResponse<MetadataSummary>> {
         let token = self.get_token();
         let id = self.get_organization_id();
 
@@ -173,7 +75,7 @@ impl OpinionApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/opinions/organizations/{id}"))
+            .get(&format!("/v1/metadata/organizations/{id}"))
             .query(&params)
             .header("Authorization", token)
             .send()
@@ -181,8 +83,90 @@ impl OpinionApi {
 
         let res = res.error_for_status()?;
 
-        let opinions = res.json().await?;
-        Ok(opinions)
+        let metadatas = res.json().await?;
+        Ok(metadatas)
+    }
+
+    pub async fn upload_metadata(
+        &self,
+        req: GetPutObjectUriRequest,
+    ) -> Result<GetPutObjectUriResponse> {
+        let token = self.get_token();
+        let client = ReqwestClient::new()?;
+
+        let res = client
+            .post(format!("/v1/metadata/upload").as_str())
+            .header("Authorization", token)
+            .json(&req)
+            .send()
+            .await?;
+
+        let res = res.error_for_status()?;
+
+        let metadata = res.json().await?;
+        Ok(metadata)
+    }
+
+    pub async fn remove_metadata(&self, metadata_id: String) -> Result<()> {
+        let token = self.get_token();
+        let id = self.get_organization_id();
+        let client = ReqwestClient::new()?;
+
+        let res = client
+            .post(format!("/v1/metadata/organizations/{}/metadata/{}", id, metadata_id).as_str())
+            .header("Authorization", token)
+            .json(&MetadataActionRequest::Delete)
+            .send()
+            .await?;
+
+        let _res = res.error_for_status()?;
+
+        Ok(())
+    }
+
+    pub async fn get_metadata(&self, metadata_id: String) -> Result<MetadataSummary> {
+        let token = self.get_token();
+        let id = self.get_organization_id();
+
+        let client = ReqwestClient::new()?;
+
+        let res = client
+            .get(&format!(
+                "/v1/metadata/organizations/{id}/metadata/{metadata_id}"
+            ))
+            .header("Authorization", token)
+            .send()
+            .await?;
+
+        let res = res.error_for_status()?;
+
+        let metadata = res.json().await?;
+        Ok(metadata)
+    }
+
+    pub async fn search_metadatas(
+        &self,
+        keyword: String,
+    ) -> Result<CommonQueryResponse<MetadataSummary>> {
+        let token = self.get_token();
+        let id = self.get_organization_id();
+
+        let mut params = HashMap::new();
+        params.insert("keyword", keyword.to_string());
+
+        let client = ReqwestClient::new()?;
+
+        let res = client
+            .get(&format!("/v1/metadata/organizations/{id}/metadata"))
+            .query(&params)
+            .header("Authorization", token)
+            .send()
+            .await?;
+
+        let res = res.error_for_status()?;
+
+        let metadatas = res.json().await?;
+        Ok(metadatas)
     }
 
     pub fn get_organization_id(&self) -> String {

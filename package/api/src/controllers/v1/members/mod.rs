@@ -16,17 +16,6 @@ use crate::{
 
 use models::prelude::*;
 
-#[derive(Debug, serde::Deserialize)]
-pub struct Pagination {
-    pub size: Option<usize>,
-    pub bookmark: Option<String>,
-}
-
-#[derive(Debug, serde::Deserialize)]
-pub struct SearchParams {
-    pub _keyword: String,
-}
-
 #[derive(Clone, Debug)]
 pub struct MemberControllerV1 {
     log: slog::Logger,

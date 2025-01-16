@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use dioxus::prelude::*;
 use models::prelude::{
-    Field, OpinionActionRequest, OpinionResponse, PanelInfo, ProjectStatus, UpsertOpinionRequest,
+    PublicSurveyResponse, PublicSurveySummary, SurveyActionRequest, UpsertPublicSurveyRequest,
 };
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
@@ -12,13 +12,13 @@ use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
 use super::{login_service::LoginService, organization_api::OrganizationApi};
 
 #[derive(Debug, Clone, Copy)]
-pub struct OpinionApi {
+pub struct SurveyApi {
     pub endpoint: Signal<String>,
     pub login_service: LoginService,
     pub organization_service: OrganizationApi,
 }
 
-impl OpinionApi {
+impl SurveyApi {
     pub fn init() {
         let login_service: LoginService = use_context();
         let organization_service: OrganizationApi = use_context();
@@ -35,130 +35,93 @@ impl OpinionApi {
         use_context_provider(|| srv);
     }
 
-    pub async fn remove_opinion(&self, project_id: String) -> Result<()> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
-            .header("Authorization", token)
-            .json(&OpinionActionRequest::Delete)
-            .send()
-            .await?;
-        Ok(())
-    }
-
-    pub async fn update_project_status(
+    pub async fn upsert_survey(
         &self,
-        project_id: String,
-        status: ProjectStatus,
-    ) -> Result<()> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
-            .header("Authorization", token)
-            .json(&OpinionActionRequest::UpdateStatus(status))
-            .send()
-            .await?;
-        Ok(())
-    }
-
-    pub async fn update_panels(&self, project_id: String, panels: Vec<PanelInfo>) -> Result<()> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
-            .header("Authorization", token)
-            .json(&OpinionActionRequest::UpdatePanels(panels))
-            .send()
-            .await?;
-        Ok(())
-    }
-
-    pub async fn update_project_type(&self, project_id: String, project_type: Field) -> Result<()> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
-            .header("Authorization", token)
-            .json(&OpinionActionRequest::UpdateProjectType(project_type))
-            .send()
-            .await?;
-        Ok(())
-    }
-
-    pub async fn upsert_opinion(&self, req: UpsertOpinionRequest) -> Result<UpsertOpinionRequest> {
+        req: UpsertPublicSurveyRequest,
+    ) -> Result<UpsertPublicSurveyRequest> {
         let token = self.get_token();
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post(&format!("/v1/opinions/organizations/{id}"))
+            .post(&format!("/v1/surveys/organizations/{id}"))
             .header("Authorization", token)
             .json(&req)
             .send()
             .await?;
 
-        Ok(res.json().await?)
-    }
-
-    pub async fn search_opinion(
-        &self,
-        keyword: String,
-    ) -> Result<CommonQueryResponse<OpinionResponse>> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-        let mut params = HashMap::new();
-        params.insert("keyword", keyword);
-
-        let res = client
-            .get(&format!("/v1/opinions/organizations/{id}/opinions"))
-            .header("Authorization", token)
-            .query(&params)
-            .send()
-            .await?;
+        let res = res.error_for_status()?;
 
         Ok(res.json().await?)
     }
 
-    pub async fn get_opinion(&self, project_id: String) -> Result<OpinionResponse> {
+    pub async fn get_survey(&self, survey_id: String) -> Result<PublicSurveyResponse> {
         let token = self.get_token();
         let id = self.get_organization_id();
+
         let client = ReqwestClient::new()?;
 
         let res = client
             .get(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
+                "/v1/surveys/organizations/{id}/surveys/{survey_id}"
             ))
             .header("Authorization", token)
             .send()
             .await?;
 
-        Ok(res.json().await?)
+        let res = res.error_for_status()?;
+
+        let survey = res.json().await?;
+        Ok(survey)
     }
 
-    pub async fn list_opinions(
+    pub async fn remove_survey(&self, survey_id: String) -> Result<()> {
+        let token = self.get_token();
+        let id = self.get_organization_id();
+        let client = ReqwestClient::new()?;
+
+        let res = client
+            .post(format!("/v1/surveys/organizations/{}/surveys/{}", id, survey_id).as_str())
+            .header("Authorization", token)
+            .json(&SurveyActionRequest::Delete)
+            .send()
+            .await?;
+
+        let _res = res.error_for_status()?;
+
+        Ok(())
+    }
+
+    pub async fn search_surveys(
+        &self,
+        keyword: String,
+    ) -> Result<CommonQueryResponse<PublicSurveySummary>> {
+        let token = self.get_token();
+        let id = self.get_organization_id();
+
+        let mut params = HashMap::new();
+        params.insert("keyword", keyword.to_string());
+
+        let client = ReqwestClient::new()?;
+
+        let res = client
+            .get(&format!("/v1/surveys/organizations/{id}/surveys"))
+            .query(&params)
+            .header("Authorization", token)
+            .send()
+            .await?;
+
+        let res = res.error_for_status()?;
+
+        let surveys = res.json().await?;
+        Ok(surveys)
+    }
+
+    pub async fn list_surveys(
         &self,
         size: Option<i64>,
         bookmark: Option<String>,
-    ) -> Result<CommonQueryResponse<OpinionResponse>> {
+    ) -> Result<CommonQueryResponse<PublicSurveySummary>> {
         let token = self.get_token();
         let id = self.get_organization_id();
 
@@ -173,7 +136,7 @@ impl OpinionApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/opinions/organizations/{id}"))
+            .get(&format!("/v1/surveys/organizations/{id}"))
             .query(&params)
             .header("Authorization", token)
             .send()
@@ -181,8 +144,8 @@ impl OpinionApi {
 
         let res = res.error_for_status()?;
 
-        let opinions = res.json().await?;
-        Ok(opinions)
+        let surveys = res.json().await?;
+        Ok(surveys)
     }
 
     pub fn get_organization_id(&self) -> String {
