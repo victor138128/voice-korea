@@ -2,14 +2,14 @@
 use crate::{
     components::{icons::ArrowLeft, stepper::Stepper},
     pages::opinions::new::{
-        composition_opinion::CompositionOpinion, controller::CurrentStep,
-        input_opinion::InputOpinion,
+        composition_commitee::CompositionCommitee, composition_opinion::CompositionOpinion,
+        controller::CurrentStep, input_opinion::InputOpinion,
     },
     routes::Route,
 };
 
-use super::i18n::OpinionNewTranslate;
-use super::{composition_commitee::CompositionCommitee, controller::Controller};
+use super::controller::Controller;
+use super::{composition_panel::CompositionPanel, i18n::OpinionNewTranslate};
 use dioxus::prelude::*;
 use dioxus_translate::{translate, Language};
 
@@ -45,7 +45,7 @@ pub fn OpinionCreatePage(props: OpinionProps) -> Element {
             div { class: "flex flex-col w-full justify-start items-center mt-[20px] mb-[80px]",
                 div { class: "flex flex-row w-[1400px] min-w-[1400px] justify-center items-center",
                     Stepper {
-                        current_step: if step == CurrentStep::PublicOpinionComposition { 1 } else { 2 },
+                        current_step: if step == CurrentStep::PublicOpinionComposition { 1 } else if step == CurrentStep::InputInformation { 2 } else if step == CurrentStep::CommitteeComposition { 3 } else { 4 },
                         steps: vec![
                             "공론 구성 및 기간".to_string(),
                             "필수정보 입력".to_string(),
@@ -57,8 +57,6 @@ pub fn OpinionCreatePage(props: OpinionProps) -> Element {
                     }
                 }
             }
-
-
             if step == CurrentStep::PublicOpinionComposition {
                 CompositionOpinion { lang: props.lang.clone() }
             } else if step == CurrentStep::InputInformation {
@@ -66,7 +64,7 @@ pub fn OpinionCreatePage(props: OpinionProps) -> Element {
             } else if step == CurrentStep::CommitteeComposition {
                 CompositionCommitee { lang: props.lang.clone() }
             } else {
-                div { "Hello" }
+                CompositionPanel { lang: props.lang.clone() }
             }
         }
     }

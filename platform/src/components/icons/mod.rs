@@ -816,3 +816,49 @@ pub fn CalendarRightArrow() -> Element {
         }
     }
 }
+
+#[component]
+pub fn Checked(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            xmlns: "http://www.w3.org/2000/svg",
+            width,
+            view_box: "0 0 22 23",
+            fill: "none",
+            height,
+            circle {
+                stroke: "#2A60D3",
+                cx: "11",
+                cy: "11.5",
+                r: "9.9",
+                "stroke-width": "1.8",
+            }
+            circle {
+                fill: "#2A60D3",
+                cx: "11",
+                r: "6.75",
+                cy: "11.5",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn UnChecked(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            width,
+            "viewBox": "0 0 22 23",
+            fill: "none",
+            height,
+            xmlns: "http://www.w3.org/2000/svg",
+            circle {
+                stroke: "#B4B4B4",
+                cy: "11.5",
+                r: "9.9",
+                cx: "11",
+                "stroke-width": "1.8",
+            }
+        }
+    }
+}
