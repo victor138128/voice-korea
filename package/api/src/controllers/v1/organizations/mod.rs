@@ -22,12 +22,6 @@ pub struct OrganizationControllerV1 {
     log: slog::Logger,
 }
 
-#[derive(Debug, serde::Deserialize)]
-pub struct Pagination {
-    pub size: Option<i32>,
-    pub bookmark: Option<String>,
-}
-
 impl OrganizationControllerV1 {
     pub fn router() -> Router {
         let log = root().new(o!("api-controller" => "OrganizationControllerV1"));
@@ -61,7 +55,7 @@ impl OrganizationControllerV1 {
             &log,
             "gsi1-index",
             bookmark,
-            Some(size),
+            Some(size as i32),
             vec![("gsi1", OrganizationMember::get_gsi1(&claims.id))],
         )
         .await?;

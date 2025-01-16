@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::{
     components::{icons::ArrowLeft, stepper::Stepper},
-    pages::opinions::new::controller::CurrentStep,
+    pages::opinions::new::{composition_opinion::CompositionOpinion, controller::CurrentStep},
     routes::Route,
 };
 

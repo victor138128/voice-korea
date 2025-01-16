@@ -33,6 +33,6 @@ pub fn router(db: std::sync::Arc<easy_dynamodb::Client>) -> Router {
         .nest("/organizations", OrganizationControllerV1::router())
         .nest("/attributes", AttributeControllerV1::router())
         .nest("/panels", PanelControllerV1::router())
-        .nest("/metadatas", MetadataControllerV1::router())
+        .nest("/metadata", MetadataControllerV1::router())
         .nest("/surveys", PublicSurveyControllerV1::router())
 }

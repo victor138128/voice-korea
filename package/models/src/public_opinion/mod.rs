@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::group::MemberInfo;
+use crate::{field::Field, group::MemberInfo};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct UpsertOpinionRequest {
@@ -25,7 +25,7 @@ pub struct DiscussionInfo {
 #[serde(rename_all = "snake_case")]
 pub enum OpinionActionRequest {
     Delete,
-    UpdateProjectType(OpinionFieldType),
+    UpdateProjectType(Field),
     UpdatePanels(Vec<PanelInfo>),
     UpdateStatus(ProjectStatus),
 }
@@ -100,7 +100,7 @@ pub enum AllocationMethod {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct OpinionInformation {
-    pub opinion_type: Option<OpinionFieldType>,
+    pub opinion_type: Option<Field>,
     pub title: Option<String>,
     pub description: Option<String>,
     pub documents: Vec<Document>,
@@ -153,7 +153,7 @@ pub enum OpinionDraftStatus {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct OpinionResponse {
     pub project_id: String,
-    pub opinion_type: OpinionFieldType,
+    pub opinion_type: Field,
     pub project_name: String,
     pub total_response_count: u64,
     pub response_count: u64,
@@ -184,39 +184,6 @@ impl std::fmt::Display for ProjectStatus {
             ProjectStatus::Ready => write!(f, "Ready"),
             ProjectStatus::InProgress => write!(f, "In Progress"),
             ProjectStatus::Finish => write!(f, "Finish"),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
-#[serde(rename_all = "snake_case")]
-pub enum OpinionFieldType {
-    #[default]
-    Economy,
-    Society,
-    Environment,
-    Education,
-    Culture,
-    Labor,
-    City,
-    Technology,
-    Health,
-    Politics,
-}
-
-impl std::fmt::Display for OpinionFieldType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            OpinionFieldType::Economy => write!(f, "Economy"),
-            OpinionFieldType::Society => write!(f, "Society"),
-            OpinionFieldType::Environment => write!(f, "Environment"),
-            OpinionFieldType::Education => write!(f, "Education"),
-            OpinionFieldType::Culture => write!(f, "Culture"),
-            OpinionFieldType::Labor => write!(f, "Labor"),
-            OpinionFieldType::City => write!(f, "City"),
-            OpinionFieldType::Technology => write!(f, "Technology"),
-            OpinionFieldType::Health => write!(f, "Health"),
-            OpinionFieldType::Politics => write!(f, "Politics"),
         }
     }
 }

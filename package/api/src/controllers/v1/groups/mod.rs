@@ -22,17 +22,6 @@ pub struct GroupControllerV1 {
     log: slog::Logger,
 }
 
-#[derive(Debug, serde::Deserialize)]
-pub struct Pagination {
-    pub size: Option<usize>,
-    pub bookmark: Option<String>,
-}
-
-#[derive(Debug, serde::Deserialize)]
-pub struct SearchParams {
-    pub _keyword: String,
-}
-
 impl GroupControllerV1 {
     pub fn router(_db: std::sync::Arc<easy_dynamodb::Client>) -> Router {
         let log = root().new(o!("api-controller" => "GroupControllerV1"));

@@ -115,8 +115,36 @@ translate! {
         ko: "결과 분석",
         en: "Analysis Result"
     }
+}
 
-    //step 2
+translate! {
+    InputIntroductionTranslate;
+
+    enter_introduction: {
+        ko: "소개글 입력",
+        en: "Enter Introduction"
+    }
+    introduction_description: {
+        ko: "공론의 주제와 목적에 대해 설명해주세요. 참여자들이 더 쉽게 이해하고 적극적으로 참여할 수 있을 것입니다.",
+        en: "Please explain the topic and purpose of the public debate. Participants will be able to understand more easily and participate actively."
+    }
+    select_field: {
+        ko: "분야 선택",
+        en: "Select Field"
+    }
+    enter_title_hint: {
+        ko: "제목을 입력해주세요.",
+        en: "Please enter a title."
+    }
+    enter_description_hint: {
+        ko: "내용을 입력해주세요.",
+        en: "Please enter a description."
+    }
+}
+
+translate! {
+    InputOpinionTranslate;
+
     essential_information: {
         ko: "공론 필수 정보",
         en: "Public opinion essential information"
@@ -125,19 +153,18 @@ translate! {
         ko: "뒤로",
         en: "Backward"
     }
+    temporary_save: {
+        ko: "임시저장",
+        en: "Temporary Save"
+    }
+    next: {
+        ko: "다음으로",
+        en: "Next"
+    }
+}
 
-    research_project_linkage: {
-        ko: "조사 프로젝트 연동",
-        en: "Research project linkage"
-    }
-    research_project_linkage_description: {
-        ko: "해당 공론과 관련된 조사자료를 불러와주세요. (예. 여론조사, 설문조사, 기타조사 등)",
-        en: "Please retrieve research data related to this public opinion. (e.g. opinion polls, surveys, other surveys, etc.)"
-    }
-    research_selection: {
-        ko: "조사 선택",
-        en: "Research Selection"
-    }
+translate! {
+    UploadDocumentTranslate;
 
     upload_document: {
         ko: "자료 업로드",
@@ -163,6 +190,11 @@ translate! {
         ko: "파일 불러오기",
         en: "Load File"
     }
+}
+
+translate! {
+    ImportDocumentTranslate;
+
     upload_file_warning: {
         ko: "jpg, .png, pdf, zip, word, excel, pptx 파일만 업로드 가능합니다.",
         en: "Only jpg, .png, pdf, zip, word, excel, and pptx files can be uploaded."
@@ -199,25 +231,38 @@ translate! {
         ko: "형식",
         en: "Form"
     }
+}
 
-    enter_introduction: {
-        ko: "소개글 입력",
-        en: "Enter Introduction"
+translate! {
+    DirectUploadTranslate;
+
+    upload_file_description: {
+        ko: "업로드할 파일을 드래그해주세요.",
+        en: "Please drag the file you want to upload."
     }
-    introduction_description: {
-        ko: "공론의 주제와 목적에 대해 설명해주세요. 참여자들이 더 쉽게 이해하고 적극적으로 참여할 수 있을 것입니다.",
-        en: "Please explain the topic and purpose of the public debate. Participants will be able to understand more easily and participate actively."
+    load_file: {
+        ko: "파일 불러오기",
+        en: "Load File"
     }
-    select_field: {
-        ko: "분야 선택",
-        en: "Select Field"
+    upload_file_warning: {
+        ko: "jpg, .png, pdf, zip, word, excel, pptx 파일만 업로드 가능합니다.",
+        en: "Only jpg, .png, pdf, zip, word, excel, and pptx files can be uploaded."
     }
-    enter_title_hint: {
-        ko: "제목을 입력해주세요.",
-        en: "Please enter a title."
+}
+
+translate! {
+    ConnectProjectTranslate;
+
+    research_project_linkage: {
+        ko: "조사 프로젝트 연동",
+        en: "Research project linkage"
     }
-    enter_description_hint: {
-        ko: "내용을 입력해주세요.",
-        en: "Please enter a description."
+    research_project_linkage_description: {
+        ko: "해당 공론과 관련된 조사자료를 불러와주세요. (예. 여론조사, 설문조사, 기타조사 등)",
+        en: "Please retrieve research data related to this public opinion. (e.g. opinion polls, surveys, other surveys, etc.)"
+    }
+    research_selection: {
+        ko: "조사 선택",
+        en: "Research Selection"
     }
 }

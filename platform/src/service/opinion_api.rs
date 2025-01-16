@@ -4,8 +4,7 @@ use std::collections::HashMap;
 
 use dioxus::prelude::*;
 use models::prelude::{
-    OpinionActionRequest, OpinionFieldType, OpinionResponse, PanelInfo, ProjectStatus,
-    UpsertOpinionRequest,
+    Field, OpinionActionRequest, OpinionResponse, PanelInfo, ProjectStatus, UpsertOpinionRequest,
 };
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
@@ -88,11 +87,7 @@ impl OpinionApi {
         Ok(())
     }
 
-    pub async fn update_project_type(
-        &self,
-        project_id: String,
-        project_type: OpinionFieldType,
-    ) -> Result<()> {
+    pub async fn update_project_type(&self, project_id: String, project_type: Field) -> Result<()> {
         let token = self.get_token();
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
@@ -134,7 +129,7 @@ impl OpinionApi {
         params.insert("keyword", keyword);
 
         let res = client
-            .get(&format!("/v1/opinions/organizations/{id}/search"))
+            .get(&format!("/v1/opinions/organizations/{id}/opinions"))
             .header("Authorization", token)
             .query(&params)
             .send()

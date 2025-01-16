@@ -20,17 +20,6 @@ pub struct AttributeControllerV1 {
     log: slog::Logger,
 }
 
-#[derive(Debug, serde::Deserialize)]
-pub struct Pagination {
-    pub _size: Option<usize>,
-    pub _bookmark: Option<String>,
-}
-
-#[derive(Debug, serde::Deserialize)]
-pub struct SearchParams {
-    pub _keyword: String,
-}
-
 impl AttributeControllerV1 {
     pub fn router() -> Router {
         let log = root().new(o!("api-controller" => "AttributeControllerV1"));
@@ -46,7 +35,7 @@ impl AttributeControllerV1 {
                 post(Self::act_attribute).get(Self::get_attribute),
             )
             .route(
-                "/organizations/:organization_id/search/attributes",
+                "/organizations/:organization_id/attributes",
                 get(Self::search_attribute),
             )
             .with_state(ctrl)

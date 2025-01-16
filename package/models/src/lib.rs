@@ -1,8 +1,10 @@
 mod attribute;
+mod field;
 mod group;
 mod member;
 mod metadata;
 mod organization;
+mod pagination;
 mod panel;
 mod public_opinion;
 mod public_survey;
@@ -14,10 +16,12 @@ mod user;
 pub use crate::user::{AuthDocument, User};
 pub mod prelude {
     pub use crate::attribute::*;
+    pub use crate::field::*;
     pub use crate::group::*;
     pub use crate::member::*;
     pub use crate::metadata::*;
     pub use crate::organization::*;
+    pub use crate::pagination::*;
     pub use crate::panel::*;
     pub use crate::public_opinion::*;
     pub use crate::public_survey::*;

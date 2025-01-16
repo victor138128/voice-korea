@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::prelude::PanelInfo;
+use crate::{field::Field, prelude::PanelInfo};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct UpsertPublicSurveyRequest {
@@ -20,7 +20,7 @@ pub enum SurveyActionRequest {
 pub struct PublicSurveySummary {
     pub id: String,
     pub survey_type: SurveyType,
-    pub survey_field_type: SurveyFieldType,
+    pub survey_field_type: Field,
     pub title: String,
     pub total_response: u64,
     pub survey_response: u64,
@@ -166,7 +166,7 @@ pub struct PublicSurveyMember {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct PublicSurveyIntroduction {
-    pub field: SurveyFieldType,
+    pub field: Field,
     pub title: String,
     pub start_date: u64,
     pub end_date: u64,
@@ -189,17 +189,13 @@ pub struct PublicSurveyQuestion {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum PublicSurveyQuestionType {
     #[default]
-    #[serde(rename = "MULTIPLE_CHOICE")]
     MultipleChoice,
-    #[serde(rename = "SINGLE_CHOICE")]
     SingleChoice,
-    #[serde(rename = "LONG_ANSWER")]
     LongAnswer,
-    #[serde(rename = "SHORT_ANSWER")]
     ShortAnswer,
-    #[serde(rename = "OPTIONAL")]
     Optional,
 }
 
@@ -219,20 +215,4 @@ pub enum SurveyType {
     Survey,
     PublicPoll,
     Satisfaction,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
-#[serde(rename_all = "snake_case")]
-pub enum SurveyFieldType {
-    #[default]
-    Economy,
-    Society,
-    Environment,
-    Education,
-    Culture,
-    Labor,
-    City,
-    Technology,
-    Health,
-    Politics,
 }

@@ -20,17 +20,6 @@ pub struct MetadataControllerV1 {
     log: slog::Logger,
 }
 
-#[derive(Debug, serde::Deserialize)]
-pub struct Pagination {
-    pub _size: Option<usize>,
-    pub _bookmark: Option<String>,
-}
-
-#[derive(Debug, serde::Deserialize)]
-pub struct SearchParams {
-    pub _keyword: String,
-}
-
 impl MetadataControllerV1 {
     pub fn router() -> Router {
         let log = root().new(o!("api-controller" => "MetadataControllerV1"));
@@ -42,11 +31,11 @@ impl MetadataControllerV1 {
                 post(Self::upsert_metadata).get(Self::list_metadatas),
             )
             .route(
-                "/organizations/:organization_id/metadatas/:metadata_id",
+                "/organizations/:organization_id/metadata/:metadata_id",
                 post(Self::act_metadata).get(Self::get_metadata),
             )
             .route(
-                "/organizations/:organization_id/search/panels",
+                "/organizations/:organization_id/metadata",
                 get(Self::search_metadata),
             )
             .route("/upload", post(Self::upload_metadata))
@@ -71,7 +60,7 @@ impl MetadataControllerV1 {
                         .to_string(),
                 ],
                     metadata_type: Some(MetadataType::Report),
-                    metadata_field: Some(MetadataField::Economy),
+                    metadata_field: Some(Field::Economy),
                     metadata_purpose: Some(MetadataPurpose::PublicDiscussion),
                     metadata_source: Some(MetadataSource::Internal),
                     metadata_authority: Some(MetadataAuthority::Public),
@@ -87,7 +76,7 @@ impl MetadataControllerV1 {
                         .to_string(),
                 ],
                     metadata_type: Some(MetadataType::Statistics),
-                    metadata_field: Some(MetadataField::Society),
+                    metadata_field: Some(Field::Society),
                     metadata_purpose: Some(MetadataPurpose::AcademicResearch),
                     metadata_source: Some(MetadataSource::External),
                     metadata_authority: Some(MetadataAuthority::Restricted),
@@ -103,7 +92,7 @@ impl MetadataControllerV1 {
                         .to_string(),
                 ],
                     metadata_type: Some(MetadataType::Statistics),
-                    metadata_field: Some(MetadataField::Environment),
+                    metadata_field: Some(Field::Environment),
                     metadata_purpose: Some(MetadataPurpose::DevelopmentPolicy),
                     metadata_source: Some(MetadataSource::Goverment),
                     metadata_authority: Some(MetadataAuthority::Private),
@@ -160,7 +149,7 @@ impl MetadataControllerV1 {
                     .to_string(),
             ],
             metadata_type: Some(MetadataType::Report),
-            metadata_field: Some(MetadataField::Economy),
+            metadata_field: Some(Field::Economy),
             metadata_purpose: Some(MetadataPurpose::PublicDiscussion),
             metadata_source: Some(MetadataSource::Internal),
             metadata_authority: Some(MetadataAuthority::Public),
@@ -198,7 +187,7 @@ impl MetadataControllerV1 {
                         .to_string(),
                 ],
                     metadata_type: Some(MetadataType::Report),
-                    metadata_field: Some(MetadataField::Economy),
+                    metadata_field: Some(Field::Economy),
                     metadata_purpose: Some(MetadataPurpose::PublicDiscussion),
                     metadata_source: Some(MetadataSource::Internal),
                     metadata_authority: Some(MetadataAuthority::Public),
@@ -214,7 +203,7 @@ impl MetadataControllerV1 {
                         .to_string(),
                 ],
                     metadata_type: Some(MetadataType::Statistics),
-                    metadata_field: Some(MetadataField::Society),
+                    metadata_field: Some(Field::Society),
                     metadata_purpose: Some(MetadataPurpose::AcademicResearch),
                     metadata_source: Some(MetadataSource::External),
                     metadata_authority: Some(MetadataAuthority::Restricted),
@@ -230,7 +219,7 @@ impl MetadataControllerV1 {
                         .to_string(),
                 ],
                     metadata_type: Some(MetadataType::Statistics),
-                    metadata_field: Some(MetadataField::Environment),
+                    metadata_field: Some(Field::Environment),
                     metadata_purpose: Some(MetadataPurpose::DevelopmentPolicy),
                     metadata_source: Some(MetadataSource::Goverment),
                     metadata_authority: Some(MetadataAuthority::Private),
@@ -246,7 +235,7 @@ impl MetadataControllerV1 {
                         .to_string(),
                 ],
                     metadata_type: Some(MetadataType::Thesis),
-                    metadata_field: Some(MetadataField::Education),
+                    metadata_field: Some(Field::Education),
                     metadata_purpose: Some(MetadataPurpose::Education),
                     metadata_source: Some(MetadataSource::Company),
                     metadata_authority: Some(MetadataAuthority::Public),
@@ -262,7 +251,7 @@ impl MetadataControllerV1 {
                         .to_string(),
                 ],
                     metadata_type: Some(MetadataType::Presentation),
-                    metadata_field: Some(MetadataField::Technology),
+                    metadata_field: Some(Field::Technology),
                     metadata_purpose: Some(MetadataPurpose::PublicDiscussion),
                     metadata_source: Some(MetadataSource::Internal),
                     metadata_authority: Some(MetadataAuthority::Public),
@@ -278,7 +267,7 @@ impl MetadataControllerV1 {
                         .to_string(),
                 ],
                     metadata_type: Some(MetadataType::Media),
-                    metadata_field: Some(MetadataField::Health),
+                    metadata_field: Some(Field::Health),
                     metadata_purpose: Some(MetadataPurpose::PublicDiscussion),
                     metadata_source: Some(MetadataSource::Internal),
                     metadata_authority: Some(MetadataAuthority::Public),

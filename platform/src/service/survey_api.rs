@@ -50,6 +50,8 @@ impl SurveyApi {
             .send()
             .await?;
 
+        let res = res.error_for_status()?;
+
         Ok(res.json().await?)
     }
 
@@ -78,12 +80,14 @@ impl SurveyApi {
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
-        let _res = client
+        let res = client
             .post(format!("/v1/surveys/organizations/{}/surveys/{}", id, survey_id).as_str())
             .header("Authorization", token)
             .json(&SurveyActionRequest::Delete)
             .send()
             .await?;
+
+        let _res = res.error_for_status()?;
 
         Ok(())
     }
@@ -101,7 +105,7 @@ impl SurveyApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/surveys/organizations/{id}"))
+            .get(&format!("/v1/surveys/organizations/{id}/surveys"))
             .query(&params)
             .header("Authorization", token)
             .send()

@@ -20,17 +20,6 @@ pub struct PanelControllerV1 {
     log: slog::Logger,
 }
 
-#[derive(Debug, serde::Deserialize)]
-pub struct Pagination {
-    pub _size: Option<usize>,
-    pub _bookmark: Option<String>,
-}
-
-#[derive(Debug, serde::Deserialize)]
-pub struct SearchParams {
-    pub _keyword: String,
-}
-
 impl PanelControllerV1 {
     pub fn router() -> Router {
         let log = root().new(o!("api-controller" => "PanelControllerV1"));
@@ -46,7 +35,7 @@ impl PanelControllerV1 {
                 post(Self::act_panel).get(Self::get_panel),
             )
             .route(
-                "/organizations/:organization_id/search/panels",
+                "/organizations/:organization_id/panels",
                 get(Self::search_panel),
             )
             .with_state(ctrl)

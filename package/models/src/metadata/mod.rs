@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::field::Field;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct GetPutObjectUriRequest {
     pub file_name: String,
@@ -17,7 +19,7 @@ pub struct UpsertMetadataRequest {
     pub name: String,
     pub urls: Vec<String>,
     pub metadata_type: Option<MetadataType>,
-    pub metadata_field: Option<MetadataField>,
+    pub metadata_field: Option<Field>,
     pub metadata_purpose: Option<MetadataPurpose>,
     pub metadata_source: Option<MetadataSource>,
     pub metadata_authority: Option<MetadataAuthority>,
@@ -32,7 +34,7 @@ pub struct MetadataSummary {
     pub name: String,
     pub urls: Vec<String>,
     pub metadata_type: Option<MetadataType>,
-    pub metadata_field: Option<MetadataField>,
+    pub metadata_field: Option<Field>,
     pub metadata_purpose: Option<MetadataPurpose>,
     pub metadata_source: Option<MetadataSource>,
     pub metadata_authority: Option<MetadataAuthority>,
@@ -95,19 +97,4 @@ pub enum MetadataType {
     Thesis,
     Presentation,
     Media,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
-pub enum MetadataField {
-    #[default]
-    Economy,
-    Society,
-    Environment,
-    Education,
-    Culture,
-    Labor,
-    City,
-    Technology,
-    Health,
-    Politics,
 }

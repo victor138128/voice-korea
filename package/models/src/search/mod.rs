@@ -27,6 +27,11 @@ pub enum SearchQuery {
     },
 }
 
+#[derive(Debug, serde::Deserialize)]
+pub struct SearchParams {
+    pub _keyword: String,
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct SearchResult {
     // FIXME: it can be modified, because it is a part of noncelab.

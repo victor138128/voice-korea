@@ -48,6 +48,8 @@ impl AttributeApi {
             .send()
             .await?;
 
+        let res = res.error_for_status()?;
+
         Ok(res.json().await?)
     }
 
@@ -64,7 +66,7 @@ impl AttributeApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/attributes/organizations/{id}"))
+            .get(&format!("/v1/attributes/organizations/{id}/attributes"))
             .query(&params)
             .header("Authorization", token)
             .send()
@@ -112,7 +114,7 @@ impl AttributeApi {
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
-        let _res = client
+        let res = client
             .post(
                 format!(
                     "/v1/attributes/organizations/{}/attributes/{}",
@@ -124,6 +126,8 @@ impl AttributeApi {
             .json(&AttributeActionRequest::Delete)
             .send()
             .await?;
+
+        let _res = res.error_for_status()?;
 
         Ok(())
     }

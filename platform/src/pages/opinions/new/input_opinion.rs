@@ -7,7 +7,13 @@ use crate::{
         icons::{Search, Switch, UploadFile},
         upload_button::UploadButton,
     },
-    pages::opinions::new::{controller::Controller, i18n::OpinionNewTranslate},
+    pages::opinions::new::{
+        controller::Controller,
+        i18n::{
+            ConnectProjectTranslate, DirectUploadTranslate, ImportDocumentTranslate,
+            InputIntroductionTranslate, InputOpinionTranslate, UploadDocumentTranslate,
+        },
+    },
 };
 
 #[cfg(feature = "web")]
@@ -24,87 +30,17 @@ pub enum DocumentTabType {
     Import,
 }
 
-#[derive(Props, Clone, PartialEq)]
-pub struct ConnectProjectTranslate {
-    research_project_linkage: String,
-    research_project_linkage_description: String,
-    research_selection: String,
-}
-
-#[derive(Props, Clone, PartialEq)]
-pub struct UploadDocumentTranslate {
-    upload_document: String,
-    upload_document_description: String,
-    direct_upload: String,
-    import_from_data_management: String,
-    upload_file_description: String,
-    load_file: String,
-    upload_file_warning: String,
-    title: String,
-    document_type: String,
-    field: String,
-    purpose_of_use: String,
-    source: String,
-    authority: String,
-    last_modified_date: String,
-    form: String,
-}
-
-#[derive(Props, Clone, PartialEq)]
-pub struct InputIntroductionTranslate {
-    enter_introduction: String,
-    introduction_description: String,
-    select_field: String,
-    enter_title_hint: String,
-    enter_description_hint: String,
-}
-
 #[component]
 pub fn InputOpinion(props: InputOpinionProps) -> Element {
-    let translates: OpinionNewTranslate = translate(&props.lang);
+    let translates: InputOpinionTranslate = translate(&props.lang);
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "font-medium text-[16px] text-[#000000] mb-[10px]",
                 "{translates.essential_information}"
             }
-            InputIntroduction {
-                lang: props.lang.clone(),
-                i18n: InputIntroductionTranslate {
-                    enter_introduction: translates.enter_introduction.to_string(),
-                    introduction_description: translates.introduction_description.to_string(),
-                    select_field: translates.select_field.to_string(),
-                    enter_title_hint: translates.enter_title_hint.to_string(),
-                    enter_description_hint: translates.enter_description_hint.to_string(),
-                },
-            }
-            UploadDocument {
-                i18n: UploadDocumentTranslate {
-                    upload_document: translates.upload_document.to_string(),
-                    upload_document_description: translates.upload_document_description.to_string(),
-                    direct_upload: translates.direct_upload.to_string(),
-                    import_from_data_management: translates.import_from_data_management.to_string(),
-                    upload_file_description: translates.upload_file_description.to_string(),
-                    load_file: translates.load_file.to_string(),
-                    upload_file_warning: translates.upload_file_warning.to_string(),
-                    title: translates.title.to_string(),
-                    document_type: translates.document_type.to_string(),
-                    field: translates.field.to_string(),
-                    purpose_of_use: translates.purpose_of_use.to_string(),
-                    source: translates.source.to_string(),
-                    authority: translates.authority.to_string(),
-                    last_modified_date: translates.last_modified_date.to_string(),
-                    form: translates.form.to_string(),
-                },
-            }
-            ConnectProject {
-                i18n: ConnectProjectTranslate {
-                    research_project_linkage: translates.research_project_linkage.to_string(),
-                    research_project_linkage_description: translates
-                        .research_project_linkage_description
-                        .to_string(),
-                    research_selection: translates.research_selection.to_string(),
-                },
-            }
+            InputIntroduction { lang: props.lang }
+            UploadDocument { lang: props.lang }
+            ConnectProject { lang: props.lang }
 
             div { class: "flex flex-row w-full justify-end items-end mt-[40px] mb-[50px]",
                 div { class: "flex flex-row w-[70px] h-[55px] rounded-[4px] justify-center items-center bg-white border border-[#bfc8d9] font-semibold text-[16px] text-[#555462] mr-[20px]",
@@ -124,7 +60,8 @@ pub fn InputOpinion(props: InputOpinionProps) -> Element {
 }
 
 #[component]
-pub fn ConnectProject(i18n: ConnectProjectTranslate) -> Element {
+pub fn ConnectProject(lang: Language) -> Element {
+    let i18n: ConnectProjectTranslate = translate(&lang);
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start rounded-lg bg-white px-[40px] py-[24px] mb-[100px]",
             div { class: "flex flex-col w-full mb-[10px]",
@@ -141,12 +78,10 @@ pub fn ConnectProject(i18n: ConnectProjectTranslate) -> Element {
 }
 
 #[component]
-pub fn UploadDocument(i18n: UploadDocumentTranslate) -> Element {
+pub fn UploadDocument(lang: Language) -> Element {
     let mut tab_type = use_signal(|| DocumentTabType::DirectUpload);
-    let mut is_focused = use_signal(|| false);
-    let mut document_name = use_signal(|| "".to_string());
+    let i18n: UploadDocumentTranslate = translate(&lang);
 
-    let mut indragzone = use_signal(|| false);
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start rounded-lg bg-white px-[40px] py-[24px] mb-[20px]",
             div { class: "flex flex-col w-full mb-[20px]",
@@ -189,159 +124,9 @@ pub fn UploadDocument(i18n: UploadDocumentTranslate) -> Element {
                 }
 
                 if tab_type() == DocumentTabType::DirectUpload {
-                    div {
-                        class: "flex flex-col w-full",
-                        ondrop: move |ev: Event<DragData>| async move {
-                            tracing::debug!("drop files in div");
-                            ev.prevent_default();
-                            ev.stop_propagation();
-                        },
-                        div {
-                            class: format!(
-                                "flex flex-col w-full justify-center items-center p-[24px] rounded-[8px] border-[2px] border-dashed border-[#2a60d3] mb-[10px] {}",
-                                if indragzone() { "bg-[#afc9ff] opacity-50" } else { "" },
-                            ),
-                            ondragover: move |e| {
-                                e.prevent_default();
-                                e.stop_propagation();
-                                tracing::debug!("files in drop zone");
-                                indragzone.set(true);
-                            },
-                            ondragleave: move |e| {
-                                e.prevent_default();
-                                e.stop_propagation();
-                                tracing::debug!("leave drop zone");
-                                indragzone.set(false);
-                            },
-                            ondrop: move |ev: Event<DragData>| async move {
-                                tracing::debug!("drop files");
-                                ev.prevent_default();
-                                ev.stop_propagation();
-                                #[cfg(feature = "web")]
-                                if let Some(file_engine) = ev.files() {
-                                    tracing::debug!("got file_engine {:?}", file_engine.files());
-                                }
-                                indragzone.set(false);
-                            },
-                            div { class: "mb-[12px] w-[42px] h-[42px]",
-                                UploadFile { width: "42", height: "42" }
-                            }
-                            div { class: "font-normal text-[#222222] text-sm mb-[8px]",
-                                "{i18n.upload_file_description}"
-                            }
-                            div { class: "flex flex-row w-full justify-center items-center mb-[8px]",
-                                div { class: "w-[80px] h-[1px] bg-[#e7e7e7] mr-[12px]" }
-                                div { class: "font-normal text-[#6d6d6d] text-sm mr-[12px]",
-                                    "OR"
-                                }
-                                div { class: "w-[80px] h-[1px] bg-[#e7e7e7] mr-[12px]" }
-                            }
-                            UploadButton {
-                                class: "flex flex-row w-[100px] h-[30px] justify-center items-center bg-white border border-[#1849d6] rounded-[4px] font-semibold text-[#1849d6] text-sm",
-                                text: "{i18n.load_file}",
-                                onuploaded: move |_| {},
-                            }
-                        }
-
-                        div { class: "font-normal text-[#6d6d6d] text-[14px]",
-                            "{i18n.upload_file_warning}"
-                        }
-                    }
+                    DirectUpload { lang }
                 } else {
-                    div { class: "flex flex-col w-full",
-                        div { class: "flex flex-col w-full justify-start items-start p-[24px] border border-[#2a60d3] rounded-tr-lg rounded-b-lg mb-[20px]",
-                            div {
-                                class: format!(
-                                    "flex flex-row w-full h-[45px] justify-start items-center rounded-lg  {} px-[11px] py-[13px] mb-[20px]",
-                                    if (is_focused)() {
-                                        "bg-[#ffffff] border border-[#2a60d3]"
-                                    } else {
-                                        "bg-[#f7f7f7] border border-[#7c8292]"
-                                    },
-                                ),
-                                Search {
-                                    width: "18",
-                                    height: "18",
-                                    color: "#7c8292",
-                                }
-                                input {
-                                    class: "flex flex-row w-full h-full bg-transparent focus:outline-none ml-[10px]",
-                                    r#type: "text",
-                                    placeholder: "Enter public name or email address".to_string(),
-                                    value: (document_name)(),
-                                    onfocus: move |_| {
-                                        is_focused.set(true);
-                                    },
-                                    onblur: move |_| {
-                                        is_focused.set(false);
-                                    },
-                                    oninput: move |event| {
-                                        document_name.set(event.value());
-                                    },
-                                }
-                            }
-
-                            //table
-                            div { class: "flex flex-col w-full justify-start items-start bg-white",
-                                div { class: "flex flex-row w-full h-[55px] justify-start items-center border border-t-[#bfc8d9] border-l-[#bfc8d9] border-r-[#bfc8d9] border-b-transparent rounded-[4px]",
-                                    div { class: "flex flex-row w-[60px] min-w-[60px] h-full justify-center items-center gap-[10px]" }
-                                    div { class: "flex flex-row flex-1 h-full justify-center items-center gap-[10px]",
-                                        div { class: "text-[#7c8292] font-semibold text-[14px]",
-                                            "{i18n.title}"
-                                        }
-                                        Switch { width: "19", height: "19" }
-                                    }
-                                    div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
-                                        div { class: "text-[#7c8292] font-semibold text-[14px]",
-                                            "{i18n.document_type}"
-                                        }
-                                        Switch { width: "19", height: "19" }
-                                    }
-                                    div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
-                                        div { class: "text-[#7c8292] font-semibold text-[14px]",
-                                            "{i18n.field}"
-                                        }
-                                        Switch { width: "19", height: "19" }
-                                    }
-                                    div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
-                                        div { class: "text-[#7c8292] font-semibold text-[14px]",
-                                            "{i18n.purpose_of_use}"
-                                        }
-                                        Switch { width: "19", height: "19" }
-                                    }
-                                    div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
-                                        div { class: "text-[#7c8292] font-semibold text-[14px]",
-                                            "{i18n.source}"
-                                        }
-                                        Switch { width: "19", height: "19" }
-                                    }
-                                    div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
-                                        div { class: "text-[#7c8292] font-semibold text-[14px]",
-                                            "{i18n.authority}"
-                                        }
-                                        Switch { width: "19", height: "19" }
-                                    }
-                                    div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
-                                        div { class: "text-[#7c8292] font-semibold text-[14px]",
-                                            "{i18n.last_modified_date}"
-                                        }
-                                        Switch { width: "19", height: "19" }
-                                    }
-                                    div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
-                                        div { class: "text-[#7c8292] font-semibold text-[14px]",
-                                            "{i18n.form}"
-                                        }
-                                        Switch { width: "19", height: "19" }
-                                    }
-                                }
-                            }
-                        }
-
-                        //info
-                        div { class: "font-normal text-[#6d6d6d] text-[14px]",
-                            "{i18n.upload_file_warning}"
-                        }
-                    }
+                    ImportDocument { lang }
                 }
             }
         }
@@ -349,8 +134,169 @@ pub fn UploadDocument(i18n: UploadDocumentTranslate) -> Element {
 }
 
 #[component]
-pub fn InputIntroduction(lang: Language, i18n: InputIntroductionTranslate) -> Element {
+pub fn ImportDocument(lang: Language) -> Element {
+    let mut is_focused = use_signal(|| false);
+    let mut document_name = use_signal(|| "".to_string());
+    let i18n: ImportDocumentTranslate = translate(&lang);
+    rsx! {
+        div { class: "flex flex-col w-full",
+            div { class: "flex flex-col w-full justify-start items-start p-[24px] border border-[#2a60d3] rounded-tr-lg rounded-b-lg mb-[20px]",
+                div {
+                    class: format!(
+                        "flex flex-row w-full h-[45px] justify-start items-center rounded-lg  {} px-[11px] py-[13px] mb-[20px]",
+                        if (is_focused)() {
+                            "bg-[#ffffff] border border-[#2a60d3]"
+                        } else {
+                            "bg-[#f7f7f7] border border-[#7c8292]"
+                        },
+                    ),
+                    Search { width: "18", height: "18", color: "#7c8292" }
+                    input {
+                        class: "flex flex-row w-full h-full bg-transparent focus:outline-none ml-[10px]",
+                        r#type: "text",
+                        placeholder: "Enter public name or email address".to_string(),
+                        value: (document_name)(),
+                        onfocus: move |_| {
+                            is_focused.set(true);
+                        },
+                        onblur: move |_| {
+                            is_focused.set(false);
+                        },
+                        oninput: move |event| {
+                            document_name.set(event.value());
+                        },
+                    }
+                }
+
+                //table
+                div { class: "flex flex-col w-full justify-start items-start bg-white",
+                    div { class: "flex flex-row w-full h-[55px] justify-start items-center border border-t-[#bfc8d9] border-l-[#bfc8d9] border-r-[#bfc8d9] border-b-transparent rounded-[4px]",
+                        div { class: "flex flex-row w-[60px] min-w-[60px] h-full justify-center items-center gap-[10px]" }
+                        div { class: "flex flex-row flex-1 h-full justify-center items-center gap-[10px]",
+                            div { class: "text-[#7c8292] font-semibold text-[14px]",
+                                "{i18n.title}"
+                            }
+                            Switch { width: "19", height: "19" }
+                        }
+                        div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
+                            div { class: "text-[#7c8292] font-semibold text-[14px]",
+                                "{i18n.document_type}"
+                            }
+                            Switch { width: "19", height: "19" }
+                        }
+                        div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
+                            div { class: "text-[#7c8292] font-semibold text-[14px]",
+                                "{i18n.field}"
+                            }
+                            Switch { width: "19", height: "19" }
+                        }
+                        div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
+                            div { class: "text-[#7c8292] font-semibold text-[14px]",
+                                "{i18n.purpose_of_use}"
+                            }
+                            Switch { width: "19", height: "19" }
+                        }
+                        div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
+                            div { class: "text-[#7c8292] font-semibold text-[14px]",
+                                "{i18n.source}"
+                            }
+                            Switch { width: "19", height: "19" }
+                        }
+                        div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
+                            div { class: "text-[#7c8292] font-semibold text-[14px]",
+                                "{i18n.authority}"
+                            }
+                            Switch { width: "19", height: "19" }
+                        }
+                        div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
+                            div { class: "text-[#7c8292] font-semibold text-[14px]",
+                                "{i18n.last_modified_date}"
+                            }
+                            Switch { width: "19", height: "19" }
+                        }
+                        div { class: "flex flex-row w-[100px] min-w-[100px] h-full justify-center items-center gap-[10px]",
+                            div { class: "text-[#7c8292] font-semibold text-[14px]",
+                                "{i18n.form}"
+                            }
+                            Switch { width: "19", height: "19" }
+                        }
+                    }
+                }
+            }
+
+            //info
+            div { class: "font-normal text-[#6d6d6d] text-[14px]", "{i18n.upload_file_warning}" }
+        }
+    }
+}
+
+#[component]
+pub fn DirectUpload(lang: Language) -> Element {
+    let i18n: DirectUploadTranslate = translate(&lang);
+    let mut indragzone = use_signal(|| false);
+
+    rsx! {
+        div {
+            class: "flex flex-col w-full",
+            ondrop: move |ev: Event<DragData>| async move {
+                tracing::debug!("drop files in div");
+                ev.prevent_default();
+                ev.stop_propagation();
+            },
+            div {
+                class: format!(
+                    "flex flex-col w-full justify-center items-center p-[24px] rounded-[8px] border-[2px] border-dashed border-[#2a60d3] mb-[10px] {}",
+                    if indragzone() { "bg-[#afc9ff] opacity-50" } else { "" },
+                ),
+                ondragover: move |e| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    tracing::debug!("files in drop zone");
+                    indragzone.set(true);
+                },
+                ondragleave: move |e| {
+                    e.prevent_default();
+                    e.stop_propagation();
+                    tracing::debug!("leave drop zone");
+                    indragzone.set(false);
+                },
+                ondrop: move |ev: Event<DragData>| async move {
+                    tracing::debug!("drop files");
+                    ev.prevent_default();
+                    ev.stop_propagation();
+                    #[cfg(feature = "web")]
+                    if let Some(file_engine) = ev.files() {
+                        tracing::debug!("got file_engine {:?}", file_engine.files());
+                    }
+                    indragzone.set(false);
+                },
+                div { class: "mb-[12px] w-[42px] h-[42px]",
+                    UploadFile { width: "42", height: "42" }
+                }
+                div { class: "font-normal text-[#222222] text-sm mb-[8px]",
+                    "{i18n.upload_file_description}"
+                }
+                div { class: "flex flex-row w-full justify-center items-center mb-[8px]",
+                    div { class: "w-[80px] h-[1px] bg-[#e7e7e7] mr-[12px]" }
+                    div { class: "font-normal text-[#6d6d6d] text-sm mr-[12px]", "OR" }
+                    div { class: "w-[80px] h-[1px] bg-[#e7e7e7] mr-[12px]" }
+                }
+                UploadButton {
+                    class: "flex flex-row w-[100px] h-[30px] justify-center items-center bg-white border border-[#1849d6] rounded-[4px] font-semibold text-[#1849d6] text-sm",
+                    text: "{i18n.load_file}",
+                    onuploaded: move |_| {},
+                }
+            }
+
+            div { class: "font-normal text-[#6d6d6d] text-[14px]", "{i18n.upload_file_warning}" }
+        }
+    }
+}
+
+#[component]
+pub fn InputIntroduction(lang: Language) -> Element {
     let mut ctrl: Controller = use_context();
+    let i18n: InputIntroductionTranslate = translate(&lang);
 
     let information = ctrl.get_opinion_informations();
     rsx! {

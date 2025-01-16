@@ -45,11 +45,13 @@ impl ResourceApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post(&format!("/v1/metadatas/organizations/{id}"))
+            .post(&format!("/v1/metadata/organizations/{id}"))
             .header("Authorization", token)
             .json(&req)
             .send()
             .await?;
+
+        let res = res.error_for_status()?;
 
         Ok(res.json().await?)
     }
@@ -73,7 +75,7 @@ impl ResourceApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/metadatas/organizations/{id}"))
+            .get(&format!("/v1/metadata/organizations/{id}"))
             .query(&params)
             .header("Authorization", token)
             .send()
@@ -93,7 +95,7 @@ impl ResourceApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post(format!("/v1/metadatas/upload").as_str())
+            .post(format!("/v1/metadata/upload").as_str())
             .header("Authorization", token)
             .json(&req)
             .send()
@@ -110,18 +112,14 @@ impl ResourceApi {
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
-        let _res = client
-            .post(
-                format!(
-                    "/v1/metadatas/organizations/{}/metadatas/{}",
-                    id, metadata_id
-                )
-                .as_str(),
-            )
+        let res = client
+            .post(format!("/v1/metadata/organizations/{}/metadata/{}", id, metadata_id).as_str())
             .header("Authorization", token)
             .json(&MetadataActionRequest::Delete)
             .send()
             .await?;
+
+        let _res = res.error_for_status()?;
 
         Ok(())
     }
@@ -134,7 +132,7 @@ impl ResourceApi {
 
         let res = client
             .get(&format!(
-                "/v1/metadatas/organizations/{id}/metadatas/{metadata_id}"
+                "/v1/metadata/organizations/{id}/metadata/{metadata_id}"
             ))
             .header("Authorization", token)
             .send()
@@ -159,7 +157,7 @@ impl ResourceApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/metadatas/organizations/{id}"))
+            .get(&format!("/v1/metadata/organizations/{id}/metadata"))
             .query(&params)
             .header("Authorization", token)
             .send()

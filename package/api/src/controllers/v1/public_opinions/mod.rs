@@ -20,17 +20,6 @@ pub struct PublicOpinionControllerV1 {
     log: slog::Logger,
 }
 
-#[derive(Debug, serde::Deserialize)]
-pub struct Pagination {
-    pub _size: Option<i32>,
-    pub _bookmark: Option<String>,
-}
-
-#[derive(Debug, serde::Deserialize)]
-pub struct SearchParams {
-    pub _keyword: String,
-}
-
 impl PublicOpinionControllerV1 {
     pub fn router() -> Router {
         let log = root().new(o!("api-controller" => "PublicOpinionControllerV1"));
@@ -43,7 +32,7 @@ impl PublicOpinionControllerV1 {
                 post(Self::upsert_opinion).get(Self::list_opinions),
             )
             .route(
-                "/organizations/:organization_id/search/opinions",
+                "/organizations/:organization_id/opinions",
                 get(Self::search_opinion),
             )
             .route(
@@ -62,7 +51,7 @@ impl PublicOpinionControllerV1 {
         slog::debug!(log, "get_opinion: {:?} {:?}", organization_id, project_id);
         Ok(Json(OpinionResponse {
             project_id: "project id 1".to_string(),
-            opinion_type: OpinionFieldType::Economy,
+            opinion_type: Field::Economy,
             project_name: "공론주제".to_string(),
             total_response_count: 60,
             response_count: 40,
@@ -136,7 +125,7 @@ impl PublicOpinionControllerV1 {
             items: vec![
                 OpinionResponse {
                     project_id: "project id 1".to_string(),
-                    opinion_type: OpinionFieldType::Economy,
+                    opinion_type: Field::Economy,
                     project_name: "공론주제".to_string(),
                     total_response_count: 60,
                     response_count: 40,
@@ -160,7 +149,7 @@ impl PublicOpinionControllerV1 {
                 },
                 OpinionResponse {
                     project_id: "project id 6".to_string(),
-                    opinion_type: OpinionFieldType::Economy,
+                    opinion_type: Field::Economy,
                     project_name: "공론주제".to_string(),
                     total_response_count: 60,
                     response_count: 40,
@@ -198,7 +187,7 @@ impl PublicOpinionControllerV1 {
             items: vec![
                 OpinionResponse {
                     project_id: "project id 1".to_string(),
-                    opinion_type: OpinionFieldType::Economy,
+                    opinion_type: Field::Economy,
                     project_name: "공론주제".to_string(),
                     total_response_count: 60,
                     response_count: 40,
@@ -222,7 +211,7 @@ impl PublicOpinionControllerV1 {
                 },
                 OpinionResponse {
                     project_id: "project id 2".to_string(),
-                    opinion_type: OpinionFieldType::Economy,
+                    opinion_type: Field::Economy,
                     project_name: "공론주제".to_string(),
                     total_response_count: 60,
                     response_count: 40,
@@ -246,7 +235,7 @@ impl PublicOpinionControllerV1 {
                 },
                 OpinionResponse {
                     project_id: "project id 3".to_string(),
-                    opinion_type: OpinionFieldType::Economy,
+                    opinion_type: Field::Economy,
                     project_name: "공론주제".to_string(),
                     total_response_count: 60,
                     response_count: 40,
@@ -270,7 +259,7 @@ impl PublicOpinionControllerV1 {
                 },
                 OpinionResponse {
                     project_id: "project id 4".to_string(),
-                    opinion_type: OpinionFieldType::Economy,
+                    opinion_type: Field::Economy,
                     project_name: "공론주제".to_string(),
                     total_response_count: 60,
                     response_count: 40,
@@ -294,7 +283,7 @@ impl PublicOpinionControllerV1 {
                 },
                 OpinionResponse {
                     project_id: "project id 5".to_string(),
-                    opinion_type: OpinionFieldType::Economy,
+                    opinion_type: Field::Economy,
                     project_name: "공론주제".to_string(),
                     total_response_count: 60,
                     response_count: 40,
@@ -318,7 +307,7 @@ impl PublicOpinionControllerV1 {
                 },
                 OpinionResponse {
                     project_id: "project id 6".to_string(),
-                    opinion_type: OpinionFieldType::Economy,
+                    opinion_type: Field::Economy,
                     project_name: "공론주제".to_string(),
                     total_response_count: 60,
                     response_count: 40,
@@ -361,7 +350,7 @@ impl PublicOpinionControllerV1 {
         &self,
         organization_id: &str,
         project_id: &str,
-        project_type: OpinionFieldType,
+        project_type: Field,
     ) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "update_project_type"));
         slog::debug!(

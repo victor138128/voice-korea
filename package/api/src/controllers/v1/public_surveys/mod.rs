@@ -20,17 +20,6 @@ pub struct PublicSurveyControllerV1 {
     log: slog::Logger,
 }
 
-#[derive(Debug, serde::Deserialize)]
-pub struct Pagination {
-    pub _size: Option<i32>,
-    pub _bookmark: Option<String>,
-}
-
-#[derive(Debug, serde::Deserialize)]
-pub struct SearchParams {
-    pub _keyword: String,
-}
-
 impl PublicSurveyControllerV1 {
     pub fn router() -> Router {
         let log = root().new(o!("api-controller" => "PublicSurveyControllerV1"));
@@ -43,7 +32,7 @@ impl PublicSurveyControllerV1 {
                 post(Self::upsert_survey).get(Self::list_surveys),
             )
             .route(
-                "/organizations/:organization_id/search/surveys",
+                "/organizations/:organization_id/surveys",
                 get(Self::search_survey),
             )
             .route(
@@ -350,7 +339,7 @@ impl PublicSurveyControllerV1 {
                 PublicSurveySummary {
                     id: "1".to_string(),
                     survey_type: SurveyType::Survey,
-                    survey_field_type: SurveyFieldType::Economy,
+                    survey_field_type: Field::Economy,
                     title: "조사주제".to_string(),
                     total_response: 60,
                     survey_response: 40,
@@ -362,7 +351,7 @@ impl PublicSurveyControllerV1 {
                 PublicSurveySummary {
                     id: "2".to_string(),
                     survey_type: SurveyType::Survey,
-                    survey_field_type: SurveyFieldType::Economy,
+                    survey_field_type: Field::Economy,
                     title: "조사주제".to_string(),
                     total_response: 60,
                     survey_response: 40,
@@ -374,7 +363,7 @@ impl PublicSurveyControllerV1 {
                 PublicSurveySummary {
                     id: "3".to_string(),
                     survey_type: SurveyType::Survey,
-                    survey_field_type: SurveyFieldType::Economy,
+                    survey_field_type: Field::Economy,
                     title: "조사주제".to_string(),
                     total_response: 60,
                     survey_response: 40,
@@ -400,7 +389,7 @@ impl PublicSurveyControllerV1 {
                 PublicSurveySummary {
                     id: "1".to_string(),
                     survey_type: SurveyType::Survey,
-                    survey_field_type: SurveyFieldType::Economy,
+                    survey_field_type: Field::Economy,
                     title: "조사주제".to_string(),
                     total_response: 60,
                     survey_response: 40,
@@ -412,7 +401,7 @@ impl PublicSurveyControllerV1 {
                 PublicSurveySummary {
                     id: "2".to_string(),
                     survey_type: SurveyType::Survey,
-                    survey_field_type: SurveyFieldType::Economy,
+                    survey_field_type: Field::Economy,
                     title: "조사주제".to_string(),
                     total_response: 60,
                     survey_response: 40,
@@ -424,7 +413,7 @@ impl PublicSurveyControllerV1 {
                 PublicSurveySummary {
                     id: "3".to_string(),
                     survey_type: SurveyType::Survey,
-                    survey_field_type: SurveyFieldType::Economy,
+                    survey_field_type: Field::Economy,
                     title: "조사주제".to_string(),
                     total_response: 60,
                     survey_response: 40,
@@ -436,7 +425,7 @@ impl PublicSurveyControllerV1 {
                 PublicSurveySummary {
                     id: "4".to_string(),
                     survey_type: SurveyType::Survey,
-                    survey_field_type: SurveyFieldType::Economy,
+                    survey_field_type: Field::Economy,
                     title: "조사주제".to_string(),
                     total_response: 60,
                     survey_response: 40,
@@ -448,7 +437,7 @@ impl PublicSurveyControllerV1 {
                 PublicSurveySummary {
                     id: "5".to_string(),
                     survey_type: SurveyType::Survey,
-                    survey_field_type: SurveyFieldType::Economy,
+                    survey_field_type: Field::Economy,
                     title: "조사주제".to_string(),
                     total_response: 60,
                     survey_response: 40,
@@ -460,7 +449,7 @@ impl PublicSurveyControllerV1 {
                 PublicSurveySummary {
                     id: "6".to_string(),
                     survey_type: SurveyType::Survey,
-                    survey_field_type: SurveyFieldType::Economy,
+                    survey_field_type: Field::Economy,
                     title: "조사주제".to_string(),
                     total_response: 60,
                     survey_response: 40,

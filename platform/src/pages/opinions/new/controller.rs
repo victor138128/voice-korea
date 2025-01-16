@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 use dioxus_translate::Language;
-use models::prelude::{OpinionFieldType, OpinionInfo, OpinionInformation, PublicOpinionType};
+use models::prelude::{Field, OpinionInfo, OpinionInformation, PublicOpinionType};
 
 use super::i18n::OpinionNewTranslate;
 
@@ -193,62 +193,17 @@ impl Controller {
     pub fn opinion_field_type_translate(
         &self,
         lang: Language,
-        opinion_type: OpinionFieldType,
+        opinion_type: Field,
     ) -> &'static str {
-        match lang {
-            Language::En => match opinion_type {
-                OpinionFieldType::Economy => "Economy",
-                OpinionFieldType::Society => "Society",
-                OpinionFieldType::Environment => "Environment",
-                OpinionFieldType::Education => "Education",
-                OpinionFieldType::Culture => "Culture",
-                OpinionFieldType::Labor => "Labor",
-                OpinionFieldType::City => "City",
-                OpinionFieldType::Technology => "Technology",
-                OpinionFieldType::Health => "Health",
-                OpinionFieldType::Politics => "Politics",
-            },
-            Language::Ko => match opinion_type {
-                OpinionFieldType::Economy => "경제",
-                OpinionFieldType::Society => "사회",
-                OpinionFieldType::Environment => "환경",
-                OpinionFieldType::Education => "교육",
-                OpinionFieldType::Culture => "문화",
-                OpinionFieldType::Labor => "노동",
-                OpinionFieldType::City => "도시",
-                OpinionFieldType::Technology => "기술",
-                OpinionFieldType::Health => "보건",
-                OpinionFieldType::Politics => "정치",
-            },
-        }
+        opinion_type.translate(&lang)
     }
 
-    pub fn update_opinion_field_type_from_str(
-        &self,
-        opinion_field_type: String,
-    ) -> Option<OpinionFieldType> {
-        if opinion_field_type == "경제" || opinion_field_type == "Economy" {
-            Some(OpinionFieldType::Economy)
-        } else if opinion_field_type == "사회" || opinion_field_type == "Society" {
-            Some(OpinionFieldType::Economy)
-        } else if opinion_field_type == "환경" || opinion_field_type == "Environment" {
-            Some(OpinionFieldType::Economy)
-        } else if opinion_field_type == "교육" || opinion_field_type == "Education" {
-            Some(OpinionFieldType::Economy)
-        } else if opinion_field_type == "문화" || opinion_field_type == "Culture" {
-            Some(OpinionFieldType::Economy)
-        } else if opinion_field_type == "노동" || opinion_field_type == "Labor" {
-            Some(OpinionFieldType::Economy)
-        } else if opinion_field_type == "도시" || opinion_field_type == "City" {
-            Some(OpinionFieldType::Economy)
-        } else if opinion_field_type == "기술" || opinion_field_type == "Technology" {
-            Some(OpinionFieldType::Economy)
-        } else if opinion_field_type == "보건" || opinion_field_type == "Health" {
-            Some(OpinionFieldType::Economy)
-        } else if opinion_field_type == "정치" || opinion_field_type == "Politics" {
-            Some(OpinionFieldType::Economy)
-        } else {
-            None
+    pub fn update_opinion_field_type_from_str(&self, opinion_field_type: String) -> Option<Field> {
+        let field = opinion_field_type.parse::<Field>();
+
+        match field {
+            Ok(v) => Some(v),
+            Err(_) => None,
         }
     }
 
