@@ -3,7 +3,7 @@ pub type Result<T> = std::result::Result<T, ServerFnError>;
 use std::collections::HashMap;
 
 use dioxus::prelude::*;
-use models::prelude::{AttributeActionRequest, AttributeSummary, UpsertAttributeRequest};
+use models::prelude::{AttributeActionRequest, AttributeSummary, UpdateAttributeRequest};
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
 
@@ -35,8 +35,8 @@ impl AttributeApi {
 
     pub async fn upsert_attribute(
         &self,
-        req: UpsertAttributeRequest,
-    ) -> Result<UpsertAttributeRequest> {
+        req: UpdateAttributeRequest,
+    ) -> Result<UpdateAttributeRequest> {
         let token = self.get_token();
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;

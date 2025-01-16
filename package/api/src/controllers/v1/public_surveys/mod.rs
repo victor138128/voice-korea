@@ -2,7 +2,7 @@ use by_axum::{
     axum::{
         extract::{Path, Query, State},
         middleware,
-        routing::{get, post},
+        routing::post,
         Extension, Json, Router,
     },
     log::root,
@@ -27,14 +27,20 @@ impl PublicSurveyControllerV1 {
 
         //TODO: implement metadata uri
         Router::new()
-            .route("/", post(Self::upsert_survey).get(Self::list_surveys))
-            .route("/surveys", get(Self::search_survey))
-            .route(
-                "/surveys/:survey_id",
-                post(Self::act_survey).get(Self::get_survey),
-            )
+            .route("/", post(Self::create_survey).get(Self::list_surveys))
+            .route("/:survey_id", post(Self::act_survey).get(Self::get_survey))
             .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
+    }
+
+    pub async fn create_survey(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
+        State(ctrl): State<PublicSurveyControllerV1>,
+        Json(body): Json<CreatePublicSurveyRequest>,
+    ) -> Result<Json<CreatePublicSurveyRequest>, ApiError> {
+        let log = ctrl.log.new(o!("api" => "create_survey"));
+        slog::debug!(log, "create_survey {:?} {:?}", organizations.id, body);
+        Ok(Json(CreatePublicSurveyRequest::default()))
     }
 
     pub async fn get_survey(
@@ -308,69 +314,13 @@ impl PublicSurveyControllerV1 {
             SurveyActionRequest::Delete => {
                 ctrl.remove_survey(&organizations.id, &survey_id).await?;
             }
+            SurveyActionRequest::Update(req) => {
+                ctrl.update_survey(&organizations.id, &survey_id, req)
+                    .await?;
+            }
         }
 
         Ok(())
-    }
-
-    pub async fn upsert_survey(
-        Extension(organizations): Extension<OrganizationMiddlewareParams>,
-        State(ctrl): State<PublicSurveyControllerV1>,
-        Json(body): Json<UpsertPublicSurveyRequest>,
-    ) -> Result<Json<UpsertPublicSurveyRequest>, ApiError> {
-        let log = ctrl.log.new(o!("api" => "upsert_survey"));
-        slog::debug!(log, "upsert_survey {:?} {:?}", organizations.id, body);
-        Ok(Json(UpsertPublicSurveyRequest::default()))
-    }
-
-    pub async fn search_survey(
-        Extension(organizations): Extension<OrganizationMiddlewareParams>,
-        State(ctrl): State<PublicSurveyControllerV1>,
-        Query(params): Query<SearchParams>,
-    ) -> Result<Json<CommonQueryResponse<PublicSurveySummary>>, ApiError> {
-        let log = ctrl.log.new(o!("api" => "list_surveys"));
-        slog::debug!(log, "list_surveys: {:?} {:?}", organizations.id, params);
-        Ok(Json(CommonQueryResponse {
-            items: vec![
-                PublicSurveySummary {
-                    id: "1".to_string(),
-                    survey_type: SurveyType::Survey,
-                    survey_field_type: Field::Economy,
-                    title: "조사주제".to_string(),
-                    total_response: 60,
-                    survey_response: 40,
-                    panels: vec![],
-                    start_date: 1759244400,
-                    end_date: 1764601200,
-                    status: PublicSurveyStatus::Finish,
-                },
-                PublicSurveySummary {
-                    id: "2".to_string(),
-                    survey_type: SurveyType::Survey,
-                    survey_field_type: Field::Economy,
-                    title: "조사주제".to_string(),
-                    total_response: 60,
-                    survey_response: 40,
-                    panels: vec![],
-                    start_date: 1759244400,
-                    end_date: 1764601200,
-                    status: PublicSurveyStatus::Finish,
-                },
-                PublicSurveySummary {
-                    id: "3".to_string(),
-                    survey_type: SurveyType::Survey,
-                    survey_field_type: Field::Economy,
-                    title: "조사주제".to_string(),
-                    total_response: 60,
-                    survey_response: 40,
-                    panels: vec![],
-                    start_date: 1759244400,
-                    end_date: 1764601200,
-                    status: PublicSurveyStatus::Finish,
-                },
-            ],
-            bookmark: None,
-        }))
     }
 
     pub async fn list_surveys(
@@ -468,6 +418,23 @@ impl PublicSurveyControllerV1 {
     ) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "remove_survey"));
         slog::debug!(log, "remove_survey {:?} {:?}", organization_id, survey_id);
+        Ok(())
+    }
+
+    pub async fn update_survey(
+        &self,
+        organization_id: &str,
+        survey_id: &str,
+        body: UpdatePublicSurveyRequest,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "update_survey"));
+        slog::debug!(
+            log,
+            "update_survey {:?} {:?} {:?}",
+            organization_id,
+            survey_id,
+            body
+        );
         Ok(())
     }
 }

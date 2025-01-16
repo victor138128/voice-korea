@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use dioxus::prelude::*;
 use models::prelude::{
     GetPutObjectUriRequest, GetPutObjectUriResponse, MetadataActionRequest, MetadataSummary,
-    UpsertMetadataRequest,
+    UpdateMetadataRequest,
 };
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
@@ -38,8 +38,8 @@ impl ResourceApi {
 
     pub async fn upsert_metadata(
         &self,
-        req: UpsertMetadataRequest,
-    ) -> Result<UpsertMetadataRequest> {
+        req: UpdateMetadataRequest,
+    ) -> Result<UpdateMetadataRequest> {
         let token = self.get_token();
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;

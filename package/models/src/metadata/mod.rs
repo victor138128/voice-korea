@@ -14,8 +14,21 @@ pub struct GetPutObjectUriResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
-pub struct UpsertMetadataRequest {
-    pub id: Option<String>,
+pub struct CreateMetadataRequest {
+    pub name: String,
+    pub urls: Vec<String>,
+    pub metadata_type: Option<MetadataType>,
+    pub metadata_field: Option<Field>,
+    pub metadata_purpose: Option<MetadataPurpose>,
+    pub metadata_source: Option<MetadataSource>,
+    pub metadata_authority: Option<MetadataAuthority>,
+
+    pub public_opinion_projects: Option<Vec<PublicOpinion>>,
+    pub public_survey_projects: Option<Vec<PublicSurvey>>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
+pub struct UpdateMetadataRequest {
     pub name: String,
     pub urls: Vec<String>,
     pub metadata_type: Option<MetadataType>,
@@ -48,21 +61,22 @@ pub struct MetadataSummary {
 #[serde(rename_all = "snake_case")]
 pub enum MetadataActionRequest {
     Delete,
+    Update(UpdateMetadataRequest),
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct PublicOpinion {
     pub id: String,
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct PublicSurvey {
     pub id: String,
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub enum MetadataAuthority {
     #[default]
     Public,
@@ -70,7 +84,7 @@ pub enum MetadataAuthority {
     Restricted,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub enum MetadataSource {
     #[default]
     Internal,
@@ -79,7 +93,7 @@ pub enum MetadataSource {
     Company,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub enum MetadataPurpose {
     #[default]
     DevelopmentPolicy,
@@ -88,7 +102,7 @@ pub enum MetadataPurpose {
     Education,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub enum MetadataType {
     #[default]
     Report,

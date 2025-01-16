@@ -33,11 +33,11 @@ impl MemberControllerV1 {
                 post(Self::create_member).get(Self::list_organization_members),
             )
             .route(
-                "/members/:member_id",
+                "/:member_id",
                 post(Self::act_member).get(Self::get_organization_member),
             )
-            .route("/search/projects", get(Self::search_projects))
-            .route("/search/members", get(Self::search_members))
+            .route("/search/project", get(Self::search_projects))
+            .route("/search", get(Self::search_members))
             .route("/invite", post(Self::invite_member))
             .layer(middleware::from_fn(authorization_middleware)) //FIXME: fix management authorization (오직 관리자만 해당 함수들 호출할 수 있도록 수정)
             .with_state(ctrl.clone())

@@ -41,15 +41,9 @@ impl GroupControllerV1 {
 
         Router::new()
             .route("/", post(Self::create_group).get(Self::list_groups))
-            .route(
-                "/groups/:group_id",
-                post(Self::act_group).get(Self::get_group),
-            )
-            .route("/groups", get(Self::search_groups))
-            .route(
-                "/groups/:group_id/search/members",
-                get(Self::search_groups_by_id),
-            )
+            .route("/:group_id", post(Self::act_group).get(Self::get_group))
+            .route("/search", get(Self::search_groups))
+            .route("/:group_id/members/search", get(Self::search_groups_by_id))
             .layer(middleware::from_fn(authorization_middleware)) //FIXME: fix management authorization
             .with_state(ctrl.clone())
     }

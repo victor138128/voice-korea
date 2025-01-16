@@ -3,14 +3,20 @@ use serde::{Deserialize, Serialize};
 use crate::prelude::PanelAttributeDetailInfo;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
-pub struct UpsertPanelRequest {
-    pub id: Option<String>,
+pub struct CreatePanelRequest {
     pub name: String,
     pub count: i64,
     pub attribute: Vec<PanelAttributeInfo>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct UpdatePanelRequest {
+    pub name: String,
+    pub count: i64,
+    pub attribute: Vec<PanelAttributeInfo>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub struct PanelAttributeInfo {
     pub id: Option<String>,
     pub name: String,
@@ -29,4 +35,5 @@ pub struct PanelSummary {
 #[serde(rename_all = "snake_case")]
 pub enum PanelActionRequest {
     Delete,
+    Update(UpdatePanelRequest),
 }

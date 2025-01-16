@@ -2,7 +2,7 @@ use by_axum::{
     axum::{
         extract::{Path, Query, State},
         middleware,
-        routing::{get, post},
+        routing::post,
         Extension, Json, Router,
     },
     log::root,
@@ -26,78 +26,25 @@ impl MetadataControllerV1 {
         let ctrl = MetadataControllerV1 { log };
 
         Router::new()
-            .route("/", post(Self::upsert_metadata).get(Self::list_metadatas))
+            .route("/", post(Self::create_metadata).get(Self::list_metadatas))
             .route(
-                "/metadata/:metadata_id",
+                "/:metadata_id",
                 post(Self::act_metadata).get(Self::get_metadata),
             )
-            .route("/metadata", get(Self::search_metadata))
             .route("/upload", post(Self::upload_metadata))
             .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
     }
 
-    pub async fn search_metadata(
+    pub async fn create_metadata(
         Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MetadataControllerV1>,
-        Query(params): Query<SearchParams>,
-    ) -> Result<Json<CommonQueryResponse<MetadataSummary>>, ApiError> {
+        Json(body): Json<CreateMetadataRequest>,
+    ) -> Result<Json<CreateMetadataRequest>, ApiError> {
         let organization_id = organizations.id;
-        let log = ctrl.log.new(o!("api" => "search_metadata"));
-        slog::debug!(log, "search_metadata {:?} {:?}", organization_id, params);
-        Ok(Json(CommonQueryResponse {
-            items: vec![
-                MetadataSummary {
-                    id: "1".to_string(),
-                    name: "공론자료제목명".to_string(),
-                    urls: vec![
-                    "https://metadata.dagit.club/images/666e4e5b-fd92-40fb-b60e-111c82c6f914.png"
-                        .to_string(),
-                ],
-                    metadata_type: Some(MetadataType::Report),
-                    metadata_field: Some(Field::Economy),
-                    metadata_purpose: Some(MetadataPurpose::PublicDiscussion),
-                    metadata_source: Some(MetadataSource::Internal),
-                    metadata_authority: Some(MetadataAuthority::Public),
-                    public_opinion_projects: None,
-                    public_survey_projects: None,
-                    updated_at: 1759276800,
-                },
-                MetadataSummary {
-                    id: "2".to_string(),
-                    name: "공론자료제목명".to_string(),
-                    urls: vec![
-                    "https://metadata.dagit.club/images/666e4e5b-fd92-40fb-b60e-111c82c6f914.png"
-                        .to_string(),
-                ],
-                    metadata_type: Some(MetadataType::Statistics),
-                    metadata_field: Some(Field::Society),
-                    metadata_purpose: Some(MetadataPurpose::AcademicResearch),
-                    metadata_source: Some(MetadataSource::External),
-                    metadata_authority: Some(MetadataAuthority::Restricted),
-                    public_opinion_projects: None,
-                    public_survey_projects: None,
-                    updated_at: 1759276800,
-                },
-                MetadataSummary {
-                    id: "3".to_string(),
-                    name: "공론자료제목명".to_string(),
-                    urls: vec![
-                    "https://metadata.dagit.club/images/666e4e5b-fd92-40fb-b60e-111c82c6f914.png"
-                        .to_string(),
-                ],
-                    metadata_type: Some(MetadataType::Statistics),
-                    metadata_field: Some(Field::Environment),
-                    metadata_purpose: Some(MetadataPurpose::DevelopmentPolicy),
-                    metadata_source: Some(MetadataSource::Goverment),
-                    metadata_authority: Some(MetadataAuthority::Private),
-                    public_opinion_projects: None,
-                    public_survey_projects: None,
-                    updated_at: 1759276800,
-                },
-            ],
-            bookmark: None,
-        }))
+        let log = ctrl.log.new(o!("api" => "create_metadata"));
+        slog::debug!(log, "create_metadata {:?} {:?}", organization_id, body);
+        Ok(Json(CreateMetadataRequest::default()))
     }
 
     pub async fn upload_metadata(
@@ -125,6 +72,10 @@ impl MetadataControllerV1 {
         match body {
             MetadataActionRequest::Delete => {
                 ctrl.remove_metadata(&organization_id, &metadata_id).await?;
+            }
+            MetadataActionRequest::Update(req) => {
+                ctrl.update_metadata(&organization_id, &metadata_id, req)
+                    .await?;
             }
         }
 
@@ -156,17 +107,6 @@ impl MetadataControllerV1 {
             public_survey_projects: None,
             updated_at: 1759276800,
         }))
-    }
-
-    pub async fn upsert_metadata(
-        Extension(organizations): Extension<OrganizationMiddlewareParams>,
-        State(ctrl): State<MetadataControllerV1>,
-        Json(body): Json<UpsertMetadataRequest>,
-    ) -> Result<Json<UpsertMetadataRequest>, ApiError> {
-        let organization_id = organizations.id;
-        let log = ctrl.log.new(o!("api" => "upsert_metadata"));
-        slog::debug!(log, "upsert_metadata {:?} {:?}", organization_id, body);
-        Ok(Json(UpsertMetadataRequest::default()))
     }
 
     pub async fn list_metadatas(
@@ -294,6 +234,23 @@ impl MetadataControllerV1 {
             "remove_metadata {:?} {:?}",
             organization_id,
             metadata_id
+        );
+        Ok(())
+    }
+
+    pub async fn update_metadata(
+        &self,
+        organization_id: &str,
+        attribute_id: &str,
+        body: UpdateMetadataRequest,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "update_metadata"));
+        slog::debug!(
+            log,
+            "update_metadata {:?} {:?} {:?}",
+            organization_id,
+            attribute_id,
+            body
         );
         Ok(())
     }
