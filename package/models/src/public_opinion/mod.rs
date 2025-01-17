@@ -97,8 +97,15 @@ pub struct UpsertPanelInfo {
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct PanelAttribute {
+    pub panel: CompositionPanelInfo,
     pub panel_count: u64,
     pub attributes: Vec<AttributeInfo>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
+pub struct CompositionPanelInfo {
+    pub panel_id: Option<String>, //panel id가 none일 경우 id 생성 후 패널 및 속성 관리 페이지 추가
+    pub name: String,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
