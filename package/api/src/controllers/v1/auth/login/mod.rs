@@ -116,6 +116,7 @@ impl LoginControllerV1 {
                 name: None,
                 group: None,
                 role: None,
+                email: body.email.clone(),
             },
             id.clone(),
         )

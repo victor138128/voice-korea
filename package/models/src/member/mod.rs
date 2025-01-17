@@ -39,6 +39,7 @@ pub struct ListMemberResponse {
 pub struct GroupMemberRelationship {
     pub member: OrganizationMember,
     pub groups: Vec<Group>,
+    pub project: Vec<MemberProject>,
 }
 
 // FIXME: depreciated data structure (-> OrganizationMember)
@@ -182,6 +183,7 @@ pub struct CreateMemberRequest {
     pub name: Option<String>,
     pub group: Option<GroupInfo>,
     pub role: Option<Role>,
+    pub email: String,
     // pub projects: Option<Vec<MemberProject>>,
 }
 

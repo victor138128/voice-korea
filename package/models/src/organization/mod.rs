@@ -25,6 +25,7 @@ pub struct OrganizationMember {
     pub r#type: String,
     pub gsi1: String, //user_id
     pub gsi2: String, //user_id#organization_id
+    pub email: String, // FIXME: remove this field if postgre is implemented
     pub created_at: i64,
     pub updated_at: i64,
     pub deleted_at: Option<i64>,
@@ -50,7 +51,7 @@ impl OrganizationMember {
 
         organization_member.user_id = user_id;
         organization_member.organization_id = organization_id;
-
+    
         if let Some(r) = role {
             organization_member.role = Some(r);
         };
@@ -105,6 +106,7 @@ impl Into<OrganizationMember> for (CreateMemberRequest, String) {
             deleted_at: None,
             name: req.name,
             role: req.role,
+            email: req.email,
             // projects: req.projects,
         }
     }

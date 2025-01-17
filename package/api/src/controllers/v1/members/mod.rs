@@ -76,6 +76,7 @@ impl MemberControllerV1 {
                                 role: None,
                                 user_id: req.user_id.clone(),
                                 org_id: organization_id.clone(),
+                                email: req.email.clone(),
                             },
                             item.id.clone(),
                         )
@@ -198,6 +199,7 @@ impl MemberControllerV1 {
                 name: Some(body.name.clone()),
                 group: body.group.clone(),
                 role: body.role,
+                email: body.email.clone(),
             },
             id.clone(),
         )
@@ -341,6 +343,7 @@ impl MemberControllerV1 {
             result.push(GroupMemberRelationship {
                 member: item.clone(),
                 groups,
+                project: vec![], // TODO: implement projects
             });
         }
 
@@ -407,6 +410,7 @@ impl MemberControllerV1 {
         Ok(Json(GroupMemberRelationship {
             member,
             groups,
+            project: vec![], // TODO: implement projects
         }))
         
     }
