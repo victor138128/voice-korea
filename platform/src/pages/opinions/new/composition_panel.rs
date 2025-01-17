@@ -4,10 +4,13 @@ use models::prelude::CompositionPanelInfo;
 
 use crate::{
     components::icons::{BottomDropdownArrow, Checked, Clear, Remove, TopDropdownArrow, UnChecked},
-    pages::opinions::new::i18n::{
-        CompositionPanelTranslate, DirectedAddPanelTranslate, SettingTotalPanelTranslate,
+    pages::opinions::new::{
+        controller::Controller,
+        i18n::{CompositionPanelTranslate, DirectedAddPanelTranslate, SettingTotalPanelTranslate},
     },
 };
+
+use super::controller::CurrentStep;
 
 #[derive(Props, Clone, PartialEq)]
 pub struct CompositionPanelProps {
@@ -17,6 +20,8 @@ pub struct CompositionPanelProps {
 #[component]
 pub fn CompositionPanel(props: CompositionPanelProps) -> Element {
     let translates: CompositionPanelTranslate = translate(&props.lang);
+    let mut ctrl: Controller = use_context();
+
     let selected_option = use_signal(move || translates.faired_people_allocated.to_string());
     let total_members = use_signal(move || "0".to_string());
     let panels: Signal<Vec<CompositionPanelInfo>> = use_signal(|| vec![]);
@@ -39,7 +44,9 @@ pub fn CompositionPanel(props: CompositionPanelProps) -> Element {
             div { class: "flex flex-row w-full justify-end items-end mt-[40px] mb-[50px]",
                 div {
                     class: "flex flex-row w-[70px] h-[55px] rounded-[4px] justify-center items-center bg-white border border-[#bfc8d9] font-semibold text-[16px] text-[#555462] mr-[20px]",
-                    onclick: move |_| {},
+                    onclick: move |_| {
+                        ctrl.change_step(CurrentStep::CommitteeComposition);
+                    },
                     "{translates.backward}"
                 }
                 div {
@@ -49,7 +56,9 @@ pub fn CompositionPanel(props: CompositionPanelProps) -> Element {
                 }
                 div {
                     class: "cursor-pointer flex flex-row w-[110px] h-[55px] rounded-[4px] justify-center items-center bg-[#2a60d3] font-semibold text-[16px] text-white",
-                    onclick: move |_| {},
+                    onclick: move |_| {
+                        ctrl.change_step(CurrentStep::DiscussionSetting);
+                    },
                     "{translates.next}"
                 }
             }

@@ -14,6 +14,8 @@ use crate::components::icons::SwitchOff;
 use crate::components::icons::SwitchOn;
 use crate::components::icons::Trash;
 use crate::components::icons::{BottomDropdownArrow, DiscussionUser, TopDropdownArrow};
+use crate::pages::opinions::new::controller::Controller;
+use crate::pages::opinions::new::controller::CurrentStep;
 use crate::pages::opinions::new::i18n::CreateMeetingTranslate;
 use crate::pages::opinions::new::i18n::SettingDiscussionTranslate;
 use crate::pages::opinions::new::i18n::SettingGroupTranslate;
@@ -27,7 +29,7 @@ pub struct SettingDiscussionProps {
 
 #[component]
 pub fn SettingDiscussion(props: SettingDiscussionProps) -> Element {
-    let props = props;
+    let mut ctrl: Controller = use_context();
     let translate: SettingDiscussionTranslate = translate(&props.lang);
     //FIXME: fix to controller and real data logic
     let discussion_groups: Signal<Vec<DiscussionGroupDetailInfo>> = use_signal(|| {
@@ -83,7 +85,9 @@ pub fn SettingDiscussion(props: SettingDiscussionProps) -> Element {
             div { class: "flex flex-row w-full justify-end items-end mt-[40px] mb-[50px]",
                 div {
                     class: "flex flex-row w-[70px] h-[55px] rounded-[4px] justify-center items-center bg-white border border-[#bfc8d9] font-semibold text-[16px] text-[#555462] mr-[20px]",
-                    onclick: move |_| {},
+                    onclick: move |_| {
+                        ctrl.change_step(CurrentStep::PanelComposition);
+                    },
                     "{translate.backward}"
                 }
                 div {
@@ -93,7 +97,9 @@ pub fn SettingDiscussion(props: SettingDiscussionProps) -> Element {
                 }
                 div {
                     class: "cursor-pointer flex flex-row w-[110px] h-[55px] rounded-[4px] justify-center items-center bg-[#2a60d3] font-semibold text-[16px] text-white",
-                    onclick: move |_| {},
+                    onclick: move |_| {
+                        ctrl.change_step(CurrentStep::Preview);
+                    },
                     "{translate.next}"
                 }
             }
@@ -191,7 +197,13 @@ pub fn SettingSchedule(schedules: Signal<Vec<ScheduleInfo>>, lang: Language) -> 
                             }
                         }
 
-                        div { class: "flex flex-row w-[95px] h-[55px] justify-center items-center bg-white rounded-[8px] border border-[#bfc8d9] gap-[5px]",
+                        button {
+                            class: "flex flex-row w-[95px] h-[55px] justify-center items-center bg-white rounded-[8px] border border-[#bfc8d9] gap-[5px]",
+                            onclick: move |_| {
+                                let mut ss = schedules();
+                                ss.remove(index);
+                                schedules.set(ss);
+                            },
                             div { class: "font-medium text-[#222222] text-[15px]", "{translate.remove}" }
                             Trash { width: "24", height: "24" }
                         }
@@ -205,7 +217,15 @@ pub fn SettingSchedule(schedules: Signal<Vec<ScheduleInfo>>, lang: Language) -> 
                     div { class: "border-t border-dashed border-gray-300 w-full" }
                     button {
                         class: "absolute bg-[#f7f7f7] border border-[#bfc8d9] rounded-[100px] w-[43px] h-[43px] flex items-center justify-center shadow",
-                        onclick: move |_| {},
+                        onclick: move |_| {
+                            let mut ss = schedules();
+                            ss.push(ScheduleInfo {
+                                title: "".to_string(),
+                                schedules: vec![],
+                                typed_schedule: false,
+                            });
+                            schedules.set(ss);
+                        },
                         "+"
                     }
                 }
@@ -297,7 +317,13 @@ pub fn CreateMeeting(meetings: Signal<Vec<MeetingInfo>>, lang: Language) -> Elem
                                     oninput: move |_e| {},
                                 }
                             }
-                            div { class: "flex flex-row w-[85px] h-[55px] justify-center items-center gap-[4px] bg-white border border-[#bfc8d9] rounded-[8px]",
+                            button {
+                                class: "flex flex-row w-[85px] h-[55px] justify-center items-center gap-[4px] bg-white border border-[#bfc8d9] rounded-[8px]",
+                                onclick: move |_| {
+                                    let mut mts = meetings();
+                                    mts.remove(index);
+                                    meetings.set(mts);
+                                },
                                 div { class: "font-medium text-[#222222] text-[15px]",
                                     "{translate.remove}"
                                 }
@@ -347,7 +373,18 @@ pub fn CreateMeeting(meetings: Signal<Vec<MeetingInfo>>, lang: Language) -> Elem
                     div { class: "border-t border-dashed border-gray-300 w-full" }
                     button {
                         class: "absolute bg-[#f7f7f7] border border-[#bfc8d9] rounded-[100px] w-[43px] h-[43px] flex items-center justify-center shadow",
-                        onclick: move |_| {},
+                        onclick: move |_| {
+                            let mut mts = meetings();
+                            let timestamp = Utc::now().timestamp();
+                            mts.push(MeetingInfo {
+                                meeting_type: models::prelude::MeetingType::Offline,
+                                title: "".to_string(),
+                                start_date: timestamp as u64,
+                                end_date: timestamp as u64,
+                                discussion_group: vec![],
+                            });
+                            meetings.set(mts);
+                        },
                         "+"
                     }
                 }
