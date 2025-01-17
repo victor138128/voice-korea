@@ -49,9 +49,9 @@ impl PanelApi {
             .send()
             .await?;
 
-        let res = res.error_for_status()?;
+        let _res = res.error_for_status()?;
 
-        Ok(res.json().await?)
+        Ok(())
     }
 
     pub async fn create_panel(&self, req: CreatePanelRequest) -> Result<()> {
@@ -67,9 +67,9 @@ impl PanelApi {
             .send()
             .await?;
 
-        let res = res.error_for_status()?;
+        let _res = res.error_for_status()?;
 
-        Ok(res.json().await?)
+        Ok(())
     }
 
     pub async fn get_panel(&self, panel_id: String) -> Result<PanelSummary> {

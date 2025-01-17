@@ -53,9 +53,9 @@ impl SurveyApi {
             .send()
             .await?;
 
-        let res = res.error_for_status()?;
+        let _res = res.error_for_status()?;
 
-        Ok(res.json().await?)
+        Ok(())
     }
 
     pub async fn create_survey(&self, req: CreatePublicSurveyRequest) -> Result<()> {
@@ -71,9 +71,9 @@ impl SurveyApi {
             .send()
             .await?;
 
-        let res = res.error_for_status()?;
+        let _res = res.error_for_status()?;
 
-        Ok(res.json().await?)
+        Ok(())
     }
 
     pub async fn get_survey(&self, survey_id: String) -> Result<PublicSurveyResponse> {

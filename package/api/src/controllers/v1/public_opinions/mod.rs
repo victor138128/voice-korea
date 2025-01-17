@@ -293,7 +293,7 @@ impl PublicOpinionControllerV1 {
         organization_id: &str,
         body: CreateOpinionRequest,
     ) -> Result<(), ApiError> {
-        let log = self.log.new(o!("api" => "remove create_opinion"));
+        let log = self.log.new(o!("api" => "create opinion"));
         slog::debug!(log, "create_opinion {:?} {:?}", organization_id, body);
         Ok(())
     }

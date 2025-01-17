@@ -265,7 +265,7 @@ impl MetadataControllerV1 {
     pub async fn update_metadata(
         &self,
         organization_id: &str,
-        attribute_id: &str,
+        metadata_id: &str,
         body: UpdateMetadataRequest,
     ) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "update_metadata"));
@@ -273,7 +273,7 @@ impl MetadataControllerV1 {
             log,
             "update_metadata {:?} {:?} {:?}",
             organization_id,
-            attribute_id,
+            metadata_id,
             body
         );
         Ok(())
