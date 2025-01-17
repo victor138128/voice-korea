@@ -413,3 +413,140 @@ translate! {
         en: "Select Panel"
     }
 }
+
+translate! {
+    SettingDiscussionTranslate;
+
+    setting_discussion: {
+        ko: "토론 설정",
+        en: "Setting Discussion"
+    }
+    backward: {
+        ko: "뒤로",
+        en: "Backward"
+    }
+    temporary_save: {
+        ko: "임시저장",
+        en: "Temporary Save"
+    }
+    next: {
+        ko: "다음으로",
+        en: "Next"
+    }
+}
+
+translate! {
+    SettingGroupTranslate;
+
+    setting_group_title: {
+        ko: "토론 그룹 생성",
+        en: "Create a discussion group"
+    }
+    setting_group_description: {
+        ko: "그룹은 설정된 패널로 이루어지며, 생성된 그룹은 다양한 미팅에 참여할 수 있는 구조로 설계됩니다.",
+        en: "A group is made up of set panels, and the created group is designed to allow participation in various meetings."
+    }
+    default_discussion_group: {
+        ko: "기본 토론 그룹",
+        en: "Default Discussion Group"
+    }
+    number_of_people: {
+        ko: "인원 수",
+        en: "Number of People"
+    }
+    add_discussion_group: {
+        ko: "토론 그룹 추가",
+        en: "Add Discussion Group"
+    }
+}
+
+translate! {
+    CreateMeetingTranslate;
+
+    create_meeting_title: {
+        ko: "미팅 생성",
+        en: "Create Meeting"
+    }
+    create_meeting_description: {
+        ko: "그룹은 설정된 패널로 이루어지며, 생성된 그룹은 다양한 미팅에 참여할 수 있는 구조로 설계됩니다.",
+        en: "A group is made up of set panels, and the created group is designed to allow participation in various meetings."
+    }
+    set_period: {
+        ko: "기간 설정",
+        en: "Set Period"
+    }
+    discussion_subject: {
+        ko: "토론 주제",
+        en: "Discussion Title"
+    }
+    input_content: {
+        ko: "내용 입력",
+        en: "Input Content"
+    }
+    remove: {
+        ko: "삭제",
+        en: "Remove"
+    }
+    select_discussion_group: {
+        ko: "토론 그룹 선택",
+        en: "Select Discussion Group"
+    }
+    offline_meeting: {
+        ko: "오프라인 회의",
+        en: "Offline Meeting"
+    }
+    online_meeting: {
+        ko: "온라인 회의",
+        en: "Online Meeting"
+    }
+}
+
+translate! {
+    SettingScheduleTranslate;
+
+    setting_schedule_title: {
+        ko: "일정표 설정",
+        en: "Set up a schedule"
+    }
+    setting_schedule_description: {
+        ko: "그룹은 설정된 패널로 이루어지며, 생성된 그룹은 다양한 미팅에 참여할 수 있는 구조로 설계됩니다.",
+        en: "A group is made up of set panels, and the created group is designed to allow participation in various meetings."
+    }
+    schedule: {
+        ko: "일정표 명",
+        en: "Schedule"
+    }
+    input_schedule: {
+        ko: "일정표 명 입력",
+        en: "Input Schedule"
+    }
+    create_schedule: {
+        ko: "일정표 만들기",
+        en: "Create Schedule"
+    }
+    see_schedule: {
+        ko: "일정표 보기",
+        en: "See Schedule"
+    }
+    remove:{
+        ko: "삭제",
+        en: "Remove"
+    }
+}
+
+translate! {
+    UploadDiscussionMetadataTranslate;
+
+    upload_metadata_title: {
+        ko: "토론 자료 업로드",
+        en: "Upload discussion materials"
+    }
+    upload_metadata_description: {
+        ko: "토론과 관련된 자료를 업로드해주세요. jpg, .png, pdf, zip, word, excel, pptx 파일만 업로드 가능합니다.",
+        en: "Please upload materials related to the discussion. Only jpg, .png, pdf, zip, word, excel, and pptx files can be uploaded."
+    }
+    upload_material: {
+        ko: "자료 업로드",
+        en: "Upload Material"
+    }
+}

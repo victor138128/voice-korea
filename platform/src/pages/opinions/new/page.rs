@@ -1,15 +1,12 @@
 #![allow(non_snake_case)]
 use crate::{
     components::{icons::ArrowLeft, stepper::Stepper},
-    pages::opinions::new::{
-        composition_commitee::CompositionCommitee, composition_opinion::CompositionOpinion,
-        controller::CurrentStep, input_opinion::InputOpinion,
-    },
+    pages::opinions::new::controller::CurrentStep,
     routes::Route,
 };
 
-use super::controller::Controller;
-use super::{composition_panel::CompositionPanel, i18n::OpinionNewTranslate};
+use super::i18n::OpinionNewTranslate;
+use super::{controller::Controller, setting_discussion::SettingDiscussion};
 use dioxus::prelude::*;
 use dioxus_translate::{translate, Language};
 
@@ -57,15 +54,19 @@ pub fn OpinionCreatePage(props: OpinionProps) -> Element {
                     }
                 }
             }
-            if step == CurrentStep::PublicOpinionComposition {
-                CompositionOpinion { lang: props.lang.clone() }
-            } else if step == CurrentStep::InputInformation {
-                InputOpinion { lang: props.lang.clone() }
-            } else if step == CurrentStep::CommitteeComposition {
-                CompositionCommitee { lang: props.lang.clone() }
-            } else {
-                CompositionPanel { lang: props.lang.clone() }
-            }
+
+            SettingDiscussion { lang: props.lang.clone() }
+                // if step == CurrentStep::PublicOpinionComposition {
+        //     CompositionOpinion { lang: props.lang.clone() }
+        // } else if step == CurrentStep::InputInformation {
+        //     InputOpinion { lang: props.lang.clone() }
+        // } else if step == CurrentStep::CommitteeComposition {
+        //     CompositionCommitee { lang: props.lang.clone() }
+        // } else if step == CurrentStep::PanelComposition {
+        //     CompositionPanel { lang: props.lang.clone() }
+        // } else if step == CurrentStep::DiscussionSetting {
+        //     SettingDiscussion { lang: props.lang.clone() }
+        // }
         }
     }
 }
