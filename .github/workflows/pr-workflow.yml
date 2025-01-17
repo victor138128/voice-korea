@@ -26,7 +26,7 @@ jobs:
       - uses: cargo-bins/cargo-binstall@main
       - name: Install dioxus-cli
         run: |
-          cargo binstall dioxus-cli --version 0.6.0
+          cargo binstall dioxus-cli --version 0.6.1 --force
 
       - name: Dioxus Lint
         env:
@@ -53,7 +53,7 @@ jobs:
       - uses: cargo-bins/cargo-binstall@main
       - name: Install dioxus-cli
         run: |
-          cargo binstall dioxus-cli --version 0.6.0
+          cargo binstall dioxus-cli --version 0.6.1 --force
 
       - name: Cache builder
         id: test-cache-builder

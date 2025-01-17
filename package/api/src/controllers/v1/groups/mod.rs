@@ -40,32 +40,97 @@ impl GroupControllerV1 {
         let ctrl = GroupControllerV1 { log };
 
         Router::new()
+            .route("/", post(Self::act_group).get(Self::list_groups))
             .route(
-                "/organizations/:organization_id",
-                post(Self::create_group).get(Self::list_groups),
+                "/:group_id",
+                post(Self::act_group_by_id).get(Self::get_group),
             )
-            .route(
-                "/organizations/:organization_id/groups/:group_id",
-                post(Self::act_group).get(Self::get_group),
-            )
-            .route(
-                "/organizations/:organization_id/groups",
-                get(Self::search_groups),
-            )
-            .route(
-                "/organizations/:organization_id/groups/:group_id/search/members",
-                get(Self::search_groups_by_id),
-            )
+            .route("/search", get(Self::search_groups))
+            .route("/:group_id/members/search", get(Self::search_groups_by_id))
             .layer(middleware::from_fn(authorization_middleware)) //FIXME: fix management authorization
             .with_state(ctrl.clone())
     }
 
+    pub async fn act_group(
+        Extension(claims): Extension<Claims>,
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
+        State(ctrl): State<GroupControllerV1>,
+        Json(body): Json<GroupActionRequest>,
+    ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
+        let log = ctrl.log.new(o!("api" => "act_group"));
+        slog::debug!(log, "act_group: {:?} {:?}", organization_id, body.clone());
+
+        match body {
+            GroupActionRequest::Create(req) => {
+                let cli = easy_dynamodb::get_client(&log);
+                let id = uuid::Uuid::new_v4().to_string();
+                let group: Group = (req.clone(), id.clone(), claims.id, organization_id).into();
+
+                match cli.create(group.clone()).await {
+                    Ok(()) => {
+                        for member in req.members.clone() {
+                            let _ = ctrl
+                                .clone()
+                                .upsert_group_member(
+                                    ctrl.clone(),
+                                    id.clone(),
+                                    req.name.clone(),
+                                    member.user_id,
+                                )
+                                .await?;
+                        }
+
+                        return Ok(());
+                    }
+                    Err(e) => {
+                        slog::error!(log, "Create Group Failed {e:?}");
+                        return Err(ApiError::DynamoCreateException(e.to_string()));
+                    }
+                };
+            }
+        }
+    }
+
+    //TODO: implement act group by organization id
+    pub async fn act_group_by_id(
+        Extension(claims): Extension<Claims>,
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
+        State(ctrl): State<GroupControllerV1>,
+        Path(group_id): Path<String>,
+        Json(body): Json<GroupByIdActionRequest>,
+    ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
+        let log = ctrl.log.new(o!("api" => "act_group"));
+        slog::debug!(log, "act_group: {:?} {:?}", organization_id, group_id);
+
+        match body {
+            GroupByIdActionRequest::UpdateName(group_name) => {
+                ctrl.update_group_name(&group_id, group_name).await?;
+            }
+            GroupByIdActionRequest::Delete => {
+                ctrl.remove_group(&claims.id, &group_id).await?;
+            }
+            GroupByIdActionRequest::AddTeamMember(req) => {
+                ctrl.add_team_member(&group_id, &organization_id, req)
+                    .await?;
+            }
+            GroupByIdActionRequest::RemoveTeamMember(group_member_id) => {
+                ctrl.remove_team_member(&group_id, &group_member_id).await?;
+            }
+        }
+
+        Ok(())
+    }
+
     //TODO: implement search groups by group id
     pub async fn search_groups_by_id(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<GroupControllerV1>,
-        Path((organization_id, group_id)): Path<(String, String)>,
+        Path(group_id): Path<String>,
         Query(params): Query<SearchParams>,
     ) -> Result<Json<CommonQueryResponse<GroupResponse>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "search_groups_by_id"));
         slog::debug!(
             log,
@@ -83,10 +148,11 @@ impl GroupControllerV1 {
 
     //TODO: implement search groups
     pub async fn search_groups(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<GroupControllerV1>,
-        Path(organization_id): Path<String>,
         Query(params): Query<SearchParams>,
     ) -> Result<Json<CommonQueryResponse<GroupResponse>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "search_groups"));
         slog::debug!(log, "search_groups {:?} {:?}", organization_id, params);
 
@@ -96,76 +162,12 @@ impl GroupControllerV1 {
         }))
     }
 
-    //TODO: implement act group by organization id
-    pub async fn act_group(
-        Extension(claims): Extension<Claims>,
-        State(ctrl): State<GroupControllerV1>,
-        Path((organization_id, group_id)): Path<(String, String)>,
-        Json(body): Json<GroupActionRequest>,
-    ) -> Result<(), ApiError> {
-        let log = ctrl.log.new(o!("api" => "act_group"));
-        slog::debug!(log, "act_group: {:?} {:?}", organization_id, group_id);
-
-        match body {
-            GroupActionRequest::UpdateName(group_name) => {
-                ctrl.update_group_name(&group_id, group_name).await?;
-            }
-            GroupActionRequest::Delete => {
-                ctrl.remove_group(&claims.id, &group_id).await?;
-            }
-            GroupActionRequest::AddTeamMember(req) => {
-                ctrl.add_team_member(&group_id, &organization_id, req)
-                    .await?;
-            }
-            GroupActionRequest::RemoveTeamMember(group_member_id) => {
-                ctrl.remove_team_member(&group_id, &group_member_id).await?;
-            }
-        }
-
-        Ok(())
-    }
-
-    pub async fn create_group(
-        Extension(claims): Extension<Claims>,
-        Path(organization_id): Path<String>,
-        State(ctrl): State<GroupControllerV1>,
-        Json(body): Json<CreateGroupRequest>,
-    ) -> Result<Json<Group>, ApiError> {
-        let log = ctrl.log.new(o!("api" => "create_group"));
-        slog::debug!(log, "create_group {:?} {:?}", organization_id, body);
-
-        let cli = easy_dynamodb::get_client(&log);
-        let id = uuid::Uuid::new_v4().to_string();
-        let group: Group = (body.clone(), id.clone(), claims.id, organization_id).into();
-
-        match cli.create(group.clone()).await {
-            Ok(()) => {
-                for member in body.members.clone() {
-                    let _ = ctrl
-                        .clone()
-                        .upsert_group_member(
-                            ctrl.clone(),
-                            id.clone(),
-                            body.name.clone(),
-                            member.user_id,
-                        )
-                        .await?;
-                }
-
-                Ok(Json(group))
-            }
-            Err(e) => {
-                slog::error!(log, "Create Group Failed {e:?}");
-                Err(ApiError::DynamoCreateException(e.to_string()))
-            }
-        }
-    }
-
     pub async fn list_groups(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<GroupControllerV1>,
         Query(pagination): Query<Pagination>,
-        Path(organization_id): Path<String>,
     ) -> Result<Json<CommonQueryResponse<GroupResponse>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "list_groups"));
         let cli = easy_dynamodb::get_client(&log);
         slog::debug!(log, "list_groups {:?} {:?}", organization_id, pagination);
@@ -267,9 +269,11 @@ impl GroupControllerV1 {
     }
 
     pub async fn get_group(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<GroupControllerV1>,
-        Path((organization_id, group_id)): Path<(String, String)>,
+        Path(group_id): Path<String>,
     ) -> Result<Json<GroupResponse>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "get_group"));
         slog::debug!(log, "get_group {:?} {:?}", organization_id, group_id);
         let cli = easy_dynamodb::get_client(&log);

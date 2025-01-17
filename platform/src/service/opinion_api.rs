@@ -4,7 +4,8 @@ use std::collections::HashMap;
 
 use dioxus::prelude::*;
 use models::prelude::{
-    Field, OpinionActionRequest, OpinionResponse, PanelInfo, ProjectStatus, UpsertOpinionRequest,
+    CreateOpinionRequest, Field, OpinionActionRequest, OpinionByIdActionRequest, OpinionResponse,
+    PanelInfo, ProjectStatus, UpdateOpinionRequest,
 };
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
@@ -35,17 +36,56 @@ impl OpinionApi {
         use_context_provider(|| srv);
     }
 
+    pub async fn update_opinion(
+        &self,
+        project_id: String,
+        req: UpdateOpinionRequest,
+    ) -> Result<()> {
+        let token = self.get_token();
+        let id = self.get_organization_id();
+        let client = ReqwestClient::new()?;
+
+        let res = client
+            .post(&format!("/v1/opinions/{project_id}"))
+            .header("Authorization", token)
+            .header("x-organization", id)
+            .json(&OpinionByIdActionRequest::Update(req))
+            .send()
+            .await?;
+
+        let _res = res.error_for_status()?;
+
+        Ok(())
+    }
+
+    pub async fn create_opinion(&self, req: CreateOpinionRequest) -> Result<()> {
+        let token = self.get_token();
+        let id = self.get_organization_id();
+        let client = ReqwestClient::new()?;
+
+        let res = client
+            .post(&format!("/v1/opinions"))
+            .header("Authorization", token)
+            .header("x-organization", id)
+            .json(&OpinionActionRequest::Create(req))
+            .send()
+            .await?;
+
+        let _res = res.error_for_status()?;
+
+        Ok(())
+    }
+
     pub async fn remove_opinion(&self, project_id: String) -> Result<()> {
         let token = self.get_token();
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
+            .post(&format!("/v1/opinions/{project_id}"))
             .header("Authorization", token)
-            .json(&OpinionActionRequest::Delete)
+            .header("x-organization", id)
+            .json(&OpinionByIdActionRequest::Delete)
             .send()
             .await?;
         Ok(())
@@ -61,11 +101,10 @@ impl OpinionApi {
         let client = ReqwestClient::new()?;
 
         let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
+            .post(&format!("/v1/opinions/{project_id}"))
             .header("Authorization", token)
-            .json(&OpinionActionRequest::UpdateStatus(status))
+            .header("x-organization", id)
+            .json(&OpinionByIdActionRequest::UpdateStatus(status))
             .send()
             .await?;
         Ok(())
@@ -77,11 +116,10 @@ impl OpinionApi {
         let client = ReqwestClient::new()?;
 
         let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
+            .post(&format!("/v1/opinions/{project_id}"))
             .header("Authorization", token)
-            .json(&OpinionActionRequest::UpdatePanels(panels))
+            .header("x-organization", id)
+            .json(&OpinionByIdActionRequest::UpdatePanels(panels))
             .send()
             .await?;
         Ok(())
@@ -93,29 +131,13 @@ impl OpinionApi {
         let client = ReqwestClient::new()?;
 
         let _res = client
-            .post(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
+            .post(&format!("/v1/opinions/{project_id}"))
             .header("Authorization", token)
-            .json(&OpinionActionRequest::UpdateProjectType(project_type))
+            .header("x-organization", id)
+            .json(&OpinionByIdActionRequest::UpdateProjectType(project_type))
             .send()
             .await?;
         Ok(())
-    }
-
-    pub async fn upsert_opinion(&self, req: UpsertOpinionRequest) -> Result<UpsertOpinionRequest> {
-        let token = self.get_token();
-        let id = self.get_organization_id();
-        let client = ReqwestClient::new()?;
-
-        let res = client
-            .post(&format!("/v1/opinions/organizations/{id}"))
-            .header("Authorization", token)
-            .json(&req)
-            .send()
-            .await?;
-
-        Ok(res.json().await?)
     }
 
     pub async fn search_opinion(
@@ -129,8 +151,9 @@ impl OpinionApi {
         params.insert("keyword", keyword);
 
         let res = client
-            .get(&format!("/v1/opinions/organizations/{id}/opinions"))
+            .get(&format!("/v1/opinions"))
             .header("Authorization", token)
+            .header("x-organization", id)
             .query(&params)
             .send()
             .await?;
@@ -144,10 +167,9 @@ impl OpinionApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!(
-                "/v1/opinions/organizations/{id}/projects/{project_id}"
-            ))
+            .get(&format!("/v1/opinions/{project_id}"))
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 
@@ -173,9 +195,10 @@ impl OpinionApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/opinions/organizations/{id}"))
+            .get(&format!("/v1/opinions"))
             .query(&params)
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 

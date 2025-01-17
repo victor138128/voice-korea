@@ -4,8 +4,8 @@ use std::collections::HashMap;
 
 use dioxus::prelude::*;
 use models::prelude::{
-    GetPutObjectUriRequest, GetPutObjectUriResponse, MetadataActionRequest, MetadataSummary,
-    UpsertMetadataRequest,
+    CreateMetadataRequest, GetPutObjectUriRequest, GetPutObjectUriResponse, MetadataActionRequest,
+    MetadataByIdActionRequest, MetadataSummary, UpdateMetadataRequest,
 };
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
@@ -36,27 +36,47 @@ impl ResourceApi {
         use_context_provider(|| srv);
     }
 
-    pub async fn upsert_metadata(
-        &self,
-        req: UpsertMetadataRequest,
-    ) -> Result<UpsertMetadataRequest> {
+    pub async fn create_metadata(&self, req: CreateMetadataRequest) -> Result<()> {
         let token = self.get_token();
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post(&format!("/v1/metadata/organizations/{id}"))
+            .post(&format!("/v1/metadata"))
             .header("Authorization", token)
-            .json(&req)
+            .header("x-organization", id)
+            .json(&MetadataActionRequest::Create(req))
             .send()
             .await?;
 
-        let res = res.error_for_status()?;
+        let _res = res.error_for_status()?;
 
-        Ok(res.json().await?)
+        Ok(())
     }
 
-    pub async fn list_metadatas(
+    pub async fn update_metadata(
+        &self,
+        metadata_id: String,
+        req: UpdateMetadataRequest,
+    ) -> Result<()> {
+        let token = self.get_token();
+        let id = self.get_organization_id();
+        let client = ReqwestClient::new()?;
+
+        let res = client
+            .post(&format!("/v1/metadata/{metadata_id}"))
+            .header("Authorization", token)
+            .header("x-organization", id)
+            .json(&MetadataByIdActionRequest::Update(req))
+            .send()
+            .await?;
+
+        let _res = res.error_for_status()?;
+
+        Ok(())
+    }
+
+    pub async fn list_metadata(
         &self,
         size: Option<i64>,
         bookmark: Option<String>,
@@ -75,9 +95,10 @@ impl ResourceApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/metadata/organizations/{id}"))
+            .get(&format!("/v1/metadata"))
             .query(&params)
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 
@@ -92,11 +113,13 @@ impl ResourceApi {
         req: GetPutObjectUriRequest,
     ) -> Result<GetPutObjectUriResponse> {
         let token = self.get_token();
+        let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let res = client
             .post(format!("/v1/metadata/upload").as_str())
             .header("Authorization", token)
+            .header("x-organization", id)
             .json(&req)
             .send()
             .await?;
@@ -113,9 +136,10 @@ impl ResourceApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post(format!("/v1/metadata/organizations/{}/metadata/{}", id, metadata_id).as_str())
+            .post(format!("/v1/metadata/{}", metadata_id).as_str())
             .header("Authorization", token)
-            .json(&MetadataActionRequest::Delete)
+            .header("x-organization", id)
+            .json(&MetadataByIdActionRequest::Delete)
             .send()
             .await?;
 
@@ -131,10 +155,9 @@ impl ResourceApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!(
-                "/v1/metadata/organizations/{id}/metadata/{metadata_id}"
-            ))
+            .get(&format!("/v1/metadata/{metadata_id}"))
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 
@@ -157,9 +180,10 @@ impl ResourceApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/metadata/organizations/{id}/metadata"))
+            .get(&format!("/v1/metadata"))
             .query(&params)
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 

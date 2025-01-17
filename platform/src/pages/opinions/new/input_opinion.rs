@@ -19,6 +19,8 @@ use crate::{
 #[cfg(feature = "web")]
 use dioxus::html::HasFileData;
 
+use super::controller::CurrentStep;
+
 #[derive(Props, Clone, PartialEq)]
 pub struct InputOpinionProps {
     lang: Language,
@@ -33,6 +35,7 @@ pub enum DocumentTabType {
 #[component]
 pub fn InputOpinion(props: InputOpinionProps) -> Element {
     let translates: InputOpinionTranslate = translate(&props.lang);
+    let mut ctrl: Controller = use_context();
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "font-medium text-[16px] text-[#000000] mb-[10px]",
@@ -43,7 +46,11 @@ pub fn InputOpinion(props: InputOpinionProps) -> Element {
             ConnectProject { lang: props.lang }
 
             div { class: "flex flex-row w-full justify-end items-end mt-[40px] mb-[50px]",
-                div { class: "flex flex-row w-[70px] h-[55px] rounded-[4px] justify-center items-center bg-white border border-[#bfc8d9] font-semibold text-[16px] text-[#555462] mr-[20px]",
+                div {
+                    class: "cursor-pointer flex flex-row w-[70px] h-[55px] rounded-[4px] justify-center items-center bg-white border border-[#bfc8d9] font-semibold text-[16px] text-[#555462] mr-[20px]",
+                    onclick: move |_| {
+                        ctrl.change_step(CurrentStep::PublicOpinionComposition);
+                    },
                     "{translates.backward}"
                 }
                 div {
@@ -51,7 +58,11 @@ pub fn InputOpinion(props: InputOpinionProps) -> Element {
                     onclick: move |_| {},
                     "{translates.temporary_save}"
                 }
-                div { class: "cursor-pointer flex flex-row w-[110px] h-[55px] rounded-[4px] justify-center items-center bg-[#b4b4b4] font-semibold text-[16px] text-white",
+                div {
+                    class: "cursor-pointer flex flex-row w-[110px] h-[55px] rounded-[4px] justify-center items-center bg-[#b4b4b4] font-semibold text-[16px] text-white",
+                    onclick: move |_| {
+                        ctrl.change_step(CurrentStep::CommitteeComposition);
+                    },
                     "{translates.next}"
                 }
             }

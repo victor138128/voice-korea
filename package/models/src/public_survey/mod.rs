@@ -2,9 +2,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::{field::Field, prelude::PanelInfo};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
-pub struct UpsertPublicSurveyRequest {
-    pub id: Option<String>,
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
+pub struct CreatePublicSurveyRequest {
+    pub introductions: Option<PublicSurveyIntroduction>,
+    pub questions: Option<Vec<PublicSurveyQuestion>>,
+    pub members: Option<PublicSurveyMemberInfo>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
+pub struct UpdatePublicSurveyRequest {
     pub introductions: Option<PublicSurveyIntroduction>,
     pub questions: Option<Vec<PublicSurveyQuestion>>,
     pub members: Option<PublicSurveyMemberInfo>,
@@ -13,7 +19,14 @@ pub struct UpsertPublicSurveyRequest {
 #[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SurveyActionRequest {
+    Create(CreatePublicSurveyRequest),
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SurveyByIdActionRequest {
     Delete,
+    Update(UpdatePublicSurveyRequest),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
@@ -151,20 +164,20 @@ pub struct PublicSurveyStatistics {
     pub end_date: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct PublicSurveyMemberInfo {
     pub total_members: u64,
     pub members: Vec<PublicSurveyMember>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct PublicSurveyMember {
     pub member_id: String,
     pub panel_ids: Vec<String>,
     pub attribute_ids: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct PublicSurveyIntroduction {
     pub field: Field,
     pub title: String,
@@ -173,7 +186,7 @@ pub struct PublicSurveyIntroduction {
     pub description: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct PublicSurveyQuestion {
     #[serde(rename = "id")]
     pub id: Option<String>,
@@ -188,7 +201,7 @@ pub struct PublicSurveyQuestion {
     pub options: Option<Vec<String>>, //다음 필드도 함께 활용
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum PublicSurveyQuestionType {
     #[default]

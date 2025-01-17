@@ -2,8 +2,8 @@ use by_axum::{
     axum::{
         extract::{Path, Query, State},
         middleware,
-        routing::{get, post},
-        Json, Router,
+        routing::post,
+        Extension, Json, Router,
     },
     log::root,
 };
@@ -26,83 +26,60 @@ impl MetadataControllerV1 {
         let ctrl = MetadataControllerV1 { log };
 
         Router::new()
+            .route("/", post(Self::act_metadata).get(Self::list_metadatas))
             .route(
-                "/organizations/:organization_id",
-                post(Self::upsert_metadata).get(Self::list_metadatas),
-            )
-            .route(
-                "/organizations/:organization_id/metadata/:metadata_id",
-                post(Self::act_metadata).get(Self::get_metadata),
-            )
-            .route(
-                "/organizations/:organization_id/metadata",
-                get(Self::search_metadata),
+                "/:metadata_id",
+                post(Self::act_metadata_by_id).get(Self::get_metadata),
             )
             .route("/upload", post(Self::upload_metadata))
             .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
     }
 
-    pub async fn search_metadata(
+    pub async fn act_metadata(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MetadataControllerV1>,
-        Path(organization_id): Path<String>,
-        Query(params): Query<SearchParams>,
-    ) -> Result<Json<CommonQueryResponse<MetadataSummary>>, ApiError> {
-        let log = ctrl.log.new(o!("api" => "search_metadata"));
-        slog::debug!(log, "search_metadata {:?} {:?}", organization_id, params);
-        Ok(Json(CommonQueryResponse {
-            items: vec![
-                MetadataSummary {
-                    id: "1".to_string(),
-                    name: "공론자료제목명".to_string(),
-                    urls: vec![
-                    "https://metadata.dagit.club/images/666e4e5b-fd92-40fb-b60e-111c82c6f914.png"
-                        .to_string(),
-                ],
-                    metadata_type: Some(MetadataType::Report),
-                    metadata_field: Some(Field::Economy),
-                    metadata_purpose: Some(MetadataPurpose::PublicDiscussion),
-                    metadata_source: Some(MetadataSource::Internal),
-                    metadata_authority: Some(MetadataAuthority::Public),
-                    public_opinion_projects: None,
-                    public_survey_projects: None,
-                    updated_at: 1759276800,
-                },
-                MetadataSummary {
-                    id: "2".to_string(),
-                    name: "공론자료제목명".to_string(),
-                    urls: vec![
-                    "https://metadata.dagit.club/images/666e4e5b-fd92-40fb-b60e-111c82c6f914.png"
-                        .to_string(),
-                ],
-                    metadata_type: Some(MetadataType::Statistics),
-                    metadata_field: Some(Field::Society),
-                    metadata_purpose: Some(MetadataPurpose::AcademicResearch),
-                    metadata_source: Some(MetadataSource::External),
-                    metadata_authority: Some(MetadataAuthority::Restricted),
-                    public_opinion_projects: None,
-                    public_survey_projects: None,
-                    updated_at: 1759276800,
-                },
-                MetadataSummary {
-                    id: "3".to_string(),
-                    name: "공론자료제목명".to_string(),
-                    urls: vec![
-                    "https://metadata.dagit.club/images/666e4e5b-fd92-40fb-b60e-111c82c6f914.png"
-                        .to_string(),
-                ],
-                    metadata_type: Some(MetadataType::Statistics),
-                    metadata_field: Some(Field::Environment),
-                    metadata_purpose: Some(MetadataPurpose::DevelopmentPolicy),
-                    metadata_source: Some(MetadataSource::Goverment),
-                    metadata_authority: Some(MetadataAuthority::Private),
-                    public_opinion_projects: None,
-                    public_survey_projects: None,
-                    updated_at: 1759276800,
-                },
-            ],
-            bookmark: None,
-        }))
+        Json(body): Json<MetadataActionRequest>,
+    ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
+        let log = ctrl.log.new(o!("api" => "act_metadata"));
+        slog::debug!(log, "act_metadata: {:?} {:?}", organization_id, body);
+
+        match body {
+            MetadataActionRequest::Create(req) => {
+                ctrl.create_metadata(&organization_id, req).await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    pub async fn act_metadata_by_id(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
+        State(ctrl): State<MetadataControllerV1>,
+        Path(metadata_id): Path<String>,
+        Json(body): Json<MetadataByIdActionRequest>,
+    ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
+        let log = ctrl.log.new(o!("api" => "act_metadata_by_id"));
+        slog::debug!(
+            log,
+            "act_metadata_by_id: {:?} {:?}",
+            organization_id,
+            metadata_id
+        );
+
+        match body {
+            MetadataByIdActionRequest::Delete => {
+                ctrl.remove_metadata(&organization_id, &metadata_id).await?;
+            }
+            MetadataByIdActionRequest::Update(req) => {
+                ctrl.update_metadata(&organization_id, &metadata_id, req)
+                    .await?;
+            }
+        }
+
+        Ok(())
     }
 
     pub async fn upload_metadata(
@@ -117,27 +94,12 @@ impl MetadataControllerV1 {
         }))
     }
 
-    pub async fn act_metadata(
-        State(ctrl): State<MetadataControllerV1>,
-        Path((organization_id, metadata_id)): Path<(String, String)>,
-        Json(body): Json<MetadataActionRequest>,
-    ) -> Result<(), ApiError> {
-        let log = ctrl.log.new(o!("api" => "act_metadata"));
-        slog::debug!(log, "act_metadata: {:?} {:?}", organization_id, metadata_id);
-
-        match body {
-            MetadataActionRequest::Delete => {
-                ctrl.remove_metadata(&organization_id, &metadata_id).await?;
-            }
-        }
-
-        Ok(())
-    }
-
     pub async fn get_metadata(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MetadataControllerV1>,
-        Path((organization_id, metadata_id)): Path<(String, String)>,
+        Path(metadata_id): Path<String>,
     ) -> Result<Json<MetadataSummary>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "get_metadata"));
         slog::debug!(log, "get_metadata: {:?} {:?}", organization_id, metadata_id);
 
@@ -159,21 +121,12 @@ impl MetadataControllerV1 {
         }))
     }
 
-    pub async fn upsert_metadata(
-        State(ctrl): State<MetadataControllerV1>,
-        Path(organization_id): Path<String>,
-        Json(body): Json<UpsertMetadataRequest>,
-    ) -> Result<Json<UpsertMetadataRequest>, ApiError> {
-        let log = ctrl.log.new(o!("api" => "upsert_metadata"));
-        slog::debug!(log, "upsert_metadata {:?} {:?}", organization_id, body);
-        Ok(Json(UpsertMetadataRequest::default()))
-    }
-
     pub async fn list_metadatas(
-        Path(organization_id): Path<String>,
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MetadataControllerV1>,
         Query(pagination): Query<Pagination>,
     ) -> Result<Json<CommonQueryResponse<MetadataSummary>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "list_metadatas"));
         slog::debug!(log, "list_metadatas {:?} {:?}", organization_id, pagination);
 
@@ -282,6 +235,18 @@ impl MetadataControllerV1 {
 }
 
 impl MetadataControllerV1 {
+    pub async fn create_metadata(
+        &self,
+        organization_id: &str,
+        req: CreateMetadataRequest,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "create_metadata"));
+        slog::debug!(log, "create_metadata {:?} {:?}", organization_id, req);
+        Ok(())
+    }
+}
+
+impl MetadataControllerV1 {
     pub async fn remove_metadata(
         &self,
         organization_id: &str,
@@ -293,6 +258,23 @@ impl MetadataControllerV1 {
             "remove_metadata {:?} {:?}",
             organization_id,
             metadata_id
+        );
+        Ok(())
+    }
+
+    pub async fn update_metadata(
+        &self,
+        organization_id: &str,
+        metadata_id: &str,
+        body: UpdateMetadataRequest,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "update_metadata"));
+        slog::debug!(
+            log,
+            "update_metadata {:?} {:?} {:?}",
+            organization_id,
+            metadata_id,
+            body
         );
         Ok(())
     }
