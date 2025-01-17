@@ -59,7 +59,7 @@ impl MemberControllerV1 {
                     "gsi1-index",
                     None,
                     Some(100),
-                    vec![("gsi1", Member::get_gsi1(req.email.clone()))],
+                    vec![("gsi1", Member::get_gsi1("".to_string()))],
                 )
                 .await?;
 
@@ -71,10 +71,12 @@ impl MemberControllerV1 {
                     if item.deleted_at.is_some() {
                         let mem: Member = (
                             CreateMemberRequest {
-                                email: req.email,
                                 name: None,
                                 group: None,
                                 role: None,
+                                user_id: req.user_id.clone(),
+                                org_id: organization_id.clone(),
+                                email: req.email.clone(),
                             },
                             item.id.clone(),
                         )
@@ -139,7 +141,6 @@ impl MemberControllerV1 {
         Ok(())
     }
 
-    //TODO: implement invite member in organization
     pub async fn invite_member(
         Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MemberControllerV1>,
@@ -150,32 +151,55 @@ impl MemberControllerV1 {
         let cli = easy_dynamodb::get_client(&log);
         slog::debug!(log, "invite_member: {:?} {:?}", organization_id, body);
 
-        //Error: already exists member
-        let res: CommonQueryResponse<Member> = CommonQueryResponse::query(
+        let res: CommonQueryResponse<User> = CommonQueryResponse::query(
             &log,
             "gsi1-index",
             None,
             Some(1),
-            vec![("gsi1", Member::get_gsi1(body.email.clone()))],
+            vec![("gsi1", User::gsi1(body.email.clone()))],
+        )
+        .await?;
+
+        if res.items.len() == 0 {
+            return Err(ApiError::NotFound);
+        }
+
+        let user = match res.items.first() {
+            Some(user) => {
+                if user.deleted_at.is_some() {
+                    return Err(ApiError::NotFound);
+                }
+                user
+            }
+            None => return Err(ApiError::NotFound),
+        };
+
+        let user_id = user.id.clone();
+
+        // check org member exists
+        let res: CommonQueryResponse<OrganizationMember> = CommonQueryResponse::query(
+            &log,
+            "gsi1-index",
+            None,
+            Some(1),
+            vec![("gsi1", OrganizationMember::get_gsi2(&user_id.clone(), &organization_id.clone()))],
         )
         .await?;
 
         if res.items.len() != 0 {
-            let item = res.items.first().unwrap();
-
-            if item.deleted_at.is_none() {
-                return Err(ApiError::AlreadyExists);
-            }
+            return Err(ApiError::AlreadyExists);
         }
 
         let id = uuid::Uuid::new_v4().to_string();
 
-        let member: Member = (
+        let member: OrganizationMember = (
             CreateMemberRequest {
-                email: body.email.clone(),
+                user_id: user_id.clone(),
+                org_id: organization_id.clone(),
                 name: Some(body.name.clone()),
                 group: body.group.clone(),
                 role: body.role,
+                email: body.email.clone(),
             },
             id.clone(),
         )
@@ -237,6 +261,7 @@ impl MemberControllerV1 {
         let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "list_members"));
         slog::debug!(log, "list_members {:?} {:?}", organization_id, pagination);
+        let cli = easy_dynamodb::get_client(&log);
 
         let size = if let Some(size) = pagination.size {
             if size > 100 {
@@ -280,8 +305,50 @@ impl MemberControllerV1 {
             role_count[0] += 1;
         });
 
+        let mut result: Vec<GroupMemberRelationship> = Vec::new();
+
+        for item in filtered.iter() {
+            let mut groups: Vec<Group> = Vec::new();
+
+            let res: CommonQueryResponse<GroupMember> = CommonQueryResponse::query(
+                &log,
+                "gsi2-index",
+                None,
+                Some(100),
+                vec![("gsi2", GroupMember::get_gsi2(&item.id.clone()))],
+            )
+            .await?;
+
+            for item in res.items {
+                if item.deleted_at.is_some() {
+                    continue;
+                }
+
+                let group = cli
+                    .get::<Group>(&item.group_id)
+                    .await
+                    .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
+
+                if group.is_none() {
+                    continue;
+                }
+
+                if group.clone().unwrap().deleted_at.is_some() {
+                    continue;
+                }
+
+                groups.push(group.unwrap());
+            }
+
+            result.push(GroupMemberRelationship {
+                member: item.clone(),
+                groups,
+                project: vec![], // TODO: implement projects
+            });
+        }
+
         Ok(Json(ListMemberResponse {
-            members: filtered,
+            members: result,
             role_count,
             bookmark: res.bookmark,
         }))
@@ -291,30 +358,61 @@ impl MemberControllerV1 {
         Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<MemberControllerV1>,
         Path(member_id): Path<String>,
-    ) -> Result<Json<OrganizationMember>, ApiError> {
+    ) -> Result<Json<GroupMemberRelationship>, ApiError> {
         let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "get_member"));
         slog::debug!(log, "get_member {:?} {:?}", organization_id, member_id);
         let cli = easy_dynamodb::get_client(&log);
 
-        let res = cli.get::<OrganizationMember>(&member_id).await;
+        let res = cli
+            .get::<OrganizationMember>(&member_id)
+            .await
+            .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
 
-        match res {
-            Ok(v) => match v {
-                Some(v) => {
-                    if v.deleted_at.is_none() {
-                        Ok(Json(v))
-                    } else {
-                        Err(ApiError::NotFound)
-                    }
-                }
-                None => Err(ApiError::NotFound),
-            },
-            Err(e) => {
-                slog::error!(log, "Member Query Failed {e:?}");
-                Err(ApiError::DynamoQueryException(e.to_string()))
-            }
+        if res.is_none() {
+            return Err(ApiError::NotFound);
         }
+
+        let member = res.unwrap();
+
+        let mut groups: Vec<Group> = Vec::new();
+
+        let res: CommonQueryResponse<GroupMember> = CommonQueryResponse::query(
+            &log,
+            "gsi2-index",
+            None,
+            Some(100),
+            vec![("gsi2", GroupMember::get_gsi2(&member.id.clone()))],
+        )
+        .await?;
+
+        for item in res.items {
+            if item.deleted_at.is_some() {
+                continue;
+            }
+
+            let group = cli
+                .get::<Group>(&item.group_id)
+                .await
+                .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
+
+            if group.is_none() {
+                continue;
+            }
+
+            if group.clone().unwrap().deleted_at.is_some() {
+                continue;
+            }
+
+            groups.push(group.unwrap());
+        }
+
+        Ok(Json(GroupMemberRelationship {
+            member,
+            groups,
+            project: vec![], // TODO: implement projects
+        }))
+        
     }
 }
 

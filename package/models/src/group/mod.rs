@@ -148,9 +148,9 @@ impl Group {
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct CreateGroupMember {
-    pub user_id: String,
-    pub user_name: String,
-    pub user_email: String,
+    pub member_id: String,
+    pub member_name: String,
+    pub member_email: String,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
@@ -184,7 +184,7 @@ impl Into<Group> for (CreateGroupRequest, String, String, String) {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default, Eq)]
 pub struct TeamMemberRequest {
-    pub id: String,
+    pub member_id: String,
     pub email: String,
     pub name: Option<String>,
     pub group: Option<GroupInfo>,

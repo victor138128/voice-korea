@@ -76,7 +76,7 @@ impl GroupControllerV1 {
                                     ctrl.clone(),
                                     id.clone(),
                                     req.name.clone(),
-                                    member.user_id,
+                                    member.member_id,
                                 )
                                 .await?;
                         }
@@ -191,6 +191,14 @@ impl GroupControllerV1 {
         let mut groups: Vec<GroupResponse> = vec![];
 
         for group in res.items {
+            if group.deleted_at.is_some() {
+                continue;
+            }
+
+            if group.organization_id != organization_id {
+                continue;
+            }
+            println!("hey {:?}", GroupMember::get_gsi1(&group.id));
             //FIXME: fix to parameter
             let res: CommonQueryResponse<GroupMember> = CommonQueryResponse::query(
                 &log,
@@ -473,7 +481,7 @@ impl GroupControllerV1 {
         if res.items.len() == 0 {
             //group member not exists
             let id = uuid::Uuid::new_v4().to_string();
-            let group_member = GroupMember::new(id, group_id, member.organization_id.clone());
+            let group_member = GroupMember::new(id, group_id, member.id.clone());
 
             match cli.upsert(group_member.clone()).await {
                 Ok(()) => {
@@ -500,7 +508,7 @@ impl GroupControllerV1 {
 
             if item.deleted_at.is_some() {
                 let group_member =
-                    GroupMember::new(item.id.clone(), group_id, member.organization_id.clone());
+                    GroupMember::new(item.id.clone(), group_id, member.id.clone());
 
                 match cli.upsert(group_member.clone()).await {
                     Ok(()) => {
@@ -574,7 +582,7 @@ impl GroupControllerV1 {
         let cli = easy_dynamodb::get_client(&log);
 
         let res = cli
-            .get::<OrganizationMember>(&req.id)
+            .get::<OrganizationMember>(&req.member_id)
             .await
             .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
 
@@ -602,7 +610,7 @@ impl GroupControllerV1 {
         cli.create(GroupMember::new(
             uuid::Uuid::new_v4().to_string(),
             group_id.to_string(),
-            req.id.clone(),
+            req.member_id.clone(),
         ))
         .await
         .map_err(|e| ApiError::DynamoCreateException(e.to_string()))?;
