@@ -2,8 +2,8 @@ use by_axum::{
     axum::{
         extract::{Path, Query, State},
         middleware,
-        routing::{get, post},
-        Json, Router,
+        routing::post,
+        Extension, Json, Router,
     },
     log::root,
 };
@@ -26,320 +26,49 @@ impl PanelControllerV1 {
         let ctrl = PanelControllerV1 { log };
 
         Router::new()
+            .route("/", post(Self::act_panel).get(Self::list_panels))
             .route(
-                "/organizations/:organization_id",
-                post(Self::upsert_panel).get(Self::list_panels),
-            )
-            .route(
-                "/organizations/:organization_id/panels/:panel_id",
-                post(Self::act_panel).get(Self::get_panel),
-            )
-            .route(
-                "/organizations/:organization_id/panels",
-                get(Self::search_panel),
+                "/:panel_id",
+                post(Self::act_panel_by_id).get(Self::get_panel),
             )
             .with_state(ctrl)
             .layer(middleware::from_fn(authorization_middleware))
     }
 
-    pub async fn search_panel(
-        State(ctrl): State<PanelControllerV1>,
-        Path(organization_id): Path<String>,
-        Query(params): Query<SearchParams>,
-    ) -> Result<Json<CommonQueryResponse<PanelSummary>>, ApiError> {
-        let log = ctrl.log.new(o!("api" => "search_panel"));
-        slog::debug!(log, "search_panel {:?} {:?}", organization_id, params);
-        Ok(Json(CommonQueryResponse {
-            items: vec![
-                PanelSummary {
-                    id: "1".to_string(),
-                    name: "패널명1".to_string(),
-                    count: 50,
-                    attribute: vec![
-                        PanelAttributeInfo {
-                            id: Some("1".to_string()),
-                            name: "직업".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("2".to_string()),
-                            name: "성별".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("3".to_string()),
-                            name: "나이".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("4".to_string()),
-                            name: "학력".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("5".to_string()),
-                            name: "거주지".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("6".to_string()),
-                            name: "국적".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                    ],
-                },
-                PanelSummary {
-                    id: "2".to_string(),
-                    name: "패널명2".to_string(),
-                    count: 50,
-                    attribute: vec![
-                        PanelAttributeInfo {
-                            id: Some("1".to_string()),
-                            name: "직업".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("2".to_string()),
-                            name: "성별".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("3".to_string()),
-                            name: "나이".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("4".to_string()),
-                            name: "학력".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("5".to_string()),
-                            name: "거주지".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("6".to_string()),
-                            name: "국적".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                    ],
-                },
-                PanelSummary {
-                    id: "3".to_string(),
-                    name: "패널명3".to_string(),
-                    count: 50,
-                    attribute: vec![
-                        PanelAttributeInfo {
-                            id: Some("1".to_string()),
-                            name: "직업".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("2".to_string()),
-                            name: "성별".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("3".to_string()),
-                            name: "나이".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("4".to_string()),
-                            name: "학력".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("5".to_string()),
-                            name: "거주지".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                        PanelAttributeInfo {
-                            id: Some("6".to_string()),
-                            name: "국적".to_string(),
-                            attribute: vec![
-                                PanelAttributeDetailInfo {
-                                    id: Some("1".to_string()),
-                                    name: "속성1".to_string(),
-                                },
-                                PanelAttributeDetailInfo {
-                                    id: Some("2".to_string()),
-                                    name: "속성2".to_string(),
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-            bookmark: None,
-        }))
-    }
-
     pub async fn act_panel(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PanelControllerV1>,
-        Path((organization_id, panel_id)): Path<(String, String)>,
         Json(body): Json<PanelActionRequest>,
     ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "act_panel"));
-        slog::debug!(log, "act_panel: {:?} {:?}", organization_id, panel_id);
+        slog::debug!(log, "act_panel: {:?} {:?}", organization_id, body);
 
         match body {
-            PanelActionRequest::Delete => {
+            PanelActionRequest::Create(req) => {
+                ctrl.create_panel(&organization_id, req).await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    pub async fn act_panel_by_id(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
+        State(ctrl): State<PanelControllerV1>,
+        Path(panel_id): Path<String>,
+        Json(body): Json<PanelByIdActionRequest>,
+    ) -> Result<(), ApiError> {
+        let organization_id = organizations.id;
+        let log = ctrl.log.new(o!("api" => "act_panel_by_id"));
+        slog::debug!(log, "act_panel_by_id: {:?} {:?}", organization_id, panel_id);
+
+        match body {
+            PanelByIdActionRequest::Delete => {
                 ctrl.remove_panel(&organization_id, &panel_id).await?;
+            }
+            PanelByIdActionRequest::Update(req) => {
+                ctrl.update_panel(&organization_id, &panel_id, req).await?;
             }
         }
 
@@ -347,9 +76,11 @@ impl PanelControllerV1 {
     }
 
     pub async fn get_panel(
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PanelControllerV1>,
-        Path((organization_id, panel_id)): Path<(String, String)>,
+        Path(panel_id): Path<String>,
     ) -> Result<Json<PanelSummary>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "get_panel"));
         slog::debug!(log, "get_panel: {:?} {:?}", organization_id, panel_id);
 
@@ -446,21 +177,12 @@ impl PanelControllerV1 {
         }))
     }
 
-    pub async fn upsert_panel(
-        State(ctrl): State<PanelControllerV1>,
-        Path(organization_id): Path<String>,
-        Json(body): Json<UpsertPanelRequest>,
-    ) -> Result<Json<UpsertPanelRequest>, ApiError> {
-        let log = ctrl.log.new(o!("api" => "upsert_panel"));
-        slog::debug!(log, "upsert_panel {:?} {:?}", organization_id, body);
-        Ok(Json(UpsertPanelRequest::default()))
-    }
-
     pub async fn list_panels(
-        Path(organization_id): Path<String>,
+        Extension(organizations): Extension<OrganizationMiddlewareParams>,
         State(ctrl): State<PanelControllerV1>,
         Query(pagination): Query<Pagination>,
     ) -> Result<Json<CommonQueryResponse<PanelSummary>>, ApiError> {
+        let organization_id = organizations.id;
         let log = ctrl.log.new(o!("api" => "list_panels"));
         slog::debug!(log, "list_panels {:?} {:?}", organization_id, pagination);
 
@@ -1110,6 +832,18 @@ impl PanelControllerV1 {
 }
 
 impl PanelControllerV1 {
+    pub async fn create_panel(
+        &self,
+        organization_id: &str,
+        body: CreatePanelRequest,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "create_panel"));
+        slog::debug!(log, "create_panel {:?} {:?}", organization_id, body);
+        Ok(())
+    }
+}
+
+impl PanelControllerV1 {
     pub async fn remove_panel(
         &self,
         organization_id: &str,
@@ -1117,6 +851,23 @@ impl PanelControllerV1 {
     ) -> Result<(), ApiError> {
         let log = self.log.new(o!("api" => "remove_panel"));
         slog::debug!(log, "remove_panel {:?} {:?}", organization_id, panel_id);
+        Ok(())
+    }
+
+    pub async fn update_panel(
+        &self,
+        organization_id: &str,
+        panel_id: &str,
+        body: UpdatePanelRequest,
+    ) -> Result<(), ApiError> {
+        let log = self.log.new(o!("api" => "update_panel"));
+        slog::debug!(
+            log,
+            "update_panel {:?} {:?} {:?}",
+            organization_id,
+            panel_id,
+            body
+        );
         Ok(())
     }
 }

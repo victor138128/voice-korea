@@ -251,7 +251,38 @@ pub fn Cancel(props: IconProps) -> Element {
 }
 
 #[component]
-pub fn Remove(width: String, height: String) -> Element {
+pub fn Clear(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            width,
+            height,
+            view_box: "0 0 24 24",
+            fill: "none",
+            xmlns: "http://www.w3.org/2000/svg",
+            path {
+                stroke: "white",
+                "stroke-width": "1.5",
+                d: "M9 9L15 15",
+                "stroke-linecap": "round",
+                "stroke-linejoin": "round",
+            }
+            path {
+                stroke: "white",
+                "stroke-linecap": "round",
+                "stroke-width": "1.5",
+                d: "M15 9L9 15",
+                "stroke-linejoin": "round",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn Remove(
+    width: String,
+    height: String,
+    #[props(default = "white".to_string())] fill: String,
+) -> Element {
     rsx! {
         svg {
             view_box: "0 0 18 18",
@@ -262,7 +293,7 @@ pub fn Remove(width: String, height: String) -> Element {
             path {
                 "clip-rule": "evenodd",
                 "fill-rule": "evenodd",
-                fill: "white",
+                fill,
                 d: "M18 9C18 13.9706 13.9706 18 9 18C4.02944 18 0 13.9706 0 9C0 4.02944 4.02944 0 9 0C13.9706 0 18 4.02944 18 9ZM5.46967 5.46967C5.76256 5.17678 6.23744 5.17678 6.53033 5.46967L9 7.93934L11.4697 5.46967C11.7626 5.17678 12.2374 5.17678 12.5303 5.46967C12.8232 5.76256 12.8232 6.23744 12.5303 6.53033L10.0607 9L12.5303 11.4697C12.8232 11.7626 12.8232 12.2374 12.5303 12.5303C12.2374 12.8232 11.7626 12.8232 11.4697 12.5303L9 10.0607L6.53033 12.5303C6.23744 12.8232 5.76256 12.8232 5.46967 12.5303C5.17678 12.2374 5.17678 11.7626 5.46967 11.4697L7.93934 9L5.46967 6.53033C5.17678 6.23744 5.17678 5.76256 5.46967 5.46967Z",
             }
         }

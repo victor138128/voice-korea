@@ -1,6 +1,11 @@
 use serde::{Deserialize, Serialize};
 use crate::member::CreateMemberRequest;
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct OrganizationMiddlewareParams {
+    pub id: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub struct OrganizationMemberResponse {
     pub id: String,

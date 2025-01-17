@@ -3,7 +3,10 @@ pub type Result<T> = std::result::Result<T, ServerFnError>;
 use std::collections::HashMap;
 
 use dioxus::prelude::*;
-use models::prelude::{AttributeActionRequest, AttributeSummary, UpsertAttributeRequest};
+use models::prelude::{
+    AttributeActionRequest, AttributeByIdActionRequest, AttributeSummary, CreateAttributeRequest,
+    UpdateAttributeRequest,
+};
 
 use crate::{api::common::CommonQueryResponse, utils::api::ReqwestClient};
 
@@ -33,24 +36,44 @@ impl AttributeApi {
         use_context_provider(|| srv);
     }
 
-    pub async fn upsert_attribute(
+    pub async fn update_attribute(
         &self,
-        req: UpsertAttributeRequest,
-    ) -> Result<UpsertAttributeRequest> {
+        attribute_id: String,
+        req: UpdateAttributeRequest,
+    ) -> Result<()> {
         let token = self.get_token();
         let id = self.get_organization_id();
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post(&format!("/v1/attributes/organizations/{id}"))
+            .post(&format!("/v1/attributes/{attribute_id}"))
             .header("Authorization", token)
-            .json(&req)
+            .header("x-organization", id)
+            .json(&AttributeByIdActionRequest::Update(req))
             .send()
             .await?;
 
-        let res = res.error_for_status()?;
+        let _res = res.error_for_status()?;
 
-        Ok(res.json().await?)
+        Ok(())
+    }
+
+    pub async fn create_attribute(&self, req: CreateAttributeRequest) -> Result<()> {
+        let token = self.get_token();
+        let id = self.get_organization_id();
+        let client = ReqwestClient::new()?;
+
+        let res = client
+            .post(&format!("/v1/attributes"))
+            .header("Authorization", token)
+            .header("x-organization", id)
+            .json(&AttributeActionRequest::Create(req))
+            .send()
+            .await?;
+
+        let _res = res.error_for_status()?;
+
+        Ok(())
     }
 
     pub async fn search_attributes(
@@ -66,9 +89,10 @@ impl AttributeApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/attributes/organizations/{id}/attributes"))
+            .get(&format!("/v1/attributes"))
             .query(&params)
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 
@@ -97,9 +121,10 @@ impl AttributeApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!("/v1/attributes/organizations/{id}"))
+            .get(&format!("/v1/attributes"))
             .query(&params)
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 
@@ -115,15 +140,10 @@ impl AttributeApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .post(
-                format!(
-                    "/v1/attributes/organizations/{}/attributes/{}",
-                    id, attribute_id
-                )
-                .as_str(),
-            )
+            .post(format!("/v1/attributes/{}", attribute_id).as_str())
             .header("Authorization", token)
-            .json(&AttributeActionRequest::Delete)
+            .header("x-organization", id)
+            .json(&AttributeByIdActionRequest::Delete)
             .send()
             .await?;
 
@@ -139,10 +159,9 @@ impl AttributeApi {
         let client = ReqwestClient::new()?;
 
         let res = client
-            .get(&format!(
-                "/v1/attributes/organizations/{id}/attributes/{attribute_id}"
-            ))
+            .get(&format!("/v1/attributes/{attribute_id}"))
             .header("Authorization", token)
+            .header("x-organization", id)
             .send()
             .await?;
 

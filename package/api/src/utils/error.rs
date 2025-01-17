@@ -63,6 +63,9 @@ pub enum ApiError {
 
     #[error("Invalid permission to access")]
     InvalidPermissions, // if organization is not matched with organization_member or group_member
+
+    #[error("Organization Id Not Found")]
+    OrganizationNotFound,
 }
 
 impl IntoResponse for ApiError {
@@ -86,6 +89,7 @@ impl IntoResponse for ApiError {
             ApiError::ForbiddenAccessError => StatusCode::FORBIDDEN,
             ApiError::AlreadyExists => StatusCode::ALREADY_REPORTED,
             ApiError::InvalidPermissions => StatusCode::FORBIDDEN,
+            ApiError::OrganizationNotFound => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
         let error_id = uuid::Uuid::new_v4();

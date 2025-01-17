@@ -170,7 +170,7 @@ impl Into<InviteMember> for (InviteMemberRequest, String) {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct CreateMemberRequest {
     pub user_id: String,
     pub org_id: String,
@@ -233,6 +233,12 @@ impl Into<Member> for (CreateMemberRequest, String) {
 #[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum MemberActionRequest {
+    Create(CreateMemberRequest),
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum MemberByIdActionRequest {
     Update(UpdateMemberRequest),
     Delete,
     AddProject(MemberProject),
