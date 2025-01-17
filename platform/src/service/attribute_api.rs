@@ -53,9 +53,9 @@ impl AttributeApi {
             .send()
             .await?;
 
-        let res = res.error_for_status()?;
+        let _res = res.error_for_status()?;
 
-        Ok(res.json().await?)
+        Ok(())
     }
 
     pub async fn create_attribute(&self, req: CreateAttributeRequest) -> Result<()> {
@@ -71,9 +71,9 @@ impl AttributeApi {
             .send()
             .await?;
 
-        let res = res.error_for_status()?;
+        let _res = res.error_for_status()?;
 
-        Ok(res.json().await?)
+        Ok(())
     }
 
     pub async fn search_attributes(

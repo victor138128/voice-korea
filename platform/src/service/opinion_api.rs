@@ -53,7 +53,9 @@ impl OpinionApi {
             .send()
             .await?;
 
-        Ok(res.json().await?)
+        let _res = res.error_for_status()?;
+
+        Ok(())
     }
 
     pub async fn create_opinion(&self, req: CreateOpinionRequest) -> Result<()> {
@@ -69,9 +71,9 @@ impl OpinionApi {
             .send()
             .await?;
 
-        let res = res.error_for_status()?;
+        let _res = res.error_for_status()?;
 
-        Ok(res.json().await?)
+        Ok(())
     }
 
     pub async fn remove_opinion(&self, project_id: String) -> Result<()> {
