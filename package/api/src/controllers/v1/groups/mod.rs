@@ -76,7 +76,7 @@ impl GroupControllerV1 {
                                     ctrl.clone(),
                                     id.clone(),
                                     req.name.clone(),
-                                    member.user_id,
+                                    member.member_id,
                                 )
                                 .await?;
                         }
@@ -582,7 +582,7 @@ impl GroupControllerV1 {
         let cli = easy_dynamodb::get_client(&log);
 
         let res = cli
-            .get::<OrganizationMember>(&req.id)
+            .get::<OrganizationMember>(&req.member_id)
             .await
             .map_err(|e| ApiError::DynamoQueryException(e.to_string()))?;
 

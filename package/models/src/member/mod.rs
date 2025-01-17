@@ -30,9 +30,15 @@ pub struct Member {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ListMemberResponse {
-    pub members: Vec<OrganizationMember>,
+    pub members: Vec<GroupMemberRelationship>,
     pub role_count: Vec<u64>,
     pub bookmark: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct GroupMemberRelationship {
+    pub member: OrganizationMember,
+    pub groups: Vec<Group>,
 }
 
 // FIXME: depreciated data structure (-> OrganizationMember)
@@ -140,7 +146,6 @@ impl InviteMember {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default, Eq)]
 pub struct InviteMemberRequest {
-    pub user_id: String,
     pub email: String,
     pub name: String,
     pub group: Option<GroupInfo>,
