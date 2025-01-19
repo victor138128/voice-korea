@@ -50,13 +50,21 @@ pub enum OpinionByIdActionRequest {
 pub struct ScheduleInfo {
     pub title: String,
     pub schedules: Vec<ScheduleDetailInfo>,
+    pub typed_schedule: bool,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct ScheduleDetailInfo {
     pub start_date: u64,
     pub end_date: u64,
+    pub contents: String,
+    pub options: Option<ScheduleOption>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
+pub struct ScheduleOption {
     pub title: String,
+    pub contents: String,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
@@ -77,8 +85,7 @@ pub enum MeetingType {
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct DiscussionGroupInfo {
-    pub panels: Vec<PanelInfo>,
-    pub panel_count: u64,
+    pub total_groups: u64,
     pub groups: Vec<DiscussionGroupDetailInfo>,
 }
 
@@ -97,8 +104,15 @@ pub struct UpsertPanelInfo {
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct PanelAttribute {
+    pub panel: CompositionPanelInfo,
     pub panel_count: u64,
     pub attributes: Vec<AttributeInfo>,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
+pub struct CompositionPanelInfo {
+    pub panel_id: Option<String>, //panel id가 none일 경우 id 생성 후 패널 및 속성 관리 페이지 추가
+    pub name: String,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]

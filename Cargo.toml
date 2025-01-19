@@ -12,7 +12,7 @@ edition = "2021"
 models = { version = "1.0.0", path = "package/models" }
 easy-dynamodb = "0.1.7"
 slog = "2.7.0"
-by-axum = { version = "0.1.7" }
+by-axum = { version = "0.2.5" }
 chrono = "0.4.38"
 serde = "1.0.215"
 reqwest = "0.12.9"

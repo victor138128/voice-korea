@@ -334,3 +334,219 @@ translate! {
         en: "Next"
     }
 }
+
+translate! {
+    CompositionPanelTranslate;
+
+    faired_people_allocated: {
+        ko: "공평한 인원수 배정",
+        en: "Fair number of people allocated"
+    }
+    participant_panel_composition: {
+        ko: "참여자 패널 구성",
+        en: "Participant Panel Composition"
+    }
+    backward: {
+        ko: "뒤로",
+        en: "Backward"
+    }
+    temporary_save: {
+        ko: "임시저장",
+        en: "Temporary Save"
+    }
+    next: {
+        ko: "다음으로",
+        en: "Next"
+    }
+}
+
+translate! {
+    DirectedAddPanelTranslate;
+
+    directed_add_panel_title: {
+        ko: "패널 직접 추가",
+        en: "Add panels directly"
+    }
+    directed_add_panel_description: {
+        ko: "패널별 속성을 직접 작성하여 추가합니다. 이는 패널&속성관리 페이지에 자동으로 반영됩니다.",
+        en: "Create and add panel-specific properties yourself. This is automatically reflected on the panel & property management page."
+    }
+    enter_panel_name: {
+        ko: "패널명 입력",
+        en: "Enter Panel Name"
+    }
+    select_attribute: {
+        ko: "속성 선택",
+        en: "Select Attribute"
+    }
+}
+
+translate! {
+    SettingTotalPanelTranslate;
+
+    setting_total_panel_title: {
+        ko: "전체 패널 설정",
+        en: "Total Panel Settings"
+    }
+    setting_total_panel_description: {
+        ko: "공론위원회는 다양한 의견을 수렴하고 합의된 결정을 도출하는 역할을 합니다. 각 역할의 담당자를 선정해주세요.",
+        en: "The Public Opinion Committee's role is to collect diverse opinions and arrive at a consensus decision. Please select a person in charge of each role."
+    }
+    total_panel: {
+        ko: "전체 패널",
+        en: "Total Panel"
+    }
+    faired_people_allocated: {
+        ko: "공평한 인원수 배정",
+        en: "Fair number of people allocated"
+    }
+    proportional_people_allocated: {
+        ko: "인원수 비례 배정",
+        en: "Proportional allocation of number of people"
+    }
+    total_members: {
+        ko: "총 인원",
+        en: "Total Members"
+    }
+    select_panel: {
+        ko: "패널 선택",
+        en: "Select Panel"
+    }
+}
+
+translate! {
+    SettingDiscussionTranslate;
+
+    setting_discussion: {
+        ko: "토론 설정",
+        en: "Setting Discussion"
+    }
+    backward: {
+        ko: "뒤로",
+        en: "Backward"
+    }
+    temporary_save: {
+        ko: "임시저장",
+        en: "Temporary Save"
+    }
+    next: {
+        ko: "다음으로",
+        en: "Next"
+    }
+}
+
+translate! {
+    SettingGroupTranslate;
+
+    setting_group_title: {
+        ko: "토론 그룹 생성",
+        en: "Create a discussion group"
+    }
+    setting_group_description: {
+        ko: "그룹은 설정된 패널로 이루어지며, 생성된 그룹은 다양한 미팅에 참여할 수 있는 구조로 설계됩니다.",
+        en: "A group is made up of set panels, and the created group is designed to allow participation in various meetings."
+    }
+    default_discussion_group: {
+        ko: "기본 토론 그룹",
+        en: "Default Discussion Group"
+    }
+    number_of_people: {
+        ko: "인원 수",
+        en: "Number of People"
+    }
+    add_discussion_group: {
+        ko: "토론 그룹 추가",
+        en: "Add Discussion Group"
+    }
+}
+
+translate! {
+    CreateMeetingTranslate;
+
+    create_meeting_title: {
+        ko: "미팅 생성",
+        en: "Create Meeting"
+    }
+    create_meeting_description: {
+        ko: "그룹은 설정된 패널로 이루어지며, 생성된 그룹은 다양한 미팅에 참여할 수 있는 구조로 설계됩니다.",
+        en: "A group is made up of set panels, and the created group is designed to allow participation in various meetings."
+    }
+    set_period: {
+        ko: "기간 설정",
+        en: "Set Period"
+    }
+    discussion_subject: {
+        ko: "토론 주제",
+        en: "Discussion Title"
+    }
+    input_content: {
+        ko: "내용 입력",
+        en: "Input Content"
+    }
+    remove: {
+        ko: "삭제",
+        en: "Remove"
+    }
+    select_discussion_group: {
+        ko: "토론 그룹 선택",
+        en: "Select Discussion Group"
+    }
+    offline_meeting: {
+        ko: "오프라인 회의",
+        en: "Offline Meeting"
+    }
+    online_meeting: {
+        ko: "온라인 회의",
+        en: "Online Meeting"
+    }
+}
+
+translate! {
+    SettingScheduleTranslate;
+
+    setting_schedule_title: {
+        ko: "일정표 설정",
+        en: "Set up a schedule"
+    }
+    setting_schedule_description: {
+        ko: "그룹은 설정된 패널로 이루어지며, 생성된 그룹은 다양한 미팅에 참여할 수 있는 구조로 설계됩니다.",
+        en: "A group is made up of set panels, and the created group is designed to allow participation in various meetings."
+    }
+    schedule: {
+        ko: "일정표 명",
+        en: "Schedule"
+    }
+    input_schedule: {
+        ko: "일정표 명 입력",
+        en: "Input Schedule"
+    }
+    create_schedule: {
+        ko: "일정표 만들기",
+        en: "Create Schedule"
+    }
+    see_schedule: {
+        ko: "일정표 보기",
+        en: "See Schedule"
+    }
+    remove:{
+        ko: "삭제",
+        en: "Remove"
+    }
+}
+
+translate! {
+    UploadDiscussionMetadataTranslate;
+
+    upload_metadata_title: {
+        ko: "토론 자료 업로드",
+        en: "Upload discussion materials"
+    }
+    upload_metadata_description: {
+        ko: "토론과 관련된 자료를 업로드해주세요. jpg, .png, pdf, zip, word, excel, pptx 파일만 업로드 가능합니다.",
+        en: "Please upload materials related to the discussion. Only jpg, .png, pdf, zip, word, excel, and pptx files can be uploaded."
+    }
+    upload_material: {
+        ko: "자료 업로드",
+        en: "Upload Material"
+    }
+}

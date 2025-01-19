@@ -816,3 +816,173 @@ pub fn CalendarRightArrow() -> Element {
         }
     }
 }
+
+#[component]
+pub fn Checked(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            xmlns: "http://www.w3.org/2000/svg",
+            width,
+            view_box: "0 0 22 23",
+            fill: "none",
+            height,
+            circle {
+                stroke: "#2A60D3",
+                cx: "11",
+                cy: "11.5",
+                r: "9.9",
+                "stroke-width": "1.8",
+            }
+            circle {
+                fill: "#2A60D3",
+                cx: "11",
+                r: "6.75",
+                cy: "11.5",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn UnChecked(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            width,
+            "viewBox": "0 0 22 23",
+            fill: "none",
+            height,
+            xmlns: "http://www.w3.org/2000/svg",
+            circle {
+                stroke: "#B4B4B4",
+                cy: "11.5",
+                r: "9.9",
+                cx: "11",
+                "stroke-width": "1.8",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn DiscussionUser(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            view_box: "0 0 24 24",
+            height,
+            fill: "none",
+            width,
+            xmlns: "http://www.w3.org/2000/svg",
+            path {
+                "stroke-linecap": "round",
+                "stroke-width": "2",
+                stroke: "#85AEE2",
+                "stroke-linejoin": "round",
+                d: "M3 19V18C3 15.7909 4.79086 14 7 14H11C13.2091 14 15 15.7909 15 18V19M15 11C16.6569 11 18 9.65685 18 8C18 6.34315 16.6569 5 15 5M21 19V18C21 15.7909 19.2091 14 17 14H16.5M12 8C12 9.65685 10.6569 11 9 11C7.34315 11 6 9.65685 6 8C6 6.34315 7.34315 5 9 5C10.6569 5 12 6.34315 12 8Z",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn ClockIcon(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            width,
+            height,
+            xmlns: "http://www.w3.org/2000/svg",
+            fill: "none",
+            view_box: "0 0 28 28",
+            circle {
+                cx: "14",
+                "stroke-width": "1.5",
+                "stroke-linejoin": "round",
+                stroke: "#7C8292",
+                r: "10.5",
+                cy: "14",
+                "stroke-linecap": "round",
+            }
+            path {
+                "stroke-linecap": "round",
+                "stroke-width": "1.5",
+                d: "M14 7.58325V13.9999L18.6667 16.3333",
+                "stroke-linejoin": "round",
+                stroke: "#7C8292",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn SwitchOn(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            view_box: "0 0 44 21",
+            fill: "none",
+            xmlns: "http://www.w3.org/2000/svg",
+            height,
+            width,
+            rect {
+                width: "44",
+                rx: "10",
+                y: "0.5",
+                height: "20",
+                fill: "#2A60D3",
+            }
+            circle {
+                cx: "34",
+                r: "8",
+                cy: "10.5",
+                fill: "white",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn SwitchOff(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            fill: "none",
+            width,
+            view_box: "0 0 44 21",
+            xmlns: "http://www.w3.org/2000/svg",
+            height,
+            rect {
+                rx: "10",
+                height: "20",
+                transform: "rotate(-180 44 20.5)",
+                fill: "#B4B4B4",
+                x: "44",
+                width: "44",
+                y: "20.5",
+            }
+            circle {
+                fill: "white",
+                cx: "10",
+                cy: "10.5",
+                transform: "rotate(-180 10 10.5)",
+                r: "8",
+            }
+        }
+    }
+}
+
+#[component]
+pub fn Schedule(width: String, height: String) -> Element {
+    rsx! {
+        svg {
+            view_box: "0 0 24 24",
+            fill: "none",
+            width,
+            xmlns: "http://www.w3.org/2000/svg",
+            height,
+            path {
+                d: "M9 3H5C4.46957 3 3.96086 3.21071 3.58579 3.58579C3.21071 3.96086 3 4.46957 3 5V9M9 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V9M9 3V21M3 9V19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21H9M3 9H21M21 9V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H9",
+                "stroke-linejoin": "round",
+                stroke: "#AFC9FF",
+                "stroke-width": "1.5",
+                "stroke-linecap": "round",
+            }
+        }
+    }
+}
