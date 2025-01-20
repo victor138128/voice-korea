@@ -2,12 +2,19 @@ use dioxus::prelude::*;
 use dioxus_translate::{translate, Language};
 
 use crate::{
-    components::icons::ArrowRight,
-    pages::opinions::new::i18n::{
-        CompositionCommitteeSummaryTranslate, CompositionOpinionSummaryTranslate,
-        CompositionPanelSummaryTranslate, InputOpinionSummaryTranslate, PreviewTranslate,
+    components::icons::{ArrowRight, Message},
+    pages::opinions::new::{
+        controller::Controller,
+        i18n::{
+            CompositionCommitteeSummaryTranslate, CompositionOpinionSummaryTranslate,
+            CompositionPanelSummaryTranslate, InputOpinionSummaryTranslate, PreviewTranslate,
+            SendAlertTranslate,
+        },
     },
+    service::popup_service::PopupService,
 };
+
+use super::controller::CurrentStep;
 
 #[derive(Props, Clone, PartialEq)]
 pub struct PreviewProps {
@@ -17,6 +24,27 @@ pub struct PreviewProps {
 #[component]
 pub fn Preview(props: PreviewProps) -> Element {
     let translate: PreviewTranslate = translate(&props.lang);
+    let mut ctrl: Controller = use_context();
+    let mut open_modal = use_signal(|| false);
+
+    let mut popup: PopupService = use_context();
+
+    if open_modal() {
+        popup
+            .open(rsx! {
+                SendAlertModal {
+                    lang: props.lang,
+                    onclose: move |_e: MouseEvent| {
+                        open_modal.set(false);
+                    },
+                }
+            })
+            .with_id("send_alert")
+            .with_title(&translate.send_alerm);
+    } else {
+        popup.close();
+    }
+
     rsx! {
         //FIXME: fix to real data
         div { class: "flex flex-col w-full justify-start items-start",
@@ -28,13 +56,45 @@ pub fn Preview(props: PreviewProps) -> Element {
             div { class: "flex flex-row w-full justify-end items-end mt-[40px] mb-[50px]",
                 div {
                     class: "flex flex-row w-[70px] h-[55px] rounded-[4px] justify-center items-center bg-white border border-[#bfc8d9] font-semibold text-[16px] text-[#555462] mr-[20px]",
-                    onclick: move |_| {},
+                    onclick: move |_| {
+                        ctrl.change_step(CurrentStep::DiscussionSetting);
+                    },
                     "{translate.backward}"
                 }
                 div {
                     class: "cursor-pointer flex flex-row w-[130px] h-[55px] rounded-[4px] justify-center items-center bg-[#2a60d3] font-semibold text-[16px] text-white",
-                    onclick: move |_| {},
+                    onclick: move |_| {
+                        open_modal.set(true);
+                    },
                     "{translate.start_public_opinion}"
+                }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn SendAlertModal(onclose: EventHandler<MouseEvent>, lang: Language) -> Element {
+    let translate: SendAlertTranslate = translate(&lang);
+    rsx! {
+        div { class: "flex flex-col w-full justify-center items-center",
+            div { class: "font-normal text-[#222222] text-[14px] mb-[20px]",
+                "{translate.send_alert_description}"
+            }
+            Message { width: "100", height: "100" }
+            div { class: "flex flex-row w-full justify-center items-center font-normal text-[#6d6d6d] text-[14px] mt-[10px] mb-[20px]",
+                "총 50명 선택 / 패널 4개 선택"
+            }
+            div { class: "flex flex-row w-full justify-center items-center gap-[20px]",
+                div { class: "flex flex-row w-[75px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-[4px] font-semibold text-[16px] text-white",
+                    "{translate.send}"
+                }
+                button {
+                    class: "flex flex-row w-[60px] h-[40px] justify-center items-center bg-white font-semibold text-[#222222] text-[16px]",
+                    onclick: move |e: MouseEvent| {
+                        onclose.call(e);
+                    },
+                    "{translate.cancel}"
                 }
             }
         }

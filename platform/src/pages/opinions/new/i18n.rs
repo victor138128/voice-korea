@@ -554,6 +554,10 @@ translate! {
 translate! {
     PreviewTranslate;
 
+    send_alerm: {
+        ko: "알림 보내기",
+        en: "Send Alerm"
+    }
     backward: {
         ko: "뒤로",
         en: "Backward"
@@ -629,5 +633,22 @@ translate! {
     setting_properties_for_each_panel: {
         ko: "패널별 속성 설정",
         en: "Setting Properties for Each Panel"
+    }
+}
+
+translate! {
+    SendAlertTranslate;
+
+    send_alert_description: {
+        ko: "참여자의 메일로 공론 시작을 알리는 메세지를 보냅니다.",
+        en: "A message will be sent to the participant's email notifying them of the start of the public discussion."
+    }
+    send: {
+        ko: "보내기",
+        en: "Send"
+    }
+    cancel: {
+        ko: "취소",
+        en: "Cancel"
     }
 }
