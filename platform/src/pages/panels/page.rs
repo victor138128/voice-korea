@@ -1,4 +1,5 @@
 use dioxus::prelude::*;
+use dioxus_logger::tracing;
 use dioxus_translate::{translate, Language};
 use models::prelude::{AttributeSummary, PanelSummary};
 
@@ -40,11 +41,14 @@ pub fn PanelPage(props: PanelProps) -> Element {
 
     let translate: PanelTranslate = translate(&props.lang);
 
-    if let ModalType::RemoveAttribute(_index) = modal_type() {
+    if let ModalType::RemoveAttribute(index) = modal_type() {
         popup
             .open(rsx! {
                 RemoveAttributeModal {
                     lang: props.lang,
+                    remove_click: move |_| {
+                        tracing::debug!("remove attribute clicked: {index}");
+                    },
                     onclose: move |_| {
                         popup.close();
                     },
@@ -52,11 +56,15 @@ pub fn PanelPage(props: PanelProps) -> Element {
             })
             .with_id("remove_attribute")
             .with_title(translate.remove_attribute);
-    } else if let ModalType::UpdateAttributeName(_index) = modal_type() {
+    } else if let ModalType::UpdateAttributeName(index) = modal_type() {
         popup
             .open(rsx! {
                 UpdateAttributeNameModal {
                     lang: props.lang,
+                    update_attribute_click: move |name: String| {
+                        tracing::debug!("update attribute clicked: {index} {name}");
+                    },
+                    initial_value: attributes[index].name.clone(),
                     onclose: move |_| {
                         popup.close();
                     },
@@ -64,11 +72,14 @@ pub fn PanelPage(props: PanelProps) -> Element {
             })
             .with_id("update_attribute_name")
             .with_title(translate.update_attribute_name);
-    } else if let ModalType::RemovePanel(_index) = modal_type() {
+    } else if let ModalType::RemovePanel(index) = modal_type() {
         popup
             .open(rsx! {
                 RemovePanelModal {
                     lang: props.lang,
+                    remove_click: move |_| {
+                        tracing::debug!("remove panel clicked: {index}");
+                    },
                     onclose: move |_| {
                         popup.close();
                     },
@@ -76,11 +87,15 @@ pub fn PanelPage(props: PanelProps) -> Element {
             })
             .with_id("remove_panel")
             .with_title(translate.remove_panel);
-    } else if let ModalType::UpdatePanelName(_index) = modal_type() {
+    } else if let ModalType::UpdatePanelName(index) = modal_type() {
         popup
             .open(rsx! {
                 UpdatePanelNameModal {
                     lang: props.lang,
+                    update_panel_click: move |name: String| {
+                        tracing::debug!("update panel clicked: {index} {name}");
+                    },
+                    initial_value: panels[index].name.clone(),
                     onclose: move |_| {
                         popup.close();
                     },
@@ -386,9 +401,14 @@ pub fn PanelList(
 }
 
 #[component]
-pub fn UpdateAttributeNameModal(lang: Language, onclose: EventHandler<MouseEvent>) -> Element {
+pub fn UpdateAttributeNameModal(
+    lang: Language,
+    update_attribute_click: EventHandler<String>,
+    initial_value: String,
+    onclose: EventHandler<MouseEvent>,
+) -> Element {
     let translate: UpdateAttributeNameModalTranslate = translate(&lang);
-    let mut attribute_name = use_signal(|| "".to_string());
+    let mut attribute_name = use_signal(|| initial_value);
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px] mb-[40px]",
@@ -413,7 +433,13 @@ pub fn UpdateAttributeNameModal(lang: Language, onclose: EventHandler<MouseEvent
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div { class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
-                    div { class: "text-white font-bold text-[16px]", "{translate.update}" }
+                    div {
+                        class: "text-white font-bold text-[16px]",
+                        onclick: move |_| {
+                            update_attribute_click.call(attribute_name());
+                        },
+                        "{translate.update}"
+                    }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
@@ -428,9 +454,14 @@ pub fn UpdateAttributeNameModal(lang: Language, onclose: EventHandler<MouseEvent
 }
 
 #[component]
-pub fn UpdatePanelNameModal(lang: Language, onclose: EventHandler<MouseEvent>) -> Element {
+pub fn UpdatePanelNameModal(
+    lang: Language,
+    update_panel_click: EventHandler<String>,
+    initial_value: String,
+    onclose: EventHandler<MouseEvent>,
+) -> Element {
     let translate: UpdatePanelNameModalTranslate = translate(&lang);
-    let mut panel_name = use_signal(|| "".to_string());
+    let mut panel_name = use_signal(|| initial_value);
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
             div { class: "flex flex-col text-[#222222] font-normal text-[14px] gap-[5px] mb-[40px]",
@@ -453,7 +484,13 @@ pub fn UpdatePanelNameModal(lang: Language, onclose: EventHandler<MouseEvent>) -
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div { class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
-                    div { class: "text-white font-bold text-[16px]", "{translate.update}" }
+                    div {
+                        class: "text-white font-bold text-[16px]",
+                        onclick: move |_| {
+                            update_panel_click.call(panel_name());
+                        },
+                        "{translate.update}"
+                    }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
@@ -468,7 +505,11 @@ pub fn UpdatePanelNameModal(lang: Language, onclose: EventHandler<MouseEvent>) -
 }
 
 #[component]
-pub fn RemoveAttributeModal(lang: Language, onclose: EventHandler<MouseEvent>) -> Element {
+pub fn RemoveAttributeModal(
+    lang: Language,
+    remove_click: EventHandler<MouseEvent>,
+    onclose: EventHandler<MouseEvent>,
+) -> Element {
     let translate: RemoveAttributeModalTranslate = translate(&lang);
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
@@ -478,7 +519,13 @@ pub fn RemoveAttributeModal(lang: Language, onclose: EventHandler<MouseEvent>) -
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div { class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
-                    div { class: "text-white font-bold text-[16px]", "{translate.remove}" }
+                    div {
+                        class: "text-white font-bold text-[16px]",
+                        onclick: move |e: MouseEvent| {
+                            remove_click.call(e);
+                        },
+                        "{translate.remove}"
+                    }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
@@ -493,7 +540,11 @@ pub fn RemoveAttributeModal(lang: Language, onclose: EventHandler<MouseEvent>) -
 }
 
 #[component]
-pub fn RemovePanelModal(lang: Language, onclose: EventHandler<MouseEvent>) -> Element {
+pub fn RemovePanelModal(
+    lang: Language,
+    remove_click: EventHandler<MouseEvent>,
+    onclose: EventHandler<MouseEvent>,
+) -> Element {
     let translate: RemovePanelModalTranslate = translate(&lang);
     rsx! {
         div { class: "flex flex-col w-full justify-start items-start",
@@ -503,7 +554,13 @@ pub fn RemovePanelModal(lang: Language, onclose: EventHandler<MouseEvent>) -> El
             }
             div { class: "flex flex-row w-full justify-start items-start mt-[40px] gap-[20px]",
                 div { class: "flex flex-row w-[85px] h-[40px] justify-center items-center bg-[#2a60d3] rounded-md cursor-pointer",
-                    div { class: "text-white font-bold text-[16px]", "{translate.remove}" }
+                    div {
+                        class: "text-white font-bold text-[16px]",
+                        onclick: move |e: MouseEvent| {
+                            remove_click.call(e);
+                        },
+                        "{translate.remove}"
+                    }
                 }
                 div {
                     class: "flex flex-row w-[85px] h-[40px] font-semibold text-[16px] text-[#222222] justify-center items-center cursor-pointer",
