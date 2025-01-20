@@ -19,6 +19,7 @@ use crate::pages::opinions::new::page::OpinionCreatePage;
 use crate::pages::opinions::page::OpinionPage;
 use crate::pages::panels::page::PanelPage;
 use crate::pages::reset_password::ResetPasswordPage;
+use crate::pages::resources::page::ResourcePage;
 use crate::prelude::*;
 use dioxus_translate::Language;
 
@@ -57,6 +58,8 @@ pub enum Route {
             AttributePage { lang: Language },
             #[route("/panels")]
             PanelPage { lang: Language },
+            #[route("/resources")]
+            ResourcePage { lang: Language },
         #[end_layout]
 
         #[route("/")]
