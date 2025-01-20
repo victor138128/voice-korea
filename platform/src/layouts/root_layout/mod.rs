@@ -26,6 +26,8 @@ pub fn RootLayout(lang: Language) -> Element {
             "팀원 관리".to_string()
         } else if current_path.contains("/opinions") {
             "공론 관리".to_string()
+        } else if current_path.contains("/panels") {
+            "속성 & 패널 관리".to_string()
         } else {
             "프로젝트 검색".to_string()
         };

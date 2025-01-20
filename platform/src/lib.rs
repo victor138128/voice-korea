@@ -24,6 +24,7 @@ pub mod pages {
     pub mod members;
     pub mod not_found;
     pub mod opinions;
+    pub mod panels;
     pub mod reset_password;
 }
 

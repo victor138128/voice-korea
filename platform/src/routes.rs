@@ -17,6 +17,7 @@ use crate::pages::members::_id::page::MemberDetailPage;
 use crate::pages::members::page::MemberPage;
 use crate::pages::opinions::new::page::OpinionCreatePage;
 use crate::pages::opinions::page::OpinionPage;
+use crate::pages::panels::page::PanelPage;
 use crate::pages::reset_password::ResetPasswordPage;
 use crate::prelude::*;
 use dioxus_translate::Language;
@@ -54,6 +55,8 @@ pub enum Route {
             ResponseReportPage { lang: Language, survey_id: String },
             #[route("/attributes")]
             AttributePage { lang: Language },
+            #[route("/panels")]
+            PanelPage { lang: Language },
         #[end_layout]
 
         #[route("/")]

@@ -150,7 +150,7 @@ pub fn SideBar(props: SidebarProps) -> Element {
                                     id: "".to_string(),
                                     title: "속성 & 패널 관리".to_string(),
                                     is_selected: props.selected_menu == "속성 & 패널 관리",
-                                    link: Some(Route::DashboardPage {
+                                    link: Some(Route::PanelPage {
                                         lang: props.lang,
                                     }),
                                 },
