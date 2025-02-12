@@ -4,7 +4,8 @@ use models::SurveyV2;
 use num_format::{Locale, ToFormattedString};
 
 use crate::{
-    components::icons::ArrowLeft,
+    components::{icons::ArrowLeft, pi_graph::PiGraph},
+    models::pi::PiChart,
     pages::surveys::_id::{controller::Controller, i18n::SurveyResultTranslate},
     routes::Route,
     utils::time::{convert_timestamp_to_date, format_remaining_time},
@@ -50,7 +51,80 @@ pub fn SurveyResultPage(lang: Language, survey_id: i64) -> Element {
 
                 div { class: "flex flex-col gap-[20px] items-start justify-center",
                     SurveySummaryReport { lang, survey }
+                    ObjectiveResult {}
                 }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn ObjectiveResult() -> Element {
+    let progress_data = vec![
+        ("5시간 이상", 70, 727),
+        ("4~5시간", 50, 580),
+        ("3~4시간", 60, 650),
+        ("2~3시간", 30, 400),
+        ("1~2시간", 40, 450),
+    ];
+    rsx! {
+        div { class: "flex flex-row w-full h-min justify-start items-center bg-white rounded-[8px] px-[40px] py-[24px]",
+
+            div { class: "flex flex-col w-full justify-start items-start gap-[15px]",
+                {
+                    progress_data
+                        .iter()
+                        .map(|(label, percent, count)| rsx! {
+                            div { class: "flex flex-col w-full items-start justify-start gap-[5px]",
+                                span { class: "font-semibold text-[15px] leading-[22.5px] text-[#2d2d2d]", "{label}" }
+                                div { class: "flex flex-row w-full justify-start items-start gap-[20px]",
+                                    div { class: "w-full h-[25px] bg-gray-200 rounded-full overflow-hidden",
+                                        div {
+                                            class: "h-full bg-gradient-to-r from-indigo-500 to-blue-400 rounded-full transition-all",
+                                            style: "width: {percent}%;",
+                                        }
+                                    }
+                                    span { class: "w-[110px] font-semibold text-[15px] leading-[22.5px] text-[#2d2d2d]",
+                                        "{count}명"
+                                    }
+                                }
+                            }
+                        })
+                }
+            }
+            PiGraph {
+                chart_data: vec![
+                    PiChart {
+                        label: "5시간 이상".to_string(),
+                        percentage: 0.4,
+                        color: "#c6c6f5",
+                    },
+                    PiChart {
+                        label: "Label 30%".to_string(),
+                        percentage: 0.3,
+                        color: "#5041d9",
+                    },
+                    PiChart {
+                        label: "Label 10%".to_string(),
+                        percentage: 0.1,
+                        color: "#715fde",
+                    },
+                    PiChart {
+                        label: "Label 5%".to_string(),
+                        percentage: 0.05,
+                        color: "#9379e3",
+                    },
+                    PiChart {
+                        label: "Label 5%".to_string(),
+                        percentage: 0.05,
+                        color: "#b093e9",
+                    },
+                    PiChart {
+                        label: "Label 5%".to_string(),
+                        percentage: 0.05,
+                        color: "#d0b2ef",
+                    },
+                ],
             }
         }
     }

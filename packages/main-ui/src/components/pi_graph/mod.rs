@@ -5,42 +5,31 @@ use crate::models::pi::PiChart;
 #[component]
 pub fn PiGraph(chart_data: Vec<PiChart>) -> Element {
     rsx! {
-        div {
-            class: "chart-container",
-            div {
-                class: "labels rounded-lg border border-[#e7e8e8] h-min p-3",
-                {chart_data.iter().map(|segment| rsx!(
-                    div {
-                        class: "label-item",
-                        span {
-                            class: "color-box",
-                            style: "background-color: {segment.color};",
-                        }
-                        span {
-                            class: "label-text",
-                            "{segment.label} ({(segment.percentage * 100.0).round()}%)"
-                        }
+        div { class: "chart-container",
+            div { class: "chart-wrapper",
+                svg { width: "300", height: "300", view_box: "-1 -1 2 2",
+                    {
+                        chart_data
+                            .iter()
+                            .enumerate()
+                            .map(|(i, segment)| {
+                                let (start_angle, end_angle) = calculate_angles(&chart_data, i);
+                                let path = create_pie_slice_path(start_angle, end_angle);
+                                rsx! {
+                                    path { d: "{path}", fill: "{segment.color}" }
+                                }
+                            })
                     }
-                ))}
-            }
-            div {
-                class: "chart-wrapper",
-                svg {
-                    width: "300",
-                    height: "300",
-                    view_box: "-1 -1 2 2",
-                    {chart_data.iter().enumerate().map(|(i, segment)| {
-                        let (start_angle, end_angle) = calculate_angles(&chart_data, i);
-                        let path = create_pie_slice_path(start_angle, end_angle);
-                        rsx!(
-                            path {
-                                d: "{path}",
-                                fill: "{segment.color}",
-                            }
-                        )
-                    })}
                 }
-            },
+            }
+            div { class: "labels rounded-lg h-min p-3",
+                {chart_data.iter().map(|segment| rsx! {
+                    div { class: "label-item",
+                        span { class: "color-box", style: "background-color: {segment.color};" }
+                        span { class: "label-text", "{segment.label} ({(segment.percentage * 100.0).round()}%)" }
+                    }
+                })}
+            }
         }
     }
 }
