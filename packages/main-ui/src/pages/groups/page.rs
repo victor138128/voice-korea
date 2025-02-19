@@ -10,8 +10,8 @@ use dioxus_translate::translate;
 use dioxus_translate::Language;
 use i18n::GroupTranslate;
 use models::prelude::CreateGroupMember;
-use models::prelude::CreateGroupRequest;
 use models::prelude::MemberSummary;
+use models::GroupV2CreateRequest;
 
 use crate::{
     components::{
@@ -32,7 +32,7 @@ pub struct GroupPageProps {
 #[component]
 pub fn GroupPage(props: GroupPageProps) -> Element {
     let popup: PopupService = use_context();
-    let mut ctrl = Controller::init(props.lang, popup);
+    let mut ctrl = Controller::init(props.lang, popup)?;
     let mut name = use_signal(|| "".to_string());
     let mut is_focused = use_signal(|| false);
     let translates: GroupTranslate = translate(&props.lang);
@@ -43,8 +43,6 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
     let group = ctrl.get_groups();
     let groups = group.clone();
     let group_len = groups.len();
-
-    let members = ctrl.get_members();
 
     let mut member_clicked = use_signal(|| vec![]);
     let mut member_extended = use_signal(|| vec![]);
@@ -143,14 +141,14 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                     Link {
                                         to: Route::GroupDetailPage {
                                             lang: props.lang.clone(),
-                                            group_id: groups[index].group_id.clone(),
+                                            group_id: groups[index].id.to_string(),
                                         },
                                         div { class: "flex flex-row w-[310px] min-w-[310px] h-full justify-center items-center",
-                                            "{groups[index].group_name}"
+                                            "{groups[index].name}"
                                         }
                                     }
                                     div { class: "flex flex-row w-[120px] min-w-[120px] h-full justify-center items-center",
-                                        "{groups[index].member_count}"
+                                        "{groups[index].users.len()}"
                                     }
                                     div {
                                         class: "flex flex-row w-full h-full justify-center items-center cursor-pointer relative",
@@ -160,18 +158,18 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                             member_clicked.set(clicked);
                                         },
                                         if groups.len() != 0 && index < member_clicked().len()
-                                            && (!member_clicked()[index] && groups[index].member_list.len() > 0)
+                                            && (!member_clicked()[index] && groups[index].users.len() > 0)
                                         {
                                             Label {
-                                                label_name: if groups[index].member_list[0].clone().name != "" { groups[index].member_list[0].clone().name } else { groups[index].member_list[0].clone().email },
+                                                label_name: groups[index].users[0].clone().email,
                                                 label_color: "bg-[#35343f]",
                                                 onremove: {
-                                                    let member = groups[index].member_list[0].clone();
+                                                    let member = groups[index].users[0].clone();
                                                     let group = groups[index].clone();
                                                     move |e: Event<MouseData>| {
                                                         e.stop_propagation();
                                                         e.prevent_default();
-                                                        let group_id = group.group_id.clone();
+                                                        let group_id = group.id.clone();
                                                         let member_id = member.id.clone();
                                                         async move {
                                                             ctrl.remove_group_member(group_id, member_id).await;
@@ -184,9 +182,9 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                                 div { class: "flex flex-row w-full h-full",
                                                     div { class: "flex flex-row w-full justify-center items-center",
                                                         div { class: "inline-flex flex-wrap justify-center items-center gap-[10px] mr-[20px]",
-                                                            for member in groups[index].member_list.clone() {
+                                                            for member in groups[index].users.clone() {
                                                                 Label {
-                                                                    label_name: if member.name != "" { member.clone().name } else { member.clone().email },
+                                                                    label_name: member.clone().email,
                                                                     label_color: "bg-[#35343f]",
                                                                     onremove: {
                                                                         let member = member.clone();
@@ -194,7 +192,7 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                                                         move |e: Event<MouseData>| {
                                                                             e.stop_propagation();
                                                                             e.prevent_default();
-                                                                            let group_id = group.group_id.clone();
+                                                                            let group_id = group.id.clone();
                                                                             let member_id = member.id.clone();
                                                                             async move {
                                                                                 ctrl.remove_group_member(group_id, member_id).await;
@@ -241,9 +239,9 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                                                 "{translates.team_member}"
                                                             }
                                                             div { class: "inline-flex flex-wrap justify-start items-start gap-[10px] mr-[20px]",
-                                                                for member in groups[index].member_list.clone() {
+                                                                for member in groups[index].users.clone() {
                                                                     Label {
-                                                                        label_name: if member.name != "" { member.clone().name } else { member.clone().email },
+                                                                        label_name: member.clone().email,
                                                                         label_color: "bg-[#35343f]",
                                                                         onremove: {
                                                                             let member = member.clone();
@@ -251,7 +249,7 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                                                             move |e: Event<MouseData>| {
                                                                                 e.stop_propagation();
                                                                                 e.prevent_default();
-                                                                                let group_id = group.group_id.clone();
+                                                                                let group_id = group.id.clone();
                                                                                 let member_id = member.id.clone();
                                                                                 async move {
                                                                                     ctrl.remove_group_member(group_id, member_id).await;
@@ -288,38 +286,38 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                                                     }
                                                                 }
 
-                                                                for (j , mem) in members.clone().iter().enumerate() {
-                                                                    if !groups[index].member_list.iter().any(|m| m.id == mem.member.id.to_string()) {
-                                                                        button {
-                                                                            class: "flex flex-col w-full justify-start items-start px-[12px] py-[10px] hover:bg-[#f7f7f7] hover:border-l-2 hover:border-[#2a60d3]",
-                                                                            onclick: {
-                                                                                let members = members.clone();
-                                                                                let groups = groups.clone();
-                                                                                move |_| {
-                                                                                    let group_id = groups[index].group_id.clone();
-                                                                                    let name = members[j].member.name.clone();
-                                                                                    let email = members[j].email.clone();
-                                                                                    async move {
-                                                                                        ctrl.invite_team_member(group_id, email, Some(name)).await;
-                                                                                        let mut extended = member_add_extended.clone()();
-                                                                                        extended[index] = false;
-                                                                                        member_add_extended.set(extended);
-                                                                                    }
-                                                                                }
-                                                                            },
-                                                                            div { class: "font-bold text-[#222222] text-[15px] mb-[5px]",
-                                                                                if mem.member.name == "" {
-                                                                                    "{mem.email}"
-                                                                                } else {
-                                                                                    {format!("{}", mem.member.name.clone())}
-                                                                                }
-                                                                            }
-                                                                            div { class: "font-medium text-[#222222] text-[10px]",
-                                                                                "{mem.email}"
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
+                                                            // for (j , mem) in members.clone().iter().enumerate() {
+                                                            //     if !groups[index].member_list.iter().any(|m| m.id == mem.member.id.to_string()) {
+                                                            //         button {
+                                                            //             class: "flex flex-col w-full justify-start items-start px-[12px] py-[10px] hover:bg-[#f7f7f7] hover:border-l-2 hover:border-[#2a60d3]",
+                                                            //             onclick: {
+                                                            //                 let members = members.clone();
+                                                            //                 let groups = groups.clone();
+                                                            //                 move |_| {
+                                                            //                     let group_id = groups[index].group_id.clone();
+                                                            //                     let name = members[j].member.name.clone();
+                                                            //                     let email = members[j].email.clone();
+                                                            //                     async move {
+                                                            //                         ctrl.invite_team_member(group_id, email, Some(name)).await;
+                                                            //                         let mut extended = member_add_extended.clone()();
+                                                            //                         extended[index] = false;
+                                                            //                         member_add_extended.set(extended);
+                                                            //                     }
+                                                            //                 }
+                                                            //             },
+                                                            //             div { class: "font-bold text-[#222222] text-[15px] mb-[5px]",
+                                                            //                 if mem.member.name == "" {
+                                                            //                     "{mem.email}"
+                                                            //                 } else {
+                                                            //                     {format!("{}", mem.member.name.clone())}
+                                                            //                 }
+                                                            //             }
+                                                            //             div { class: "font-medium text-[#222222] text-[10px]",
+                                                            //                 "{mem.email}"
+                                                            //             }
+                                                            //         }
+                                                            //     }
+                                                            // }
                                                             }
                                                         }
                                                     }
@@ -331,10 +329,10 @@ pub fn GroupPage(props: GroupPageProps) -> Element {
                                         div { class: "group relative",
                                             button {
                                                 onclick: {
-                                                    let group_id = groups[index].group_id.clone();
-                                                    let group_name = groups[index].group_name.clone();
+                                                    let group_id = groups[index].id.clone();
+                                                    let group_name = groups[index].name.clone();
                                                     move |_| {
-                                                        clicked_group_id.set(group_id.clone());
+                                                        clicked_group_id.set(group_id.to_string());
                                                         clicked_group_name.set(group_name.clone());
                                                     }
                                                 },
@@ -484,7 +482,7 @@ pub fn CreateGroupModal(
     lang: Language,
     members: Vec<MemberSummary>,
     onclose: EventHandler<MouseEvent>,
-    oncreate: EventHandler<CreateGroupRequest>,
+    oncreate: EventHandler<GroupV2CreateRequest>,
 ) -> Element {
     let i18n: CreateGroupModalTranslate = translate(&lang);
     let mut group_name = use_signal(|| "".to_string());
@@ -636,11 +634,9 @@ pub fn CreateGroupModal(
                     //FIXME: add members, projects content
                     onclick: move |_| async move {
                         oncreate
-                            .call(CreateGroupRequest {
+                            .call(GroupV2CreateRequest {
                                 name: group_name(),
-                                members: added_members(),
-                                public_opinion_projects: vec![],
-                                investigation_projects: vec![],
+                                users: vec![],
                             });
                     },
                     Folder { width: "24", height: "24" }

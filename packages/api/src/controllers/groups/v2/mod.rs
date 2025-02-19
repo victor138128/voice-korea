@@ -147,7 +147,15 @@ impl GroupControllerV2 {
         org_id: i64,
         q: GroupV2Query,
     ) -> Result<Json<GroupV2GetResponse>> {
-        let query = GroupV2Summary::base_sql_with("where org_id = $1 limit $2 offset $3 ");
+        // let query = GroupV2Summary::base_sql_with("where org_id = $1 limit $2 offset $3 ");
+        let query = r#"
+            SELECT COUNT(*) OVER() AS total_count, 
+                id, created_at, updated_at, org_id, name
+            FROM group_tables
+            WHERE org_id = $1
+            GROUP BY id, created_at, updated_at, org_id, name
+            LIMIT $2 OFFSET $3
+        "#;
         tracing::debug!("list_group_by_id query: {:?}", query);
 
         let mut total_count: i64 = 0;

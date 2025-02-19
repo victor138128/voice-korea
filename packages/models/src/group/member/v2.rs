@@ -9,7 +9,7 @@ use by_types::QueryResponse;
 pub struct GroupMemberV2 {
     #[api_model(summary, primary_key)]
     pub id: i64,
-    #[api_model(summary, many_to_one = groups)]
+    #[api_model(summary, many_to_one = group_tables)]
     pub group_id: i64,
     #[api_model(summary, many_to_one = users)]
     pub user_id: i64,
