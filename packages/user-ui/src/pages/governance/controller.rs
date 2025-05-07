@@ -23,12 +23,8 @@ impl Controller {
             let keyword = search_keyword().clone();
             let sorter = sorter();
 
-            tracing::debug!("hello22 {:?} {:?}", keyword, keyword.is_empty());
-
             async move {
-                tracing::debug!("hello44");
                 if keyword.is_empty() {
-                    tracing::debug!("hello33");
                     Organization::get_client(&crate::config::get().api_url)
                         .query_by_custom(OrganizationQueryBy { sorter })
                         .await
@@ -41,8 +37,6 @@ impl Controller {
                 }
             }
         })?;
-
-        tracing::debug!("hello");
 
         let ctrl = Self {
             lang,
