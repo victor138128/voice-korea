@@ -3583,7 +3583,7 @@ dependencies = [
 
 [[package]]
 name = "main-ui"
-version = "0.3.32"
+version = "0.3.33"
 dependencies = [
  "bdk",
  "by-components",
@@ -5966,7 +5966,7 @@ checksum = "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da"
 
 [[package]]
 name = "user-ui"
-version = "0.1.8"
+version = "0.1.9"
 dependencies = [
  "bdk",
  "by-components",
